@@ -41,9 +41,9 @@ export function buildOccTools(occ: OccClient, ctx: OccToolsContext): FunctionCon
     },
     set_mode: {
       description:
-        "Switch Situation Room mode: briefing (read-only), ops (control), or review.",
+        "Switch Situation Room mode: briefing (read-only), ops (control), review, or architect (ventures).",
       parameters: z.object({
-        mode: z.enum(["briefing", "ops", "review"]),
+        mode: z.enum(["briefing", "ops", "review", "architect"]),
       }),
       execute: async ({ mode }) => {
         const response = await occ.jarvisAct({

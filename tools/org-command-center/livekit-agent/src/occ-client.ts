@@ -1,4 +1,4 @@
-export type JarvisMode = "briefing" | "ops" | "review";
+export type JarvisMode = "briefing" | "ops" | "review" | "architect";
 
 export type JarvisActBody = {
   intent: string;

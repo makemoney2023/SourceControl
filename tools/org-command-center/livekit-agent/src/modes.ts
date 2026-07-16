@@ -22,7 +22,8 @@ export function applyModeFromActResult(state: ModeState, actResponse: unknown): 
   if (envelope.status !== "ok") return false;
   if (typeof envelope.result !== "object" || envelope.result === null) return false;
   const mode = (envelope.result as { mode?: JarvisMode }).mode;
-  if (mode !== "briefing" && mode !== "ops" && mode !== "review") return false;
+  if (mode !== "briefing" && mode !== "ops" && mode !== "review" && mode !== "architect")
+    return false;
   state.setMode(mode);
   return true;
 }
@@ -35,6 +36,8 @@ export function modeAck(mode: JarvisMode): string {
       return "Ops mode. Control actions available with confirmation.";
     case "review":
       return "Review mode. Spawn actions disabled.";
+    case "architect":
+      return "Architect mode. Venture create and switch available with confirmation.";
   }
 }
 

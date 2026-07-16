@@ -36,6 +36,12 @@ describe("applyModeFromActResult", () => {
     expect(applied).toBe(false);
     expect(state.getMode()).toBe("briefing");
   });
+
+  it("applyModeFromActResult accepts architect", () => {
+    const state = createModeState("briefing");
+    applyModeFromActResult(state, { status: "ok", result: { mode: "architect" } });
+    expect(state.getMode()).toBe("architect");
+  });
 });
 
 describe("modeAck", () => {
@@ -43,6 +49,10 @@ describe("modeAck", () => {
     expect(modeAck("ops")).toMatch(/ops/i);
     expect(modeAck("briefing")).toMatch(/briefing/i);
     expect(modeAck("review")).toMatch(/review/i);
+  });
+
+  it("modeAck describes architect", () => {
+    expect(modeAck("architect")).toMatch(/architect/i);
   });
 });
 
