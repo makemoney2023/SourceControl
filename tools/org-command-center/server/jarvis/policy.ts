@@ -8,6 +8,7 @@ export type JarvisPolicy = {
 
 const HARD = new Set<JarvisIntent>([
   "spawn.run_next",
+  "spawn.run",
   "run.cancel",
   "run.rewake",
   "agent.pause",

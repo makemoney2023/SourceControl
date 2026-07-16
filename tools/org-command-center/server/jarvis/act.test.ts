@@ -69,6 +69,16 @@ describe("handleJarvisAct", () => {
     expect(r.summary).toBeTruthy();
   });
 
+  it("returns needs_confirm for spawn.run in ops without token", async () => {
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "spawn.run",
+      args: { filename: "2-a.yaml" },
+      mode: "ops",
+    });
+    expect(r.status).toBe("needs_confirm");
+    expect(r.token).toBeTruthy();
+  });
+
   it("executes after valid confirm", async () => {
     const execute = vi.fn(async () => ({ runId: "run-1" }));
     setExecuteIntentForTests(execute);

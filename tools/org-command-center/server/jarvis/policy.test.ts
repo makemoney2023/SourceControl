@@ -17,6 +17,39 @@ describe("policyFor", () => {
       needsConfirm: true,
     });
   });
+  it("requires confirm for spawn.run in Ops", () => {
+    expect(policyFor("spawn.run", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
+  it("denies spawn.run in Briefing mode", () => {
+    expect(policyFor("spawn.run", "briefing").allowed).toBe(false);
+  });
+  it("allows runs.get in ops without confirm", () => {
+    expect(policyFor("runs.get", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
+  it("allows routine.list in ops without confirm", () => {
+    expect(policyFor("routine.list", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
+  it("allows handoff.list in review without confirm", () => {
+    expect(policyFor("handoff.list", "review")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
+  it("allows briefing.pin in ops without confirm", () => {
+    expect(policyFor("briefing.pin", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
   it("denies venture.create in briefing", () => {
     expect(policyFor("venture.create", "briefing").allowed).toBe(false);
   });

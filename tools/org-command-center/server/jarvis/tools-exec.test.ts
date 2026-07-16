@@ -114,6 +114,7 @@ const INTENT_COVERAGE: CoverageCase[] = [
   { intent: "seat.report", args: { slug: "ceo-strategist" } },
   { intent: "tasks.list", args: {} },
   { intent: "runs.list", args: {} },
+  { intent: "runs.get", args: { runId: "missing-run" }, expectThrow: /not found/i },
   { intent: "activity.list", args: {} },
   { intent: "alerts.list", args: {} },
   { intent: "spend.get", args: {} },
@@ -158,7 +159,38 @@ const INTENT_COVERAGE: CoverageCase[] = [
       });
     },
   },
+  {
+    intent: "routine.list",
+    args: {},
+    seed(repoRoot) {
+      writeRoutine(dispatchDir(repoRoot), {
+        id: "daily-pulse",
+        enabled: true,
+        cron: "0 9 * * *",
+        action: "enqueue",
+        phase: "2",
+        position: "head-of-research",
+        goal: "Daily pulse",
+      });
+    },
+  },
+  {
+    intent: "routine.disable",
+    args: { id: "daily-pulse" },
+    seed(repoRoot) {
+      writeRoutine(dispatchDir(repoRoot), {
+        id: "daily-pulse",
+        enabled: true,
+        cron: "0 9 * * *",
+        action: "enqueue",
+        phase: "2",
+        position: "head-of-research",
+        goal: "Daily pulse",
+      });
+    },
+  },
   { intent: "spawn.run_next", args: { apiKey: null } },
+  { intent: "spawn.run", args: { filename: "2-a.yaml", apiKey: null } },
   { intent: "run.cancel", args: { runId: "missing-run" } },
   { intent: "run.rewake", args: { apiKey: null } },
   { intent: "agent.pause", args: { slug: "head-of-research" } },
@@ -197,6 +229,8 @@ const INTENT_COVERAGE: CoverageCase[] = [
     expectThrow: /no pending confirmation/i,
   },
   { intent: "jarvis.ping", args: {} },
+  { intent: "handoff.list", args: { phase: "2" } },
+  { intent: "briefing.pin", args: { mode: "seat", slug: "ceo-strategist" } },
   { intent: "phase.list_open", args: {} },
   { intent: "digest.focus", args: { section: "blocked" } },
   { intent: "activity.tail", args: { n: 5 } },
@@ -657,6 +691,132 @@ describe("executeIntent", () => {
     expect(result.activity).toHaveLength(5);
     expect(result.activity[0]?.detail).toBe("event-11");
     expect(result.activity[4]?.detail).toBe("event-7");
+  });
+
+  it("runs.get returns run record by runId", async () => {
+    repo = tempRepo();
+    const runId = "20260716-head-of-research";
+    writeFileSync(
+      join(dispatchDir(repo), "runs", `${runId}.json`),
+      JSON.stringify({
+        runId,
+        status: "completed",
+        position: "head-of-research",
+        phase: "2",
+        claimed: "2-a.yaml",
+        dispatch_filename: "2-a.yaml",
+        wake_reason: "run_next",
+        started_at: "2026-07-16T14:00:00.000Z",
+        llm_model: "claude-sonnet-5",
+      }),
+    );
+    const result = (await executeIntent(repo, "runs.get", { runId })) as {
+      run: { runId: string; position: string };
+    };
+    expect(result.run.runId).toBe(runId);
+    expect(result.run.position).toBe("head-of-research");
+  });
+
+  it("runs.get throws when run missing", async () => {
+    repo = tempRepo();
+    await expect(executeIntent(repo, "runs.get", { runId: "missing" })).rejects.toThrow(
+      /not found/i,
+    );
+  });
+
+  it("spawn.run claims specific filename with test adapter", async () => {
+    repo = tempRepo();
+    enqueue(repo, packet, "2-a.yaml");
+    const result = (await executeIntent(repo, "spawn.run", {
+      filename: "2-a.yaml",
+      wakeReason: "on_demand",
+      apiKey: "test-key",
+      adapter: okAdapter,
+    })) as { ok: boolean; runId?: string };
+    expect(result.ok).toBe(true);
+    expect(result.runId).toBeTruthy();
+    expect(readdirSync(join(dispatchDir(repo), "runs")).length).toBe(1);
+  });
+
+  it("routine.list returns routine summaries", async () => {
+    repo = tempRepo();
+    writeRoutine(dispatchDir(repo), {
+      id: "daily-pulse",
+      enabled: true,
+      cron: "0 9 * * *",
+      action: "enqueue",
+      phase: "2",
+      position: "head-of-research",
+      goal: "Daily pulse",
+    });
+    const result = (await executeIntent(repo, "routine.list", {})) as {
+      routines: Array<{ id: string; enabled: boolean }>;
+    };
+    expect(result.routines.some((r) => r.id === "daily-pulse" && r.enabled)).toBe(true);
+  });
+
+  it("routine.disable sets enabled false", async () => {
+    repo = tempRepo();
+    writeRoutine(dispatchDir(repo), {
+      id: "daily-pulse",
+      enabled: true,
+      cron: "0 9 * * *",
+      action: "enqueue",
+      phase: "2",
+      position: "head-of-research",
+      goal: "Daily pulse",
+    });
+    const result = (await executeIntent(repo, "routine.disable", { id: "daily-pulse" })) as {
+      ok: boolean;
+      routine: { enabled: boolean };
+    };
+    expect(result.ok).toBe(true);
+    expect(result.routine.enabled).toBe(false);
+  });
+
+  it("handoff.list filters by phase", async () => {
+    repo = tempRepo();
+    writeFileSync(
+      join(repo, BIZ_IDEA, "HANDOFFS", "2-head-of-research.md"),
+      `---
+kind: manager
+phase: "2"
+position: head-of-research
+reports_to: ceo-strategist
+status: on_track
+verdict_for_manager: proceed
+verdict: proceed
+llm_tier: strong-general
+generation_profile: none
+fallback_applied: ""
+---
+
+# Handoff
+Recommendation: proceed
+`,
+    );
+    const all = (await executeIntent(repo, "handoff.list", {})) as {
+      handoffs: Array<{ phase: string }>;
+    };
+    expect(all.handoffs.length).toBeGreaterThan(0);
+
+    const phase2 = (await executeIntent(repo, "handoff.list", { phase: "2" })) as {
+      handoffs: Array<{ phase: string }>;
+    };
+    expect(phase2.handoffs.every((h) => h.phase === "2")).toBe(true);
+  });
+
+  it("briefing.pin writes standup from seat report", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "briefing.pin", {
+      mode: "seat",
+      slug: "ceo-strategist",
+    })) as { ok: boolean; path: string };
+    expect(result.ok).toBe(true);
+    expect(result.path).toMatch(/BRIEFINGS\/ceo-strategist-standup\.md$/);
+    expect(existsSync(join(repo, result.path))).toBe(true);
+    const content = readFileSync(join(repo, result.path), "utf8");
+    expect(content).toMatch(/Standup — ceo-strategist/);
   });
 });
 

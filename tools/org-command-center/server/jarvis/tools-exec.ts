@@ -1,10 +1,12 @@
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import type { ManagerPacketInput } from "../../src/lib/types";
 import type { WakeReason } from "../../src/lib/runs";
 import {
   buildCompanyDigest,
 } from "../../src/jarvis/company-digest";
+import { renderStandupBriefing } from "../../src/jarvis/briefings";
+import { CSUITE_SLUGS } from "../../src/jarvis/csuite";
 import { buildSeatReport } from "../../src/jarvis/seat-report";
 import { appendActivity } from "../activity";
 import { ackHandoffAlert } from "../alerts-fs";
@@ -13,6 +15,9 @@ import { createVenture, slugifyVentureName } from "../create-venture";
 import {
   activeProjectSlug,
   assertJarvisReadable,
+  assertWritable,
+  briefingsDir,
+  businessIdeaFile,
   dispatchRoot,
   listProjects,
   loadRegistry,
@@ -21,7 +26,8 @@ import {
 import { queueValidatedDispatch } from "../queue-validated-dispatch";
 import { cancelRun as abortRegisteredRun } from "../run-registry";
 import type { RuntimeAdapter } from "../runtime-adapter";
-import { listRoutineDefs, writeRoutine } from "../routines";
+import { readRun } from "../runs-fs";
+import { listRoutineDefs, routineSummaries, writeRoutine } from "../routines";
 import { loadSnapshot } from "../snapshot";
 import { rewakeSession, spawnClaimedManager } from "../spawn";
 import { writeCsuiteDraft } from "../write-csuite-draft";
@@ -152,6 +158,14 @@ export async function executeIntent(
     case "runs.list":
       return { runs: snap.runs };
 
+    case "runs.get": {
+      const runId = String(args.runId ?? "");
+      if (!runId) throw new JarvisExecError("runId required", "missing_arg");
+      const run = readRun(join(droot, "runs"), runId);
+      if (!run) throw new JarvisExecError(`run not found: ${runId}`, "not_found");
+      return { run };
+    }
+
     case "activity.list":
       return { activity: snap.activity };
 
@@ -187,6 +201,19 @@ export async function executeIntent(
       return { ok: true, routine: existing, path };
     }
 
+    case "routine.list":
+      return { routines: routineSummaries(droot) };
+
+    case "routine.disable": {
+      const id = String(args.id ?? "");
+      if (!id) throw new JarvisExecError("id required", "missing_arg");
+      const existing = listRoutineDefs(droot).find((r) => r.id === id);
+      if (!existing) throw new JarvisExecError(`routine not found: ${id}`, "not_found");
+      existing.enabled = false;
+      const path = writeRoutine(droot, existing);
+      return { ok: true, routine: existing, path };
+    }
+
     case "spawn.run_next":
       return spawnClaimedManager(repoRoot, {
         filename: typeof args.filename === "string" ? args.filename : undefined,
@@ -194,6 +221,22 @@ export async function executeIntent(
         apiKey: typeof args.apiKey === "string" ? args.apiKey : args.apiKey === null ? null : undefined,
         adapter: args.adapter as RuntimeAdapter | undefined,
       });
+
+    case "spawn.run": {
+      let filename = typeof args.filename === "string" ? args.filename : undefined;
+      if (!filename && args.runId != null) {
+        const run = readRun(join(droot, "runs"), String(args.runId));
+        if (!run) throw new JarvisExecError(`run not found: ${args.runId}`, "not_found");
+        filename = run.dispatch_filename;
+      }
+      if (!filename) throw new JarvisExecError("filename or runId required", "missing_arg");
+      return spawnClaimedManager(repoRoot, {
+        filename,
+        wakeReason: (args.wakeReason as WakeReason | undefined) ?? "on_demand",
+        apiKey: typeof args.apiKey === "string" ? args.apiKey : args.apiKey === null ? null : undefined,
+        adapter: args.adapter as RuntimeAdapter | undefined,
+      });
+    }
 
     case "run.cancel": {
       const runId = String(args.runId ?? "");
@@ -392,6 +435,61 @@ export async function executeIntent(
         (p) => p.status === "⬜" || p.status === "🔄",
       );
       return { phases };
+    }
+
+    case "handoff.list": {
+      const phase = args.phase != null ? String(args.phase) : undefined;
+      const handoffs = phase
+        ? snap.handoffs.filter((h) => h.phase === phase)
+        : snap.handoffs;
+      return { handoffs };
+    }
+
+    case "briefing.pin": {
+      const mode = String(args.mode ?? "seat");
+      if (mode !== "seat") {
+        throw new JarvisExecError("mode must be seat", "invalid_arg");
+      }
+      const slug = String(args.slug ?? "ceo-strategist");
+      if (!CSUITE_SLUGS.includes(slug as (typeof CSUITE_SLUGS)[number])) {
+        throw new JarvisExecError(`invalid seat for briefing: ${slug}`, "invalid_arg");
+      }
+      const report = buildSeatReport({
+        slug,
+        org: snap.org,
+        tracker: snap.tracker,
+        handoffs: snap.handoffs,
+        queueFiles: snap.queue,
+        claimedFiles: snap.claimed,
+        runs: snap.runs,
+        briefings: snap.briefings,
+        sessionFilenames: snap.sessions.map((s) => s.dispatch_filename),
+        repoRoot,
+        spendBySeat: snap.spend.bySeat,
+        models: snap.models,
+        exists: existsSync,
+      });
+      if (!report) throw new JarvisExecError(`unknown seat: ${slug}`, "unknown_seat");
+      const status =
+        report.upwardBlockers.length > 0
+          ? "blocked"
+          : report.escalations.length > 0
+            ? "at_risk"
+            : "on_track";
+      const escalationTags = report.escalations.flatMap((e) => e.tags);
+      const md = renderStandupBriefing({
+        position: slug,
+        phase_focus: String(snap.mission.currentPhase ?? ""),
+        status,
+        escalation_tags: escalationTags,
+        progress: report.summary,
+        asks: report.upwardAsks.join("\n") || "- none",
+        blockers: report.upwardBlockers.join("\n") || "- none",
+      });
+      const rel = businessIdeaFile(repoRoot, `BRIEFINGS/${slug}-standup.md`);
+      mkdirSync(briefingsDir(repoRoot), { recursive: true });
+      writeFileSync(assertWritable(repoRoot, rel), md);
+      return { ok: true, path: rel, position: slug };
     }
 
     case "digest.focus": {
