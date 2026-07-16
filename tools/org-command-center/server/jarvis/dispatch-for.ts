@@ -13,6 +13,23 @@ export type QueueForArgs = {
   phase?: string;
 };
 
+/** Resolve queue_for args so confirm tokens bind the same phase execution will use. */
+export function normalizeQueueForArgs(
+  repoRoot: string,
+  args: Record<string, unknown>,
+): Record<string, unknown> {
+  const position = String(args.position ?? "").trim();
+  const goal = String(args.goal ?? "").trim();
+  const explicitPhase = typeof args.phase === "string" ? args.phase.trim() : "";
+  if (explicitPhase) {
+    return { ...args, position, goal, phase: explicitPhase };
+  }
+  const snap = loadSnapshot(repoRoot);
+  const phase = String(snap.mission.currentPhase || "").trim();
+  if (!phase) throw new JarvisExecError("phase required", "missing_arg");
+  return { ...args, position, goal, phase };
+}
+
 export function buildQueueForPacket(repoRoot: string, args: QueueForArgs): ManagerPacketInput {
   const position = args.position?.trim();
   const goal = args.goal?.trim();

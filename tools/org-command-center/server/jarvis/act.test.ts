@@ -18,6 +18,15 @@ function tempRepo() {
     readFileSync(join(FIXTURES, "sample-org-registry.md"), "utf8"),
   );
   writeFileSync(
+    join(root, "skills/org/MODEL-REGISTRY.md"),
+    readFileSync(join(FIXTURES, "sample-model-registry.md"), "utf8"),
+  );
+  mkdirSync(join(root, BIZ_IDEA, "DISPATCH"), { recursive: true });
+  writeFileSync(
+    join(root, BIZ_IDEA, "RUNBOOK-TRACKER.md"),
+    readFileSync(join(FIXTURES, "sample-tracker.md"), "utf8"),
+  );
+  writeFileSync(
     join(root, "projects/registry.json"),
     JSON.stringify({
       active: "passive-grid",
@@ -30,7 +39,6 @@ function tempRepo() {
       },
     }),
   );
-  mkdirSync(join(root, BIZ_IDEA, "DISPATCH"), { recursive: true });
   return root;
 }
 
@@ -220,6 +228,19 @@ describe("handleJarvisAct", () => {
     expect(r.status).toBe("needs_confirm");
     expect(r.summary).toMatch(/cfo/i);
     expect(r.summary).toMatch(/phase 2/i);
+  });
+
+  it("dispatch.queue_for confirm summary resolves omitted phase from mission", async () => {
+    setExecuteIntentForTests(async () => ({ ok: true }));
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "dispatch.queue_for",
+      args: { position: "cfo", goal: "Review model" },
+      mode: "ops",
+    });
+    expect(r.status).toBe("needs_confirm");
+    expect(r.summary).toMatch(/cfo/i);
+    expect(r.summary).toMatch(/phase 2/i);
+    expect(r.summary).not.toMatch(/phase \?/i);
   });
 
   it("mode.set updates session; spawn.run_next needs confirm after ops", async () => {

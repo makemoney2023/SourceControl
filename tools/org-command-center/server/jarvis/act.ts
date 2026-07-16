@@ -1,4 +1,6 @@
 import { auditJarvis } from "./audit";
+import { normalizeQueueForArgs } from "./dispatch-for";
+import { JarvisExecError } from "./errors";
 import { parseJarvisAct, type JarvisIntent, type JarvisMode } from "./intents";
 import { policyFor } from "./policy";
 import { cancelConfirm, consumeConfirm, createConfirmToken, getRoomMode, peekConfirm } from "./session";
@@ -97,8 +99,22 @@ export async function handleJarvisAct(
 
   if (policy.needsConfirm) {
     if (!confirmToken) {
-      const token = createConfirmToken(roomId, act.intent, act.args, mode);
-      const summary = confirmSummary(act.intent, act.args);
+      let confirmArgs: Record<string, unknown> = act.args;
+      if (act.intent === "dispatch.queue_for") {
+        try {
+          confirmArgs = normalizeQueueForArgs(repoRoot, act.args);
+        } catch (err) {
+          const reason =
+            err instanceof JarvisExecError || err instanceof Error ? err.message : "Invalid request";
+          auditJarvis(
+            { roomId, type: "jarvis_error", intent: act.intent, detail: reason },
+            repoRoot,
+          );
+          return { status: "error", reason };
+        }
+      }
+      const token = createConfirmToken(roomId, act.intent, confirmArgs, mode);
+      const summary = confirmSummary(act.intent, confirmArgs);
       auditJarvis(
         {
           roomId,
