@@ -374,9 +374,13 @@ export async function executeIntent(
       if (!roomId) throw new JarvisExecError("roomId required", "missing_arg");
       const token =
         args.token != null ? String(args.token) : peekLatestConfirm(roomId)?.token;
-      if (!token) return { ok: false, error: "no pending confirm" };
+      if (!token) {
+        throw new JarvisExecError("No pending confirmation to cancel", "no_pending");
+      }
       const cancelled = cancelConfirm(roomId, token);
-      if (!cancelled) return { ok: false, error: "invalid or expired token" };
+      if (!cancelled) {
+        throw new JarvisExecError("Invalid or expired confirm token", "invalid_token");
+      }
       return { ok: true, cancelled: { intent: cancelled.intent } };
     }
 

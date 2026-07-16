@@ -308,4 +308,21 @@ describe("handleJarvisAct", () => {
     });
     expect(r.status).toBe("denied");
   });
+
+  it("session.cancel_pending errors when nothing to cancel in ops", async () => {
+    setExecuteIntentForTests(undefined);
+    await handleJarvisAct(repo, "room-1", {
+      intent: "mode.set",
+      args: { mode: "ops" },
+    });
+
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "session.cancel_pending",
+      args: {},
+      mode: "ops",
+    });
+    expect(r.status).toBe("error");
+    expect(r.reason).toMatch(/no pending confirmation/i);
+    expect(r.summary).toBeUndefined();
+  });
 });

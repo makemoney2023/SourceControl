@@ -191,7 +191,11 @@ const INTENT_COVERAGE: CoverageCase[] = [
   },
   { intent: "session.help", args: {} },
   { intent: "session.repeat", args: { roomId: "coverage-room" }, expectThrow: /nothing to repeat/i },
-  { intent: "session.cancel_pending", args: { roomId: "coverage-room" } },
+  {
+    intent: "session.cancel_pending",
+    args: { roomId: "coverage-room" },
+    expectThrow: /no pending confirmation/i,
+  },
   { intent: "jarvis.ping", args: {} },
   { intent: "phase.list_open", args: {} },
   { intent: "digest.focus", args: { section: "blocked" } },
@@ -580,6 +584,29 @@ describe("executeIntent", () => {
     expect(result.ok).toBe(true);
     expect(result.cancelled?.intent).toBe("spawn.run_next");
     expect(peekLatestConfirm("latest-room")).toBeNull();
+  });
+
+  it("session.cancel_pending throws when no pending confirmation", async () => {
+    repo = tempRepo();
+    await expect(
+      executeIntent(repo, "session.cancel_pending", { roomId: "empty-room" }),
+    ).rejects.toMatchObject({
+      message: "No pending confirmation to cancel",
+      code: "no_pending",
+    });
+  });
+
+  it("session.cancel_pending throws for invalid token", async () => {
+    repo = tempRepo();
+    await expect(
+      executeIntent(repo, "session.cancel_pending", {
+        roomId: "bad-token-room",
+        token: "not-a-real-token",
+      }),
+    ).rejects.toMatchObject({
+      message: "Invalid or expired confirm token",
+      code: "invalid_token",
+    });
   });
 
   it("jarvis.ping returns ok and ISO time", async () => {
