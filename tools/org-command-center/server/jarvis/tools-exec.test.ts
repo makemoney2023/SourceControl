@@ -19,6 +19,8 @@ import { handleJarvisAct, handleJarvisConfirm } from "./act";
 import { resetSessionForTests } from "./session";
 import { buildJarvisContext } from "./briefing";
 import { executeIntent } from "./tools-exec";
+import { readActivityTail } from "../activity";
+import { dispatchRoot } from "../paths";
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "../../src/lib/fixtures");
 const BIZ_IDEA = "docs/projects/passive-grid/business-idea";
@@ -131,6 +133,27 @@ describe("executeIntent", () => {
     expect(result.report.slug).toBe("ceo-strategist");
   });
 
+  it("read intents append jarvis.focus activity", async () => {
+    repo = tempRepo();
+    const droot = dispatchRoot(repo);
+
+    await executeIntent(repo, "mission.get", {});
+    let activity = readActivityTail(droot, 5);
+    expect(activity[0]).toMatchObject({ type: "jarvis.focus", phase: "2" });
+
+    await executeIntent(repo, "seat.report", { slug: "ceo-strategist" });
+    activity = readActivityTail(droot, 5);
+    expect(activity[0]).toMatchObject({
+      type: "jarvis.focus",
+      slug: "ceo-strategist",
+    });
+
+    await executeIntent(repo, "digest.get", {});
+    activity = readActivityTail(droot, 5);
+    expect(activity[0]).toMatchObject({ type: "jarvis.focus" });
+    expect(activity[0].slug).toBeUndefined();
+  });
+
   it("dispatch.queue validates manager-only rules", async () => {
     repo = tempRepo();
     await expect(
@@ -222,14 +245,19 @@ describe("executeIntent", () => {
     await expect(executeIntent(repo, "file.read", {})).rejects.toThrow(/path required/i);
   });
 
-  it("mode.set returns not-implemented stub", async () => {
+  it("mode.set updates room mode in session", async () => {
     repo = tempRepo();
-    const result = (await executeIntent(repo, "mode.set", { mode: "ops" })) as {
-      stub: boolean;
-      code: string;
-    };
-    expect(result.stub).toBe(true);
-    expect(result.code).toBe("not_implemented");
+    const { getRoomMode } = await import("./session");
+    expect(getRoomMode("room-1")).toBe("briefing");
+
+    const result = (await executeIntent(repo, "mode.set", {
+      mode: "ops",
+      roomId: "room-1",
+    })) as { ok: boolean; mode: string; previous: string };
+    expect(result.ok).toBe(true);
+    expect(result.mode).toBe("ops");
+    expect(result.previous).toBe("briefing");
+    expect(getRoomMode("room-1")).toBe("ops");
   });
 });
 

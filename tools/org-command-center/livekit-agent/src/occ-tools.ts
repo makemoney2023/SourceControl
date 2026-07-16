@@ -1,6 +1,11 @@
 import type { FunctionContext } from "@livekit/agents";
 import { z } from "zod";
 import {
+  applyModeFromActResult,
+  summarizeSetMode,
+  type ModeState,
+} from "./modes.js";
+import {
   createOccClient,
   summarizeForSpeech,
   type JarvisMode,
@@ -8,7 +13,7 @@ import {
 } from "./occ-client.js";
 
 export type OccToolsContext = {
-  getMode: () => JarvisMode;
+  modeState: ModeState;
   roomId: string;
 };
 
@@ -28,10 +33,27 @@ export function buildOccTools(occ: OccClient, ctx: OccToolsContext): FunctionCon
             intent,
             args: args ?? {},
             confirmToken,
-            mode: ctx.getMode(),
+            mode: ctx.modeState.getMode(),
             roomId: ctx.roomId,
           }),
         ),
+    },
+    set_mode: {
+      description:
+        "Switch Situation Room mode: briefing (read-only), ops (control), or review.",
+      parameters: z.object({
+        mode: z.enum(["briefing", "ops", "review"]),
+      }),
+      execute: async ({ mode }) => {
+        const response = await occ.jarvisAct({
+          intent: "mode.set",
+          args: { mode },
+          mode: ctx.modeState.getMode(),
+          roomId: ctx.roomId,
+        });
+        applyModeFromActResult(ctx.modeState, response);
+        return summarizeSetMode(response, mode as JarvisMode);
+      },
     },
     jarvis_confirm: {
       description:

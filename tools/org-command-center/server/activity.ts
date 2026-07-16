@@ -13,7 +13,8 @@ export type ActivityEventType =
   | "budget_exhausted"
   | "rewake_started"
   | "routine_fired"
-  | "cost_recorded";
+  | "cost_recorded"
+  | "jarvis.focus";
 
 export interface ActivityEvent {
   at: string;
@@ -21,6 +22,8 @@ export interface ActivityEvent {
   runId?: string;
   position?: string;
   detail?: string;
+  phase?: string;
+  slug?: string;
 }
 
 export function activityPath(dispatchRoot: string) {
@@ -36,6 +39,8 @@ export function appendActivity(dispatchRoot: string, event: Omit<ActivityEvent, 
     runId: event.runId,
     position: event.position,
     detail: event.detail,
+    phase: event.phase,
+    slug: event.slug,
   };
   appendFileSync(path, `${JSON.stringify(row)}\n`, "utf8");
 }

@@ -4,6 +4,8 @@ export interface ActivityLineInput {
   runId?: string;
   position?: string;
   detail?: string;
+  phase?: string;
+  slug?: string;
 }
 
 export function formatActivityLine(ev: ActivityLineInput): string {

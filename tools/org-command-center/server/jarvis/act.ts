@@ -1,7 +1,7 @@
 import { auditJarvis } from "./audit";
 import { parseJarvisAct, type JarvisIntent, type JarvisMode } from "./intents";
 import { policyFor } from "./policy";
-import { cancelConfirm, consumeConfirm, createConfirmToken, peekConfirm } from "./session";
+import { cancelConfirm, consumeConfirm, createConfirmToken, getRoomMode, peekConfirm } from "./session";
 import { executeIntent as executeIntentProd } from "./tools-exec";
 
 export type JarvisActResult = {
@@ -39,10 +39,10 @@ function confirmSummary(intent: JarvisIntent): string {
   return `Confirm ${intent.replace(/\./g, " ")}?`;
 }
 
-function parseMode(body: Record<string, unknown>): JarvisMode {
-  const mode = body.mode;
+function resolveMode(raw: Record<string, unknown>, roomId: string): JarvisMode {
+  const mode = raw.mode;
   if (mode === "briefing" || mode === "ops" || mode === "review") return mode;
-  return "briefing";
+  return getRoomMode(roomId);
 }
 
 export async function handleJarvisAct(
@@ -60,7 +60,7 @@ export async function handleJarvisAct(
   }
 
   const raw = (typeof body === "object" && body !== null ? body : {}) as Record<string, unknown>;
-  const mode = parseMode(raw);
+  const mode = resolveMode(raw, roomId);
   const confirmToken = typeof raw.confirmToken === "string" ? raw.confirmToken : undefined;
 
   const policy = policyFor(act.intent, mode);
@@ -76,11 +76,11 @@ export async function handleJarvisAct(
     return { status: "denied", reason: policy.reason };
   }
 
-  let execArgs: Record<string, unknown> = act.args;
+  let execArgs: Record<string, unknown> = { ...act.args, roomId };
 
   if (policy.needsConfirm) {
     if (!confirmToken) {
-      const token = createConfirmToken(roomId, act.intent, act.args);
+      const token = createConfirmToken(roomId, act.intent, act.args, mode);
       const summary = confirmSummary(act.intent);
       auditJarvis({
         roomId,
@@ -105,8 +105,8 @@ export async function handleJarvisAct(
     auditJarvis({ roomId, type: "jarvis_confirm", intent: act.intent });
     execArgs =
       typeof pending.args === "object" && pending.args !== null && !Array.isArray(pending.args)
-        ? (pending.args as Record<string, unknown>)
-        : {};
+        ? { ...(pending.args as Record<string, unknown>), roomId }
+        : { roomId };
   }
 
   try {
@@ -155,6 +155,6 @@ export async function handleJarvisConfirm(
     intent: pending.intent,
     args: pending.args,
     confirmToken: token,
-    mode: "ops",
+    mode: pending.mode,
   });
 }

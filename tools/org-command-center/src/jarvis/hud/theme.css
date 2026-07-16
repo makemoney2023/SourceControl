@@ -169,6 +169,11 @@
   background: rgba(63, 212, 190, 0.14);
 }
 
+[data-theme="jarvis"] .j-glass[data-jarvis-focus="true"] {
+  border-color: var(--j-accent);
+  box-shadow: 0 0 20px rgba(63, 212, 190, 0.22);
+}
+
 [data-theme="jarvis"] .j-shell {
   display: grid;
   grid-template-rows: auto auto 1fr;

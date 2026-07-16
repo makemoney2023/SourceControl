@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ackAlert,
   cancelRun,
@@ -33,6 +33,8 @@ import "./hud/theme.css";
 import { OrgTheater } from "./scene/OrgTheater";
 import type { SeatNextAction, SeatReport } from "./seat-report";
 import { requestTalkConnect, VoiceFab } from "./VoiceFab";
+import { JarvisFocusListener } from "./JarvisFocusListener";
+import type { JarvisFocus } from "./jarvis-focus";
 
 type Drawer =
   | null
@@ -71,6 +73,21 @@ export function SituationRoom() {
   const [newVentureName, setNewVentureName] = useState("");
   const [newVentureSlug, setNewVentureSlug] = useState("");
   const [creatingVenture, setCreatingVenture] = useState(false);
+  const [jarvisFocus, setJarvisFocus] = useState<JarvisFocus | null>(null);
+  const seatCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const onJarvisFocus = useCallback((focus: JarvisFocus | null) => {
+    setJarvisFocus(focus);
+    if (focus?.slug) {
+      setSelectedSlug(focus.slug);
+      requestAnimationFrame(() => {
+        seatCardRefs.current[focus.slug!]?.scrollIntoView({
+          block: "nearest",
+          behavior: "smooth",
+        });
+      });
+    }
+  }, []);
 
   const reload = useCallback(async () => {
     try {
@@ -353,8 +370,13 @@ export function SituationRoom() {
 
   return (
     <div data-theme="jarvis" className="j-shell" style={{ gridTemplateRows: "auto auto 1fr" }}>
+      <JarvisFocusListener onFocus={onJarvisFocus} />
       {/* Mission strip */}
-      <header className="j-glass" style={{ padding: 16 }}>
+      <header
+        className="j-glass"
+        data-jarvis-focus={jarvisFocus && !jarvisFocus.slug ? "true" : undefined}
+        style={{ padding: 16 }}
+      >
         <div style={{ display: "flex", flexWrap: "wrap", gap: 16, justifyItems: "flex-start" }}>
           <div style={{ flex: "1 1 280px" }}>
             <p className="j-title">Situation Room</p>
@@ -645,20 +667,27 @@ export function SituationRoom() {
           <p className="j-title">C-Suite</p>
           <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
             {snap.csuite.map((card) => (
-              <CSuiteCardView
+              <div
                 key={card.slug}
-                card={card}
-                selected={selectedSlug === card.slug}
-                paused={Boolean(snap.agentStates?.[card.slug]?.paused)}
-                onOpen={() => setSelectedSlug(card.slug)}
-                onReport={() => void openReport(card.slug)}
-                onTogglePause={() =>
-                  void onTogglePause(
-                    card.slug,
-                    Boolean(snap.agentStates?.[card.slug]?.paused),
-                  )
-                }
-              />
+                ref={(el) => {
+                  seatCardRefs.current[card.slug] = el;
+                }}
+              >
+                <CSuiteCardView
+                  card={card}
+                  selected={selectedSlug === card.slug}
+                  jarvisFocused={jarvisFocus?.slug === card.slug}
+                  paused={Boolean(snap.agentStates?.[card.slug]?.paused)}
+                  onOpen={() => setSelectedSlug(card.slug)}
+                  onReport={() => void openReport(card.slug)}
+                  onTogglePause={() =>
+                    void onTogglePause(
+                      card.slug,
+                      Boolean(snap.agentStates?.[card.slug]?.paused),
+                    )
+                  }
+                />
+              </div>
             ))}
           </div>
         </section>
@@ -1285,6 +1314,7 @@ function toneFor(status: string): "ok" | "warn" | "danger" | undefined {
 function CSuiteCardView({
   card,
   selected,
+  jarvisFocused,
   paused,
   onOpen,
   onReport,
@@ -1292,6 +1322,7 @@ function CSuiteCardView({
 }: {
   card: CSuiteCard;
   selected: boolean;
+  jarvisFocused?: boolean;
   paused: boolean;
   onOpen: () => void;
   onReport: () => void;
@@ -1301,9 +1332,10 @@ function CSuiteCardView({
     <div
       className="j-glass"
       data-selected={selected}
+      data-jarvis-focus={jarvisFocused ? "true" : undefined}
       style={{
         padding: 10,
-        borderColor: selected ? "var(--j-accent)" : undefined,
+        borderColor: selected || jarvisFocused ? "var(--j-accent)" : undefined,
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>

@@ -116,7 +116,15 @@ export interface SituationSnapshot {
   claimed: string[];
   runs?: RunRecord[];
   agentStates?: Record<string, { paused: boolean; updated_at?: string; budget_usd?: number | null }>;
-  activity?: { at: string; type: string; runId?: string; position?: string; detail?: string }[];
+  activity?: {
+    at: string;
+    type: string;
+    runId?: string;
+    position?: string;
+    detail?: string;
+    phase?: string;
+    slug?: string;
+  }[];
   spend?: {
     bySeat: Record<string, { tokens: number; cost_usd: number; updated_at: string }>;
     byDay: Record<string, { tokens: number; cost_usd: number }>;

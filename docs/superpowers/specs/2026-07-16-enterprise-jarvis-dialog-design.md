@@ -1,7 +1,7 @@
 # Design: Enterprise Jarvis Dialog (open source)
 
 **Date:** 2026-07-16  
-**Status:** Wave A implemented (working tree; Waves B–D pending)  
+**Status:** Waves A–B implemented (C–D pending)  
 **App:** `tools/org-command-center/` + `livekit-agent/`  
 **Plan:** `docs/superpowers/plans/2026-07-16-enterprise-jarvis-dialog.md`  
 **Extends:** OCC design v3.4 (LiveKit voice) + Kokoro TTS design

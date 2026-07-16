@@ -66,7 +66,10 @@ describe("handleJarvisAct", () => {
       confirmToken: first.token,
     });
     expect(second.status).toBe("ok");
-    expect(execute).toHaveBeenCalledWith(repo, "spawn.run_next", pendingArgs);
+    expect(execute).toHaveBeenCalledWith(repo, "spawn.run_next", {
+      seat: "research",
+      roomId: "room-1",
+    });
   });
 
   it("denies spawn.run_next in briefing mode", async () => {
@@ -160,5 +163,29 @@ describe("handleJarvisAct", () => {
     });
     const events = getAuditEvents();
     expect(events.some((e) => e.type === "jarvis_confirm_pending")).toBe(true);
+  });
+
+  it("mode.set updates session; spawn.run_next needs confirm after ops", async () => {
+    setExecuteIntentForTests(undefined);
+
+    const denied = await handleJarvisAct(repo, "room-1", {
+      intent: "spawn.run_next",
+      args: {},
+    });
+    expect(denied.status).toBe("denied");
+
+    const modeSet = await handleJarvisAct(repo, "room-1", {
+      intent: "mode.set",
+      args: { mode: "ops" },
+    });
+    expect(modeSet.status).toBe("ok");
+    expect((modeSet.result as { mode: string }).mode).toBe("ops");
+
+    const spawn = await handleJarvisAct(repo, "room-1", {
+      intent: "spawn.run_next",
+      args: {},
+    });
+    expect(spawn.status).toBe("needs_confirm");
+    expect(spawn.token).toBeTruthy();
   });
 });

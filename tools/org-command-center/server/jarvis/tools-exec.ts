@@ -20,7 +20,8 @@ import { listRoutineDefs, writeRoutine } from "../routines";
 import { loadSnapshot } from "../snapshot";
 import { rewakeSession, spawnClaimedManager } from "../spawn";
 import { writeCsuiteDraft } from "../write-csuite-draft";
-import type { JarvisIntent } from "./intents";
+import type { JarvisIntent, JarvisMode } from "./intents";
+import { getRoomMode, setRoomMode } from "./session";
 
 export class JarvisExecError extends Error {
   constructor(
@@ -41,19 +42,42 @@ function assertExecOk<T extends { ok: boolean }>(
   }
 }
 
+function emitJarvisFocus(
+  droot: string,
+  focus: { phase?: string; slug?: string },
+) {
+  appendActivity(droot, { type: "jarvis.focus", phase: focus.phase, slug: focus.slug });
+}
+
 export async function executeIntent(
   repoRoot: string,
   intent: JarvisIntent,
   args: Record<string, unknown>,
 ): Promise<unknown> {
+  if (intent === "mode.set") {
+    const roomId = String(args.roomId ?? "");
+    if (!roomId) throw new JarvisExecError("roomId required", "missing_arg");
+    const next = args.mode;
+    if (next !== "briefing" && next !== "ops" && next !== "review") {
+      throw new JarvisExecError("mode must be briefing, ops, or review", "invalid_arg");
+    }
+    const previous = getRoomMode(roomId);
+    setRoomMode(roomId, next);
+    return { ok: true, mode: next, previous };
+  }
+
   const snap = loadSnapshot(repoRoot);
   const droot = dispatchRoot(repoRoot);
 
   switch (intent) {
-    case "mission.get":
+    case "mission.get": {
+      const phase = String(snap.mission.currentPhase ?? "");
+      emitJarvisFocus(droot, { phase: phase || undefined });
       return { mission: snap.mission };
+    }
 
-    case "digest.get":
+    case "digest.get": {
+      emitJarvisFocus(droot, {});
       return {
         digest: buildCompanyDigest({
           org: snap.org,
@@ -69,6 +93,7 @@ export async function executeIntent(
           models: snap.models,
         }),
       };
+    }
 
     case "seat.report": {
       const slug = String(args.slug ?? "ceo-strategist");
@@ -88,6 +113,7 @@ export async function executeIntent(
         exists: existsSync,
       });
       if (!report) throw new JarvisExecError(`unknown seat: ${slug}`, "unknown_seat");
+      emitJarvisFocus(droot, { slug });
       return { report };
     }
 
@@ -201,14 +227,6 @@ export async function executeIntent(
       }
       return { type: "file", path: rel, content: readFileSync(abs, "utf8") };
     }
-
-    case "mode.set":
-      return {
-        ok: false,
-        stub: true,
-        code: "not_implemented",
-        message: "mode.set is handled by the act request body, not executeIntent",
-      };
 
     default:
       throw new JarvisExecError(`executeIntent not wired for ${intent}`);

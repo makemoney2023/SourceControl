@@ -579,7 +579,15 @@ export function createApi(repoRoot = resolveRepoRoot()) {
   app.post("/api/jarvis/act", async (c) => {
     const body = await c.req.json();
     const roomId = String((body as { roomId?: string }).roomId || "default");
-    return c.json(await handleJarvisAct(repoRoot, roomId, body));
+    const result = await handleJarvisAct(repoRoot, roomId, body);
+    const intent = String((body as { intent?: string }).intent ?? "");
+    if (
+      result.status === "ok" &&
+      (intent === "mission.get" || intent === "seat.report" || intent === "digest.get")
+    ) {
+      bump += 1;
+    }
+    return c.json(result);
   });
 
   app.get("/api/jarvis/context", (c) => c.json(buildJarvisContext(repoRoot)));
