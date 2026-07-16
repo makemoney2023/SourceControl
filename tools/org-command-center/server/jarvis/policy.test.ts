@@ -17,4 +17,25 @@ describe("policyFor", () => {
       needsConfirm: true,
     });
   });
+  it("denies venture.create in briefing", () => {
+    expect(policyFor("venture.create", "briefing").allowed).toBe(false);
+  });
+  it("denies venture.create in ops", () => {
+    expect(policyFor("venture.create", "ops").allowed).toBe(false);
+  });
+  it("allows venture.create in architect with confirm", () => {
+    expect(policyFor("venture.create", "architect")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
+  it("allows venture.list in briefing without confirm", () => {
+    expect(policyFor("venture.list", "briefing")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
+  it("requires confirm for venture.switch in architect", () => {
+    expect(policyFor("venture.switch", "architect").needsConfirm).toBe(true);
+  });
 });

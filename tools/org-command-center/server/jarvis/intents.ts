@@ -20,10 +20,15 @@ export const JARVIS_INTENTS = [
   "agent.resume",
   "csuite.draft",
   "mode.set",
+  "venture.list",
+  "venture.get",
+  "venture.slugify",
+  "venture.create",
+  "venture.switch",
 ] as const;
 
 export type JarvisIntent = (typeof JARVIS_INTENTS)[number];
-export type JarvisMode = "briefing" | "ops" | "review";
+export type JarvisMode = "briefing" | "ops" | "review" | "architect";
 
 const jarvisActSchema = z.object({
   intent: z.enum(JARVIS_INTENTS, { error: "Unknown intent" }),
