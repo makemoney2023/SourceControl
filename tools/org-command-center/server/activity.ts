@@ -14,7 +14,10 @@ export type ActivityEventType =
   | "rewake_started"
   | "routine_fired"
   | "cost_recorded"
-  | "jarvis.focus";
+  | "jarvis.focus"
+  | "jarvis_act"
+  | "jarvis_confirm"
+  | "jarvis_denied";
 
 export interface ActivityEvent {
   at: string;

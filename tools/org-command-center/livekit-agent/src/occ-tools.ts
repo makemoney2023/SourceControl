@@ -8,6 +8,7 @@ import {
 import {
   createOccClient,
   summarizeForSpeech,
+  summarizeJarvisSpeech,
   type JarvisMode,
   type OccClient,
 } from "./occ-client.js";
@@ -28,7 +29,7 @@ export function buildOccTools(occ: OccClient, ctx: OccToolsContext): FunctionCon
         confirmToken: z.string().optional(),
       }),
       execute: async ({ intent, args, confirmToken }) =>
-        summarizeForSpeech(
+        summarizeJarvisSpeech(
           await occ.jarvisAct({
             intent,
             args: args ?? {},
@@ -63,7 +64,7 @@ export function buildOccTools(occ: OccClient, ctx: OccToolsContext): FunctionCon
         accept: z.boolean(),
       }),
       execute: async ({ token, accept }) =>
-        summarizeForSpeech(
+        summarizeJarvisSpeech(
           await occ.jarvisConfirm({ roomId: ctx.roomId, token, accept }),
         ),
     },

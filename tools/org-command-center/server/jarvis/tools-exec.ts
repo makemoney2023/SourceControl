@@ -10,7 +10,7 @@ import { appendActivity } from "../activity";
 import { ackHandoffAlert } from "../alerts-fs";
 import { setSeatPaused } from "../agent-state";
 import {
-  assertReadable,
+  assertJarvisReadable,
   dispatchRoot,
 } from "../paths";
 import { queueValidatedDispatch } from "../queue-validated-dispatch";
@@ -213,7 +213,7 @@ export async function executeIntent(
     case "file.read": {
       const rel = String(args.path ?? "");
       if (!rel) throw new JarvisExecError("path required", "missing_arg");
-      const abs = assertReadable(repoRoot, rel);
+      const abs = assertJarvisReadable(repoRoot, rel);
       if (!existsSync(abs)) throw new JarvisExecError(`not found: ${rel}`, "not_found");
       const st = statSync(abs);
       if (st.isDirectory()) {

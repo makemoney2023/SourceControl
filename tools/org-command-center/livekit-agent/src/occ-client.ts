@@ -73,6 +73,24 @@ export function createOccClient(baseUrl: string) {
 
 export type OccClient = ReturnType<typeof createOccClient>;
 
+export type JarvisActSpeechResult = {
+  status?: string;
+  reason?: string;
+  summary?: string;
+  result?: unknown;
+};
+
+export function summarizeJarvisSpeech(value: unknown, max = 600): string {
+  if (value && typeof value === "object" && "status" in value) {
+    const r = value as JarvisActSpeechResult;
+    if (r.status === "denied" && r.reason) return r.reason;
+    if (r.status === "error" && r.reason) return r.reason;
+    if (r.status === "needs_confirm" && r.summary) return r.summary;
+    if (r.status === "ok") return summarizeForSpeech(r.result ?? value, max);
+  }
+  return summarizeForSpeech(value, max);
+}
+
 export function summarizeForSpeech(value: unknown, max = 600): string {
   const s = typeof value === "string" ? value : JSON.stringify(value);
   if (s.length <= max) return s;

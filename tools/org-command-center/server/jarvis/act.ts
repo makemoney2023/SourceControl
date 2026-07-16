@@ -55,7 +55,7 @@ export async function handleJarvisAct(
     act = parseJarvisAct(body);
   } catch (err) {
     const reason = err instanceof Error ? err.message : "Invalid request";
-    auditJarvis({ roomId, type: "jarvis_error", detail: reason });
+    auditJarvis({ roomId, type: "jarvis_error", detail: reason }, repoRoot);
     return { status: "error", reason };
   }
 
@@ -64,15 +64,18 @@ export async function handleJarvisAct(
   const confirmToken = typeof raw.confirmToken === "string" ? raw.confirmToken : undefined;
 
   const policy = policyFor(act.intent, mode);
-  auditJarvis({ roomId, type: "jarvis_intent", intent: act.intent, detail: mode });
+  auditJarvis({ roomId, type: "jarvis_intent", intent: act.intent, detail: mode }, repoRoot);
 
   if (!policy.allowed) {
-    auditJarvis({
-      roomId,
-      type: "jarvis_denied",
-      intent: act.intent,
-      detail: policy.reason,
-    });
+    auditJarvis(
+      {
+        roomId,
+        type: "jarvis_denied",
+        intent: act.intent,
+        detail: policy.reason,
+      },
+      repoRoot,
+    );
     return { status: "denied", reason: policy.reason };
   }
 
@@ -82,27 +85,33 @@ export async function handleJarvisAct(
     if (!confirmToken) {
       const token = createConfirmToken(roomId, act.intent, act.args, mode);
       const summary = confirmSummary(act.intent);
-      auditJarvis({
-        roomId,
-        type: "jarvis_confirm_pending",
-        intent: act.intent,
-        detail: summary,
-      });
+      auditJarvis(
+        {
+          roomId,
+          type: "jarvis_confirm_pending",
+          intent: act.intent,
+          detail: summary,
+        },
+        repoRoot,
+      );
       return { status: "needs_confirm", token, summary };
     }
 
     const pending = consumeConfirm(roomId, confirmToken);
     if (!pending || pending.intent !== act.intent) {
-      auditJarvis({
-        roomId,
-        type: "jarvis_error",
-        intent: act.intent,
-        detail: "Invalid or expired confirm token",
-      });
+      auditJarvis(
+        {
+          roomId,
+          type: "jarvis_error",
+          intent: act.intent,
+          detail: "Invalid or expired confirm token",
+        },
+        repoRoot,
+      );
       return { status: "error", reason: "Invalid or expired confirm token" };
     }
 
-    auditJarvis({ roomId, type: "jarvis_confirm", intent: act.intent });
+    auditJarvis({ roomId, type: "jarvis_confirm", intent: act.intent }, repoRoot);
     execArgs =
       typeof pending.args === "object" && pending.args !== null && !Array.isArray(pending.args)
         ? { ...(pending.args as Record<string, unknown>), roomId }
@@ -111,11 +120,11 @@ export async function handleJarvisAct(
 
   try {
     const result = await executeIntent(repoRoot, act.intent, execArgs);
-    auditJarvis({ roomId, type: "jarvis_executed", intent: act.intent });
+    auditJarvis({ roomId, type: "jarvis_executed", intent: act.intent }, repoRoot);
     return { status: "ok", result };
   } catch (err) {
     const reason = err instanceof Error ? err.message : "Execution failed";
-    auditJarvis({ roomId, type: "jarvis_error", intent: act.intent, detail: reason });
+    auditJarvis({ roomId, type: "jarvis_error", intent: act.intent, detail: reason }, repoRoot);
     return { status: "error", reason };
   }
 }
@@ -133,21 +142,24 @@ export async function handleJarvisConfirm(
   if (accept !== true) {
     const cancelled = cancelConfirm(roomId, token);
     if (!cancelled) {
-      auditJarvis({ roomId, type: "jarvis_error", detail: "Invalid or expired confirm token" });
+      auditJarvis({ roomId, type: "jarvis_error", detail: "Invalid or expired confirm token" }, repoRoot);
       return { status: "error", reason: "Invalid or expired confirm token" };
     }
-    auditJarvis({
-      roomId,
-      type: "jarvis_denied",
-      intent: cancelled.intent,
-      detail: "confirm declined",
-    });
+    auditJarvis(
+      {
+        roomId,
+        type: "jarvis_denied",
+        intent: cancelled.intent,
+        detail: "confirm declined",
+      },
+      repoRoot,
+    );
     return { status: "denied", reason: "Confirm declined" };
   }
 
   const pending = peekConfirm(roomId, token);
   if (!pending) {
-    auditJarvis({ roomId, type: "jarvis_error", detail: "Invalid or expired confirm token" });
+    auditJarvis({ roomId, type: "jarvis_error", detail: "Invalid or expired confirm token" }, repoRoot);
     return { status: "error", reason: "Invalid or expired confirm token" };
   }
 

@@ -37,6 +37,16 @@ npm run dev                 # UI — floating mic FAB bottom-right
 | OCC | 5177 | DCP + company tools + token mint |
 | Agent worker | — | Joins rooms as `situation-room` |
 
+### Latency targets (local, warm)
+
+| Stage | Target |
+|-------|--------|
+| STT end → first audio | < 2.5s |
+| Confirm round-trip | < 1.5s |
+| Kokoro cold start | Once per boot; `mlx-tts:up` preloads via 1-word synthesis |
+
+`mlx-tts:up` starts Kokoro in the background, waits for `:3900`, POSTs a warmup to `/tmp/kokoro-warm.wav`, then keeps the server in the foreground. Preload failure logs a warning only — the server stays up.
+
 **Talk FAB:** tap to connect · tap again to mute/unmute · × to hang up. Mission strip **Talk** uses the same session. **Legacy voice** = old Web Speech + HTTP chat (`OCC_VOICE_BACKEND=legacy`).
 
 Env (defaults work for local):

@@ -1,3 +1,5 @@
+import { appendActivity } from "../activity";
+import { dispatchRoot } from "../paths";
 import type { JarvisIntent } from "./intents";
 
 export type JarvisAuditEventType =
@@ -18,13 +20,51 @@ export type JarvisAuditEvent = {
 
 const events: JarvisAuditEvent[] = [];
 
-export function auditJarvis(event: Omit<JarvisAuditEvent, "at"> & { at?: string }) {
+export type JarvisActivityType = "jarvis_act" | "jarvis_confirm" | "jarvis_denied";
+
+export function mapAuditToActivityType(type: JarvisAuditEventType): JarvisActivityType | undefined {
+  switch (type) {
+    case "jarvis_intent":
+    case "jarvis_executed":
+    case "jarvis_error":
+      return "jarvis_act";
+    case "jarvis_confirm":
+    case "jarvis_confirm_pending":
+      return "jarvis_confirm";
+    case "jarvis_denied":
+      return "jarvis_denied";
+    default:
+      return undefined;
+  }
+}
+
+function formatActivityDetail(event: Omit<JarvisAuditEvent, "at">): string {
+  const parts: string[] = [];
+  if (event.intent) parts.push(event.intent);
+  if (event.detail) parts.push(event.detail);
+  return parts.join(" — ") || event.type;
+}
+
+export function auditJarvis(
+  event: Omit<JarvisAuditEvent, "at"> & { at?: string },
+  repoRoot?: string,
+) {
   events.push({
     at: event.at ?? new Date().toISOString(),
     roomId: event.roomId,
     type: event.type,
     intent: event.intent,
     detail: event.detail,
+  });
+
+  if (!repoRoot) return;
+
+  const activityType = mapAuditToActivityType(event.type);
+  if (!activityType) return;
+
+  appendActivity(dispatchRoot(repoRoot), {
+    type: activityType,
+    detail: formatActivityDetail(event),
   });
 }
 

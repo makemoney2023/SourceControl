@@ -163,7 +163,7 @@ const INTENT_COVERAGE: CoverageCase[] = [
   { intent: "agent.pause", args: { slug: "head-of-research" } },
   { intent: "agent.resume", args: { slug: "head-of-research" } },
   { intent: "csuite.draft", args: { phase: "2" } },
-  { intent: "file.read", args: { path: "skills/org/ORG-REGISTRY.md" } },
+  { intent: "file.read", args: { path: `${BIZ_IDEA}/RUNBOOK-TRACKER.md` } },
   { intent: "mode.set", args: { mode: "ops", roomId: "coverage-room" } },
 ];
 
@@ -348,6 +348,43 @@ describe("executeIntent", () => {
   it("file.read returns structured stub error for missing path arg", async () => {
     repo = tempRepo();
     await expect(executeIntent(repo, "file.read", {})).rejects.toThrow(/path required/i);
+  });
+
+  it("file.read returns content for active venture business-idea file", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "file.read", {
+      path: `${BIZ_IDEA}/RUNBOOK-TRACKER.md`,
+    })) as { type: string; path: string; content: string };
+    expect(result.type).toBe("file");
+    expect(result.path).toBe(`${BIZ_IDEA}/RUNBOOK-TRACKER.md`);
+    expect(result.content).toMatch(/phase/i);
+  });
+
+  it("file.read returns content for HANDOFFS under active venture", async () => {
+    repo = tempRepo();
+    writeFileSync(join(repo, BIZ_IDEA, "HANDOFFS", "test.md"), "# Handoff\n");
+    const result = (await executeIntent(repo, "file.read", {
+      path: `${BIZ_IDEA}/HANDOFFS/test.md`,
+    })) as { type: string; content: string };
+    expect(result.type).toBe("file");
+    expect(result.content).toBe("# Handoff\n");
+  });
+
+  it("file.read rejects skills/org and other venture paths", async () => {
+    repo = tempRepo();
+    mkdirSync(join(repo, "docs/projects/other-venture/business-idea"), { recursive: true });
+    writeFileSync(
+      join(repo, "docs/projects/other-venture/business-idea/RUNBOOK-TRACKER.md"),
+      "# Other\n",
+    );
+    await expect(
+      executeIntent(repo, "file.read", { path: "skills/org/ORG-REGISTRY.md" }),
+    ).rejects.toThrow(/allowlist/i);
+    await expect(
+      executeIntent(repo, "file.read", {
+        path: "docs/projects/other-venture/business-idea/RUNBOOK-TRACKER.md",
+      }),
+    ).rejects.toThrow(/allowlist/i);
   });
 
   it("mode.set updates room mode in session", async () => {

@@ -1,12 +1,44 @@
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { handleJarvisAct, setExecuteIntentForTests } from "./act";
 import { getAuditEvents, resetAuditForTests } from "./audit";
 import { resetSessionForTests } from "./session";
 
-const repo = "/tmp/jarvis-test-repo";
+const BIZ_IDEA = "docs/projects/passive-grid/business-idea";
+const FIXTURES = join(import.meta.dirname, "../../src/lib/fixtures");
+
+function tempRepo() {
+  const root = mkdtempSync(join(tmpdir(), "jarvis-act-"));
+  mkdirSync(join(root, "projects"), { recursive: true });
+  mkdirSync(join(root, "skills/org"), { recursive: true });
+  writeFileSync(
+    join(root, "skills/org/ORG-REGISTRY.md"),
+    readFileSync(join(FIXTURES, "sample-org-registry.md"), "utf8"),
+  );
+  writeFileSync(
+    join(root, "projects/registry.json"),
+    JSON.stringify({
+      active: "passive-grid",
+      projects: {
+        "passive-grid": {
+          name: "Passive Grid",
+          businessIdea: BIZ_IDEA,
+          memory: "docs/projects/passive-grid/MEMORY",
+        },
+      },
+    }),
+  );
+  mkdirSync(join(root, BIZ_IDEA, "DISPATCH"), { recursive: true });
+  return root;
+}
+
+let repo: string;
 
 describe("handleJarvisAct", () => {
   beforeEach(() => {
+    repo = tempRepo();
     resetSessionForTests();
     resetAuditForTests();
     setExecuteIntentForTests(async () => ({ spawned: true }));

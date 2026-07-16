@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createOccClient, summarizeForSpeech } from "./occ-client";
+import { createOccClient, summarizeForSpeech, summarizeJarvisSpeech } from "./occ-client";
 
 describe("createOccClient", () => {
   it("getSeatReport hits /api/seat-report/:slug", async () => {
@@ -20,6 +20,34 @@ describe("createOccClient", () => {
 
   it("summarizeForSpeech truncates", () => {
     expect(summarizeForSpeech("a".repeat(10), 5)).toBe("aaaaa…");
+  });
+
+  it("summarizeJarvisSpeech returns deny reason only", () => {
+    expect(
+      summarizeJarvisSpeech({ status: "denied", reason: "Ops mode required for spawn.run_next" }),
+    ).toBe("Ops mode required for spawn.run_next");
+  });
+
+  it("summarizeJarvisSpeech returns error reason only", () => {
+    expect(
+      summarizeJarvisSpeech({ status: "error", reason: "Invalid or expired confirm token" }),
+    ).toBe("Invalid or expired confirm token");
+  });
+
+  it("summarizeJarvisSpeech returns confirm summary", () => {
+    expect(
+      summarizeJarvisSpeech({
+        status: "needs_confirm",
+        summary: "Confirm spawn run next?",
+        token: "tok-1",
+      }),
+    ).toBe("Confirm spawn run next?");
+  });
+
+  it("summarizeJarvisSpeech summarizes ok result", () => {
+    expect(summarizeJarvisSpeech({ status: "ok", result: { mission: "AWG" } })).toBe(
+      '{"mission":"AWG"}',
+    );
   });
 
   it("jarvisAct POSTs to /api/jarvis/act with body", async () => {

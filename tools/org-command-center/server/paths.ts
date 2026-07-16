@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, normalize, relative, resolve, sep } from "node:path";
+import { dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export type ProjectEntry = {
@@ -131,6 +131,26 @@ export function assertReadable(repoRoot: string, relPath: string): string {
     READ_PREFIXES.some((p) => rel === p.slice(0, -1) || rel.startsWith(p)) ||
     rel === "projects/registry.json";
   if (!ok) throw new Error(`Path not on read allowlist: ${rel}`);
+  return resolve(repoRoot, rel);
+}
+
+/** Jarvis file.read — active venture business-idea only (includes HANDOFFS, BRIEFINGS, etc.). */
+export function assertJarvisReadable(repoRoot: string, relPath: string): string {
+  if (isAbsolute(relPath)) {
+    const abs = resolve(relPath);
+    const relFromRoot = relative(repoRoot, abs);
+    if (
+      relFromRoot.startsWith("..") ||
+      relFromRoot.includes(`..${sep}`) ||
+      normalize(relFromRoot).startsWith("..")
+    ) {
+      throw new Error(`Path escapes repo root: ${relPath}`);
+    }
+  }
+  const rel = toRel(repoRoot, relPath);
+  const prefix = businessIdeaRel(repoRoot);
+  const ok = rel === prefix || rel.startsWith(`${prefix}/`);
+  if (!ok) throw new Error(`Path not on Jarvis read allowlist: ${rel}`);
   return resolve(repoRoot, rel);
 }
 
