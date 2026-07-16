@@ -5,7 +5,7 @@
 **Extends:** `2026-07-16-enterprise-jarvis-dialog-design.md` (v1 catalog = 19 intents)  
 **App:** `tools/org-command-center/server/jarvis/`  
 **Plan:** `docs/superpowers/plans/2026-07-16-jarvis-intent-catalog-v2.md`  
-**Implementation:** Waves E1–E5 — see plan (README + goldens complete in Task 10)
+**Implementation:** Waves E1–E5 — see plan (goldens complete in Task 9; README + cross-links in Task 10)
 
 ### Locked operator decisions (2026-07-16)
 
@@ -281,11 +281,9 @@ Each wave: TDD zod args → `executeIntent` → policy → goldens → README.
 4. Golden suite covers ≥ 40 utterances including venture + queue_for.  
 5. No new LiveKit tools — still ≤ 4 agent tools.
 
-## Open questions for operator
+## Resolved decisions
 
-1. Should `venture.create` auto-switch active, or require a second confirm?  
-2. May `dispatch.queue_for` target **any** manager, or only the **current phase owner** (stricter)?  
-3. Do you want `architect` as a fourth mode, or fold venture ops into `ops`?
+Operator questions are closed — see **Locked operator decisions** (above) for the three final answers on venture auto-switch, `dispatch.queue_for` scope, and the `architect` mode.
 
 ---
 
@@ -294,4 +292,4 @@ Each wave: TDD zod args → `executeIntent` → policy → goldens → README.
 - Manager-only preserved via forbidden `agent.spawn_ic` + queue_for manager check.  
 - Confirm tiers defined.  
 - Grounded in existing OCC APIs where possible; marks future APIs.  
-- Implementation deferred to waves E1–E5 after approval.
+- Implementation tracked in waves E1–E5 per plan; operator decisions locked 2026-07-16.
