@@ -165,6 +165,14 @@ const INTENT_COVERAGE: CoverageCase[] = [
   { intent: "csuite.draft", args: { phase: "2" } },
   { intent: "file.read", args: { path: `${BIZ_IDEA}/RUNBOOK-TRACKER.md` } },
   { intent: "mode.set", args: { mode: "ops", roomId: "coverage-room" } },
+  { intent: "venture.list", args: {} },
+  { intent: "venture.get", args: {} },
+  { intent: "venture.slugify", args: { name: "Solar Lantern" } },
+  {
+    intent: "venture.create",
+    args: { name: "Coverage Venture Alpha" },
+  },
+  { intent: "venture.switch", args: { slug: "passive-grid" } },
 ];
 
 describe("intent coverage checklist", () => {
@@ -400,6 +408,56 @@ describe("executeIntent", () => {
     expect(result.mode).toBe("ops");
     expect(result.previous).toBe("briefing");
     expect(getRoomMode("room-1")).toBe("ops");
+  });
+
+  it("venture.list returns projects", async () => {
+    repo = tempRepo();
+    const r = (await executeIntent(repo, "venture.list", {})) as {
+      active: string;
+      projects: { slug: string }[];
+    };
+    expect(r.projects.length).toBeGreaterThan(0);
+    expect(r.active).toBeTruthy();
+  });
+
+  it("venture.create scaffolds and activates", async () => {
+    repo = tempRepo();
+    const name = `Voice Venture ${Date.now()}`;
+    const r = (await executeIntent(repo, "venture.create", { name })) as {
+      slug: string;
+      active: string;
+    };
+    expect(r.active).toBe(r.slug);
+    const get = (await executeIntent(repo, "venture.get", {})) as { active: string };
+    expect(get.active).toBe(r.slug);
+  });
+
+  it("venture.switch changes active", async () => {
+    repo = tempRepo();
+    const a = (await executeIntent(repo, "venture.create", {
+      name: `Switch A ${Date.now()}`,
+    })) as { slug: string; active: string };
+    const b = (await executeIntent(repo, "venture.create", {
+      name: `Switch B ${Date.now()}`,
+    })) as { slug: string; active: string };
+    expect(b.active).toBe(b.slug);
+    expect(b.active).not.toBe(a.slug);
+
+    const switched = (await executeIntent(repo, "venture.switch", { slug: a.slug })) as {
+      ok: boolean;
+      active: string;
+    };
+    expect(switched.ok).toBe(true);
+    expect(switched.active).toBe(a.slug);
+
+    const get = (await executeIntent(repo, "venture.get", {})) as { active: string };
+    expect(get.active).toBe(a.slug);
+  });
+
+  it("mode.set accepts architect", async () => {
+    repo = tempRepo();
+    const r = await executeIntent(repo, "mode.set", { roomId: "r1", mode: "architect" });
+    expect(r).toMatchObject({ ok: true, mode: "architect" });
   });
 });
 

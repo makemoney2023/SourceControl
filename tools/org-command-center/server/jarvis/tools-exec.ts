@@ -9,9 +9,14 @@ import { buildSeatReport } from "../../src/jarvis/seat-report";
 import { appendActivity } from "../activity";
 import { ackHandoffAlert } from "../alerts-fs";
 import { setSeatPaused } from "../agent-state";
+import { createVenture, slugifyVentureName } from "../create-venture";
 import {
+  activeProjectSlug,
   assertJarvisReadable,
   dispatchRoot,
+  listProjects,
+  loadRegistry,
+  saveRegistry,
 } from "../paths";
 import { queueValidatedDispatch } from "../queue-validated-dispatch";
 import { cancelRun as abortRegisteredRun } from "../run-registry";
@@ -58,8 +63,8 @@ export async function executeIntent(
     const roomId = String(args.roomId ?? "");
     if (!roomId) throw new JarvisExecError("roomId required", "missing_arg");
     const next = args.mode;
-    if (next !== "briefing" && next !== "ops" && next !== "review") {
-      throw new JarvisExecError("mode must be briefing, ops, or review", "invalid_arg");
+    if (next !== "briefing" && next !== "ops" && next !== "review" && next !== "architect") {
+      throw new JarvisExecError("mode must be briefing, ops, review, or architect", "invalid_arg");
     }
     const previous = getRoomMode(roomId);
     setRoomMode(roomId, next);
@@ -229,6 +234,44 @@ export async function executeIntent(
         return { type: "dir", path: rel, entries };
       }
       return { type: "file", path: rel, content: readFileSync(abs, "utf8") };
+    }
+
+    case "venture.list": {
+      const reg = loadRegistry(repoRoot);
+      return { active: reg.active, projects: listProjects(repoRoot) };
+    }
+
+    case "venture.get": {
+      const reg = loadRegistry(repoRoot);
+      const entry = reg.projects[reg.active];
+      return {
+        active: reg.active,
+        name: entry?.name,
+        businessIdea: entry?.businessIdea,
+        memory: entry?.memory,
+      };
+    }
+
+    case "venture.slugify": {
+      const name = String(args.name ?? "");
+      return { slug: slugifyVentureName(name) };
+    }
+
+    case "venture.create": {
+      const name = String(args.name ?? "").trim();
+      if (!name) throw new JarvisExecError("name required", "missing_arg");
+      const slug = args.slug != null ? String(args.slug) : undefined;
+      return createVenture(repoRoot, { name, slug, activate: true });
+    }
+
+    case "venture.switch": {
+      const slug = String(args.slug ?? "").trim();
+      if (!slug) throw new JarvisExecError("slug required", "missing_arg");
+      const reg = loadRegistry(repoRoot);
+      if (!reg.projects[slug]) throw new JarvisExecError(`Unknown project: ${slug}`, "unknown_venture");
+      reg.active = slug;
+      saveRegistry(repoRoot, reg);
+      return { ok: true, active: activeProjectSlug(repoRoot) };
     }
 
     default:
