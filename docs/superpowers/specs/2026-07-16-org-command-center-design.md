@@ -378,9 +378,10 @@ OCC_API_BASE=http://127.0.0.1:5177
 
 ## Jarvis Dialog (v3.5)
 
-**Status:** Active (Waves A–D implemented)  
+**Status:** Active (Waves A–D implemented; **catalog v2** E1–E5 extends modes + intents)  
 **Design:** `docs/superpowers/specs/2026-07-16-enterprise-jarvis-dialog-design.md`  
 **Plan:** `docs/superpowers/plans/2026-07-16-enterprise-jarvis-dialog.md`  
+**Catalog v2:** `docs/superpowers/specs/2026-07-16-jarvis-intent-catalog-v2-design.md` — architect mode, ventures, `dispatch.queue_for`  
 **Extends:** v3.4 LiveKit transport — adds Dialogue Control Plane (DCP), modes, confirm protocol, and full control-plane voice parity.
 
 ### Dialogue Control Plane (DCP)
@@ -411,11 +412,12 @@ Inspired by LiveKit agent handoffs; mode state lives in DCP session.
 
 | Mode | Persona | Tool subset |
 |------|---------|-------------|
-| **Briefing** (default on connect) | COO on the radio | read: mission, digest, seat, tasks, runs, activity, alerts, spend |
-| **Ops** | Execution officer | Briefing + queue, run_next, cancel, rewake, pause, resume |
-| **Review** | Chief of staff | Briefing + file.read, csuite.draft, alerts |
+| **Briefing** (default on connect) | COO on the radio | read: mission, digest, seat, tasks, runs, activity, alerts, spend, `venture.list` / `venture.get` |
+| **Ops** | Execution officer | Briefing + queue, `queue_for`, run_next, cancel, rewake, pause, resume |
+| **Review** | Chief of staff | Briefing + file.read, csuite.draft, handoffs, alerts |
+| **Architect** | Venture setup | `venture.create`, `venture.switch` (confirm + auto-activate on create) |
 
-Switch: say **“switch to ops”** / **“switch to briefing”** / **“switch to review”** (intent `mode.set`). Ops-only intents are denied in Briefing.
+Switch: say **“switch to ops”** / **“switch to briefing”** / **“switch to review”** / **“switch to architect”** (intent `mode.set`). Ops-only intents are denied in Briefing; venture ops require Architect.
 
 ### Confirm protocol
 

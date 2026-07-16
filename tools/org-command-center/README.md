@@ -75,15 +75,16 @@ npm run jarvis:smoke   # requires: ollama pull qwen3 && ollama serve
 
 ## Jarvis modes
 
-Default on connect: **Briefing** (read-only). Hard writes require **Ops** mode + spoken confirm.
+Default on connect: **Briefing** (read-only). Hard writes require the right mode + spoken confirm.
 
 | Mode | Say | Unlocks |
 |------|-----|---------|
-| **Briefing** | “switch to briefing” | mission, digest, seat report, tasks, runs, activity, alerts, spend |
-| **Ops** | “switch to ops” | + assign, run next, cancel, rewake, pause, resume |
-| **Review** | “switch to review” | + file read (allowlisted), csuite draft, alerts |
+| **Briefing** | “switch to briefing” | Reads, digests, `venture.list` / `venture.get` |
+| **Ops** | “switch to ops” | Queue, `queue_for`, spawn, pause, cancel, rewake |
+| **Review** | “switch to review” | `file.read`, `csuite.draft`, handoffs |
+| **Architect** | “switch to architect” | `venture.create`, `venture.switch` |
 
-Mode changes via natural speech (`mode.set` intent) or agent tool `set_mode`. Ops-only intents are **denied** while in Briefing.
+Mode changes via natural speech (`mode.set` intent) or agent tool `set_mode`. Ops-only intents are **denied** in Briefing; venture create/switch require **Architect**.
 
 ## Confirm phrase
 
@@ -119,7 +120,7 @@ Example: “Queue phase 2 research” → summary → “Confirm?” → “yes�
 
 ## Voice commands cheatsheet
 
-Jarvis maps natural speech to **intents** via `jarvis_act`. Use **Ops** mode before assign, run, pause, cancel, rewake, or draft actions.
+Jarvis maps natural speech to **intents** via `jarvis_act`. Use **Ops** before queue/spawn/pause/cancel; **Architect** before venture create/switch; **Review** for file read and csuite draft.
 
 | Say (examples) | Intent | Confirm? |
 |----------------|--------|----------|
@@ -133,6 +134,7 @@ Jarvis maps natural speech to **intents** via `jarvis_act`. Use **Ops** mode bef
 | Ack alert … / dismiss alert … | `alerts.ack` | Soft |
 | Spend / budget by seat | `spend.get` | No |
 | Assign phase 2 research / queue dispatch | `dispatch.queue` | Yes |
+| Give CFO a task to … / queue head-of-research to … | `dispatch.queue_for` | Yes |
 | Run next / spawn / execute queue | `spawn.run_next` | Yes |
 | Cancel run … | `run.cancel` | Yes |
 | Rewake / resume session … | `run.rewake` | Yes |
@@ -141,9 +143,12 @@ Jarvis maps natural speech to **intents** via `jarvis_act`. Use **Ops** mode bef
 | Draft csuite / csuite review phase 2 | `csuite.draft` | Yes |
 | Enable routine … | `routine.enable` | Soft |
 | Read file … (allowlisted paths only) | `file.read` | No |
-| Switch to ops / briefing / review | `mode.set` | No |
+| Switch to ops / briefing / review / architect | `mode.set` | No |
+| Create a venture called X | `venture.create` | Yes (auto-activates) |
+| Switch to venture slug | `venture.switch` | Yes |
+| Spawn the copywriter | `agent.spawn_ic` | Denied |
 
-Review mode adds `file.read` and `csuite.draft`; spawn intents stay disabled there.
+Review mode adds `file.read`, `csuite.draft`, and handoffs; spawn intents stay disabled there. IC spawn requests are always denied — queue the manager instead.
 
 ## Tests & eval
 
@@ -162,3 +167,5 @@ Golden cases live in `server/jarvis/eval/golden.json`; CI runs heuristic intent 
 - `docs/superpowers/specs/2026-07-16-org-command-center-design.md` — **v3.5** Jarvis Dialog
 - `docs/superpowers/specs/2026-07-16-enterprise-jarvis-dialog-design.md` — DCP detail
 - `docs/superpowers/plans/2026-07-16-enterprise-jarvis-dialog.md` — implementation plan
+- `docs/superpowers/specs/2026-07-16-jarvis-intent-catalog-v2-design.md` — catalog v2 (architect mode, ventures, `queue_for`)
+- `docs/superpowers/plans/2026-07-16-jarvis-intent-catalog-v2.md` — catalog v2 implementation plan
