@@ -1,0 +1,8 @@
+node_modules
+dist
+.DS_Store
+*.local
+node_modules/.tmp
+mlx-tts/.venv
+mlx-tts/logs
+whisper-sidecar/.venv
