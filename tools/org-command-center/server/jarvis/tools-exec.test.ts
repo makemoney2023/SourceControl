@@ -189,6 +189,13 @@ const INTENT_COVERAGE: CoverageCase[] = [
     intent: "delegate.plan",
     args: { position: "head-of-research", goal: "Plan IC delegation" },
   },
+  { intent: "session.help", args: {} },
+  { intent: "session.repeat", args: { roomId: "coverage-room" }, expectThrow: /nothing to repeat/i },
+  { intent: "session.cancel_pending", args: { roomId: "coverage-room" } },
+  { intent: "jarvis.ping", args: {} },
+  { intent: "phase.list_open", args: {} },
+  { intent: "digest.focus", args: { section: "blocked" } },
+  { intent: "activity.tail", args: { n: 5 } },
 ];
 
 describe("intent coverage checklist", () => {
@@ -524,6 +531,105 @@ describe("executeIntent", () => {
     })) as { level?: string; note: string };
     expect(result.level).toBe("manager");
     expect(result.note).toMatch(/spawn listed ICs/i);
+  });
+
+  it("session.help returns cheatsheet text", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "session.help", {})) as { help: string };
+    expect(result.help).toMatch(/Briefing/i);
+    expect(result.help).toMatch(/mission\.get/i);
+  });
+
+  it("session.repeat returns last summary for room", async () => {
+    repo = tempRepo();
+    const { setLastSummary } = await import("./session");
+    setLastSummary("room-repeat", "Phase 2 in progress.");
+    const result = (await executeIntent(repo, "session.repeat", { roomId: "room-repeat" })) as {
+      summary: string;
+    };
+    expect(result.summary).toBe("Phase 2 in progress.");
+  });
+
+  it("session.repeat throws when no last summary", async () => {
+    repo = tempRepo();
+    await expect(
+      executeIntent(repo, "session.repeat", { roomId: "empty-room" }),
+    ).rejects.toThrow(/nothing to repeat/i);
+  });
+
+  it("session.cancel_pending cancels token when provided", async () => {
+    repo = tempRepo();
+    const { createConfirmToken, peekConfirm } = await import("./session");
+    const token = createConfirmToken("cancel-room", "agent.pause", { slug: "cfo" }, "ops");
+    const result = (await executeIntent(repo, "session.cancel_pending", {
+      roomId: "cancel-room",
+      token,
+    })) as { ok: boolean; cancelled?: { intent: string } };
+    expect(result.ok).toBe(true);
+    expect(result.cancelled?.intent).toBe("agent.pause");
+    expect(peekConfirm("cancel-room", token)).toBeNull();
+  });
+
+  it("session.cancel_pending cancels latest pending when token omitted", async () => {
+    repo = tempRepo();
+    const { createConfirmToken, peekLatestConfirm } = await import("./session");
+    createConfirmToken("latest-room", "spawn.run_next", {}, "ops");
+    const result = (await executeIntent(repo, "session.cancel_pending", {
+      roomId: "latest-room",
+    })) as { ok: boolean; cancelled?: { intent: string } };
+    expect(result.ok).toBe(true);
+    expect(result.cancelled?.intent).toBe("spawn.run_next");
+    expect(peekLatestConfirm("latest-room")).toBeNull();
+  });
+
+  it("jarvis.ping returns ok and ISO time", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "jarvis.ping", {})) as { ok: boolean; time: string };
+    expect(result.ok).toBe(true);
+    expect(() => new Date(result.time)).not.toThrow();
+  });
+
+  it("phase.list_open returns pending and in-progress phases", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "phase.list_open", {})) as {
+      phases: Array<{ phase: string; status: string }>;
+    };
+    expect(result.phases.some((p) => p.phase === "2" && p.status === "🔄")).toBe(true);
+    expect(result.phases.some((p) => p.phase === "3" && p.status === "⬜")).toBe(true);
+    expect(result.phases.every((p) => p.status === "⬜" || p.status === "🔄")).toBe(true);
+  });
+
+  it("digest.focus returns section slice", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "digest.focus", { section: "blocked" })) as {
+      section: string;
+      data: unknown;
+    };
+    expect(result.section).toBe("blocked");
+    expect(Array.isArray(result.data)).toBe(true);
+  });
+
+  it("digest.focus returns full digest when section omitted", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "digest.focus", {})) as {
+      digest: { queueDepth: number };
+    };
+    expect(result.digest.queueDepth).toBe(0);
+  });
+
+  it("activity.tail returns last n events", async () => {
+    repo = tempRepo();
+    const droot = dispatchRoot(repo);
+    const { appendActivity } = await import("../activity");
+    for (let i = 0; i < 12; i++) {
+      appendActivity(droot, { type: "jarvis_act", detail: `event-${i}` });
+    }
+    const result = (await executeIntent(repo, "activity.tail", { n: 5 })) as {
+      activity: Array<{ detail?: string }>;
+    };
+    expect(result.activity).toHaveLength(5);
+    expect(result.activity[0]?.detail).toBe("event-11");
+    expect(result.activity[4]?.detail).toBe("event-7");
   });
 });
 

@@ -6,6 +6,7 @@ type Pending = { intent: JarvisIntent; args: unknown; mode: JarvisMode; expires:
 
 const pending = new Map<string, Pending>();
 const roomModes = new Map<string, JarvisMode>();
+const lastSummaries = new Map<string, string>();
 
 function key(roomId: string, token: string) {
   return `${roomId}:${token}`;
@@ -66,7 +67,45 @@ export function cancelConfirm(
   return { intent: entry.intent, args: entry.args, mode: entry.mode };
 }
 
+export function peekLatestConfirm(
+  roomId: string,
+): { token: string; intent: JarvisIntent; args: unknown; mode: JarvisMode } | null {
+  const prefix = `${roomId}:`;
+  let latest: {
+    token: string;
+    intent: JarvisIntent;
+    args: unknown;
+    mode: JarvisMode;
+    expires: number;
+  } | null = null;
+
+  for (const [mapKey, entry] of pending.entries()) {
+    if (!mapKey.startsWith(prefix)) continue;
+    if (Date.now() > entry.expires) {
+      pending.delete(mapKey);
+      continue;
+    }
+    const token = mapKey.slice(prefix.length);
+    if (!latest || entry.expires >= latest.expires) {
+      latest = { token, intent: entry.intent, args: entry.args, mode: entry.mode, expires: entry.expires };
+    }
+  }
+
+  return latest
+    ? { token: latest.token, intent: latest.intent, args: latest.args, mode: latest.mode }
+    : null;
+}
+
+export function setLastSummary(roomId: string, summary: string): void {
+  lastSummaries.set(roomId, summary);
+}
+
+export function getLastSummary(roomId: string): string | undefined {
+  return lastSummaries.get(roomId);
+}
+
 export function resetSessionForTests() {
   pending.clear();
   roomModes.clear();
+  lastSummaries.clear();
 }

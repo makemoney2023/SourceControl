@@ -2,8 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   consumeConfirm,
   createConfirmToken,
+  getLastSummary,
   getRoomMode,
+  peekLatestConfirm,
   resetSessionForTests,
+  setLastSummary,
   setRoomMode,
 } from "./session";
 
@@ -55,5 +58,33 @@ describe("room mode", () => {
     setRoomMode("room-1", "ops");
     expect(getRoomMode("room-1")).toBe("ops");
     expect(getRoomMode("room-2")).toBe("briefing");
+  });
+});
+
+describe("last summary", () => {
+  beforeEach(() => resetSessionForTests());
+  afterEach(() => resetSessionForTests());
+
+  it("stores and retrieves per room", () => {
+    setLastSummary("room-1", "Mission phase 2.");
+    expect(getLastSummary("room-1")).toBe("Mission phase 2.");
+    expect(getLastSummary("room-2")).toBeUndefined();
+  });
+});
+
+describe("peekLatestConfirm", () => {
+  beforeEach(() => resetSessionForTests());
+  afterEach(() => resetSessionForTests());
+
+  it("returns latest pending token for room", () => {
+    createConfirmToken("room-1", "spawn.run_next", {}, "ops");
+    const second = createConfirmToken("room-1", "agent.pause", { slug: "cfo" }, "ops");
+    const latest = peekLatestConfirm("room-1");
+    expect(latest?.token).toBe(second);
+    expect(latest?.intent).toBe("agent.pause");
+  });
+
+  it("returns null when no pending", () => {
+    expect(peekLatestConfirm("room-1")).toBeNull();
   });
 });

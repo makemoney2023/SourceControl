@@ -31,6 +31,13 @@ export const JARVIS_INTENTS = [
   "dispatch.queue_for",
   "dispatch.list",
   "delegate.plan",
+  "session.help",
+  "session.repeat",
+  "session.cancel_pending",
+  "jarvis.ping",
+  "phase.list_open",
+  "digest.focus",
+  "activity.tail",
 ] as const;
 
 export type JarvisIntent = (typeof JARVIS_INTENTS)[number];

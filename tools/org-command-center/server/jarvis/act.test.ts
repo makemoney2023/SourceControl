@@ -266,4 +266,46 @@ describe("handleJarvisAct", () => {
     expect(spawn.status).toBe("needs_confirm");
     expect(spawn.token).toBeTruthy();
   });
+
+  it("stores lastSummary on needs_confirm for session.repeat", async () => {
+    const pending = await handleJarvisAct(repo, "room-1", {
+      intent: "spawn.run_next",
+      args: {},
+      mode: "ops",
+    });
+    expect(pending.status).toBe("needs_confirm");
+    expect(pending.summary).toBeTruthy();
+
+    setExecuteIntentForTests(undefined);
+    const repeat = await handleJarvisAct(repo, "room-1", {
+      intent: "session.repeat",
+      args: {},
+    });
+    expect(repeat.status).toBe("ok");
+    expect((repeat.result as { summary: string }).summary).toBe(pending.summary);
+  });
+
+  it("stores lastSummary on ok for session.repeat", async () => {
+    setExecuteIntentForTests(undefined);
+    const ok = await handleJarvisAct(repo, "room-1", {
+      intent: "mission.get",
+      args: {},
+    });
+    expect(ok.status).toBe("ok");
+
+    const repeat = await handleJarvisAct(repo, "room-1", {
+      intent: "session.repeat",
+      args: {},
+    });
+    expect(repeat.status).toBe("ok");
+    expect((repeat.result as { summary: string }).summary).toMatch(/phase/i);
+  });
+
+  it("session.cancel_pending denied in briefing", async () => {
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "session.cancel_pending",
+      args: {},
+    });
+    expect(r.status).toBe("denied");
+  });
 });

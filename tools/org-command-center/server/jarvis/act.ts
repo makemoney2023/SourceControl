@@ -3,7 +3,7 @@ import { normalizeQueueForArgs } from "./dispatch-for";
 import { JarvisExecError } from "./errors";
 import { parseJarvisAct, type JarvisIntent, type JarvisMode } from "./intents";
 import { policyFor } from "./policy";
-import { cancelConfirm, consumeConfirm, createConfirmToken, getRoomMode, peekConfirm } from "./session";
+import { cancelConfirm, consumeConfirm, createConfirmToken, getRoomMode, peekConfirm, setLastSummary } from "./session";
 import { executeIntent as executeIntentProd } from "./tools-exec";
 
 export type JarvisActResult = {
@@ -53,6 +53,28 @@ function confirmSummary(intent: JarvisIntent, args: Record<string, unknown>): st
     return `Queue ${position} for phase ${phase}. Confirm?`;
   }
   return `Confirm ${intent.replace(/\./g, " ")}?`;
+}
+
+function okSummary(intent: JarvisIntent, result: unknown): string {
+  if (intent === "mission.get" && typeof result === "object" && result !== null && "mission" in result) {
+    const mission = (result as { mission: { idea?: string; currentPhase?: string } }).mission;
+    return `Mission: ${mission.idea ?? "unknown"}, phase ${mission.currentPhase ?? "?"}.`;
+  }
+  if (intent === "mode.set" && typeof result === "object" && result !== null && "mode" in result) {
+    return `Switched to ${(result as { mode: string }).mode} mode.`;
+  }
+  if (
+    intent === "session.cancel_pending" &&
+    typeof result === "object" &&
+    result !== null &&
+    "cancelled" in result
+  ) {
+    const cancelled = (result as { cancelled?: { intent?: string } }).cancelled;
+    return cancelled?.intent
+      ? `Cancelled pending ${cancelled.intent.replace(/\./g, " ")}.`
+      : "Cancelled pending confirm.";
+  }
+  return `Done: ${intent.replace(/\./g, " ")}.`;
 }
 
 function resolveMode(raw: Record<string, unknown>, roomId: string): JarvisMode {
@@ -124,6 +146,7 @@ export async function handleJarvisAct(
         },
         repoRoot,
       );
+      setLastSummary(roomId, summary);
       return { status: "needs_confirm", token, summary };
     }
 
@@ -151,7 +174,9 @@ export async function handleJarvisAct(
   try {
     const result = await executeIntent(repoRoot, act.intent, execArgs);
     auditJarvis({ roomId, type: "jarvis_executed", intent: act.intent }, repoRoot);
-    return { status: "ok", result };
+    const summary = okSummary(act.intent, result);
+    setLastSummary(roomId, summary);
+    return { status: "ok", result, summary };
   } catch (err) {
     const reason = err instanceof Error ? err.message : "Execution failed";
     auditJarvis({ roomId, type: "jarvis_error", intent: act.intent, detail: reason }, repoRoot);

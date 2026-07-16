@@ -37,6 +37,13 @@ export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy 
 
   if (intent === "mode.set") return { allowed: true, needsConfirm: false };
 
+  if (intent === "session.cancel_pending") {
+    if (mode !== "ops" && mode !== "architect") {
+      return { allowed: false, needsConfirm: false, reason: "Switch to Ops mode first" };
+    }
+    return { allowed: true, needsConfirm: false };
+  }
+
   if (ARCHITECT_ONLY.has(intent) && mode !== "architect") {
     return {
       allowed: false,

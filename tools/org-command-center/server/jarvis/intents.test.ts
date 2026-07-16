@@ -18,4 +18,29 @@ describe("parseJarvisAct", () => {
       "mode.set",
     );
   });
+  it("accepts session.help", () => {
+    expect(parseJarvisAct({ intent: "session.help", args: {} }).intent).toBe("session.help");
+  });
+  it("accepts session.repeat", () => {
+    expect(parseJarvisAct({ intent: "session.repeat", args: {} }).intent).toBe("session.repeat");
+  });
+  it("accepts session.cancel_pending", () => {
+    expect(parseJarvisAct({ intent: "session.cancel_pending", args: {} }).intent).toBe(
+      "session.cancel_pending",
+    );
+  });
+  it("accepts jarvis.ping", () => {
+    expect(parseJarvisAct({ intent: "jarvis.ping", args: {} }).intent).toBe("jarvis.ping");
+  });
+  it("accepts phase.list_open", () => {
+    expect(parseJarvisAct({ intent: "phase.list_open", args: {} }).intent).toBe("phase.list_open");
+  });
+  it("accepts digest.focus", () => {
+    expect(parseJarvisAct({ intent: "digest.focus", args: { section: "blocked" } }).intent).toBe(
+      "digest.focus",
+    );
+  });
+  it("accepts activity.tail", () => {
+    expect(parseJarvisAct({ intent: "activity.tail", args: { n: 5 } }).intent).toBe("activity.tail");
+  });
 });

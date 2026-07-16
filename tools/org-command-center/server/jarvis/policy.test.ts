@@ -58,4 +58,62 @@ describe("policyFor", () => {
       needsConfirm: false,
     });
   });
+  it("session.help allowed in any mode without confirm", () => {
+    expect(policyFor("session.help", "briefing")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+    expect(policyFor("session.help", "architect")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
+  it("session.repeat allowed in any mode without confirm", () => {
+    expect(policyFor("session.repeat", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
+  it("jarvis.ping allowed in any mode without confirm", () => {
+    expect(policyFor("jarvis.ping", "briefing")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
+  it("phase.list_open allowed in briefing without confirm", () => {
+    expect(policyFor("phase.list_open", "briefing")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
+  it("digest.focus allowed in briefing without confirm", () => {
+    expect(policyFor("digest.focus", "briefing")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
+  it("activity.tail allowed in briefing without confirm", () => {
+    expect(policyFor("activity.tail", "briefing")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
+  it("session.cancel_pending denied in briefing", () => {
+    expect(policyFor("session.cancel_pending", "briefing").allowed).toBe(false);
+  });
+  it("session.cancel_pending denied in review", () => {
+    expect(policyFor("session.cancel_pending", "review").allowed).toBe(false);
+  });
+  it("session.cancel_pending allowed in ops without confirm", () => {
+    expect(policyFor("session.cancel_pending", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
+  it("session.cancel_pending allowed in architect without confirm", () => {
+    expect(policyFor("session.cancel_pending", "architect")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
 });

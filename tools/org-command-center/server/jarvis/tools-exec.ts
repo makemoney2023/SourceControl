@@ -28,7 +28,7 @@ import { writeCsuiteDraft } from "../write-csuite-draft";
 import { buildQueueForPacket, previewQueueFor } from "./dispatch-for";
 import { JarvisExecError } from "./errors";
 import type { JarvisIntent } from "./intents";
-import { getRoomMode, setRoomMode } from "./session";
+import { cancelConfirm, getLastSummary, getRoomMode, peekLatestConfirm, setRoomMode } from "./session";
 
 export { JarvisExecError } from "./errors";
 
@@ -46,6 +46,48 @@ function emitJarvisFocus(
   focus: { phase?: string; slug?: string },
 ) {
   appendActivity(droot, { type: "jarvis.focus", phase: focus.phase, slug: focus.slug });
+}
+
+const SESSION_HELP = [
+  "**Modes**",
+  "- Briefing — mission, digest, seat report, tasks, runs, activity, alerts, spend",
+  "- Ops — + assign, run next, cancel, rewake, pause, resume, cancel pending",
+  "- Review — + file read, csuite draft",
+  "- Architect — + venture create/switch",
+  "",
+  "**Top intents**",
+  "- mission.get — where are we / mission status",
+  "- digest.get / digest.focus — company rollup or blocked/escalate/awaiting slice",
+  "- seat.report — report on a seat",
+  "- phase.list_open — pending or in-progress phases",
+  "- activity.tail — last N pulse events",
+  "- session.help — this cheatsheet",
+  "- session.repeat — repeat last spoken summary",
+  "- jarvis.ping — stack heartbeat",
+  "- mode.set — switch briefing / ops / review / architect",
+].join("\n");
+
+function buildDigestPayload(snap: ReturnType<typeof loadSnapshot>, repoRoot: string) {
+  return buildCompanyDigest({
+    org: snap.org,
+    tracker: snap.tracker,
+    handoffs: snap.handoffs,
+    queueFiles: snap.queue,
+    claimedFiles: snap.claimed,
+    runs: snap.runs,
+    briefings: snap.briefings,
+    alerts: snap.alerts,
+    spendBySeat: snap.spend.bySeat,
+    repoRoot,
+    models: snap.models,
+  });
+}
+
+function digestSectionKey(section: string): keyof ReturnType<typeof buildCompanyDigest> | null {
+  if (section === "blocked") return "blockedSeats";
+  if (section === "escalate") return "escalateSeats";
+  if (section === "awaiting") return "awaitingCsuite";
+  return null;
 }
 
 export async function executeIntent(
@@ -78,19 +120,7 @@ export async function executeIntent(
     case "digest.get": {
       emitJarvisFocus(droot, {});
       return {
-        digest: buildCompanyDigest({
-          org: snap.org,
-          tracker: snap.tracker,
-          handoffs: snap.handoffs,
-          queueFiles: snap.queue,
-          claimedFiles: snap.claimed,
-          runs: snap.runs,
-          briefings: snap.briefings,
-          alerts: snap.alerts,
-          spendBySeat: snap.spend.bySeat,
-          repoRoot,
-          models: snap.models,
-        }),
+        digest: buildDigestPayload(snap, repoRoot),
       };
     }
 
@@ -326,6 +356,63 @@ export async function executeIntent(
 
     case "agent.spawn_ic":
       throw new JarvisExecError("IC spawn forbidden", "forbidden");
+
+    // Task 7: session meta + awareness reads
+    case "session.help":
+      return { help: SESSION_HELP };
+
+    case "session.repeat": {
+      const roomId = String(args.roomId ?? "");
+      if (!roomId) throw new JarvisExecError("roomId required", "missing_arg");
+      const summary = getLastSummary(roomId);
+      if (!summary) throw new JarvisExecError("nothing to repeat", "no_summary");
+      return { summary };
+    }
+
+    case "session.cancel_pending": {
+      const roomId = String(args.roomId ?? "");
+      if (!roomId) throw new JarvisExecError("roomId required", "missing_arg");
+      const token =
+        args.token != null ? String(args.token) : peekLatestConfirm(roomId)?.token;
+      if (!token) return { ok: false, error: "no pending confirm" };
+      const cancelled = cancelConfirm(roomId, token);
+      if (!cancelled) return { ok: false, error: "invalid or expired token" };
+      return { ok: true, cancelled: { intent: cancelled.intent } };
+    }
+
+    case "jarvis.ping":
+      return { ok: true, time: new Date().toISOString() };
+
+    case "phase.list_open": {
+      const phases = snap.tracker.phases.filter(
+        (p) => p.status === "⬜" || p.status === "🔄",
+      );
+      return { phases };
+    }
+
+    case "digest.focus": {
+      const digest = buildDigestPayload(snap, repoRoot);
+      const section = args.section != null ? String(args.section) : undefined;
+      if (!section) return { digest };
+      const key = digestSectionKey(section);
+      if (!key) {
+        throw new JarvisExecError(
+          "section must be blocked, escalate, or awaiting",
+          "invalid_arg",
+        );
+      }
+      return { section, data: digest[key] };
+    }
+
+    case "activity.tail": {
+      const nRaw = args.n;
+      const n =
+        typeof nRaw === "number" && Number.isFinite(nRaw) && nRaw > 0
+          ? Math.floor(nRaw)
+          : 10;
+      // snapshot activity is newest-first (see readActivityTail)
+      return { activity: snap.activity.slice(0, n) };
+    }
 
     default:
       throw new JarvisExecError(`executeIntent not wired for ${intent}`);
