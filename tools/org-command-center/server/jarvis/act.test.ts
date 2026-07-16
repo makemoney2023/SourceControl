@@ -197,6 +197,19 @@ describe("handleJarvisAct", () => {
     expect(events.some((e) => e.type === "jarvis_confirm_pending")).toBe(true);
   });
 
+  it("venture.create confirm summary echoes name and slug", async () => {
+    setExecuteIntentForTests(async () => ({ ok: true }));
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "venture.create",
+      args: { name: "Grid Down Water", slug: "grid-down-water" },
+      mode: "architect",
+    });
+    expect(r.status).toBe("needs_confirm");
+    expect(r.summary).toMatch(/Grid Down Water/i);
+    expect(r.summary).toMatch(/grid-down-water/);
+    expect(r.summary).toMatch(/active/i);
+  });
+
   it("mode.set updates session; spawn.run_next needs confirm after ops", async () => {
     setExecuteIntentForTests(undefined);
 

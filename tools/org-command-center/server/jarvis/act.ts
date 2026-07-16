@@ -35,13 +35,22 @@ async function executeIntent(
   return executeIntentProd(repoRoot, intent, args);
 }
 
-function confirmSummary(intent: JarvisIntent): string {
+function confirmSummary(intent: JarvisIntent, args: Record<string, unknown>): string {
+  if (intent === "venture.create") {
+    const name = String(args.name ?? "unnamed");
+    const slug = String(args.slug ?? "(auto-slug)");
+    return `Create venture "${name}" as ${slug} and make it active. Confirm?`;
+  }
+  if (intent === "venture.switch") {
+    const slug = String(args.slug ?? "");
+    return `Switch active venture to ${slug}. Confirm?`;
+  }
   return `Confirm ${intent.replace(/\./g, " ")}?`;
 }
 
 function resolveMode(raw: Record<string, unknown>, roomId: string): JarvisMode {
   const mode = raw.mode;
-  if (mode === "briefing" || mode === "ops" || mode === "review") return mode;
+  if (mode === "briefing" || mode === "ops" || mode === "review" || mode === "architect") return mode;
   return getRoomMode(roomId);
 }
 
@@ -84,7 +93,7 @@ export async function handleJarvisAct(
   if (policy.needsConfirm) {
     if (!confirmToken) {
       const token = createConfirmToken(roomId, act.intent, act.args, mode);
-      const summary = confirmSummary(act.intent);
+      const summary = confirmSummary(act.intent, act.args);
       auditJarvis(
         {
           roomId,
