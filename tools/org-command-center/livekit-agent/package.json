@@ -1,0 +1,22 @@
+{
+  "name": "occ-livekit-agent",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/main.ts dev",
+    "start": "tsx src/main.ts start",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@livekit/agents": "^0.7.9",
+    "@livekit/agents-plugin-openai": "^0.9.1",
+    "@livekit/agents-plugin-silero": "^0.5.7",
+    "dotenv": "^17.4.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.10"
+  }
+}

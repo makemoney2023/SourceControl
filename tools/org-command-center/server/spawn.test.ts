@@ -1,0 +1,210 @@
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+// join used by budget pause assertion path
+import { afterEach, describe, expect, it } from "vitest";
+import YAML from "yaml";
+import type { ManagerPacket } from "../src/lib/types";
+import { clearRunRegistry } from "./run-registry";
+import { setSeatPaused } from "./agent-state";
+import type { RuntimeAdapter } from "./runtime-adapter";
+import { buildSpawnPrompt, spawnClaimedManager } from "./spawn";
+import { resolveRepoRoot } from "./paths";
+
+const BIZ_IDEA = "docs/projects/passive-grid/business-idea";
+
+const packet: ManagerPacket = {
+  schema_version: 1,
+  queued_at: "2026-07-16T14:00:00.000Z",
+  phase: "2",
+  position: "head-of-research",
+  goal: "Research",
+  report_to: "ceo-strategist",
+  parent_position: "orchestrator",
+  llm_tier: "strong-general",
+  llm_model: "claude-sonnet-5",
+  generation_profile: "none",
+  inputs: [],
+  must_read: [],
+  outputs: [],
+  write_lease: [],
+  budget_usd: null,
+  collaborators: [],
+  delegate_budget: 3,
+  constraints: [],
+  company_goal: "Test company",
+  parent_goal: "Phase 2 — Market",
+  goal_path: ["Test company", "Phase 2 — Market", "Research"],
+};
+
+function tempRepo() {
+  const root = mkdtempSync(join(tmpdir(), "spawn-repo-"));
+  mkdirSync(join(root, "projects"), { recursive: true });
+  writeFileSync(
+    join(root, "projects/registry.json"),
+    JSON.stringify({
+      active: "passive-grid",
+      projects: {
+        "passive-grid": {
+          name: "Passive Grid",
+          businessIdea: BIZ_IDEA,
+          memory: "docs/projects/passive-grid/MEMORY",
+        },
+      },
+    }),
+  );
+  const d = join(root, BIZ_IDEA, "DISPATCH");
+  mkdirSync(join(d, "queue"), { recursive: true });
+  mkdirSync(join(d, "claimed"), { recursive: true });
+  mkdirSync(join(d, "runs"), { recursive: true });
+  return root;
+}
+
+function dispatchDir(repoRoot: string) {
+  return join(repoRoot, BIZ_IDEA, "DISPATCH");
+}
+
+function enqueue(repoRoot: string, p: ManagerPacket, name: string) {
+  writeFileSync(
+    join(dispatchDir(repoRoot), "queue", name),
+    YAML.stringify(p),
+  );
+}
+
+const okAdapter: RuntimeAdapter = {
+  async run() {
+    return { status: "completed", result: "done" };
+  },
+};
+
+afterEach(() => {
+  clearRunRegistry();
+});
+
+describe("buildSpawnPrompt", () => {
+  it("mentions HEARTBEAT path and goal ancestry", () => {
+    const repo = resolveRepoRoot();
+    const prompt = buildSpawnPrompt(packet, repo);
+    expect(prompt).toContain("skills/org/positions/head-of-research/HEARTBEAT.md");
+    expect(prompt).toContain("Goal ancestry");
+    expect(prompt).toContain("Test company");
+    expect(prompt).toContain(`${BIZ_IDEA}/HANDOFFS/`);
+  });
+});
+
+describe("spawn usage + budget pause", () => {
+  it("records cost and auto-pauses when over budget", async () => {
+    const repo = tempRepo();
+    enqueue(repo, { ...packet, budget_usd: 0.000001 }, "2-a.yaml");
+    const usageAdapter: RuntimeAdapter = {
+      async run() {
+        return {
+          status: "completed",
+          result: "ok",
+          agentId: "agent-1",
+          usage: {
+            inputTokens: 1_000_000,
+            outputTokens: 1_000_000,
+            cacheReadTokens: 0,
+            totalTokens: 2_000_000,
+          },
+        };
+      },
+    };
+    const result = await spawnClaimedManager(repo, {
+      apiKey: "test-key",
+      adapter: usageAdapter,
+    });
+    expect(result.ok).toBe(true);
+    const { isSeatPaused } = await import("./agent-state");
+    expect(isSeatPaused(dispatchDir(repo), "head-of-research")).toBe(
+      true,
+    );
+  });
+});
+
+describe("spawnClaimedManager", () => {
+  it("refuses without api key and does not claim", async () => {
+    const repo = tempRepo();
+    enqueue(repo, packet, "2-head-of-research-a.yaml");
+    const result = await spawnClaimedManager(repo, {
+      apiKey: null,
+      adapter: okAdapter,
+    });
+    expect(result.ok).toBe(false);
+    expect(readdirSync(join(dispatchDir(repo), "queue"))).toHaveLength(1);
+  });
+
+  it("refuses budget hard-stop before claim", async () => {
+    const repo = tempRepo();
+    enqueue(repo, { ...packet, budget_usd: 0 }, "2-head-of-research-a.yaml");
+    const result = await spawnClaimedManager(repo, {
+      apiKey: "test-key",
+      adapter: okAdapter,
+      wakeReason: "on_demand",
+    });
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain("budget_usd");
+    expect(readdirSync(join(dispatchDir(repo), "queue"))).toHaveLength(1);
+  });
+
+  it("refuses paused seat before claim", async () => {
+    const repo = tempRepo();
+    const droot = dispatchDir(repo);
+    setSeatPaused(droot, "head-of-research", true);
+    enqueue(repo, packet, "2-head-of-research-a.yaml");
+    const result = await spawnClaimedManager(repo, {
+      apiKey: "test-key",
+      adapter: okAdapter,
+    });
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain("paused");
+    expect(readdirSync(join(dispatchDir(repo), "queue"))).toHaveLength(1);
+  });
+
+  it("claims by filename and writes run with wake_reason", async () => {
+    const repo = tempRepo();
+    enqueue(repo, packet, "2-a.yaml");
+    enqueue(repo, { ...packet, position: "cmo", phase: "3" }, "3-cmo.yaml");
+    const result = await spawnClaimedManager(repo, {
+      apiKey: "test-key",
+      adapter: okAdapter,
+      filename: "3-cmo.yaml",
+      wakeReason: "run_next",
+    });
+    expect(result.ok).toBe(true);
+    expect(result.packet?.position).toBe("cmo");
+    const runs = readdirSync(join(dispatchDir(repo), "runs"));
+    expect(runs.length).toBe(1);
+    const rec = JSON.parse(
+      readFileSync(join(dispatchDir(repo), "runs", runs[0]), "utf8"),
+    );
+    expect(rec.wake_reason).toBe("run_next");
+    expect(rec.dispatch_filename).toBe("3-cmo.yaml");
+    expect(rec.status).toBe("completed");
+  });
+
+  it("marks cancelled when adapter aborts", async () => {
+    const repo = tempRepo();
+    enqueue(repo, packet, "2-a.yaml");
+    const abortAdapter: RuntimeAdapter = {
+      async run({ signal }) {
+        const err = new Error("Aborted");
+        err.name = "AbortError";
+        signal?.aborted;
+        throw err;
+      },
+    };
+    const result = await spawnClaimedManager(repo, {
+      apiKey: "test-key",
+      adapter: abortAdapter,
+    });
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("cancelled");
+    const runs = readdirSync(join(dispatchDir(repo), "runs"));
+    const rec = JSON.parse(
+      readFileSync(join(dispatchDir(repo), "runs", runs[0]), "utf8"),
+    );
+    expect(rec.status).toBe("cancelled");
+  });
+});

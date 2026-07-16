@@ -1,0 +1,216 @@
+[data-theme="jarvis"] {
+  --j-bg: #070b10;
+  --j-panel: rgba(10, 18, 26, 0.82);
+  --j-panel-border: rgba(64, 210, 190, 0.35);
+  --j-ink: #e8f4f2;
+  --j-muted: #8aa3a0;
+  --j-accent: #3fd4be;
+  --j-accent-dim: #1a6b5e;
+  --j-warn: #e0a04a;
+  --j-danger: #e06060;
+  --j-ok: #4ecf8a;
+  --j-glass: blur(14px);
+  color: var(--j-ink);
+  background: var(--j-bg);
+  font-family: "IBM Plex Sans", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-theme="jarvis"] .j-glass {
+  background: var(--j-panel);
+  border: 1px solid var(--j-panel-border);
+  backdrop-filter: var(--j-glass);
+  -webkit-backdrop-filter: var(--j-glass);
+  border-radius: 10px;
+  box-shadow: 0 0 24px rgba(63, 212, 190, 0.08);
+}
+
+[data-theme="jarvis"] .j-title {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--j-accent);
+  margin: 0;
+}
+
+[data-theme="jarvis"] .j-heading {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 4px 0 0;
+  letter-spacing: -0.02em;
+}
+
+[data-theme="jarvis"] .j-muted {
+  color: var(--j-muted);
+  font-size: 12px;
+}
+
+[data-theme="jarvis"] .j-btn {
+  appearance: none;
+  border: 1px solid var(--j-panel-border);
+  background: rgba(63, 212, 190, 0.12);
+  color: var(--j-ink);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+[data-theme="jarvis"] .j-btn:hover {
+  background: rgba(63, 212, 190, 0.22);
+}
+
+[data-theme="jarvis"] .j-btn[data-active="true"] {
+  background: var(--j-accent);
+  color: #041210;
+  border-color: var(--j-accent);
+  font-weight: 600;
+}
+
+[data-theme="jarvis"] .j-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+[data-theme="jarvis"] .j-input,
+[data-theme="jarvis"] .j-textarea,
+[data-theme="jarvis"] .j-select {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(63, 212, 190, 0.25);
+  color: var(--j-ink);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+[data-theme="jarvis"] .j-textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+[data-theme="jarvis"] .j-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(63, 212, 190, 0.3);
+  font-size: 11px;
+  color: var(--j-muted);
+}
+
+[data-theme="jarvis"] .j-chip[data-tone="ok"] {
+  color: var(--j-ok);
+  border-color: rgba(78, 207, 138, 0.45);
+}
+
+[data-theme="jarvis"] .j-chip[data-tone="warn"] {
+  color: var(--j-warn);
+  border-color: rgba(224, 160, 74, 0.45);
+}
+
+[data-theme="jarvis"] .j-chip[data-tone="danger"] {
+  color: var(--j-danger);
+  border-color: rgba(224, 96, 96, 0.45);
+}
+
+[data-theme="jarvis"] .j-error {
+  color: var(--j-danger);
+  font-size: 12px;
+  margin: 0;
+}
+
+[data-theme="jarvis"] .j-pre {
+  margin: 0;
+  max-height: 50vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--j-ink);
+}
+
+[data-theme="jarvis"] .j-mono {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+}
+
+[data-theme="jarvis"] .j-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+[data-theme="jarvis"] .j-table th {
+  text-align: left;
+  color: var(--j-muted);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(63, 212, 190, 0.2);
+}
+
+[data-theme="jarvis"] .j-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: top;
+}
+
+[data-theme="jarvis"] .j-table tbody tr:hover {
+  background: rgba(63, 212, 190, 0.06);
+}
+
+[data-theme="jarvis"] .j-table tbody tr[data-selected="true"] {
+  background: rgba(63, 212, 190, 0.14);
+}
+
+[data-theme="jarvis"] .j-shell {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 12px;
+  height: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+[data-theme="jarvis"] .j-main {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1.4fr) minmax(280px, 0.9fr);
+  gap: 12px;
+  min-height: 0;
+  height: 100%;
+}
+
+[data-theme="jarvis"] .j-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+[data-theme="jarvis"] .j-panel-scroll {
+  min-height: 0;
+  overflow: auto;
+}
+
+[data-theme="jarvis"] .j-map {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+@media (max-width: 1100px) {
+  [data-theme="jarvis"] .j-main {
+    grid-template-columns: 160px minmax(0, 1fr);
+  }
+  [data-theme="jarvis"] .j-map {
+    display: none;
+  }
+}

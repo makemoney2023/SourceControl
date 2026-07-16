@@ -1,0 +1,95 @@
+.j-voice-fab-wrap {
+  position: fixed;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.j-voice-fab-wrap > * {
+  pointer-events: auto;
+}
+
+.j-voice-fab-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.j-voice-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--j-accent) 55%, transparent);
+  background: color-mix(in oklab, var(--j-panel, #121820) 92%, var(--j-accent) 8%);
+  color: var(--j-fg, #e8eef7);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.j-voice-fab:hover {
+  transform: scale(1.04);
+}
+
+.j-voice-fab[data-state="listening"] {
+  border-color: var(--j-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--j-accent) 25%, transparent);
+}
+
+.j-voice-fab[data-state="speaking"] {
+  animation: j-voice-pulse 1.2s ease-in-out infinite;
+}
+
+.j-voice-fab[data-state="connecting"] {
+  opacity: 0.85;
+}
+
+.j-voice-fab[data-state="error"] {
+  border-color: #e85d5d;
+}
+
+.j-voice-fab[data-muted="true"] {
+  opacity: 0.75;
+}
+
+.j-voice-fab-hang {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, #e85d5d 50%, transparent);
+  background: color-mix(in oklab, #2a1212 90%, #e85d5d 10%);
+  color: #ffb4b4;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.j-voice-fab-caption {
+  margin: 0;
+  font-size: 11px;
+  max-width: 160px;
+  text-align: right;
+}
+
+.j-voice-fab-hint {
+  max-width: 260px;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+@keyframes j-voice-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--j-accent) 20%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 8px color-mix(in oklab, var(--j-accent) 12%, transparent);
+  }
+}
