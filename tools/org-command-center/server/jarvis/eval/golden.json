@@ -152,5 +152,88 @@
     "utterance": "enable the morning routine",
     "expectIntent": "routine.enable",
     "mode": "ops"
+  },
+  {
+    "utterance": "switch to architect mode",
+    "expectIntent": "mode.set",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "go to architect mode",
+    "expectIntent": "mode.set",
+    "mode": "ops"
+  },
+  {
+    "utterance": "create a new venture called Night-Safe Water",
+    "expectIntent": "venture.create",
+    "mode": "architect",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "create a new venture called Night-Safe Water",
+    "expectIntent": "venture.create",
+    "mode": "briefing",
+    "expectAllowed": false
+  },
+  {
+    "utterance": "switch to venture passive-grid",
+    "expectIntent": "venture.switch",
+    "mode": "architect",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "list all ventures",
+    "expectIntent": "venture.list",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "give head-of-research a task to finish the market evidence base",
+    "expectIntent": "dispatch.queue_for",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "queue phase two for the CFO",
+    "expectIntent": "dispatch.queue_for",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "give the CFO a task to review the budget",
+    "expectIntent": "dispatch.queue_for",
+    "mode": "briefing",
+    "expectAllowed": false
+  },
+  {
+    "utterance": "spawn the copywriter now",
+    "expectIntent": "agent.spawn_ic",
+    "mode": "ops",
+    "expectAllowed": false
+  },
+  {
+    "utterance": "spawn an ic analyst",
+    "expectIntent": "agent.spawn_ic",
+    "mode": "briefing",
+    "expectAllowed": false
+  },
+  {
+    "utterance": "who owns phase two",
+    "expectIntent": "seat.who_owns",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "preview dispatch for head-of-research on phase 2",
+    "expectIntent": "dispatch.preview",
+    "mode": "ops"
+  },
+  {
+    "utterance": "what can you do",
+    "expectIntent": "session.help",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "jarvis help",
+    "expectIntent": "session.help",
+    "mode": "architect"
   }
 ]
