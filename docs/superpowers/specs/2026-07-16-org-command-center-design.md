@@ -378,7 +378,7 @@ OCC_API_BASE=http://127.0.0.1:5177
 
 ## Jarvis Dialog (v3.5)
 
-**Status:** Active (Waves A–C implemented)  
+**Status:** Active (Waves A–D implemented)  
 **Design:** `docs/superpowers/specs/2026-07-16-enterprise-jarvis-dialog-design.md`  
 **Plan:** `docs/superpowers/plans/2026-07-16-enterprise-jarvis-dialog.md`  
 **Extends:** v3.4 LiveKit transport — adds Dialogue Control Plane (DCP), modes, confirm protocol, and full control-plane voice parity.
