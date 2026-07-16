@@ -274,6 +274,15 @@ export async function executeIntent(
       return { ok: true, active: activeProjectSlug(repoRoot) };
     }
 
+    // Task 6 replaces these stubs with real dispatch-for / who_owns handlers.
+    case "agent.spawn_ic":
+    case "dispatch.queue_for":
+    case "dispatch.preview":
+    case "dispatch.list":
+    case "seat.who_owns":
+    case "delegate.plan":
+      return { ok: false, stub: true, intent };
+
     default:
       throw new JarvisExecError(`executeIntent not wired for ${intent}`);
   }

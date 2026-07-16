@@ -14,11 +14,27 @@ const HARD = new Set<JarvisIntent>([
   "agent.resume",
   "csuite.draft",
 ]);
-const OPS_ONLY = new Set<JarvisIntent>([...HARD, "dispatch.queue"]);
+const OPS_ONLY = new Set<JarvisIntent>([
+  ...HARD,
+  "dispatch.queue",
+  "dispatch.queue_for",
+  "dispatch.preview",
+  "dispatch.list",
+  "delegate.plan",
+]);
 const STRUCTURAL = new Set<JarvisIntent>(["venture.create", "venture.switch"]);
 const ARCHITECT_ONLY = new Set<JarvisIntent>([...STRUCTURAL]);
 
 export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy {
+  if (intent === "agent.spawn_ic") {
+    return {
+      allowed: false,
+      needsConfirm: false,
+      reason:
+        "I can't spawn ICs directly. Queue a manager with dispatch.queue_for, or ask for a delegate plan.",
+    };
+  }
+
   if (intent === "mode.set") return { allowed: true, needsConfirm: false };
 
   if (ARCHITECT_ONLY.has(intent) && mode !== "architect") {
@@ -46,6 +62,7 @@ export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy 
   const needsConfirm =
     HARD.has(intent) ||
     intent === "dispatch.queue" ||
+    intent === "dispatch.queue_for" ||
     STRUCTURAL.has(intent);
 
   return { allowed: true, needsConfirm };

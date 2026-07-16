@@ -173,6 +173,21 @@ const INTENT_COVERAGE: CoverageCase[] = [
     args: { name: "Coverage Venture Alpha" },
   },
   { intent: "venture.switch", args: { slug: "passive-grid" } },
+  { intent: "agent.spawn_ic", args: {} },
+  { intent: "seat.who_owns", args: { phase: "2" } },
+  {
+    intent: "dispatch.preview",
+    args: { position: "head-of-research", goal: "Preview market research" },
+  },
+  {
+    intent: "dispatch.queue_for",
+    args: { position: "cfo", goal: "Review financial model", phase: "2" },
+  },
+  { intent: "dispatch.list", args: {} },
+  {
+    intent: "delegate.plan",
+    args: { position: "head-of-research", goal: "Plan IC delegation" },
+  },
 ];
 
 describe("intent coverage checklist", () => {

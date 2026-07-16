@@ -25,6 +25,12 @@ export const JARVIS_INTENTS = [
   "venture.slugify",
   "venture.create",
   "venture.switch",
+  "agent.spawn_ic",
+  "seat.who_owns",
+  "dispatch.preview",
+  "dispatch.queue_for",
+  "dispatch.list",
+  "delegate.plan",
 ] as const;
 
 export type JarvisIntent = (typeof JARVIS_INTENTS)[number];

@@ -38,4 +38,24 @@ describe("policyFor", () => {
   it("requires confirm for venture.switch in architect", () => {
     expect(policyFor("venture.switch", "architect").needsConfirm).toBe(true);
   });
+  it("always denies agent.spawn_ic", () => {
+    for (const mode of ["briefing", "ops", "review", "architect"] as const) {
+      expect(policyFor("agent.spawn_ic", mode).allowed).toBe(false);
+    }
+  });
+  it("dispatch.queue_for needs confirm in ops", () => {
+    expect(policyFor("dispatch.queue_for", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
+  it("dispatch.queue_for denied in briefing", () => {
+    expect(policyFor("dispatch.queue_for", "briefing").allowed).toBe(false);
+  });
+  it("dispatch.preview allowed in ops without confirm", () => {
+    expect(policyFor("dispatch.preview", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
 });
