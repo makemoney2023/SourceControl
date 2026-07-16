@@ -45,6 +45,11 @@ function confirmSummary(intent: JarvisIntent, args: Record<string, unknown>): st
     const slug = String(args.slug ?? "");
     return `Switch active venture to ${slug}. Confirm?`;
   }
+  if (intent === "dispatch.queue_for") {
+    const position = String(args.position ?? "manager");
+    const phase = String(args.phase ?? "?");
+    return `Queue ${position} for phase ${phase}. Confirm?`;
+  }
   return `Confirm ${intent.replace(/\./g, " ")}?`;
 }
 

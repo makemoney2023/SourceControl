@@ -12,6 +12,8 @@
 | cmo | CMO | ceo-strategist | manager | marketing |
 | creative-director | Creative Director | ceo-strategist | manager | creative |
 | brand-designer | Brand Designer | creative-director | ic | creative |
+| cfo | CFO | ceo-strategist | manager | finance |
+| copy-chief | Copy Chief | cmo | ic | marketing |
 
 ## Phase → owner map
 

@@ -104,6 +104,7 @@ type CoverageCase = {
   intent: JarvisIntent;
   args: Record<string, unknown>;
   seed?: (repoRoot: string) => void;
+  expectThrow?: RegExp;
 };
 
 /** UI↔voice checklist + full JARVIS_INTENTS — minimal valid args per intent. */
@@ -173,7 +174,7 @@ const INTENT_COVERAGE: CoverageCase[] = [
     args: { name: "Coverage Venture Alpha" },
   },
   { intent: "venture.switch", args: { slug: "passive-grid" } },
-  { intent: "agent.spawn_ic", args: {} },
+  { intent: "agent.spawn_ic", args: {}, expectThrow: /forbidden/i },
   { intent: "seat.who_owns", args: { phase: "2" } },
   {
     intent: "dispatch.preview",
@@ -211,6 +212,10 @@ describe("intent coverage checklist", () => {
     async (intent, spec) => {
       repo = tempRepo();
       spec.seed?.(repo);
+      if (spec.expectThrow) {
+        await expect(executeIntent(repo, intent, spec.args)).rejects.toThrow(spec.expectThrow);
+        return;
+      }
       let result: unknown;
       try {
         result = await executeIntent(repo, intent, spec.args);
@@ -473,6 +478,52 @@ describe("executeIntent", () => {
     repo = tempRepo();
     const r = await executeIntent(repo, "mode.set", { roomId: "r1", mode: "architect" });
     expect(r).toMatchObject({ ok: true, mode: "architect" });
+  });
+
+  it("dispatch.queue_for enqueues any manager on a phase", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "dispatch.queue_for", {
+      position: "cfo",
+      goal: "Review financial model",
+      phase: "2",
+    })) as { ok: boolean; path: string };
+    expect(result.ok).toBe(true);
+    expect(result.path).toMatch(/DISPATCH\/queue\//);
+    expect(readdirSync(join(dispatchDir(repo), "queue")).length).toBe(1);
+  });
+
+  it("dispatch.preview returns packet summary for valid manager", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "dispatch.preview", {
+      position: "cfo",
+      goal: "Review financial model",
+      phase: "2",
+    })) as { ok: boolean; summary?: string };
+    expect(result.ok).toBe(true);
+    expect(result.summary).toMatch(/cfo/i);
+  });
+
+  it("agent.spawn_ic throws forbidden", async () => {
+    repo = tempRepo();
+    await expect(executeIntent(repo, "agent.spawn_ic", {})).rejects.toThrow(/forbidden/i);
+  });
+
+  it("seat.who_owns returns phase owner", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "seat.who_owns", { phase: "2" })) as {
+      managerOwner: string;
+    };
+    expect(result.managerOwner).toBe("head-of-research");
+  });
+
+  it("delegate.plan describes manager delegation", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "delegate.plan", {
+      position: "head-of-research",
+      goal: "Plan IC delegation",
+    })) as { level?: string; note: string };
+    expect(result.level).toBe("manager");
+    expect(result.note).toMatch(/spawn listed ICs/i);
   });
 });
 

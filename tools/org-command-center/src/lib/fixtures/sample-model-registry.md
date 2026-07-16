@@ -11,3 +11,4 @@
 | cmo | frontier-reasoning | `claude-opus-4-8[effort=high]` | none |
 | creative-director | creative-language | `claude-opus-4-8[effort=high]` | none |
 | brand-designer | strong-general | `claude-sonnet-5` | brand-stills |
+| cfo | frontier-reasoning | `claude-opus-4-8[effort=high]` | none |

@@ -210,6 +210,18 @@ describe("handleJarvisAct", () => {
     expect(r.summary).toMatch(/active/i);
   });
 
+  it("dispatch.queue_for confirm summary echoes position and phase", async () => {
+    setExecuteIntentForTests(async () => ({ ok: true }));
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "dispatch.queue_for",
+      args: { position: "cfo", goal: "Review model", phase: "2" },
+      mode: "ops",
+    });
+    expect(r.status).toBe("needs_confirm");
+    expect(r.summary).toMatch(/cfo/i);
+    expect(r.summary).toMatch(/phase 2/i);
+  });
+
   it("mode.set updates session; spawn.run_next needs confirm after ops", async () => {
     setExecuteIntentForTests(undefined);
 

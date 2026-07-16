@@ -14,6 +14,7 @@ export type QueueValidatedDispatchResult =
 export function queueValidatedDispatch(
   repoRoot: string,
   raw: ManagerPacketInput,
+  options?: { allowAnyManager?: boolean },
 ): QueueValidatedDispatchResult {
   const body = { ...raw };
   const org = parseOrgRegistry(
@@ -35,7 +36,7 @@ export function queueValidatedDispatch(
   if (!body.phase_name) {
     body.phase_name = tracker.phases.find((p) => p.phase === body.phase)?.name;
   }
-  const result = validateManagerPacket(body, org, models);
+  const result = validateManagerPacket(body, org, models, options);
   if (!result.ok) return { ok: false, errors: result.errors };
 
   const packetPath = enqueueDispatch(dispatchRoot(repoRoot), result.packet);

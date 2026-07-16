@@ -22,6 +22,7 @@ export function validateManagerPacket(
   input: ManagerPacketInput,
   org: OrgRegistry,
   models: ModelRegistry,
+  options?: { allowAnyManager?: boolean },
 ): ValidateResult {
   const errors: string[] = [];
 
@@ -33,7 +34,7 @@ export function validateManagerPacket(
   const owner = resolvePhaseOwner(org, input.phase);
   if (!owner) {
     errors.push(`No phase owner in registry for phase ${input.phase}`);
-  } else if (input.position && input.position !== owner.managerOwner) {
+  } else if (!options?.allowAnyManager && input.position && input.position !== owner.managerOwner) {
     errors.push(
       `position must be phase Manager owner (${owner.managerOwner}), not ${input.position}`,
     );
@@ -75,6 +76,13 @@ export function validateManagerPacket(
   const goalPath =
     input.goal_path?.length ? input.goal_path : [companyGoal, parentGoal, goal];
 
+  const managerOwnerEntry = org.phaseOwners.find((p) => p.managerOwner === input.position);
+  const delegateBudget =
+    input.delegate_budget ??
+    (options?.allowAnyManager
+      ? (managerOwnerEntry?.maySpawn.length ?? 3)
+      : owner!.maySpawn.length);
+
   const packet: ManagerPacket = {
     schema_version: 1,
     queued_at: new Date().toISOString(),
@@ -93,7 +101,7 @@ export function validateManagerPacket(
     write_lease: input.write_lease ?? [],
     budget_usd: input.budget_usd ?? null,
     collaborators: input.collaborators ?? [],
-    delegate_budget: input.delegate_budget ?? owner!.maySpawn.length,
+    delegate_budget: delegateBudget,
     constraints: input.constraints?.length ? input.constraints : DEFAULT_CONSTRAINTS,
     company_goal: companyGoal,
     parent_goal: parentGoal,

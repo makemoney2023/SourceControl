@@ -25,18 +25,12 @@ import { listRoutineDefs, writeRoutine } from "../routines";
 import { loadSnapshot } from "../snapshot";
 import { rewakeSession, spawnClaimedManager } from "../spawn";
 import { writeCsuiteDraft } from "../write-csuite-draft";
+import { buildQueueForPacket, previewQueueFor } from "./dispatch-for";
+import { JarvisExecError } from "./errors";
 import type { JarvisIntent } from "./intents";
 import { getRoomMode, setRoomMode } from "./session";
 
-export class JarvisExecError extends Error {
-  readonly code: string;
-
-  constructor(message: string, code = "exec_error") {
-    super(message);
-    this.name = "JarvisExecError";
-    this.code = code;
-  }
-}
+export { JarvisExecError } from "./errors";
 
 function assertExecOk<T extends { ok: boolean }>(
   result: T,
@@ -274,14 +268,64 @@ export async function executeIntent(
       return { ok: true, active: activeProjectSlug(repoRoot) };
     }
 
-    // Task 6 replaces these stubs with real dispatch-for / who_owns handlers.
+    // Task 6: dispatch-for builder + awareness reads
+    case "dispatch.queue_for": {
+      const position = String(args.position ?? "");
+      const goal = String(args.goal ?? "");
+      const phase = args.phase != null ? String(args.phase) : undefined;
+      const input = buildQueueForPacket(repoRoot, { position, goal, phase });
+      const result = queueValidatedDispatch(repoRoot, input, { allowAnyManager: true });
+      assertExecOk(result, (r) => ("errors" in r ? r.errors : []).join("; "));
+      emitJarvisFocus(droot, { phase: input.phase, slug: input.position });
+      return result;
+    }
+
+    case "dispatch.preview": {
+      return previewQueueFor(repoRoot, {
+        position: String(args.position ?? ""),
+        goal: String(args.goal ?? ""),
+        phase: args.phase != null ? String(args.phase) : undefined,
+      });
+    }
+
+    case "seat.who_owns": {
+      const phase = String(args.phase ?? snap.mission.currentPhase ?? "");
+      const org = snap.org;
+      const owner = org.phaseOwners.find((p) => p.phase === phase);
+      if (!owner) throw new JarvisExecError(`No owner for phase ${phase}`, "unknown_phase");
+      return {
+        phase,
+        managerOwner: owner.managerOwner,
+        maySpawn: owner.maySpawn,
+        csuiteReviewer: owner.csuiteReviewer,
+      };
+    }
+
+    case "dispatch.list": {
+      return { queue: snap.queue, claimed: snap.claimed };
+    }
+
+    case "delegate.plan": {
+      const position = String(args.position ?? "");
+      const goal = String(args.goal ?? "");
+      const owner =
+        snap.org.phaseOwners.find((p) => p.managerOwner === position) ??
+        snap.org.phaseOwners.find((p) => p.phase === String(snap.mission.currentPhase));
+      const seat = snap.org.roster.find((r) => r.slug === position);
+      return {
+        position,
+        level: seat?.level,
+        goal,
+        maySpawn: owner?.maySpawn ?? [],
+        note:
+          seat?.level === "manager"
+            ? "Queue this manager; they may spawn listed ICs."
+            : "This seat is IC — queue their manager instead.",
+      };
+    }
+
     case "agent.spawn_ic":
-    case "dispatch.queue_for":
-    case "dispatch.preview":
-    case "dispatch.list":
-    case "seat.who_owns":
-    case "delegate.plan":
-      return { ok: false, stub: true, intent };
+      throw new JarvisExecError("IC spawn forbidden", "forbidden");
 
     default:
       throw new JarvisExecError(`executeIntent not wired for ${intent}`);

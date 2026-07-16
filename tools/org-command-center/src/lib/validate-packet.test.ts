@@ -85,6 +85,22 @@ describe("validateManagerPacket", () => {
     if (!result.ok) expect(result.errors.join(" ")).toMatch(/owner/i);
   });
 
+  it("allows any manager when allowAnyManager is set", () => {
+    const result = validateManagerPacket(
+      {
+        phase: "2",
+        position: "cmo",
+        goal: "Cross-phase task",
+        llm_tier: "frontier-reasoning",
+      },
+      org,
+      models,
+      { allowAnyManager: true },
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.packet.position).toBe("cmo");
+  });
+
   it("requires generation_profile for creative phases 11/12/15/19", () => {
     const missing = validateManagerPacket(
       {
