@@ -18,9 +18,12 @@ import type { RuntimeAdapter } from "../runtime-adapter";
 import { handleJarvisAct, handleJarvisConfirm } from "./act";
 import { resetSessionForTests } from "./session";
 import { buildJarvisContext } from "./briefing";
-import { executeIntent } from "./tools-exec";
+import { executeIntent, JarvisExecError } from "./tools-exec";
 import { readActivityTail } from "../activity";
+import { saveAlerts } from "../alerts-fs";
 import { dispatchRoot } from "../paths";
+import { writeRoutine } from "../routines";
+import { JARVIS_INTENTS, type JarvisIntent } from "./intents";
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "../../src/lib/fixtures");
 const BIZ_IDEA = "docs/projects/passive-grid/business-idea";
@@ -96,6 +99,108 @@ function dispatchDir(repoRoot: string) {
 function enqueue(repoRoot: string, p: ManagerPacket, name: string) {
   writeFileSync(join(dispatchDir(repoRoot), "queue", name), YAML.stringify(p));
 }
+
+type CoverageCase = {
+  intent: JarvisIntent;
+  args: Record<string, unknown>;
+  seed?: (repoRoot: string) => void;
+};
+
+/** UI↔voice checklist + full JARVIS_INTENTS — minimal valid args per intent. */
+const INTENT_COVERAGE: CoverageCase[] = [
+  { intent: "mission.get", args: {} },
+  { intent: "digest.get", args: {} },
+  { intent: "seat.report", args: { slug: "ceo-strategist" } },
+  { intent: "tasks.list", args: {} },
+  { intent: "runs.list", args: {} },
+  { intent: "activity.list", args: {} },
+  { intent: "alerts.list", args: {} },
+  { intent: "spend.get", args: {} },
+  {
+    intent: "dispatch.queue",
+    args: {
+      phase: "2",
+      position: "head-of-research",
+      goal: "Run market research",
+      llm_tier: "strong-general",
+    },
+  },
+  {
+    intent: "alerts.ack",
+    args: { id: "blocked:test-handoff.yaml:blocked" },
+    seed(repoRoot) {
+      saveAlerts(dispatchDir(repoRoot), [
+        {
+          id: "blocked:test-handoff.yaml:blocked",
+          filename: "test-handoff.yaml",
+          slug: "head-of-research",
+          phase: "2",
+          kind: "blocked",
+          createdAt: "2026-07-16T12:00:00.000Z",
+          acked: false,
+        },
+      ]);
+    },
+  },
+  {
+    intent: "routine.enable",
+    args: { id: "daily-pulse", enabled: true },
+    seed(repoRoot) {
+      writeRoutine(dispatchDir(repoRoot), {
+        id: "daily-pulse",
+        enabled: false,
+        cron: "0 9 * * *",
+        action: "enqueue",
+        phase: "2",
+        position: "head-of-research",
+        goal: "Daily pulse",
+      });
+    },
+  },
+  { intent: "spawn.run_next", args: { apiKey: null } },
+  { intent: "run.cancel", args: { runId: "missing-run" } },
+  { intent: "run.rewake", args: { apiKey: null } },
+  { intent: "agent.pause", args: { slug: "head-of-research" } },
+  { intent: "agent.resume", args: { slug: "head-of-research" } },
+  { intent: "csuite.draft", args: { phase: "2" } },
+  { intent: "file.read", args: { path: "skills/org/ORG-REGISTRY.md" } },
+  { intent: "mode.set", args: { mode: "ops", roomId: "coverage-room" } },
+];
+
+describe("intent coverage checklist", () => {
+  let repo = "";
+
+  afterEach(() => {
+    if (repo) rmSync(repo, { recursive: true, force: true });
+    clearRunRegistry();
+    resetSessionForTests();
+  });
+
+  it("covers every JARVIS_INTENTS entry", () => {
+    const covered = new Set(INTENT_COVERAGE.map((c) => c.intent));
+    for (const intent of JARVIS_INTENTS) {
+      expect(covered.has(intent)).toBe(true);
+    }
+  });
+
+  it.each(INTENT_COVERAGE.map((c) => [c.intent, c] as const))(
+    "%s executes without uncaught throw on fixture repo",
+    async (intent, spec) => {
+      repo = tempRepo();
+      spec.seed?.(repo);
+      let result: unknown;
+      try {
+        result = await executeIntent(repo, intent, spec.args);
+      } catch (e) {
+        throw new Error(
+          `${intent} threw unexpectedly: ${e instanceof JarvisExecError ? e.message : String(e)}`,
+          { cause: e },
+        );
+      }
+      expect(result).toBeDefined();
+    },
+  );
+});
 
 describe("executeIntent", () => {
   let repo = "";

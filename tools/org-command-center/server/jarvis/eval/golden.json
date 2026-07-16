@@ -1,0 +1,156 @@
+[
+  {
+    "utterance": "where are we with the atmospheric water generator",
+    "expectIntent": "mission.get",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "what's the mission status on phase two",
+    "expectIntent": "mission.get",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "give me the company digest",
+    "expectIntent": "digest.get",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "morning brief please",
+    "expectIntent": "digest.get",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "run the next dispatch",
+    "expectIntent": "spawn.run_next",
+    "mode": "ops",
+    "expectNeedsConfirm": true,
+    "expectAllowed": true
+  },
+  {
+    "utterance": "run the next dispatch",
+    "expectIntent": "spawn.run_next",
+    "mode": "briefing",
+    "expectAllowed": false
+  },
+  {
+    "utterance": "execute the queue",
+    "expectIntent": "spawn.run_next",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "spawn the next run",
+    "expectIntent": "spawn.run_next",
+    "mode": "review",
+    "expectAllowed": false
+  },
+  {
+    "utterance": "yes run the next dispatch",
+    "expectIntent": "spawn.run_next",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "pause head of research",
+    "expectIntent": "agent.pause",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "go ahead and pause research",
+    "expectIntent": "agent.pause",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "resume the legal seat",
+    "expectIntent": "agent.resume",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "cancel the current run",
+    "expectIntent": "run.cancel",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "rewake the stalled run",
+    "expectIntent": "run.rewake",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "queue phase two for dispatch",
+    "expectIntent": "dispatch.queue",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "assign this to the research seat",
+    "expectIntent": "dispatch.queue",
+    "mode": "briefing",
+    "expectAllowed": false
+  },
+  {
+    "utterance": "report on head of product",
+    "expectIntent": "seat.report",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "how is head of sales doing",
+    "expectIntent": "seat.report",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "what alerts do we have",
+    "expectIntent": "alerts.list",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "acknowledge the critical alert",
+    "expectIntent": "alerts.ack",
+    "mode": "review"
+  },
+  {
+    "utterance": "how much have we spent this month",
+    "expectIntent": "spend.get",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "switch to ops mode",
+    "expectIntent": "mode.set",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "list open tasks",
+    "expectIntent": "tasks.list",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "show me recent runs",
+    "expectIntent": "runs.list",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "what's the activity pulse",
+    "expectIntent": "activity.list",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "read the roadmap file",
+    "expectIntent": "file.read",
+    "mode": "review"
+  },
+  {
+    "utterance": "draft a c-suite update",
+    "expectIntent": "csuite.draft",
+    "mode": "review",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "enable the morning routine",
+    "expectIntent": "routine.enable",
+    "mode": "ops"
+  }
+]

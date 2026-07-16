@@ -11,7 +11,7 @@ import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { watch } from "chokidar";
 import { enqueueDispatch } from "../src/lib/dispatch-queue";
-import { parseModelRegistry, parseOrgRegistry, resolvePhaseOwner } from "../src/lib/parse-registry";
+import { resolvePhaseOwner } from "../src/lib/parse-registry";
 import type { ManagerPacketInput } from "../src/lib/types";
 import { ackHandoffAlert } from "./alerts-fs";
 import { renderStandupBriefing } from "../src/jarvis/briefings";

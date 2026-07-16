@@ -20,16 +20,16 @@ import { listRoutineDefs, writeRoutine } from "../routines";
 import { loadSnapshot } from "../snapshot";
 import { rewakeSession, spawnClaimedManager } from "../spawn";
 import { writeCsuiteDraft } from "../write-csuite-draft";
-import type { JarvisIntent, JarvisMode } from "./intents";
+import type { JarvisIntent } from "./intents";
 import { getRoomMode, setRoomMode } from "./session";
 
 export class JarvisExecError extends Error {
-  constructor(
-    message: string,
-    readonly code = "exec_error",
-  ) {
+  readonly code: string;
+
+  constructor(message: string, code = "exec_error") {
     super(message);
     this.name = "JarvisExecError";
+    this.code = code;
   }
 }
 
@@ -133,7 +133,10 @@ export async function executeIntent(
       return { spend: snap.spend };
 
     case "dispatch.queue": {
-      const result = queueValidatedDispatch(repoRoot, args as ManagerPacketInput);
+      const result = queueValidatedDispatch(
+        repoRoot,
+        args as unknown as ManagerPacketInput,
+      );
       assertExecOk(result, (r) => ("errors" in r ? r.errors : []).join("; "));
       return result;
     }

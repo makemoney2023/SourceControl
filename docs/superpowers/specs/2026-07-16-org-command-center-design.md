@@ -346,7 +346,7 @@ No Paperclip; no auto-approve; templates remain canonical.
 
 **Status:** Active  
 **Plan:** `docs/superpowers/plans/2026-07-16-livekit-self-host-voice.md`  
-**Next:** Enterprise Jarvis Dialog (v3.5) — `docs/superpowers/specs/2026-07-16-enterprise-jarvis-dialog-design.md` + `docs/superpowers/plans/2026-07-16-enterprise-jarvis-dialog.md`
+**Superseded by:** Jarvis Dialog (v3.5) for Talk behavior — transport unchanged; see below.
 
 ### Cost policy
 
@@ -373,3 +373,84 @@ WHISPER_URL=http://127.0.0.1:8090/v1
 OMNIVOICE_URL=http://127.0.0.1:3900
 OCC_API_BASE=http://127.0.0.1:5177
 ```
+
+---
+
+## Jarvis Dialog (v3.5)
+
+**Status:** Active (Waves A–C implemented)  
+**Design:** `docs/superpowers/specs/2026-07-16-enterprise-jarvis-dialog-design.md`  
+**Plan:** `docs/superpowers/plans/2026-07-16-enterprise-jarvis-dialog.md`  
+**Extends:** v3.4 LiveKit transport — adds Dialogue Control Plane (DCP), modes, confirm protocol, and full control-plane voice parity.
+
+### Dialogue Control Plane (DCP)
+
+Server module: `tools/org-command-center/server/jarvis/`
+
+| Module | Responsibility |
+|--------|----------------|
+| `intents.ts` | Canonical intent enum + parse from tool args |
+| `policy.ts` | Mode gates, confirm rules, deny reasons |
+| `session.ts` | Per-room state: mode, pending confirm tokens |
+| `briefing.ts` | Connect opener + mission script |
+| `tools-exec.ts` | Execute intents against existing OCC services |
+| `audit.ts` | Activity: `jarvis_intent`, `jarvis_confirm`, `jarvis_denied` |
+| `act.ts` | `act` / `confirm` orchestration |
+
+Voice agent tools call OCC (single source of truth), not raw `/api/*`:
+
+- `POST /api/jarvis/act` `{ intent, args, confirmToken? }`
+- `GET /api/jarvis/context` → mission + digest slice for system prompt
+- `POST /api/jarvis/confirm` `{ token, accept: boolean }`
+
+LiveKit agent (`livekit-agent/`) exposes thin tools → `jarvis_act` / `set_mode` / `jarvis_confirm`.
+
+### Modes
+
+Inspired by LiveKit agent handoffs; mode state lives in DCP session.
+
+| Mode | Persona | Tool subset |
+|------|---------|-------------|
+| **Briefing** (default on connect) | COO on the radio | read: mission, digest, seat, tasks, runs, activity, alerts, spend |
+| **Ops** | Execution officer | Briefing + queue, run_next, cancel, rewake, pause, resume |
+| **Review** | Chief of staff | Briefing + file.read, csuite.draft, alerts |
+
+Switch: say **“switch to ops”** / **“switch to briefing”** / **“switch to review”** (intent `mode.set`). Ops-only intents are denied in Briefing.
+
+### Confirm protocol
+
+Hard writes and assign always return `{ status: "needs_confirm", token, summary }`:
+
+1. Jarvis speaks a one-line summary + **“Confirm?”**
+2. Operator replies **yes** or **no** (or UI tap → `jarvis_confirm`)
+3. Token is single-use, 60s TTL
+
+Soft writes (`alerts.ack`, `routine.enable`) confirm only when ambiguous.
+
+### OSS voice stack (locked)
+
+| Piece | Default |
+|-------|---------|
+| Transport | LiveKit server (self-host) |
+| Agent | `@livekit/agents` (Node) |
+| LLM | Ollama `qwen3` (fallback `llama3.1`) — tool-call smoke required |
+| STT | Whisper sidecar |
+| TTS | mlx-audio Kokoro `am_adam` (`npm run mlx-tts:setup` / `mlx-tts:up`) |
+| VAD | Silero |
+
+**Out of policy:** LiveKit Cloud/Inference, Deepgram, Cartesia, ElevenLabs, OpenAI/Anthropic for Talk. Cursor SDK remains worker runtime only.
+
+### Command presence + UI sync
+
+- On connect: `GET /api/jarvis/context` → spoken 2-sentence mission brief.
+- SSE `jarvis.focus` events highlight mission strip / seat when Jarvis references phase or slug.
+- Optional idle pulse: env `JARVIS_PULSE_MS` (default 0).
+
+### Eval
+
+- CI: `server/jarvis/eval/golden.json` (≥20 cases) + `run-golden.test.ts` (heuristic intent + policy, no LiveKit).
+- Local: `npm run jarvis:smoke` (Ollama tool calls), `npm run jarvis:eval:ollama` (optional live LLM eval).
+
+### Wave D (pending)
+
+Audit deny UX, `file.read` path hardening, latency budget — see plan Task 13+.

@@ -22,7 +22,8 @@
     "voice-stack": "bash scripts/voice-stack-up.sh",
     "agent:dev": "npm --prefix livekit-agent run dev",
     "agent:test": "npm --prefix livekit-agent test",
-    "jarvis:smoke": "bash livekit-agent/scripts/smoke-ollama-tools.sh"
+    "jarvis:smoke": "bash livekit-agent/scripts/smoke-ollama-tools.sh",
+    "jarvis:eval:ollama": "node server/jarvis/eval/ollama-eval.mjs"
   },
   "dependencies": {
     "@cursor/sdk": "^1.0.23",
