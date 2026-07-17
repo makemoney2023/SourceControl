@@ -107,6 +107,12 @@ export interface ManagerPacketInput {
   /** Used only for default fill — not required on disk */
   idea?: string;
   phase_name?: string;
+  /** IC slug the manager should spawn after intake */
+  preferred_ic?: string;
+  /** When true, run acceptance requires a review inbox artifact */
+  require_inbox?: boolean;
+  /** When true, run acceptance requires an IC handoff for preferred_ic */
+  require_ic_handoff?: boolean;
 }
 
 export interface ManagerPacket {
@@ -131,6 +137,12 @@ export interface ManagerPacket {
   company_goal: string;
   parent_goal: string;
   goal_path: string[];
+  /** IC slug the manager should spawn after intake */
+  preferred_ic?: string;
+  /** When true, run acceptance requires a review inbox artifact */
+  require_inbox?: boolean;
+  /** When true, run acceptance requires an IC handoff for preferred_ic */
+  require_ic_handoff?: boolean;
 }
 
 export type ValidateResult =

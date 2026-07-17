@@ -6,19 +6,33 @@ import type { ManagerPacketInput } from "../../src/lib/types";
 import { assertReadable, trackerPath } from "../paths";
 import { loadSnapshot } from "../snapshot";
 import { JarvisExecError } from "./errors";
+import { resolveSeatSlug } from "./resolve-seat";
 
 export type QueueForArgs = {
   position: string;
   goal: string;
   phase?: string;
+  /** Alias for preferred_ic — used by work.request flows */
+  targetIc?: string;
+  preferred_ic?: string;
+  require_inbox?: boolean;
+  require_ic_handoff?: boolean;
 };
+
+function resolvePositionArg(repoRoot: string, raw: string): string {
+  const org = parseOrgRegistry(
+    readFileSync(assertReadable(repoRoot, "skills/org/ORG-REGISTRY.md"), "utf8"),
+  );
+  return resolveSeatSlug(raw, org.roster) ?? raw;
+}
 
 /** Resolve queue_for args so confirm tokens bind the same phase execution will use. */
 export function normalizeQueueForArgs(
   repoRoot: string,
   args: Record<string, unknown>,
 ): Record<string, unknown> {
-  const position = String(args.position ?? "").trim();
+  const rawPosition = String(args.position ?? "").trim();
+  const position = rawPosition ? resolvePositionArg(repoRoot, rawPosition) : rawPosition;
   const goal = String(args.goal ?? "").trim();
   const explicitPhase = typeof args.phase === "string" ? args.phase.trim() : "";
   if (explicitPhase) {
@@ -31,16 +45,17 @@ export function normalizeQueueForArgs(
 }
 
 export function buildQueueForPacket(repoRoot: string, args: QueueForArgs): ManagerPacketInput {
-  const position = args.position?.trim();
+  const rawPosition = args.position?.trim();
   const goal = args.goal?.trim();
-  if (!position) throw new JarvisExecError("position required", "missing_arg");
+  if (!rawPosition) throw new JarvisExecError("position required", "missing_arg");
   if (!goal) throw new JarvisExecError("goal required", "missing_arg");
 
   const org = parseOrgRegistry(
     readFileSync(assertReadable(repoRoot, "skills/org/ORG-REGISTRY.md"), "utf8"),
   );
+  const position = resolveSeatSlug(rawPosition, org.roster) ?? rawPosition;
   const seat = org.roster.find((r) => r.slug === position);
-  if (!seat) throw new JarvisExecError(`Unknown seat: ${position}`, "unknown_seat");
+  if (!seat) throw new JarvisExecError(`Unknown seat: ${rawPosition}`, "unknown_seat");
   if (seat.level !== "manager") {
     throw new JarvisExecError(
       `${position} is an IC — queue their manager instead`,
@@ -59,7 +74,12 @@ export function buildQueueForPacket(repoRoot: string, args: QueueForArgs): Manag
   );
   const model = models[position];
 
-  return {
+  const rawPreferredIc = (args.preferred_ic ?? args.targetIc)?.trim();
+  const preferred_ic = rawPreferredIc
+    ? resolveSeatSlug(rawPreferredIc, org.roster) ?? rawPreferredIc
+    : undefined;
+
+  const input: ManagerPacketInput = {
     phase,
     position,
     goal,
@@ -69,6 +89,14 @@ export function buildQueueForPacket(repoRoot: string, args: QueueForArgs): Manag
     llm_model: model?.llmModel,
     generation_profile: model?.generationProfile,
   };
+
+  if (preferred_ic) {
+    input.preferred_ic = preferred_ic;
+    input.require_inbox = args.require_inbox ?? true;
+    input.require_ic_handoff = args.require_ic_handoff ?? true;
+  }
+
+  return input;
 }
 
 export function previewQueueFor(repoRoot: string, args: QueueForArgs) {

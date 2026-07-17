@@ -55,6 +55,22 @@ export function validateManagerPacket(
     );
   }
 
+  if (input.preferred_ic) {
+    const ic = org.roster.find((r) => r.slug === input.preferred_ic);
+    if (!ic) {
+      errors.push(`Unknown preferred_ic slug: ${input.preferred_ic}`);
+    } else if (ic.level !== "ic") {
+      errors.push(`preferred_ic must be an IC, not ${ic.level}: ${input.preferred_ic}`);
+    } else {
+      const mgr = org.roster.find((r) => r.slug === ic.reportsTo);
+      if (!mgr || mgr.level !== "manager") {
+        errors.push(
+          `preferred_ic ${input.preferred_ic} does not report to a manager`,
+        );
+      }
+    }
+  }
+
   if (errors.length) return { ok: false, errors };
 
   const model = models[input.position] ?? {
@@ -106,6 +122,11 @@ export function validateManagerPacket(
     company_goal: companyGoal,
     parent_goal: parentGoal,
     goal_path: goalPath,
+    ...(input.preferred_ic ? { preferred_ic: input.preferred_ic } : {}),
+    ...(input.require_inbox !== undefined ? { require_inbox: input.require_inbox } : {}),
+    ...(input.require_ic_handoff !== undefined
+      ? { require_ic_handoff: input.require_ic_handoff }
+      : {}),
   };
 
   return { ok: true, packet };

@@ -29,8 +29,8 @@ function tempRepo() {
 
   const modelMd = readFileSync(join(FIXTURES, "sample-model-registry.md"), "utf8");
   const extendedModels = modelMd.replace(
-    "| brand-designer | strong-general | `claude-sonnet-5` | brand-stills |",
-    "| brand-designer | strong-general | `claude-sonnet-5` | brand-stills |\n| cfo | frontier-reasoning | `claude-opus-4-8[effort=high]` | none |",
+    "| brand-designer | strong-general | `composer-2.5` | brand-stills |",
+    "| brand-designer | strong-general | `composer-2.5` | brand-stills |\n| cfo | frontier-reasoning | `grok-4-5` | none |",
   );
   writeFileSync(join(root, "skills/org/MODEL-REGISTRY.md"), extendedModels);
 
@@ -103,6 +103,19 @@ describe("buildQueueForPacket", () => {
       buildQueueForPacket(repo, { position: "not-a-seat", goal: "Do work", phase: "2" }),
     ).toThrow(JarvisExecError);
   });
+
+  it("sets preferred_ic and acceptance defaults when targetIc provided", () => {
+    repo = tempRepo();
+    const input = buildQueueForPacket(repo, {
+      position: "cmo",
+      goal: "Write blog copy",
+      phase: "13",
+      targetIc: "copy-chief",
+    });
+    expect(input.preferred_ic).toBe("copy-chief");
+    expect(input.require_inbox).toBe(true);
+    expect(input.require_ic_handoff).toBe(true);
+  });
 });
 
 describe("previewQueueFor", () => {
@@ -123,6 +136,22 @@ describe("previewQueueFor", () => {
     if (result.ok) {
       expect(result.packet.position).toBe("cfo");
       expect(result.summary).toMatch(/cfo/i);
+    }
+  });
+
+  it("includes preferred_ic and acceptance flags when targetIc set", () => {
+    repo = tempRepo();
+    const result = previewQueueFor(repo, {
+      position: "cmo",
+      goal: "Write blog copy",
+      phase: "13",
+      targetIc: "copy-chief",
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.packet.preferred_ic).toBe("copy-chief");
+      expect(result.packet.require_inbox).toBe(true);
+      expect(result.packet.require_ic_handoff).toBe(true);
     }
   });
 

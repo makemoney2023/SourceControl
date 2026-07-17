@@ -27,7 +27,7 @@ describe("validateManagerPacket", () => {
     );
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.packet.llm_model).toBe("claude-sonnet-5");
+      expect(result.packet.llm_model).toBe("composer-2.5");
       expect(result.packet.report_to).toBe("ceo-strategist");
       expect(result.packet.parent_position).toBe("orchestrator");
       expect(result.packet.generation_profile).toBe("none");
@@ -99,6 +99,63 @@ describe("validateManagerPacket", () => {
     );
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.packet.position).toBe("cmo");
+  });
+
+  it("accepts preferred_ic when IC reports to a manager", () => {
+    const result = validateManagerPacket(
+      {
+        phase: "13",
+        position: "cmo",
+        goal: "Ship blog copy",
+        llm_tier: "frontier-reasoning",
+        preferred_ic: "copy-chief",
+        require_inbox: true,
+        require_ic_handoff: true,
+      },
+      org,
+      models,
+      { allowAnyManager: true },
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.packet.preferred_ic).toBe("copy-chief");
+      expect(result.packet.require_inbox).toBe(true);
+      expect(result.packet.require_ic_handoff).toBe(true);
+    }
+  });
+
+  it("rejects unknown preferred_ic", () => {
+    const result = validateManagerPacket(
+      {
+        phase: "13",
+        position: "cmo",
+        goal: "Ship blog copy",
+        llm_tier: "frontier-reasoning",
+        preferred_ic: "not-a-real-ic",
+      },
+      org,
+      models,
+      { allowAnyManager: true },
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.join(" ")).toMatch(/unknown preferred_ic/i);
+  });
+
+  it("rejects preferred_ic that is not an IC", () => {
+    const result = validateManagerPacket(
+      {
+        phase: "13",
+        position: "cmo",
+        goal: "Ship blog copy",
+        llm_tier: "frontier-reasoning",
+        preferred_ic: "cmo",
+      },
+      org,
+      models,
+      { allowAnyManager: true },
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.join(" ")).toMatch(/must be an IC/i);
   });
 
   it("requires generation_profile for creative phases 11/12/15/19", () => {
