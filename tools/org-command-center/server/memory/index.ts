@@ -1,6 +1,6 @@
 import { loadSnapshot } from "../snapshot";
-import { activeProjectSlug } from "../paths";
-import { appendMemoryNote, readMemorySnippets } from "./fs-store";
+import { activeProjectSlug, loadRegistry } from "../paths";
+import { appendMemoryNote, readMemorySnippets, writeSessionDigestFile } from "./fs-store";
 import { grepRecallMemory } from "./grep-recall";
 import {
   buildNoteDoc,
@@ -8,6 +8,8 @@ import {
   queryMemoryDocs,
   upsertMemoryDocs,
 } from "./chroma-index";
+import { loadRecentRunLines } from "./run-lifecycle";
+import { buildSessionDigestMarkdown } from "./session-digest";
 import { composeMemoryBrief, speakMemoryBrief } from "./situation";
 import type { MemoryBrief, MemoryNoteKind, MemoryRecallHit } from "./types";
 
@@ -93,4 +95,59 @@ export async function memoryBrief(repoRoot: string): Promise<MemoryBrief & { spo
     recentRunLines: [],
   });
   return { ...brief, spoken: speakMemoryBrief(brief) };
+}
+
+function missionLineFromSnapshot(snap: ReturnType<typeof loadSnapshot>): string {
+  const phase = snap.mission.currentPhaseName
+    ? `Phase ${snap.mission.currentPhase} — ${snap.mission.currentPhaseName}`
+    : `Phase ${snap.mission.currentPhase}`;
+  const next = snap.mission.nextAction.trim();
+  return next ? `${phase}: ${next}` : phase;
+}
+
+export async function memoryDigest(
+  repoRoot: string,
+  args?: {
+    summary?: string;
+  },
+): Promise<{ path: string; indexed: boolean; spoken: string }> {
+  const at = new Date();
+  const snap = loadSnapshot(repoRoot);
+  const reg = loadRegistry(repoRoot);
+  const slug = reg.active;
+  const ventureName = reg.projects[slug]?.name ?? slug;
+  const snippets = readMemorySnippets(repoRoot);
+  const runLines = loadRecentRunLines(repoRoot, 10);
+  const noteLines = [
+    ...snippets.noteLines.slice(-10),
+    ...snippets.decisionLines.slice(-5),
+  ];
+
+  const markdown = buildSessionDigestMarkdown({
+    ventureName,
+    slug,
+    at,
+    operatorSummary: args?.summary,
+    missionLine: missionLineFromSnapshot(snap),
+    runLines,
+    noteLines,
+  });
+
+  const { path } = writeSessionDigestFile(repoRoot, markdown, at);
+
+  let indexed = false;
+  try {
+    const doc = buildNoteDoc(slug, path, markdown, "session", at.toISOString());
+    await upsertMemoryDocs([doc]);
+    indexed = true;
+  } catch (err) {
+    console.warn("[memory] chroma digest upsert failed:", err instanceof Error ? err.message : err);
+  }
+
+  const relName = path.split("/").pop() ?? path;
+  return {
+    path,
+    indexed,
+    spoken: `Session digest saved to ${relName}.`,
+  };
 }

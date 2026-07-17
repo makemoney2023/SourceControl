@@ -90,4 +90,9 @@ describe("parseJarvisAct", () => {
   it("accepts memory.brief", () => {
     expect(parseJarvisAct({ intent: "memory.brief", args: {} }).intent).toBe("memory.brief");
   });
+  it("accepts memory.digest", () => {
+    expect(parseJarvisAct({ intent: "memory.digest", args: { summary: "Done for today" } }).intent).toBe(
+      "memory.digest",
+    );
+  });
 });

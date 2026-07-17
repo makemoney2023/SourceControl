@@ -323,6 +323,7 @@ fallback_applied: ""
   { intent: "memory.recall", args: { query: "sorbent evidence" } },
   { intent: "memory.brief", args: {} },
   { intent: "memory.note", args: { text: "Coverage test note" } },
+  { intent: "memory.digest", args: { summary: "Session wrap-up" } },
 ];
 
 describe("intent coverage checklist", () => {
@@ -426,6 +427,17 @@ describe("executeIntent", () => {
   it("memory.note requires text", async () => {
     repo = tempRepo();
     await expect(executeIntent(repo, "memory.note", {})).rejects.toThrow(/text required/i);
+  });
+
+  it("memory.digest writes session digest file", async () => {
+    repo = tempRepo();
+    mkdirSync(join(repo, "docs/projects/passive-grid/MEMORY"), { recursive: true });
+    const result = (await executeIntent(repo, "memory.digest", {
+      summary: "Evidence review done.",
+    })) as { path: string; spoken: string; indexed: boolean };
+    expect(result.path).toMatch(/MEMORY\/sessions\/\d{4}-\d{2}-\d{2}-\d{4}\.md$/);
+    expect(existsSync(join(repo, result.path))).toBe(true);
+    expect(result.spoken).toMatch(/digest saved/i);
   });
 
   it("digest.get returns company digest", async () => {

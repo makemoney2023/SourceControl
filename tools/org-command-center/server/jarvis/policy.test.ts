@@ -305,4 +305,17 @@ describe("policyFor", () => {
       needsConfirm: true,
     });
   });
+  it("memory.digest denied outside ops", () => {
+    expect(policyFor("memory.digest", "briefing")).toEqual({
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    });
+  });
+  it("memory.digest requires confirm in ops", () => {
+    expect(policyFor("memory.digest", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
 });

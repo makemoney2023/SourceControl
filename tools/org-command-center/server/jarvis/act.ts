@@ -3,6 +3,7 @@ import { normalizeQueueForArgs } from "./dispatch-for";
 import { JarvisExecError } from "./errors";
 import { parseJarvisAct, type JarvisIntent, type JarvisMode } from "./intents";
 import { policyFor } from "./policy";
+import { loadRegistry } from "../paths";
 import {
   cancelConfirm,
   consumeConfirm,
@@ -89,6 +90,10 @@ function confirmSummary(intent: JarvisIntent, args: Record<string, unknown>): st
     const text = String(args.text ?? "").trim();
     const truncated = text.length > 80 ? `${text.slice(0, 77)}...` : text;
     return `I'll remember: ${truncated}. Confirm?`;
+  }
+  if (intent === "memory.digest") {
+    const venture = String(args.ventureName ?? "this venture");
+    return `Write a session digest for ${venture}. Confirm?`;
   }
   return `Confirm ${intent.replace(/\./g, " ")}?`;
 }
@@ -179,6 +184,9 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
   }
   if (intent === "memory.recall" && typeof result === "object" && result !== null && "summary" in result) {
     return String((result as { summary: string }).summary);
+  }
+  if (intent === "memory.digest" && typeof result === "object" && result !== null && "spoken" in result) {
+    return String((result as { spoken: string }).spoken);
   }
   return `Done: ${intent.replace(/\./g, " ")}.`;
 }
@@ -276,7 +284,19 @@ export async function handleJarvisAct(
         }
       }
       const token = createConfirmToken(roomId, act.intent, confirmArgs, mode);
-      const summary = confirmSummary(act.intent, confirmArgs);
+      let summaryArgs: Record<string, unknown> = confirmArgs;
+      if (act.intent === "memory.digest") {
+        try {
+          const reg = loadRegistry(repoRoot);
+          summaryArgs = {
+            ...confirmArgs,
+            ventureName: reg.projects[reg.active]?.name ?? reg.active,
+          };
+        } catch {
+          /* use default venture label */
+        }
+      }
+      const summary = confirmSummary(act.intent, summaryArgs);
       auditJarvis(
         {
           roomId,

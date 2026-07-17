@@ -7,27 +7,46 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ProjectRegistry } from "../paths";
 import * as chromaIndex from "./chroma-index";
-import { memoryNote, memoryRecall } from "./index";
+import { memoryDigest, memoryNote, memoryRecall } from "./index";
+
+const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "../../src/lib/fixtures");
+const BIZ_IDEA = "docs/projects/a/business-idea";
 
 function seedRepo(): string {
   const root = mkdtempSync(join(tmpdir(), "occ-memory-index-"));
   mkdirSync(join(root, "projects"), { recursive: true });
+  mkdirSync(join(root, "skills/org"), { recursive: true });
   mkdirSync(join(root, "docs/projects/a/MEMORY"), { recursive: true });
+  writeFileSync(
+    join(root, "skills/org/ORG-REGISTRY.md"),
+    readFileSync(join(FIXTURES, "sample-org-registry.md"), "utf8"),
+  );
+  writeFileSync(
+    join(root, "skills/org/MODEL-REGISTRY.md"),
+    readFileSync(join(FIXTURES, "sample-model-registry.md"), "utf8"),
+  );
   const reg: ProjectRegistry = {
     active: "a",
     projects: {
       a: {
         name: "Alpha",
-        businessIdea: "docs/projects/a/business-idea",
+        businessIdea: BIZ_IDEA,
         memory: "docs/projects/a/MEMORY",
       },
     },
   };
   writeFileSync(join(root, "projects/registry.json"), JSON.stringify(reg, null, 2));
+  const idea = join(root, BIZ_IDEA);
+  mkdirSync(join(idea, "DISPATCH/queue"), { recursive: true });
+  mkdirSync(join(idea, "DISPATCH/claimed"), { recursive: true });
+  mkdirSync(join(idea, "DISPATCH/runs"), { recursive: true });
+  mkdirSync(join(idea, "HANDOFFS"), { recursive: true });
+  writeFileSync(join(idea, "RUNBOOK-TRACKER.md"), readFileSync(join(FIXTURES, "sample-tracker.md"), "utf8"));
   return root;
 }
 
@@ -122,5 +141,44 @@ describe("memoryRecall chroma integration", () => {
     expect(result.via).toBe("chroma");
     expect(result.hits).toHaveLength(1);
     expect(result.hits[0].text).toMatch(/MOF-303/i);
+  });
+});
+
+describe("memoryDigest", () => {
+  let root = "";
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+  afterEach(() => {
+    if (root) rmSync(root, { recursive: true, force: true });
+  });
+
+  it("writes session digest file and returns spoken summary", async () => {
+    root = seedRepo();
+    writeFileSync(
+      join(root, "docs/projects/a/MEMORY/notes.md"),
+      "## 2026-07-17\n- MOF-303 is lead sorbent\n",
+    );
+    vi.spyOn(chromaIndex, "upsertMemoryDocs").mockResolvedValue(undefined);
+
+    const result = await memoryDigest(root, { summary: "Evidence review done." });
+
+    expect(result.path).toMatch(/docs\/projects\/a\/MEMORY\/sessions\/\d{4}-\d{2}-\d{2}-\d{4}\.md$/);
+    expect(existsSync(join(root, result.path))).toBe(true);
+    const content = readFileSync(join(root, result.path), "utf8");
+    expect(content).toMatch(/Evidence review done/);
+    expect(content).toMatch(/MOF-303/);
+    expect(result.spoken).toMatch(/digest saved/i);
+    expect(result.indexed).toBe(true);
+  });
+
+  it("still writes digest when chroma upsert fails", async () => {
+    root = seedRepo();
+    vi.spyOn(chromaIndex, "upsertMemoryDocs").mockRejectedValue(new Error("chroma down"));
+
+    const result = await memoryDigest(root);
+
+    expect(result.indexed).toBe(false);
+    expect(existsSync(join(root, result.path))).toBe(true);
   });
 });

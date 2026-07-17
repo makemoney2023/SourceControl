@@ -41,6 +41,14 @@ export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy 
     };
   }
 
+  if (intent === "memory.digest" && mode !== "ops") {
+    return {
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    };
+  }
+
   if (intent === "agent.spawn_ic") {
     return {
       allowed: false,
@@ -99,6 +107,7 @@ export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy 
     intent === "dispatch.queue_for" ||
     intent === "dispatch.queue_batch" ||
     intent === "memory.note" ||
+    intent === "memory.digest" ||
     STRUCTURAL.has(intent);
 
   return { allowed: true, needsConfirm };

@@ -528,4 +528,46 @@ describe("handleJarvisAct", () => {
     expect(confirmed.status).toBe("ok");
     expect(confirmed.summary).toBe("Saved to docs/projects/passive-grid/MEMORY/notes.md.");
   });
+
+  it("returns needs_confirm for memory.digest in ops", async () => {
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.digest",
+      args: { summary: "Wrapped evidence review." },
+      mode: "ops",
+    });
+    expect(r.status).toBe("needs_confirm");
+    expect(r.summary).toMatch(/Write a session digest for Passive Grid/i);
+  });
+
+  it("denies memory.digest in briefing", async () => {
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.digest",
+      args: {},
+      mode: "briefing",
+    });
+    expect(r.status).toBe("denied");
+    expect(r.reason).toMatch(/Ops/i);
+  });
+
+  it("uses memory.digest spoken for confirmed ok summary", async () => {
+    setExecuteIntentForTests(async () => ({
+      path: "docs/projects/passive-grid/MEMORY/sessions/2026-07-17-1830.md",
+      indexed: false,
+      spoken: "Session digest saved to 2026-07-17-1830.md.",
+    }));
+    const pending = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.digest",
+      args: { summary: "Done for today" },
+      mode: "ops",
+    });
+    expect(pending.status).toBe("needs_confirm");
+    const confirmed = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.digest",
+      args: { summary: "Done for today" },
+      mode: "ops",
+      confirmToken: pending.token,
+    });
+    expect(confirmed.status).toBe("ok");
+    expect(confirmed.summary).toBe("Session digest saved to 2026-07-17-1830.md.");
+  });
 });
