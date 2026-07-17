@@ -208,7 +208,7 @@ rewakeSession(repoRoot, { dispatchFilename?, agentId?, instruction?, ... })
 
 - [x] **Step 3: Goldens + `npm test` / `npm run agent:test`**
 
-- [ ] **Step 4: Commit** — `docs(occ): voice playbook for run lifecycle`
+- [x] **Step 4: Commit** — `docs(occ): voice playbook for run lifecycle`
 
 ---
 
