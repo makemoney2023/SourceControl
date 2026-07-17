@@ -122,6 +122,7 @@ function isWritableRel(rel: string): boolean {
   if (/^docs\/projects\/[^/]+\/business-idea\/BRIEFINGS\//.test(rel)) return true;
   if (/^docs\/projects\/[^/]+\/business-idea\/HANDOFFS\//.test(rel)) return true;
   if (/^docs\/projects\/[^/]+\/business-idea\/REVIEW\/inbox\//.test(rel)) return true;
+  if (/^docs\/projects\/[^/]+\/business-idea\/SOURCES\//.test(rel)) return true;
   if (/^docs\/projects\/[^/]+\/MEMORY\//.test(rel)) return true;
   return false;
 }
@@ -183,4 +184,8 @@ export function reviewInboxDir(repoRoot: string, slug?: string) {
 
 export function reviewInboxRel(repoRoot: string, slug?: string) {
   return businessIdeaFile(repoRoot, "REVIEW/inbox/", slug).replace(/\/$/, "");
+}
+
+export function sourcesDir(repoRoot: string, slug?: string) {
+  return join(businessIdeaRoot(repoRoot, slug), "SOURCES");
 }

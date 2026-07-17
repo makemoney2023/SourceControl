@@ -58,6 +58,27 @@ describe("FS allowlist + multi-venture paths", () => {
     expect(() => assertWritable(root, "skills/org/ORG-REGISTRY.md")).toThrow(/allowlist/i);
   });
 
+  it("allows writing business-idea/SOURCES files", () => {
+    expect(() =>
+      assertWritable(root, "docs/projects/passive-grid/business-idea/SOURCES/INDEX.md"),
+    ).not.toThrow();
+    expect(() =>
+      assertWritable(
+        root,
+        "docs/projects/passive-grid/business-idea/SOURCES/20260101T000000-foo.pdf",
+      ),
+    ).not.toThrow();
+  });
+
+  it("rejects SOURCES path traversal", () => {
+    expect(() =>
+      assertWritable(
+        root,
+        "docs/projects/passive-grid/business-idea/SOURCES/../../MEMORY/x.md",
+      ),
+    ).toThrow(/escape|allowlist/i);
+  });
+
   it("blocks path traversal", () => {
     expect(() =>
       assertReadable(root, "docs/projects/passive-grid/business-idea/../../.env.local"),
