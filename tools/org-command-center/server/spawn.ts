@@ -616,7 +616,19 @@ export function spawnClaimedManagerDetached(
   };
 }
 
-export async function rewakeSession(
+type RewakeReady = {
+  ok: true;
+  apiKey: string;
+  root: string;
+  wakeReason: WakeReason;
+  adapter: RuntimeAdapter;
+  packet: ManagerPacket;
+  filename: string;
+  agentId?: string;
+  instruction?: string;
+};
+
+function prepareRewake(
   repoRoot: string,
   opts: {
     dispatchFilename?: string;
@@ -626,12 +638,7 @@ export async function rewakeSession(
     adapter?: RuntimeAdapter;
     apiKey?: string | null;
   },
-): Promise<{
-  ok: boolean;
-  error?: string;
-  runId?: string;
-  packet?: ManagerPacket;
-}> {
+): RewakeReady | ClaimFail {
   const apiKey = opts.apiKey !== undefined ? opts.apiKey : process.env.CURSOR_API_KEY;
   if (!apiKey) {
     return { ok: false, error: "CURSOR_API_KEY missing" };
@@ -667,16 +674,108 @@ export async function rewakeSession(
     return { ok: false, error: `budget exhausted: spent $${spent} >= $${limit}` };
   }
 
+  return {
+    ok: true,
+    apiKey,
+    root,
+    wakeReason,
+    adapter,
+    packet,
+    filename: session.dispatch_filename,
+    agentId: session.agentId,
+    instruction: opts.instruction,
+  };
+}
+
+/** Start rewake without awaiting Cursor (voice confirm path). */
+export function rewakeSessionDetached(
+  repoRoot: string,
+  opts: {
+    dispatchFilename?: string;
+    agentId?: string;
+    instruction?: string;
+    wakeReason?: WakeReason;
+    adapter?: RuntimeAdapter;
+    apiKey?: string | null;
+  },
+): {
+  ok: boolean;
+  error?: string;
+  runId?: string;
+  packet?: ManagerPacket;
+  position?: string;
+  filename?: string;
+} {
+  const prepared = prepareRewake(repoRoot, opts);
+  if (!prepared.ok) return prepared;
+
+  const { runId, controller, meta, runsDir } = beginRunRecord({
+    root: prepared.root,
+    packet: prepared.packet,
+    dispatchFilename: prepared.filename,
+    wakeReason: prepared.wakeReason,
+    agentId: prepared.agentId,
+  });
+  const prompt = buildRewakePrompt(
+    prepared.packet,
+    repoRoot,
+    prepared.instruction,
+    runId,
+  );
+
+  void finishAdapterRun({
+    repoRoot,
+    root: prepared.root,
+    packet: prepared.packet,
+    dispatchFilename: prepared.filename,
+    prompt,
+    adapter: prepared.adapter,
+    apiKey: prepared.apiKey,
+    runId,
+    controller,
+    meta,
+    runsDir,
+    agentId: prepared.agentId,
+  });
+
+  return {
+    ok: true,
+    runId,
+    packet: prepared.packet,
+    position: prepared.packet.position,
+    filename: prepared.filename,
+  };
+}
+
+export async function rewakeSession(
+  repoRoot: string,
+  opts: {
+    dispatchFilename?: string;
+    agentId?: string;
+    instruction?: string;
+    wakeReason?: WakeReason;
+    adapter?: RuntimeAdapter;
+    apiKey?: string | null;
+  },
+): Promise<{
+  ok: boolean;
+  error?: string;
+  runId?: string;
+  packet?: ManagerPacket;
+}> {
+  const prepared = prepareRewake(repoRoot, opts);
+  if (!prepared.ok) return prepared;
+
   return runAdapterAndPersist({
     repoRoot,
-    root,
-    packet,
-    dispatchFilename: session.dispatch_filename,
-    wakeReason,
-    agentId: session.agentId,
-    adapter,
-    apiKey,
-    instruction: opts.instruction,
+    root: prepared.root,
+    packet: prepared.packet,
+    dispatchFilename: prepared.filename,
+    wakeReason: prepared.wakeReason,
+    agentId: prepared.agentId,
+    adapter: prepared.adapter,
+    apiKey: prepared.apiKey,
+    instruction: prepared.instruction,
   });
 }
 

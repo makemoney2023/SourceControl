@@ -192,18 +192,14 @@ export function heuristicIntent(utterance: string): JarvisIntent {
   }
 
   if (
-    /\b(resolve that blocker|unblock)\b/.test(s) ||
+    /\b(resolve that blocker|resolve the blocker|resolve blockers?|unblock)\b/.test(s) ||
     (/\bunblock\b/.test(s) &&
       /\b(research|legal|product|marketing|finance|ceo|cfo|cmo|copy|brand)\b/.test(s))
   ) {
     return "blocker.resolve";
   }
 
-  if (
-    /\b(blockers?|what'?s blocked|what is blocked|resolve the blocker|resolve blockers?)\b/.test(
-      s,
-    )
-  ) {
+  if (/\b(blockers?|what'?s blocked|what is blocked|list blockers?|show blockers?)\b/.test(s)) {
     return "blocker.list";
   }
 

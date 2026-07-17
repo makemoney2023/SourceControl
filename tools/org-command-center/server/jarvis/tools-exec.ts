@@ -30,7 +30,12 @@ import type { RuntimeAdapter } from "../runtime-adapter";
 import { readRun } from "../runs-fs";
 import { listRoutineDefs, routineSummaries, writeRoutine } from "../routines";
 import { loadSnapshot } from "../snapshot";
-import { rewakeSession, spawnClaimedManager, spawnClaimedManagerDetached, spawnRunReady } from "../spawn";
+import {
+  rewakeSessionDetached,
+  spawnClaimedManager,
+  spawnClaimedManagerDetached,
+  spawnRunReady,
+} from "../spawn";
 import { writeCsuiteDraft } from "../write-csuite-draft";
 import { buildQueueForPacket, parseBatchQueueItems, previewQueueFor, queueDispatchBatch } from "./dispatch-for";
 import { JarvisExecError } from "./errors";
@@ -331,7 +336,7 @@ export async function executeIntent(
     }
 
     case "run.rewake":
-      return rewakeSession(repoRoot, {
+      return rewakeSessionDetached(repoRoot, {
         dispatchFilename:
           typeof args.dispatchFilename === "string" ? args.dispatchFilename : undefined,
         agentId: typeof args.agentId === "string" ? args.agentId : undefined,
@@ -345,7 +350,7 @@ export async function executeIntent(
       const instruction =
         typeof args.instruction === "string" ? args.instruction.trim() : "";
       if (!instruction) throw new JarvisExecError("instruction required", "missing_arg");
-      return rewakeSession(repoRoot, {
+      return rewakeSessionDetached(repoRoot, {
         dispatchFilename:
           typeof args.dispatchFilename === "string" ? args.dispatchFilename : undefined,
         agentId: typeof args.agentId === "string" ? args.agentId : undefined,
@@ -753,7 +758,7 @@ export async function executeIntent(
       });
 
       if (plan.action === "rewake") {
-        const result = await rewakeSession(repoRoot, {
+        const result = rewakeSessionDetached(repoRoot, {
           dispatchFilename: plan.dispatchFilename,
           instruction: plan.goal,
           wakeReason: "rewake",

@@ -286,7 +286,7 @@
   },
   {
     "utterance": "resolve the blocker",
-    "expectIntent": "blocker.list",
+    "expectIntent": "blocker.resolve",
     "mode": "briefing"
   },
   {
