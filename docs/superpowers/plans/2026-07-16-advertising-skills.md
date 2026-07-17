@@ -13,7 +13,7 @@
 - Pack path: `skills/community/advertising-skills/`
 - Layout: `skills/<category>/<skill-name>/SKILL.md` (upstream mirror)
 - Do not rewrite skill bodies
-- Do not re-run existing `docs/business-idea/` deliverables
+- Do not re-run existing `docs/projects/<active>/business-idea/` deliverables
 - Do not commit unless user asks
 
 ---

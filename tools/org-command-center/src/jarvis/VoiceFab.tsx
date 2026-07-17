@@ -101,6 +101,16 @@ export function VoiceFab() {
         </button>
       </div>
       <p className="j-voice-fab-caption j-muted">{labelFor(session.state, session.muted)}</p>
+      {session.micLabel && session.state !== "idle" && session.state !== "error" && (
+        <p className="j-voice-fab-caption j-muted" title={session.micLabel}>
+          Mic: {session.micLabel}
+        </p>
+      )}
+      {session.heard && session.state !== "idle" && session.state !== "error" && (
+        <p className="j-voice-fab-caption j-muted" title={session.heard}>
+          Heard: {session.heard}
+        </p>
+      )}
     </div>
   );
 }

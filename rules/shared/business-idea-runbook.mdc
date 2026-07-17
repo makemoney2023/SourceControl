@@ -7,9 +7,11 @@ alwaysApply: false
 
 When someone brings a **business idea to execute**, run this runbook **start to finish without stopping between phases** unless blocked. Each phase loads skills from ClaudeSkills — **read each `SKILL.md` before applying it**.
 
-**Library root:** `skills/community/` · **Artifacts:** `docs/business-idea/` · **Tracker:** `docs/business-idea/RUNBOOK-TRACKER.md`
+**Library root:** `skills/community/` · **Active venture:** `projects/registry.json` → `docs/projects/<active>/business-idea/` · **Memory:** `docs/projects/<active>/MEMORY/` · **Tracker:** `docs/projects/<active>/business-idea/RUNBOOK-TRACKER.md`
 
-**Templates:** copy from `templates/business-idea/` in ClaudeSkills repo if starting fresh.
+**Templates:** use `scripts/new-venture.sh <slug> "<Name>"` or copy from `templates/business-idea/` into `docs/projects/<slug>/business-idea/`.
+
+**ChromaDB:** not used for venture state or backlog (filesystem SSOT). Optional later for semantic MEMORY search only.
 
 **Sister rules:** [startup-session.mdc](mdc:.cursor/rules/startup-session.mdc) · [engineering-workflow.mdc](mdc:.cursor/rules/engineering-workflow.mdc) · [post-plan-deep-review.mdc](mdc:.cursor/rules/post-plan-deep-review.mdc)
 
@@ -21,12 +23,14 @@ This is a **long-running process**. Do not treat phases as optional menu items.
 
 ### On every session start
 
-1. Read `docs/business-idea/RUNBOOK-TRACKER.md` (create from template if missing).
-2. If Phase 0 incomplete → run intake questions (batched), then continue.
-3. Find the **first phase** marked ⬜ or 🔄 → execute it fully.
-4. Write/update artifacts → mark phase ✅ in tracker → **immediately start next phase**.
-5. Repeat until Phase 21 is ✅ or user explicitly says STOP.
-6. Once Phase 21 is ✅, every later session runs the Phase 22 operating cadence instead.
+1. Read `projects/registry.json` — note active slug; all artifact paths use that venture.
+2. Skim `docs/projects/<active>/MEMORY/README.md` (and recent session notes if present).
+3. Read `docs/projects/<active>/business-idea/RUNBOOK-TRACKER.md` (create from template if missing).
+4. If Phase 0 incomplete → run intake questions (batched), then continue.
+5. Find the **first phase** marked ⬜ or 🔄 → execute it fully.
+6. Write/update artifacts → mark phase ✅ in tracker → **immediately start next phase**.
+7. Repeat until Phase 21 is ✅ or user explicitly says STOP.
+8. Once Phase 21 is ✅, every later session runs the Phase 22 operating cadence instead.
 
 ### When to pause (only these)
 
@@ -56,51 +60,65 @@ This is a **long-running process**. Do not treat phases as optional menu items.
 
 1. **Clarify once (Phase 0), then execute** — intake is the only extended Q&A phase.
 2. **Load the skill** — read `SKILL.md`, follow procedure; never improvise from memory.
-3. **Persist everything** — every phase writes to `docs/business-idea/`; later phases read prior artifacts.
+3. **Persist everything** — every phase writes to `docs/projects/<active>/business-idea/`; later phases read prior artifacts.
 4. **Skip with reason** — log `⏭️ SKIPPED: <reason>` in tracker; do not stall.
 5. **Facts vs assumptions** — label clearly in every deliverable.
 6. **Run to completion** — Phase 21 executive summary is the finish line; Phase 22 is the ongoing operating loop.
-7. **Act as the whole team** — every phase is owned by a virtual role (below). Adopt that role's standards and vocabulary when executing its phases.
+7. **Act as the whole company** — phases are owned by **position subagents** (see below), not a single generic assistant voice.
 8. **Visual generation**
-   - **Images** (heroes, product, ads stills, storyboards): run `visual-skills/image` for the production prompt, then render with `inference-sh` (`nano-banana-2`, `gpt-image`, `ai-image-generation`, etc.). Persist prompts + asset paths in the phase artifact folder.
-   - **Video** (explainers, ads, trailers, clips, talking-head, montage): use **OpenMontage** at `skills/community/openmontage/` — read `AGENT_GUIDE.md`, select a `pipeline_defs/` pipeline, run stage directors under `skills/pipelines/`. Do **not** improvise full productions with ad-hoc Remotion/API calls. Optional prompt craft: `visual-skills/video`. Finals also land in `docs/business-idea/15-media/openmontage/` (or the active phase media folder).
+   - **Images** (heroes, product, ads stills, storyboards): run `visual-skills/image` for the production prompt, then render with `inference-sh` (`nano-banana-2`, `gpt-image`, `ai-image-generation`, etc.). Persist prompts + asset paths in the phase artifact folder. Owner: `brand-designer` / `paid-media-manager` as applicable.
+   - **Video** (explainers, ads, trailers, clips, talking-head, montage): position `video-producer` uses **OpenMontage** at `skills/community/openmontage/` — read `AGENT_GUIDE.md`, select a `pipeline_defs/` pipeline. Do **not** improvise full productions with ad-hoc Remotion/API calls. Optional prompt craft: `visual-skills/video`. Finals also land in `docs/projects/<active>/business-idea/15-media/openmontage/`.
+9. **Dispatch through positions (reporting chain)** — load `skills/org/orchestrator/SKILL.md` and `ORG-REGISTRY.md`. Orchestrator spawns the phase **Owner manager only**; that manager spawns ICs with `write_lease`s. ICs write `HANDOFFS/<phase>-<slug>.md`; manager writes `HANDOFFS/<phase>-manager-<slug>.md`; C-suite writes `HANDOFFS/<phase>-csuite-review.md`. **Phase ✅ only after C-suite `verdict: approve`** (Phase 0 may `skip-review`). Peers never spawn peers — `ask_manager` / orchestrator. See `COLLABORATION.md` + `ESCALATION.md`. Degrade: sequential role-play **in hierarchy order**, still write handoffs (log `degraded: sequential-roleplay`).
+10. **Model routing (two planes)** — SSOT: `skills/org/MODEL-REGISTRY.md` + `.env.local` placeholders. Every spawn packet **must** include `llm_tier` (refuse if missing). Pin Cursor `model:` from the registry (sync agents via `./scripts/sync-org-agents.sh`). Image/video models are **not** Cursor models: creative ICs use a Plane A LLM and render via Plane B (`generation_profile`). Phases **11, 12, 15, 19** require `generation_profile` on the packet. Handoffs record `llm_model` / `generation_used` / `fallback_applied`. C-suite may revise for wrong-tier creative/legal work.
 
 ---
 
-## The virtual business team
+## The virtual company (positions as subagents)
 
-You are not one assistant — you are an entire company. Each phase is owned by a role. When executing a phase, work to the standard of that role reviewing a direct report's output.
+You are not one assistant — you are an entire company of **36 positions**. Each seat has:
 
-| Role | Owns phases | Core question |
-|------|-------------|---------------|
-| **CEO / Strategist** | 0, 1, 3, 10, 21, 22 | Are we building the right thing, and is the whole story coherent? |
-| **Head of Research** | 2 | What does the evidence actually say? (runs `deep-research` — the evidence base all other roles cite) |
-| **CFO** | 4, 4B | Do the numbers work? Can we fund this? |
-| **Head of Product** | 5 | What exactly are we building, for whom, in what order? |
-| **CMO** | 6, 13, 14, 16, 17, 18, 19 | How do the right people find us and convert? |
-| **Head of Sales & CS** | 7 | How do we close and keep customers? |
-| **COO / Legal** | 8 | How does this run day to day without breaking laws? |
-| **Head of People** | 8B | Who do we need to hire, and how? |
-| **CTO / Engineering** | 9, 9B | Does the software work? Does the hardware prototype exist? |
-| **Creative Director** | 11, 12, 15 | Is the brand distinct and consistently applied? |
-| **Head of Data** | 20 | How do we know what's working? |
+- Position skill: `skills/org/positions/<slug>/SKILL.md` (purpose, reports-to, delegates, packs, I/O, model profile)
+- Cursor agent: `templates/org/agents/<slug>.md` → `./scripts/sync-org-agents.sh` → `.cursor/agents/` (honors `model:`)
+
+**Canonical registry:** `skills/org/ORG-REGISTRY.md` (org tree, phase → owner map, parallel tracks).  
+**Model registry:** `skills/org/MODEL-REGISTRY.md` (LLM tiers + generation profiles).
+
+### Phase owners (summary)
+
+| Phase | Owner (manager) | May delegate |
+|-------|-----------------|--------------|
+| 0, 1, 3, 10, 21, 22 | `ceo-strategist` | see registry |
+| 2 | `head-of-research` | `market-research-analyst`, `competitive-intelligence-analyst`, `seo-manager` |
+| 4, 4B | `cfo` | `fpa-analyst`, `fundraising-lead` |
+| 5 | `head-of-product` | `product-manager`, `business-analyst` |
+| 6, 13, 14, 16, 17, 18, 19 | `cmo` | PMM, copy-chief, content-strategist, seo-manager, paid-media-manager, lifecycle-marketer, pr-manager |
+| 7 | `head-of-sales-cs` | `sales-enablement-lead`, `outbound-lead`, `customer-success-manager` |
+| 8 | `coo` | `ops-manager`, `legal-counsel` |
+| 8B | `head-of-people` | `recruiter` |
+| 9, 9B | `cto` | `tech-lead`, `hardware-engineer` |
+| 11, 12, 15 | `creative-director` | `brand-designer`, `web-designer`, `video-producer` |
+| 20 | `head-of-data` | `analytics-engineer` |
+
+Skill-pack tables below remain the craft checklist; **Owner / Delegates** lines under each phase name assign who runs them.
 
 ### Parallel execution (when subagents are available)
 
-Phases within a track have hard dependencies; tracks can run in parallel once their inputs exist. If you can dispatch subagents (see `skills/plugins/superpowers/dispatching-parallel-agents/`), split along these tracks after Phase 10:
+Phases within a track have hard dependencies; tracks can run in parallel once their inputs exist. Dispatch **by position** (see `skills/org/orchestrator/` + `dispatching-parallel-agents`):
 
-| Track | Phases | Needs first |
-|-------|--------|-------------|
-| Build | 9, 9B | 5 |
-| Brand & design | 11 → 12 | 3 |
-| Content | 13 → 14 → 15 | 11 (voice), 12 (page list) |
-| Channels | 16 → 17 → 18 → 19 | 14 |
+| Track | Manager | IC positions | Needs first |
+|-------|---------|--------------|-------------|
+| Build | `cto` | `tech-lead`, `hardware-engineer` | Phase 5 |
+| Brand & design | `creative-director` | `brand-designer`, `web-designer` | Phase 3 |
+| Content | `cmo` (+ CD for video) | `copy-chief`, `content-strategist`, `seo-manager`; Phase 15 → `video-producer` | 11 voice, 12 page list |
+| Channels | `cmo` | `seo-manager`, `lifecycle-marketer`, `paid-media-manager`, `pr-manager` | Phase 14 |
 
-Single-agent sessions run phases sequentially in numeric order — parallelism is an optimization, never a requirement. Merge results into the tracker either way.
+Single-agent sessions run phases sequentially — use the degrade path in the orchestrator skill. Merge results into the tracker either way.
 
 ---
 
 ## Phase 0: Intake & clarification
+
+**Owner:** `ceo-strategist` · **Delegates:** —
 
 Emit tracker. Ask questions **1–2 at a time** until all batches complete, then classify and write `00-intake.md`. **Do not wait for approval** — proceed to Phase 1 unless user interrupts.
 
@@ -129,6 +147,8 @@ Emit tracker. Ask questions **1–2 at a time** until all batches complete, then
 
 ## Phase 1: Frame the opportunity
 
+**Owner:** `ceo-strategist` · **Delegates:** `business-analyst`
+
 | # | Skill | Path |
 |---|-------|------|
 | 1 | `business-problem-framing` | `business-analysis-skills/skills/business-problem-framing/` |
@@ -141,6 +161,8 @@ Emit tracker. Ask questions **1–2 at a time** until all batches complete, then
 ---
 
 ## Phase 2: Market & customer intelligence
+
+**Owner:** `head-of-research` · **Delegates:** `market-research-analyst`, `competitive-intelligence-analyst`, `seo-manager` `(parallel: true)`
 
 **Start with deep research.** Run `deep-research` first — it produces a rigorous, source-verified evidence report on the problem domain that every later phase cites instead of unverified claims. Mode by depth: light → *quick brief*; standard → *full research*; investor-ready/full-execution → *full research + three-way literature scan*.
 
@@ -163,6 +185,8 @@ Emit tracker. Ask questions **1–2 at a time** until all batches complete, then
 
 ## Phase 3: Strategy & positioning
 
+**Owner:** `ceo-strategist` · **Delegates:** `product-marketing-manager`, `business-analyst`
+
 | # | Skill | Path |
 |---|-------|------|
 | 1 | `strategy-analysis` | `business-analysis-skills/skills/strategy-analysis/` |
@@ -177,6 +201,8 @@ Emit tracker. Ask questions **1–2 at a time** until all batches complete, then
 ---
 
 ## Phase 4: Business model & economics
+
+**Owner:** `cfo` · **Delegates:** `fpa-analyst`, `product-marketing-manager`
 
 | # | Skill | Path |
 |---|-------|------|
@@ -193,6 +219,8 @@ Emit tracker. Ask questions **1–2 at a time** until all batches complete, then
 ---
 
 ## Phase 4B: Funding & investor materials (skip if bootstrapped)
+
+**Owner:** `cfo` · **Delegates:** `fundraising-lead`
 
 Run when depth = **investor-ready** or intake says funding is needed. Owned by the CFO.
 
@@ -211,6 +239,8 @@ Run when depth = **investor-ready** or intake says funding is needed. Owned by t
 
 ## Phase 5: Product definition
 
+**Owner:** `head-of-product` · **Delegates:** `product-manager`, `business-analyst` `(parallel: true)`
+
 | # | Skill | Path |
 |---|-------|------|
 | 1 | `requirements-elicitation` | `business-analysis-skills/skills/requirements-elicitation/` |
@@ -226,6 +256,8 @@ Run when depth = **investor-ready** or intake says funding is needed. Owned by t
 ---
 
 ## Phase 6: GTM strategy
+
+**Owner:** `cmo` · **Delegates:** `product-marketing-manager`, `content-strategist`, `pr-manager` `(parallel: true)`
 
 | # | Skill | Path |
 |---|-------|------|
@@ -245,6 +277,8 @@ Run when depth = **investor-ready** or intake says funding is needed. Owned by t
 
 ## Phase 7: Sales & customer success
 
+**Owner:** `head-of-sales-cs` · **Delegates:** `sales-enablement-lead`, `outbound-lead`, `customer-success-manager` `(parallel: true)`
+
 | # | Skill | Path |
 |---|-------|------|
 | 1 | `sales-enablement` | `marketingskills/sales-enablement/` |
@@ -259,6 +293,8 @@ Run when depth = **investor-ready** or intake says funding is needed. Owned by t
 ---
 
 ## Phase 8: Operations & legal
+
+**Owner:** `coo` · **Delegates:** `ops-manager`, `legal-counsel` `(parallel: true)`
 
 | # | Skill | Path |
 |---|-------|------|
@@ -276,6 +312,8 @@ Run when depth = **investor-ready** or intake says funding is needed. Owned by t
 
 ## Phase 8B: People & hiring plan (skip if solo/no hires planned)
 
+**Owner:** `head-of-people` · **Delegates:** `recruiter`
+
 Run when the resource plan (Phase 8) or intake identifies roles to hire. Owned by the Head of People.
 
 | # | Skill | Path |
@@ -291,6 +329,8 @@ Run when the resource plan (Phase 8) or intake identifies roles to hire. Owned b
 ---
 
 ## Phase 9: Build MVP (software)
+
+**Owner:** `cto` · **Delegates:** `tech-lead`
 
 Skip if no software in scope. Follow engineering-workflow + baseline-verification.
 
@@ -309,7 +349,9 @@ Skip if no software in scope. Follow engineering-workflow + baseline-verificatio
 
 ## Phase 9B: Hardware & CAD prototyping (skip if no physical product)
 
-Run when intake classifies **hardware, robotics, or physical product**. Read `05-prd.md` dimensional and material requirements first. Persist all artifacts under `docs/business-idea/09b-hardware/`. Always preview with `cad-viewer` before marking done.
+**Owner:** `cto` · **Delegates:** `hardware-engineer`
+
+Run when intake classifies **hardware, robotics, or physical product**. Read `05-prd.md` dimensional and material requirements first. Persist all artifacts under `docs/projects/<active>/business-idea/09b-hardware/`. Always preview with `cad-viewer` before marking done.
 
 | # | Skill | Path | When |
 |---|-------|------|------|
@@ -331,6 +373,8 @@ Run when intake classifies **hardware, robotics, or physical product**. Read `05
 
 ## Phase 10: Strategy quality pass
 
+**Owner:** `ceo-strategist` · **Delegates:** `head-of-research`, `business-analyst`
+
 | # | Skill | Path |
 |---|-------|------|
 | 1 | `requirements-quality-check` | `business-analysis-skills/skills/requirements-quality-check/` |
@@ -344,6 +388,9 @@ Run when intake classifies **hardware, robotics, or physical product**. Read `05
 
 ## Phase 11: Brand & design system
 
+**Owner:** `creative-director` · **Delegates:** `brand-designer`  
+**Models:** CD `creative-language` · brand-designer `strong-general` + `generation_profile: brand-stills` (see MODEL-REGISTRY)
+
 | # | Skill | Path |
 |---|-------|------|
 | 1 | `discover-brand` | `awesome-claude-corporate-skills/04-marketing/discover-brand/` |
@@ -354,13 +401,16 @@ Run when intake classifies **hardware, robotics, or physical product**. Read `05
 | 6 | `theme-factory` | `awesome-claude-corporate-skills/04-marketing/theme-factory/` |
 | 7 | `guideline-generation` | `awesome-claude-corporate-skills/04-marketing/guideline-generation/` |
 | 8 | `domain-name-brainstormer` | `awesome-claude-corporate-skills/04-marketing/domain-name-brainstormer/` |
-| 9 | `image` (visual prompts) | `visual-skills/image/` — brand marks, mood boards, key visual prompts → render via `inference-sh` |
+| 9 | `image` (visual prompts) | `visual-skills/image/` — brand marks, mood boards, key visual prompts → render via `inference-sh` or OpenMontage/fal (`FAL_KEY` / `INFSH_API_KEY`) |
 
 **Output:** `11-brand-system.md` (+ visual prompts/assets as needed) → ✅ → Phase 12
 
 ---
 
 ## Phase 12: Web design & information architecture
+
+**Owner:** `creative-director` · **Delegates:** `web-designer`, `brand-designer`  
+**Models:** CD `creative-language` · designers `strong-general` + `generation_profile: brand-stills`
 
 | # | Skill | Path |
 |---|-------|------|
@@ -379,6 +429,8 @@ Run when intake classifies **hardware, robotics, or physical product**. Read `05
 ---
 
 ## Phase 13: Copy foundation
+
+**Owner:** `cmo` · **Delegates:** `copy-chief`, `content-strategist`, `product-marketing-manager` `(parallel: true)`
 
 Read `.agents/product-marketing.md` before every skill in Phases 13–17.
 
@@ -401,6 +453,8 @@ Read `.agents/product-marketing.md` before every skill in Phases 13–17.
 
 ## Phase 14: Page & asset content (produce all pages)
 
+**Owner:** `cmo` · **Delegates:** `copy-chief`, `seo-manager`, `content-strategist`, `brand-designer` `(parallel: partial)`
+
 For **each page** in site architecture (homepage, pricing, about, features, blog pillar, etc.):
 
 | Step | Skill | Path |
@@ -413,7 +467,7 @@ For **each page** in site architecture (homepage, pricing, about, features, blog
 | F | `schema` | `marketingskills/schema/` |
 | G | `copy-editing` | `marketingskills/copy-editing/` (final pass) |
 
-Write each page to `docs/business-idea/14-pages/<page-name>.md` with: URL, H1, meta title/description, body copy, schema JSON-LD, internal links.
+Write each page to `docs/projects/<active>/business-idea/14-pages/<page-name>.md` with: URL, H1, meta title/description, body copy, schema JSON-LD, internal links.
 
 **Blog posts are pages too:** take the Phase 13 `content-planner` calendar and draft the **first 5–10 blog posts** in full through the same A–G pipeline, written to `14-pages/blog/<slug>.md`. Do not stop at the pillar page.
 
@@ -429,24 +483,30 @@ Write each page to `docs/business-idea/14-pages/<page-name>.md` with: URL, H1, m
 
 ## Phase 15: Video & rich media
 
+**Owner:** `creative-director` · **Delegates:** `video-producer`  
+**Models:** CD `creative-language` · video-producer `strong-general` + `generation_profile: hero-video`  
+**Plane B default:** video **Veo 3.1** via fal (`FAL_KEY`); audio ElevenLabs (`ELEVENLABS_API_KEY`). Scorecard: profile used or skip reason.
+
 **Primary path — OpenMontage** (`skills/community/openmontage/`). Requires `make setup` once (Python 3.10+, FFmpeg, Node 18+). AGPL-3.0 — see pack LICENSE.
 
 | # | Step | Path / action |
 |---|------|----------------|
 | 0 | Read agent contract | `openmontage/AGENT_GUIDE.md` (+ `skills/meta/onboarding.md` if brief is vague) |
 | 1 | Select pipeline | `openmontage/pipeline_defs/` — e.g. `animated-explainer`, `cinematic`, `talking-head`, `documentary-montage`, `clip-factory`, `hybrid`, `screen-demo` |
-| 2 | Preflight | Tool registry discover / capability menu (see AGENT_GUIDE) |
+| 2 | Preflight | Tool registry discover / capability menu (see AGENT_GUIDE); confirm `FAL_KEY` + Veo 3.1 path |
 | 3 | Execute stages | For each stage: read `openmontage/skills/pipelines/<pipeline>/<stage>-director.md` before work; load Layer-3 skills from `openmontage/.agents/skills/` when tools declare them |
-| 4 | Optional prompt craft | `visual-skills/video/` (shot lists / model-specific prompt polish) |
+| 4 | Optional prompt craft | `visual-skills/video/` (shot lists / model-specific prompt polish — Veo syntax) |
 | 5 | Channel strategy | `marketingskills/video/` |
 | 6 | Remotion helpers (if not using OpenMontage composer) | `remotion/video/remotion-create/` · `remotion-markup` · `remotion-interactivity` · `remotion-captions` · `remotion-render` |
 | 7 | Slides | `ui-ux-pro-max-skill/slides/` |
 
-**Output:** `15-media/` — OpenMontage project artifacts + finals under `15-media/openmontage/`, plus scripts/storyboards → ✅ → Phase 16
+**Output:** `15-media/` — OpenMontage project artifacts + finals under `15-media/openmontage/`, plus scripts/storyboards; handoff notes `generation_used` (e.g. `fal/veo-3.1`) → ✅ → Phase 16
 
 ---
 
 ## Phase 16: SEO implementation
+
+**Owner:** `cmo` · **Delegates:** `seo-manager`
 
 | # | Skill | Path |
 |---|-------|------|
@@ -464,6 +524,8 @@ Write each page to `docs/business-idea/14-pages/<page-name>.md` with: URL, H1, m
 ---
 
 ## Phase 17: Email, social & SMS channels
+
+**Owner:** `cmo` · **Delegates:** `lifecycle-marketer`, `content-strategist` `(parallel: true)`
 
 | # | Skill | Path |
 |---|-------|------|
@@ -490,6 +552,8 @@ Write **every email in every journey in full** (subject, preview text, body, CTA
 
 ## Phase 18: Conversion optimization
 
+**Owner:** `cmo` · **Delegates:** `paid-media-manager`, `product-marketing-manager`
+
 | # | Skill | Path |
 |---|-------|------|
 | 1 | `cro` | `marketingskills/cro/` |
@@ -507,14 +571,17 @@ Write **every email in every journey in full** (subject, preview text, body, CTA
 
 ## Phase 19: Paid acquisition (skip if no budget)
 
+**Owner:** `cmo` · **Delegates:** `paid-media-manager`, `video-producer` `(parallel: true)`  
+**Models:** CMO `frontier-reasoning` · paid-media `strong-general` · video-producer `strong-general` + `generation_profile: ad-creative` (Veo 3.1 / Kling + FLUX; `FAL_KEY`)
+
 | # | Skill | Path |
 |---|-------|------|
 | 1 | `ads` | `marketingskills/ads/` |
 | 2 | `ad-creative` | `marketingskills/ad-creative/` |
 | 3 | `ad-angle-multiplier` | `advertising-skills/skills/operator-os/ad-angle-multiplier/` |
 | 4 | `scroll-stopping-creative` | `advertising-skills/skills/operator-os/scroll-stopping-creative/` |
-| 5 | `image` (ad visuals) | `visual-skills/image/` — ad creative prompts → render via `inference-sh` |
-| 6 | OpenMontage (video ads) | `openmontage/` — when paid needs video/UGC/trailer creatives: pipeline e.g. `clip-factory`, `hybrid`, `cinematic`, `talking-head` → finals also in `19-paid/openmontage/` |
+| 5 | `image` (ad visuals) | `visual-skills/image/` — ad creative prompts → render via `inference-sh` or fal |
+| 6 | OpenMontage (video ads) | `openmontage/` — when paid needs video/UGC/trailer creatives: pipeline e.g. `clip-factory`, `hybrid`, `cinematic`, `talking-head` → finals also in `19-paid/openmontage/` (default video Veo 3.1) |
 | 7 | `full-funnel-campaign-orchestrator` | `advertising-skills/skills/orchestrators/full-funnel-campaign-orchestrator/` |
 | 8 | `aso` | `marketingskills/aso/` (if mobile app) |
 
@@ -523,6 +590,8 @@ Write **every email in every journey in full** (subject, preview text, body, CTA
 ---
 
 ## Phase 20: Analytics & iteration
+
+**Owner:** `head-of-data` · **Delegates:** `analytics-engineer`
 
 | # | Skill | Path |
 |---|-------|------|
@@ -541,6 +610,8 @@ Write **every email in every journey in full** (subject, preview text, body, CTA
 
 ## Phase 21: Launch & final QA (FINISH LINE)
 
+**Owner:** `ceo-strategist` · **Delegates:** —
+
 | # | Skill | Path |
 |---|-------|------|
 | 1 | `launch` | `marketingskills/launch/` (final checklist) |
@@ -557,6 +628,8 @@ Write **every email in every journey in full** (subject, preview text, body, CTA
 ---
 
 ## Phase 22: Operate (ongoing, post-launch)
+
+**Owner:** `ceo-strategist` · **Delegates:** `head-of-data`, `cmo`, `paid-media-manager` (on demand)
 
 The runbook finishes at 21; the business doesn't. When the user returns after launch, run this recurring cadence instead of restarting phases. Owned by the CEO role.
 

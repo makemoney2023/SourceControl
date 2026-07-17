@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { fetchFile, type SituationSnapshot } from "../../api/client";
+import {
+  fetchFile,
+  fetchReviewInbox,
+  type ReviewInboxItem,
+  type SituationSnapshot,
+} from "../../api/client";
 import { stripBusinessIdeaPrefix } from "../../lib/project-paths";
 import { indexArtifacts } from "../artifacts";
 
@@ -17,11 +22,26 @@ export function OutputsDashboard({
     snapshot.handoffs,
     snapshot.businessIdeaRel,
   );
+  const [inbox, setInbox] = useState<ReviewInboxItem[]>([]);
   const [preview, setPreview] = useState("");
   const [entries, setEntries] = useState<
     { name: string; path: string; type: string }[] | null
   >(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchReviewInbox()
+      .then((r) => {
+        if (!cancelled) setInbox(r.items);
+      })
+      .catch(() => {
+        if (!cancelled) setInbox([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [snapshot.tracker, snapshot.handoffs]);
 
   useEffect(() => {
     if (!selectedPath) {
@@ -59,7 +79,42 @@ export function OutputsDashboard({
       }}
     >
       <section className="j-glass" style={{ padding: 14, overflow: "auto" }}>
-        <p className="j-title">Artifacts</p>
+        <p className="j-title">Needs review</p>
+        <p className="j-muted" style={{ marginTop: 4 }}>
+          REVIEW/inbox — voice-spawned deliverables
+        </p>
+        <ul style={{ listStyle: "none", margin: "12px 0 0", padding: 0 }}>
+          {inbox.length === 0 && (
+            <li className="j-muted">Inbox empty.</li>
+          )}
+          {inbox.map((item) => (
+            <li key={item.path}>
+              <button
+                type="button"
+                className="j-btn"
+                data-active={selectedPath === item.path}
+                onClick={() => onSelect(item.path)}
+                style={{
+                  width: "100%",
+                  textAlign: "left",
+                  marginBottom: 6,
+                  display: "block",
+                }}
+              >
+                <div className="j-mono" style={{ fontSize: 11 }}>
+                  {stripBusinessIdeaPrefix(item.path, snapshot.businessIdeaRel)}
+                </div>
+                <div className="j-muted" style={{ marginTop: 2 }}>
+                  {item.position ?? "?"} · {item.status}
+                </div>
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        <p className="j-title" style={{ marginTop: 20 }}>
+          Artifacts
+        </p>
         <p className="j-muted" style={{ marginTop: 4 }}>
           From tracker + handoffs
         </p>

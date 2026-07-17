@@ -45,7 +45,7 @@
 | `server/jarvis/eval/golden.json` | Utterances |
 | `README.md` | Cheatsheet + Chroma setup |
 | `.gitignore` | `.data/chroma/` |
-| Venture `MEMORY/README.md` | Document `notes.md` / `preferences.md` |
+| Venture `MEMORY/README.md` | Document `notes.md` / `preferences.md` / `context.md` (operator note from venture-sources plan) |
 
 ---
 
@@ -484,9 +484,11 @@ Best-effort; never fail the run finish if MEMORY write fails.
 
 **Behavior:**
 1. `buildJarvisContext` calls `memoryBrief(repoRoot)` and sets `spokenBrief` to `speakMemoryBrief` result (fallback to existing `spokenMissionBrief` if memory module throws).
-2. Prompt additions: where-are-we → `memory.brief`; remember → ops + `memory.note`; never spawn from suggestion alone.
-3. On LiveKit `RoomEvent.Disconnected` / shutdown callback: best-effort `POST` digest (or jarvis_act memory.digest) — fire-and-forget; ignore errors.
-4. Goldens: “where are we?”, “what’s next?”, “remember that MOF is the lead sorbent”, “digest this session”
+2. **Merge with venture-sources:** If `contextNote` / `sourcesCount` already exist on the context object (from `server/sources`), append the same spoken clause (` Context note on file; N sources attached.`) after the memory brief. Do **not** remove `contextNote` / `sourcesCount` fields.
+3. Prompt additions: where-are-we → `memory.brief`; remember → ops + `memory.note`; never spawn from suggestion alone.
+4. On LiveKit `RoomEvent.Disconnected` / shutdown callback: best-effort `POST` digest (or jarvis_act memory.digest) — fire-and-forget; ignore errors.
+5. Goldens: “where are we?”, “what’s next?”, “remember that MOF is the lead sorbent”, “digest this session”
+6. `readMemorySnippets` / grep recall should include `MEMORY/context.md` when present (do not overwrite it from `memory.note`).
 
 - [ ] **Step 1: Failing briefing test** — with temp MEMORY containing a decision, `spokenBrief` mentions suggestion/next
 

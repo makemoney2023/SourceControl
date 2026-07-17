@@ -15,7 +15,7 @@ const basePacket: ManagerPacket = {
   report_to: "ceo-strategist",
   parent_position: "orchestrator",
   llm_tier: "strong-general",
-  llm_model: "claude-sonnet-5",
+  llm_model: "composer-2.5",
   generation_profile: "none",
   inputs: [],
   must_read: [],
@@ -63,7 +63,7 @@ describe("parseRunRecord / listRuns", () => {
       dispatch_filename: "2-head-of-research-20260716T140000Z.yaml",
       wake_reason: wake,
       started_at: "2026-07-16T14:00:00.000Z",
-      llm_model: "claude-sonnet-5",
+      llm_model: "composer-2.5",
     };
     const rec = parseRunRecord(raw);
     expect(rec.runId).toBe("1-head-of-research");

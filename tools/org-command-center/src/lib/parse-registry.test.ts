@@ -25,7 +25,7 @@ describe("parseModelRegistry", () => {
     const models = parseModelRegistry(modelMd);
     expect(models["head-of-research"]).toMatchObject({
       llmTier: "strong-general",
-      llmModel: "claude-sonnet-5",
+      llmModel: "composer-2.5",
       generationProfile: "none",
     });
   });

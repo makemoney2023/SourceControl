@@ -5,7 +5,7 @@ reports_to: "head-of-research"
 status: done
 verdict_for_manager: ready_to_merge
 llm_tier: "strong-general"
-llm_model: "claude-sonnet-5"
+llm_model: "composer-2.5"
 generation_profile: none
 generation_used: none
 fallback_applied: false

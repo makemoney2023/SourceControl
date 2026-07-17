@@ -1,0 +1,15 @@
+{
+  "active": "passive-grid",
+  "projects": {
+    "passive-grid": {
+      "name": "Passive Grid",
+      "businessIdea": "docs/projects/passive-grid/business-idea",
+      "memory": "docs/projects/passive-grid/MEMORY"
+    },
+    "demo-venture": {
+      "name": "Demo Venture",
+      "businessIdea": "docs/projects/demo-venture/business-idea",
+      "memory": "docs/projects/demo-venture/MEMORY"
+    }
+  }
+}

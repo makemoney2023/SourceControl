@@ -1,0 +1,78 @@
+{"at":"2026-07-16T19:20:17.066Z","type":"jarvis_act","detail":"Unknown intent"}
+{"at":"2026-07-16T19:20:32.277Z","type":"jarvis_act","detail":"Unknown intent"}
+{"at":"2026-07-16T19:38:46.615Z","type":"jarvis_act","detail":"Unknown intent"}
+{"at":"2026-07-16T19:45:03.663Z","type":"jarvis_act","detail":"Unknown intent"}
+{"at":"2026-07-16T19:46:30.189Z","type":"jarvis_act","detail":"mode.set — briefing"}
+{"at":"2026-07-16T19:46:30.191Z","type":"jarvis_act","detail":"mode.set"}
+{"at":"2026-07-16T19:46:59.309Z","type":"jarvis_act","detail":"Unknown intent"}
+{"at":"2026-07-16T19:48:25.846Z","type":"jarvis_act","detail":"Unknown intent"}
+{"at":"2026-07-16T19:48:35.554Z","type":"jarvis_act","detail":"Unknown intent"}
+{"at":"2026-07-16T19:48:45.475Z","type":"jarvis_act","detail":"Unknown intent"}
+{"at":"2026-07-16T19:48:57.925Z","type":"jarvis_act","detail":"Unknown intent"}
+{"at":"2026-07-17T15:25:07.200Z","type":"jarvis_act","detail":"Unknown intent"}
+{"at":"2026-07-17T15:26:01.152Z","type":"jarvis_act","detail":"Unknown intent"}
+{"at":"2026-07-17T15:26:09.512Z","type":"jarvis_act","detail":"Unknown intent"}
+{"at":"2026-07-17T15:27:47.145Z","type":"jarvis_act","detail":"work.resolve — briefing"}
+{"at":"2026-07-17T15:27:47.147Z","type":"jarvis_act","detail":"work.resolve"}
+{"at":"2026-07-17T15:27:48.274Z","type":"jarvis_act","detail":"work.intake_save — briefing"}
+{"at":"2026-07-17T15:27:48.275Z","type":"jarvis_denied","detail":"work.intake_save — Switch to Ops mode first"}
+{"at":"2026-07-17T15:27:48.746Z","type":"jarvis_act","detail":"mode.set — briefing"}
+{"at":"2026-07-17T15:27:48.746Z","type":"jarvis_act","detail":"mode.set"}
+{"at":"2026-07-17T15:27:49.227Z","type":"jarvis_act","detail":"mode.set — ops"}
+{"at":"2026-07-17T15:27:49.228Z","type":"jarvis_act","detail":"mode.set"}
+{"at":"2026-07-17T15:27:50.243Z","type":"jarvis_act","detail":"work.request — ops"}
+{"at":"2026-07-17T15:27:50.244Z","type":"jarvis_act","detail":"work.request — Invalid or expired confirm token"}
+{"at":"2026-07-17T15:28:05.613Z","type":"jarvis_act","detail":"work.request — ops"}
+{"at":"2026-07-17T15:28:05.613Z","type":"jarvis_act","detail":"work.request — Invalid or expired confirm token"}
+{"at":"2026-07-17T15:30:31.270Z","type":"jarvis_act","detail":"session.help — briefing"}
+{"at":"2026-07-17T15:30:31.271Z","type":"jarvis_act","detail":"session.help"}
+{"at":"2026-07-17T15:32:52.951Z","type":"jarvis_act","detail":"work.resolve — briefing"}
+{"at":"2026-07-17T15:32:52.954Z","type":"jarvis_act","detail":"work.resolve — Unknown seat: CEO strategist"}
+{"at":"2026-07-17T15:35:24.578Z","type":"jarvis_act","detail":"seat.report — briefing"}
+{"at":"2026-07-17T15:35:24.580Z","type":"jarvis.focus","slug":"ceo-strategist"}
+{"at":"2026-07-17T15:35:24.580Z","type":"jarvis_act","detail":"seat.report"}
+{"at":"2026-07-17T15:37:38.858Z","type":"jarvis_act","detail":"seat.report — briefing"}
+{"at":"2026-07-17T15:37:38.860Z","type":"jarvis.focus","slug":"copy-chief"}
+{"at":"2026-07-17T15:37:38.860Z","type":"jarvis_act","detail":"seat.report"}
+{"at":"2026-07-17T15:37:38.883Z","type":"jarvis_act","detail":"seat.report — briefing"}
+{"at":"2026-07-17T15:37:38.883Z","type":"jarvis.focus","slug":"tech-lead"}
+{"at":"2026-07-17T15:37:38.884Z","type":"jarvis_act","detail":"seat.report"}
+{"at":"2026-07-17T15:37:38.906Z","type":"jarvis_act","detail":"seat.report — briefing"}
+{"at":"2026-07-17T15:37:38.907Z","type":"jarvis.focus","slug":"head-of-research"}
+{"at":"2026-07-17T15:37:38.907Z","type":"jarvis_act","detail":"seat.report"}
+{"at":"2026-07-17T15:37:38.930Z","type":"jarvis_act","detail":"seat.report — briefing"}
+{"at":"2026-07-17T15:37:38.931Z","type":"jarvis.focus","slug":"fpa-analyst"}
+{"at":"2026-07-17T15:37:38.931Z","type":"jarvis_act","detail":"seat.report"}
+{"at":"2026-07-17T15:37:38.954Z","type":"jarvis_act","detail":"seat.report — briefing"}
+{"at":"2026-07-17T15:37:38.955Z","type":"jarvis.focus","slug":"customer-success-manager"}
+{"at":"2026-07-17T15:37:38.955Z","type":"jarvis_act","detail":"seat.report"}
+{"at":"2026-07-17T15:41:02.185Z","type":"jarvis_act","detail":"jarvis.ping — briefing"}
+{"at":"2026-07-17T15:41:02.186Z","type":"jarvis_act","detail":"jarvis.ping"}
+{"at":"2026-07-17T15:42:08.400Z","type":"jarvis_act","detail":"work.resolve — briefing"}
+{"at":"2026-07-17T15:42:08.403Z","type":"jarvis_act","detail":"work.resolve — Unknown seat: C-suite"}
+{"at":"2026-07-17T15:42:08.928Z","type":"jarvis_act","detail":"work.resolve — briefing"}
+{"at":"2026-07-17T15:42:08.931Z","type":"jarvis_act","detail":"work.resolve — Unknown seat: C-suite"}
+{"at":"2026-07-17T15:42:09.455Z","type":"jarvis_act","detail":"work.resolve — briefing"}
+{"at":"2026-07-17T15:42:09.458Z","type":"jarvis_act","detail":"work.resolve — Unknown seat: C-suite"}
+{"at":"2026-07-17T15:42:10.075Z","type":"jarvis_act","detail":"work.resolve — briefing"}
+{"at":"2026-07-17T15:42:10.077Z","type":"jarvis_act","detail":"work.resolve — Unknown seat: C-suite"}
+{"at":"2026-07-17T15:42:24.378Z","type":"jarvis_act","detail":"work.resolve — briefing"}
+{"at":"2026-07-17T15:42:24.381Z","type":"jarvis_act","detail":"work.resolve"}
+{"at":"2026-07-17T15:42:25.098Z","type":"jarvis_act","detail":"work.resolve — briefing"}
+{"at":"2026-07-17T15:42:25.100Z","type":"jarvis_act","detail":"work.resolve"}
+{"at":"2026-07-17T15:42:26.220Z","type":"jarvis_act","detail":"work.intake_save — briefing"}
+{"at":"2026-07-17T15:42:26.220Z","type":"jarvis_denied","detail":"work.intake_save — Switch to Ops mode first"}
+{"at":"2026-07-17T15:42:26.746Z","type":"jarvis_act","detail":"mode.set — briefing"}
+{"at":"2026-07-17T15:42:26.746Z","type":"jarvis_act","detail":"mode.set"}
+{"at":"2026-07-17T15:42:27.213Z","type":"jarvis_act","detail":"mode.set — ops"}
+{"at":"2026-07-17T15:42:27.214Z","type":"jarvis_act","detail":"mode.set"}
+{"at":"2026-07-17T15:42:27.934Z","type":"jarvis_act","detail":"work.resolve — ops"}
+{"at":"2026-07-17T15:42:27.938Z","type":"jarvis_act","detail":"work.resolve"}
+{"at":"2026-07-17T15:42:28.665Z","type":"jarvis_act","detail":"work.resolve — ops"}
+{"at":"2026-07-17T15:42:28.667Z","type":"jarvis_act","detail":"work.resolve"}
+{"at":"2026-07-17T15:42:29.394Z","type":"jarvis_act","detail":"work.resolve — ops"}
+{"at":"2026-07-17T15:42:29.396Z","type":"jarvis_act","detail":"work.resolve"}
+{"at":"2026-07-17T15:42:54.865Z","type":"jarvis_act","detail":"mode.set — ops"}
+{"at":"2026-07-17T15:42:54.865Z","type":"jarvis_act","detail":"mode.set"}
+{"at":"2026-07-17T15:42:55.334Z","type":"jarvis_act","detail":"mode.set — review"}
+{"at":"2026-07-17T15:42:55.335Z","type":"jarvis_act","detail":"mode.set"}

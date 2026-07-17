@@ -1,0 +1,31 @@
+schema_version: 1
+queued_at: 2026-07-16T14:52:26.526Z
+phase: "2"
+position: head-of-research
+goal: Produce Phase 2 evidence via delegates; merge; write manager brief
+report_to: ceo-strategist
+parent_position: orchestrator
+llm_tier: strong-general
+llm_model: claude-sonnet-5
+generation_profile: none
+inputs:
+  - docs/projects/passive-grid/business-idea/01-problem-framing.md
+must_read:
+  - skills/org/MODEL-REGISTRY.md
+outputs:
+  - docs/projects/passive-grid/business-idea/02-evidence-base.md
+  - docs/projects/passive-grid/business-idea/02-market-research.md
+write_lease:
+  - docs/projects/passive-grid/business-idea/02-evidence-base.md
+  - docs/projects/passive-grid/business-idea/02-market-research.md
+  - docs/projects/passive-grid/business-idea/HANDOFFS/2-manager-head-of-research.md
+budget_usd: null
+collaborators: []
+delegate_budget: 3
+constraints:
+  - Spawn only Delegates to from your position SKILL.md
+  - Give each IC a write_lease subset (no colliding paths)
+  - Each IC packet MUST include llm_tier
+  - Await IC handoffs; merge; write manager brief
+  - Do not mark phase complete
+  - Do not spawn peer managers yourself — ask orchestrator

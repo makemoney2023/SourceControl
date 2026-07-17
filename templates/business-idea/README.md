@@ -3,7 +3,7 @@
 Copy into your project before starting the runbook:
 
 ```bash
-cp -r templates/business-idea/* /path/to/project/docs/business-idea/
+cp -r templates/business-idea/* /path/to/project/docs/projects/<active>/business-idea/
 cp rules/shared/business-idea-runbook.mdc /path/to/project/.cursor/rules/
 ```
 

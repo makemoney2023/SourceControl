@@ -26,7 +26,7 @@ const packet: ManagerPacket = {
   report_to: "ceo-strategist",
   parent_position: "orchestrator",
   llm_tier: "strong-general",
-  llm_model: "claude-sonnet-5",
+  llm_model: "composer-2.5",
   generation_profile: "none",
   inputs: [],
   must_read: ["skills/org/MODEL-REGISTRY.md"],

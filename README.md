@@ -3,7 +3,7 @@
 A portable library of **generic** Cursor agent skills and rules — reusable across any project. No company-specific or project-specific content.
 
 **Last updated:** July 16, 2026  
-**Total:** 565 skills · 15 rules · ~135 MB (includes OpenMontage video system ~88 MB)
+**Total:** 749 skills · 15 rules · ~135 MB (includes OpenMontage ~88 MB; +37 org; +18 integrations)
 
 ## Directory Structure
 
@@ -34,11 +34,14 @@ ClaudeSkills/
 │   │   ├── business-analysis-skills/  # BA skills (53) — MIT
 │   │   ├── awesome-claude-corporate-skills/  # Corporate skills (166) — MIT
 │   │   └── inference-sh/           # inference.sh AI media skills (85) — MIT
+│   ├── org/                  # Virtual company positions + orchestrator (37)
+│   ├── integrations/         # API/MCP skills for digital workers (18)
 │   └── context-engineering/  # Agent context engineering patterns (16)
 ├── rules/
 │   └── shared/               # Generic rules for any project (15)
 └── templates/
-    └── business-idea/        # Runbook tracker + artifact stubs
+    ├── business-idea/        # Runbook tracker + artifact stubs
+    └── org/agents/           # Cursor subagent defs (36) → .cursor/agents/
 ```
 
 ---
@@ -184,6 +187,44 @@ From [smixs/visual-skills](https://github.com/smixs/visual-skills) (MIT). Produc
 | `video` | Video prompts — shot lists, multi-shot, dialogue / lip-sync |
 
 Global runbook rule + Phases **11, 14, 15, 19**. See [skills/community/visual-skills/README.md](skills/community/visual-skills/README.md).
+
+### Org — Virtual company positions (36 + orchestrator)
+
+Portable **position skills** so the business-idea runbook can spin up a full company as Cursor subagents. Each seat has purpose, reports-to, delegates-to, skill packs, and I/O contracts.
+
+| Piece | Path |
+|-------|------|
+| Registry | [`skills/org/ORG-REGISTRY.md`](skills/org/ORG-REGISTRY.md) |
+| Tool registry | [`skills/org/TOOL-REGISTRY.md`](skills/org/TOOL-REGISTRY.md) — seat → API/MCP |
+| Integrations | [`skills/integrations/`](skills/integrations/) — GA4, GSC, adapters |
+| Orchestrator | [`skills/org/orchestrator/`](skills/org/orchestrator/) |
+| Positions | [`skills/org/positions/<slug>/`](skills/org/positions/) |
+| Cursor agents | [`templates/org/agents/`](templates/org/agents/) → copy to `.cursor/agents/` |
+
+Install:
+
+```bash
+mkdir -p /path/to/project/.cursor/skills/org /path/to/project/.cursor/skills/integrations \
+  /path/to/project/.cursor/agents
+cp -r skills/org/positions skills/org/orchestrator skills/org/ORG-REGISTRY.md \
+  skills/org/MODEL-REGISTRY.md skills/org/TOOL-REGISTRY.md \
+  /path/to/project/.cursor/skills/org/
+cp -r skills/integrations /path/to/project/.cursor/skills/
+cp templates/org/agents/*.md /path/to/project/.cursor/agents/
+```
+
+Runbook principle #9: orchestrator spawns **managers only**; ICs report via `HANDOFFS/`; C-suite must `approve` before phase ✅. See [skills/org/README.md](skills/org/README.md).
+
+### Integrations — API / MCP adapters (18)
+
+Portable skills for live tools digital workers call. Deep skills: `google-auth`, `google-analytics`, `google-search-console`. Thin adapters: Firecrawl, Parallel, Context7, Figma, Supabase, Vercel, GitHub, Stripe, fal, ElevenLabs, PageSpeed, Google Ads, Playwright, shadcn, Obsidian secrets.
+
+| Piece | Path |
+|-------|------|
+| Catalog + seat map | [`skills/org/TOOL-REGISTRY.md`](skills/org/TOOL-REGISTRY.md) |
+| Skills | [`skills/integrations/<tool>/`](skills/integrations/) |
+
+Spec: [`docs/superpowers/specs/2026-07-16-digital-worker-integrations-design.md`](docs/superpowers/specs/2026-07-16-digital-worker-integrations-design.md).
 
 ### Community — OpenMontage (video production system)
 
@@ -338,7 +379,8 @@ cp rules/shared/project-context.mdc /path/to/project/.cursor/rules/
 
 # Business idea execution runbook (virtual business team, continuous)
 cp rules/shared/business-idea-runbook.mdc /path/to/project/.cursor/rules/
-cp -r templates/business-idea/* /path/to/project/docs/business-idea/
+# Prefer: scripts/new-venture.sh <slug> "<Name>"
+cp -r templates/business-idea/* docs/projects/<slug>/business-idea/
 ```
 
 And these skills based on your stack:
