@@ -288,5 +288,17 @@
     "utterance": "resolve the blocker",
     "expectIntent": "blocker.list",
     "mode": "briefing"
+  },
+  {
+    "utterance": "resolve that blocker",
+    "expectIntent": "blocker.resolve",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "unblock research",
+    "expectIntent": "blocker.resolve",
+    "mode": "ops",
+    "expectNeedsConfirm": true
   }
 ]

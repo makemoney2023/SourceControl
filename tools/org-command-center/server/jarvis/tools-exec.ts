@@ -48,6 +48,7 @@ import {
   setRoomMode,
   setWorkIntake,
 } from "./session";
+import { planBlockerResolve } from "./blocker-resolve";
 import { listRunEvents, summarizeRunEvents } from "./run-events";
 import { resolveWorkTarget } from "./work-request";
 
@@ -74,7 +75,7 @@ const SESSION_HELP = [
   "Modes: Briefing for mission, digest, seat report, tasks, runs, activity, alerts, spend.",
   "Ops adds assign, run next, cancel, rewake, pause, resume, cancel pending.",
   "Review adds file read and csuite draft. Architect adds venture create or switch.",
-  "Top intents: mission.get for status; digest.get or digest.focus; blocker.list; seat.report; phase.list_open;",
+  "Top intents: mission.get for status; digest.get or digest.focus; blocker.list; blocker.resolve; seat.report; phase.list_open;",
   "activity.tail; session.help; session.repeat; jarvis.ping; mode.set;",
   "work.resolve or work.request for intake and Cursor spawn; review.inbox_list for artifacts.",
 ].join(" ");
@@ -698,6 +699,78 @@ export async function executeIntent(
         blocked,
         escalate,
         summary: summarizeBlockers(blocked, escalate),
+      };
+    }
+
+    case "blocker.resolve": {
+      const plan = planBlockerResolve(repoRoot, {
+        seat: args.seat != null ? String(args.seat) : undefined,
+        phase: args.phase != null ? String(args.phase) : undefined,
+        goal: args.goal != null ? String(args.goal) : undefined,
+      });
+
+      if (plan.action === "rewake") {
+        const result = await rewakeSession(repoRoot, {
+          dispatchFilename: plan.dispatchFilename,
+          instruction: plan.goal,
+          wakeReason: "rewake",
+          apiKey:
+            typeof args.apiKey === "string"
+              ? args.apiKey
+              : args.apiKey === null
+                ? null
+                : undefined,
+          adapter: args.adapter as RuntimeAdapter | undefined,
+        });
+        if (!result.ok) {
+          throw new JarvisExecError(result.error || "rewake failed", "spawn_failed");
+        }
+        emitJarvisFocus(droot, { phase: plan.phase, slug: plan.position });
+        return {
+          ok: true,
+          action: "rewake",
+          runId: result.runId,
+          position: plan.position,
+          blockedSeat: plan.blockedSeat,
+          dispatchFilename: plan.dispatchFilename,
+          spoken: plan.spoken,
+        };
+      }
+
+      const input = buildQueueForPacket(repoRoot, {
+        position: plan.position,
+        goal: plan.goal,
+        phase: plan.phase,
+        targetIc: plan.targetIc,
+        require_inbox: Boolean(plan.targetIc),
+      });
+      const queued = queueValidatedDispatch(repoRoot, input, { allowAnyManager: true });
+      assertExecOk(queued, (r) => ("errors" in r ? r.errors : []).join("; "));
+      const filename = queued.path.split("/").pop()!;
+      const spawned = spawnClaimedManagerDetached(repoRoot, {
+        filename,
+        wakeReason: "on_demand",
+        apiKey:
+          typeof args.apiKey === "string"
+            ? args.apiKey
+            : args.apiKey === null
+              ? null
+              : undefined,
+        adapter: args.adapter as RuntimeAdapter | undefined,
+      });
+      if (!spawned.ok) {
+        throw new JarvisExecError(spawned.error || "spawn failed", "spawn_failed");
+      }
+      emitJarvisFocus(droot, { phase: queued.packet.phase, slug: queued.packet.position });
+      return {
+        ok: true,
+        action: "queue",
+        runId: spawned.runId,
+        position: queued.packet.position,
+        blockedSeat: plan.blockedSeat,
+        filename,
+        queuePath: queued.path,
+        spoken: plan.spoken,
       };
     }
 

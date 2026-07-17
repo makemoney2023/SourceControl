@@ -247,9 +247,9 @@ export function planBlockerResolve(repoRoot, args: { seat?: string; phase?: stri
 // execute via existing queueValidatedDispatch + spawnClaimedManagerDetached OR rewakeSession
 ```
 
-- [ ] **Step 1: Failing tests** — blocked IC seat → resolve to manager; live session → prefer rewake; else queue+spawn
+- [x] **Step 1: Failing tests** — blocked IC seat → resolve to manager; live session → prefer rewake; else queue+spawn
 
-- [ ] **Step 2: Implement + wire intent**
+- [x] **Step 2: Implement + wire intent**
 
 - [ ] **Step 3: Commit** — `feat(occ): blocker.resolve queues or rewakes owner`
 

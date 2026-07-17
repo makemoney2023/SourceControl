@@ -191,6 +191,17 @@ describe("policyFor", () => {
       needsConfirm: false,
     });
   });
+  it("blocker.resolve requires ops and hard confirm", () => {
+    expect(policyFor("blocker.resolve", "briefing")).toEqual({
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    });
+    expect(policyFor("blocker.resolve", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
   it("activity.tail allowed in briefing without confirm", () => {
     expect(policyFor("activity.tail", "briefing")).toEqual({
       allowed: true,

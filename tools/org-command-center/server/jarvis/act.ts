@@ -68,6 +68,10 @@ function confirmSummary(intent: JarvisIntent, args: Record<string, unknown>): st
     const ic = args.targetIc ? ` (IC ${args.targetIc})` : "";
     return `Queue ${position}${ic} and start Cursor now. Confirm?`;
   }
+  if (intent === "blocker.resolve") {
+    const seat = String(args.seat ?? "blocked seat");
+    return `Resolve blocker for ${seat} (queue or rewake owner). Confirm?`;
+  }
   return `Confirm ${intent.replace(/\./g, " ")}?`;
 }
 
@@ -109,6 +113,18 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
   }
   if (intent === "blocker.list" && typeof result === "object" && result !== null && "summary" in result) {
     return String((result as { summary: string }).summary);
+  }
+  if (
+    intent === "blocker.resolve" &&
+    typeof result === "object" &&
+    result !== null &&
+    "spoken" in result
+  ) {
+    const r = result as { spoken?: string; runId?: string; action?: string };
+    if (r.runId) {
+      return `${r.spoken ?? "Blocker resolve started."} Run ${r.runId}.`;
+    }
+    return String(r.spoken ?? "Blocker resolve started.");
   }
   if (
     intent === "session.cancel_pending" &&

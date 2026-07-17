@@ -236,6 +236,34 @@ const INTENT_COVERAGE: CoverageCase[] = [
   { intent: "phase.list_open", args: {} },
   { intent: "digest.focus", args: { section: "blocked" } },
   { intent: "blocker.list", args: {} },
+  {
+    intent: "blocker.resolve",
+    args: { seat: "market-research-analyst", apiKey: "test-key", adapter: okAdapter },
+    seed(repoRoot) {
+      writeFileSync(
+        join(repoRoot, BIZ_IDEA, "HANDOFFS", "2-market-research-analyst.md"),
+        `---
+kind: ic
+phase: "2"
+position: market-research-analyst
+reports_to: head-of-research
+status: blocked
+verdict_for_manager: ""
+verdict: ""
+llm_tier: strong-general
+generation_profile: none
+fallback_applied: ""
+---
+
+# Handoff
+
+## Risks / blockers
+
+- no primary data source
+`,
+      );
+    },
+  },
   { intent: "activity.tail", args: { n: 5 } },
   {
     intent: "work.resolve",

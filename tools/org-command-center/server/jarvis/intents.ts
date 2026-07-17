@@ -46,6 +46,7 @@ export const JARVIS_INTENTS = [
   "phase.list_open",
   "digest.focus",
   "blocker.list",
+  "blocker.resolve",
   "activity.tail",
   "work.resolve",
   "work.intake_save",

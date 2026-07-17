@@ -16,6 +16,7 @@ const HARD = new Set<JarvisIntent>([
   "agent.resume",
   "csuite.draft",
   "work.request",
+  "blocker.resolve",
 ]);
 const OPS_ONLY = new Set<JarvisIntent>([
   ...HARD,
