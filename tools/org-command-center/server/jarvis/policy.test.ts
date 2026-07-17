@@ -85,6 +85,35 @@ describe("policyFor", () => {
   it("dispatch.queue_for denied in briefing", () => {
     expect(policyFor("dispatch.queue_for", "briefing").allowed).toBe(false);
   });
+  it("work.request needs confirm in ops", () => {
+    expect(policyFor("work.request", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
+  it("work.request denied in briefing", () => {
+    expect(policyFor("work.request", "briefing").allowed).toBe(false);
+  });
+  it("work.request denied in review with ops guidance", () => {
+    const p = policyFor("work.request", "review");
+    expect(p.allowed).toBe(false);
+    expect(p.reason).toMatch(/Ops/i);
+  });
+  it("work.intake_save denied in review", () => {
+    expect(policyFor("work.intake_save", "review").allowed).toBe(false);
+  });
+  it("csuite.draft still allowed in review with confirm", () => {
+    expect(policyFor("csuite.draft", "review")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
+  it("work.resolve allowed in briefing without confirm", () => {
+    expect(policyFor("work.resolve", "briefing")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
   it("dispatch.preview allowed in ops without confirm", () => {
     expect(policyFor("dispatch.preview", "ops")).toEqual({
       allowed: true,

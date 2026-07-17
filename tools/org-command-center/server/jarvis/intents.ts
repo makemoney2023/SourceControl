@@ -44,6 +44,10 @@ export const JARVIS_INTENTS = [
   "phase.list_open",
   "digest.focus",
   "activity.tail",
+  "work.resolve",
+  "work.intake_save",
+  "work.request",
+  "review.inbox_list",
 ] as const;
 
 export type JarvisIntent = (typeof JARVIS_INTENTS)[number];

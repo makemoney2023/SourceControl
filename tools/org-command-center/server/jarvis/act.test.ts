@@ -69,6 +69,45 @@ describe("handleJarvisAct", () => {
     expect(r.summary).toBeTruthy();
   });
 
+  it("returns needs_confirm for work.request in ops", async () => {
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "work.request",
+      args: { goal: "write a short blog article" },
+      mode: "ops",
+    });
+    expect(r.status).toBe("needs_confirm");
+    expect(r.summary).toMatch(/cmo/i);
+    expect(r.summary).toMatch(/Cursor/i);
+  });
+
+  it("binds targetIc and require_inbox on work.request confirm", async () => {
+    const execute = vi.fn(async () => ({ runId: "run-1" }));
+    setExecuteIntentForTests(execute);
+
+    const first = await handleJarvisAct(repo, "room-1", {
+      intent: "work.request",
+      args: { position: "copy-chief", goal: "Write landing page copy" },
+      mode: "ops",
+    });
+    expect(first.status).toBe("needs_confirm");
+
+    await handleJarvisAct(repo, "room-1", {
+      intent: "work.request",
+      args: {},
+      mode: "ops",
+      confirmToken: first.token,
+    });
+
+    expect(execute).toHaveBeenCalledWith(repo, "work.request", {
+      position: "cmo",
+      goal: expect.stringMatching(/landing page copy/i),
+      phase: "2",
+      targetIc: "copy-chief",
+      require_inbox: true,
+      roomId: "room-1",
+    });
+  });
+
   it("returns needs_confirm for spawn.run in ops without token", async () => {
     const r = await handleJarvisAct(repo, "room-1", {
       intent: "spawn.run",

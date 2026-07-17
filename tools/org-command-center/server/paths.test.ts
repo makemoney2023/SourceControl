@@ -35,7 +35,7 @@ describe("FS allowlist + multi-venture paths", () => {
     expect(() => assertReadable(root, "package.json")).toThrow(/allowlist/i);
   });
 
-  it("allows writing DISPATCH, BRIEFINGS, tracker, MEMORY, registry", () => {
+  it("allows writing DISPATCH, BRIEFINGS, tracker, MEMORY, REVIEW/inbox, registry", () => {
     expect(() =>
       assertWritable(root, "docs/projects/passive-grid/business-idea/DISPATCH/queue/x.yaml"),
     ).not.toThrow();
@@ -47,6 +47,12 @@ describe("FS allowlist + multi-venture paths", () => {
     ).not.toThrow();
     expect(() =>
       assertWritable(root, "docs/projects/passive-grid/MEMORY/decisions.md"),
+    ).not.toThrow();
+    expect(() =>
+      assertWritable(
+        root,
+        "docs/projects/passive-grid/business-idea/REVIEW/inbox/2-cmo-queued.md",
+      ),
     ).not.toThrow();
     expect(() => assertWritable(root, "projects/registry.json")).not.toThrow();
     expect(() => assertWritable(root, "skills/org/ORG-REGISTRY.md")).toThrow(/allowlist/i);

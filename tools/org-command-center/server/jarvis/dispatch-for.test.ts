@@ -116,6 +116,19 @@ describe("buildQueueForPacket", () => {
     expect(input.require_inbox).toBe(true);
     expect(input.require_ic_handoff).toBe(true);
   });
+
+  it("sets require_inbox when explicitly requested without preferred_ic", () => {
+    repo = tempRepo();
+    const input = buildQueueForPacket(repo, {
+      position: "cmo",
+      goal: "Plan awareness campaign",
+      phase: "13",
+      require_inbox: true,
+    });
+    expect(input.preferred_ic).toBeUndefined();
+    expect(input.require_inbox).toBe(true);
+    expect(input.require_ic_handoff).toBeUndefined();
+  });
 });
 
 describe("previewQueueFor", () => {

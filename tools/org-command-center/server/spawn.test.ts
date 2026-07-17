@@ -8,7 +8,7 @@ import type { ManagerPacket } from "../src/lib/types";
 import { clearRunRegistry } from "./run-registry";
 import { setSeatPaused } from "./agent-state";
 import type { RuntimeAdapter } from "./runtime-adapter";
-import { buildSpawnPrompt, spawnClaimedManager } from "./spawn";
+import { buildSpawnPrompt, spawnClaimedManager, spawnClaimedManagerDetached } from "./spawn";
 import { resolveRepoRoot } from "./paths";
 
 const BIZ_IDEA = "docs/projects/passive-grid/business-idea";
@@ -22,7 +22,7 @@ const packet: ManagerPacket = {
   report_to: "ceo-strategist",
   parent_position: "orchestrator",
   llm_tier: "strong-general",
-  llm_model: "claude-sonnet-5",
+  llm_model: "composer-2.5",
   generation_profile: "none",
   inputs: [],
   must_read: [],
@@ -89,6 +89,44 @@ describe("buildSpawnPrompt", () => {
     expect(prompt).toContain("Goal ancestry");
     expect(prompt).toContain("Test company");
     expect(prompt).toContain(`${BIZ_IDEA}/HANDOFFS/`);
+    expect(prompt).toContain(`${BIZ_IDEA}/REVIEW/inbox/`);
+    expect(prompt).toContain("pending_review");
+  });
+});
+
+describe("spawnClaimedManagerDetached", () => {
+  it("returns while adapter is still running, then completes", async () => {
+    const repo = tempRepo();
+    enqueue(repo, packet, "2-a.yaml");
+    let release!: () => void;
+    const gate = new Promise<void>((r) => {
+      release = r;
+    });
+    const slowAdapter: RuntimeAdapter = {
+      async run() {
+        await gate;
+        return { status: "completed", result: "done", agentId: "agent-detach" };
+      },
+    };
+    const result = spawnClaimedManagerDetached(repo, {
+      apiKey: "test-key",
+      adapter: slowAdapter,
+      filename: "2-a.yaml",
+    });
+    expect(result.ok).toBe(true);
+    expect(result.runId).toBeTruthy();
+    expect(result.position).toBe("head-of-research");
+    const runs = readdirSync(join(dispatchDir(repo), "runs"));
+    const rec = JSON.parse(
+      readFileSync(join(dispatchDir(repo), "runs", runs[0]), "utf8"),
+    );
+    expect(rec.status).toBe("running");
+    release();
+    await new Promise((r) => setTimeout(r, 50));
+    const done = JSON.parse(
+      readFileSync(join(dispatchDir(repo), "runs", runs[0]), "utf8"),
+    );
+    expect(done.status).toBe("completed");
   });
 });
 

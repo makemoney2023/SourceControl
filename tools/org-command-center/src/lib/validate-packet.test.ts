@@ -158,6 +158,25 @@ describe("validateManagerPacket", () => {
     if (!result.ok) expect(result.errors.join(" ")).toMatch(/must be an IC/i);
   });
 
+  it("rejects preferred_ic that does not report to the intake manager", () => {
+    const result = validateManagerPacket(
+      {
+        phase: "11",
+        position: "cmo",
+        goal: "Ship blog copy",
+        llm_tier: "frontier-reasoning",
+        preferred_ic: "brand-designer",
+      },
+      org,
+      models,
+      { allowAnyManager: true },
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors.join(" ")).toMatch(/must report to intake manager cmo/i);
+    }
+  });
+
   it("requires generation_profile for creative phases 11/12/15/19", () => {
     const missing = validateManagerPacket(
       {

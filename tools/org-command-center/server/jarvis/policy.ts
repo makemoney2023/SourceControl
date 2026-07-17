@@ -14,6 +14,7 @@ const HARD = new Set<JarvisIntent>([
   "agent.pause",
   "agent.resume",
   "csuite.draft",
+  "work.request",
 ]);
 const OPS_ONLY = new Set<JarvisIntent>([
   ...HARD,
@@ -22,6 +23,7 @@ const OPS_ONLY = new Set<JarvisIntent>([
   "dispatch.preview",
   "dispatch.list",
   "delegate.plan",
+  "work.intake_save",
 ]);
 const STRUCTURAL = new Set<JarvisIntent>(["venture.create", "venture.switch"]);
 const ARCHITECT_ONLY = new Set<JarvisIntent>([...STRUCTURAL]);
@@ -56,8 +58,19 @@ export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy 
   if (mode === "briefing" && OPS_ONLY.has(intent)) {
     return { allowed: false, needsConfirm: false, reason: "Switch to Ops mode first" };
   }
-  if (mode === "review" && intent.startsWith("spawn")) {
-    return { allowed: false, needsConfirm: false, reason: "Spawn disabled in Review" };
+  if (
+    mode === "review" &&
+    (intent.startsWith("spawn") ||
+      intent === "work.request" ||
+      intent === "work.intake_save" ||
+      intent === "dispatch.queue" ||
+      intent === "dispatch.queue_for")
+  ) {
+    return {
+      allowed: false,
+      needsConfirm: false,
+      reason: "Spawn disabled in Review — switch to Ops mode first",
+    };
   }
   if (mode === "architect" && intent.startsWith("spawn")) {
     return {

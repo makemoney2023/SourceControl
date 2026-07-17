@@ -7,7 +7,8 @@ import {
 } from "../../src/jarvis/company-digest";
 import { renderStandupBriefing } from "../../src/jarvis/briefings";
 import { CSUITE_SLUGS } from "../../src/jarvis/csuite";
-import { buildSeatReport } from "../../src/jarvis/seat-report";
+import { buildSeatReport, seatReportBriefScript } from "../../src/jarvis/seat-report";
+import { resolveSeatSlug } from "./resolve-seat";
 import { appendActivity } from "../activity";
 import { ackHandoffAlert } from "../alerts-fs";
 import { setSeatPaused } from "../agent-state";
@@ -29,12 +30,25 @@ import type { RuntimeAdapter } from "../runtime-adapter";
 import { readRun } from "../runs-fs";
 import { listRoutineDefs, routineSummaries, writeRoutine } from "../routines";
 import { loadSnapshot } from "../snapshot";
-import { rewakeSession, spawnClaimedManager } from "../spawn";
+import { rewakeSession, spawnClaimedManager, spawnClaimedManagerDetached } from "../spawn";
 import { writeCsuiteDraft } from "../write-csuite-draft";
 import { buildQueueForPacket, previewQueueFor } from "./dispatch-for";
 import { JarvisExecError } from "./errors";
 import type { JarvisIntent } from "./intents";
-import { cancelConfirm, getLastSummary, getRoomMode, peekLatestConfirm, setRoomMode } from "./session";
+import { listReviewInbox, writeReviewInboxReceipt } from "./review-inbox";
+import {
+  cancelConfirm,
+  clearWorkIntake,
+  getLastSummary,
+  getRoomMode,
+  getWorkIntake,
+  mergeWorkGoal,
+  patchWorkIntakeAnswers,
+  peekLatestConfirm,
+  setRoomMode,
+  setWorkIntake,
+} from "./session";
+import { resolveWorkTarget } from "./work-request";
 
 export { JarvisExecError } from "./errors";
 
@@ -54,24 +68,15 @@ function emitJarvisFocus(
   appendActivity(droot, { type: "jarvis.focus", phase: focus.phase, slug: focus.slug });
 }
 
+/** Plain text only — voice TTS reads markdown asterisks aloud. */
 const SESSION_HELP = [
-  "**Modes**",
-  "- Briefing — mission, digest, seat report, tasks, runs, activity, alerts, spend",
-  "- Ops — + assign, run next, cancel, rewake, pause, resume, cancel pending",
-  "- Review — + file read, csuite draft",
-  "- Architect — + venture create/switch",
-  "",
-  "**Top intents**",
-  "- mission.get — where are we / mission status",
-  "- digest.get / digest.focus — company rollup or blocked/escalate/awaiting slice",
-  "- seat.report — report on a seat",
-  "- phase.list_open — pending or in-progress phases",
-  "- activity.tail — last N pulse events",
-  "- session.help — this cheatsheet",
-  "- session.repeat — repeat last spoken summary",
-  "- jarvis.ping — stack heartbeat",
-  "- mode.set — switch briefing / ops / review / architect",
-].join("\n");
+  "Modes: Briefing for mission, digest, seat report, tasks, runs, activity, alerts, spend.",
+  "Ops adds assign, run next, cancel, rewake, pause, resume, cancel pending.",
+  "Review adds file read and csuite draft. Architect adds venture create or switch.",
+  "Top intents: mission.get for status; digest.get or digest.focus; seat.report; phase.list_open;",
+  "activity.tail; session.help; session.repeat; jarvis.ping; mode.set;",
+  "work.resolve or work.request for intake and Cursor spawn; review.inbox_list for artifacts.",
+].join(" ");
 
 function buildDigestPayload(snap: ReturnType<typeof loadSnapshot>, repoRoot: string) {
   return buildCompanyDigest({
@@ -131,7 +136,8 @@ export async function executeIntent(
     }
 
     case "seat.report": {
-      const slug = String(args.slug ?? "ceo-strategist");
+      const raw = String(args.slug ?? args.seat ?? args.position ?? "ceo-strategist");
+      const slug = resolveSeatSlug(raw, snap.org.roster) ?? raw;
       const report = buildSeatReport({
         slug,
         org: snap.org,
@@ -147,9 +153,14 @@ export async function executeIntent(
         models: snap.models,
         exists: existsSync,
       });
-      if (!report) throw new JarvisExecError(`unknown seat: ${slug}`, "unknown_seat");
-      emitJarvisFocus(droot, { slug });
-      return { report };
+      if (!report) {
+        throw new JarvisExecError(
+          `unknown seat: ${raw}. Use a roster title or slug (ceo strategist, head of research, copy chief, …).`,
+          "unknown_seat",
+        );
+      }
+      emitJarvisFocus(droot, { slug: report.slug });
+      return { report, spoken: seatReportBriefScript(report) };
     }
 
     case "tasks.list":
@@ -259,16 +270,20 @@ export async function executeIntent(
       });
 
     case "agent.pause": {
-      const slug = String(args.slug ?? "");
-      if (!slug) throw new JarvisExecError("slug required", "missing_arg");
+      const raw = String(args.slug ?? args.seat ?? "");
+      if (!raw) throw new JarvisExecError("slug required", "missing_arg");
+      const slug = resolveSeatSlug(raw, snap.org.roster);
+      if (!slug) throw new JarvisExecError(`unknown seat: ${raw}`, "unknown_seat");
       const state = setSeatPaused(droot, slug, true);
       appendActivity(droot, { type: "seat_paused", position: slug });
       return { ok: true, slug, ...state };
     }
 
     case "agent.resume": {
-      const slug = String(args.slug ?? "");
-      if (!slug) throw new JarvisExecError("slug required", "missing_arg");
+      const raw = String(args.slug ?? args.seat ?? "");
+      if (!raw) throw new JarvisExecError("slug required", "missing_arg");
+      const slug = resolveSeatSlug(raw, snap.org.roster);
+      if (!slug) throw new JarvisExecError(`unknown seat: ${raw}`, "unknown_seat");
       const state = setSeatPaused(droot, slug, false);
       appendActivity(droot, { type: "seat_resumed", position: slug });
       return { ok: true, slug, ...state };
@@ -379,7 +394,8 @@ export async function executeIntent(
     }
 
     case "delegate.plan": {
-      const position = String(args.position ?? "");
+      const raw = String(args.position ?? "");
+      const position = resolveSeatSlug(raw, snap.org.roster) ?? raw;
       const goal = String(args.goal ?? "");
       const owner =
         snap.org.phaseOwners.find((p) => p.managerOwner === position) ??
@@ -399,6 +415,120 @@ export async function executeIntent(
 
     case "agent.spawn_ic":
       throw new JarvisExecError("IC spawn forbidden", "forbidden");
+
+    case "work.resolve": {
+      const resolved = resolveWorkTarget(repoRoot, {
+        position: args.position != null ? String(args.position) : undefined,
+        goal: args.goal != null ? String(args.goal) : undefined,
+      });
+      const roomId = String(args.roomId ?? "");
+      if (roomId) {
+        setWorkIntake(roomId, {
+          intakeSeat: resolved.intakeSeat,
+          targetIc: resolved.targetIc,
+          goal: resolved.goal,
+          answers: getWorkIntake(roomId)?.answers ?? {},
+        });
+      }
+      return resolved;
+    }
+
+    case "work.intake_save": {
+      const roomId = String(args.roomId ?? "");
+      if (!roomId) throw new JarvisExecError("roomId required", "missing_arg");
+      const answersRaw = args.answers;
+      const answers: Record<string, string> = {};
+      if (answersRaw && typeof answersRaw === "object" && !Array.isArray(answersRaw)) {
+        for (const [k, v] of Object.entries(answersRaw as Record<string, unknown>)) {
+          answers[k] = String(v ?? "");
+        }
+      }
+      let state = patchWorkIntakeAnswers(roomId, answers);
+      if (!state) {
+        const resolved = resolveWorkTarget(repoRoot, {
+          position: args.position != null ? String(args.position) : undefined,
+          goal: args.goal != null ? String(args.goal) : undefined,
+        });
+        state = setWorkIntake(roomId, {
+          intakeSeat: resolved.intakeSeat,
+          targetIc: resolved.targetIc,
+          goal: resolved.goal,
+          answers,
+        });
+      }
+      return { ok: true, intake: state };
+    }
+
+    case "work.request": {
+      const roomId = String(args.roomId ?? "");
+      const intake = roomId ? getWorkIntake(roomId) : undefined;
+      const resolved = resolveWorkTarget(repoRoot, {
+        position:
+          args.position != null
+            ? String(args.position)
+            : intake?.intakeSeat,
+        goal: args.goal != null ? String(args.goal) : intake?.goal,
+      });
+      const position = resolved.intakeSeat;
+      const baseGoal = String(args.goal ?? intake?.goal ?? resolved.goal ?? "").trim();
+      const targetIc =
+        args.targetIc != null
+          ? String(args.targetIc)
+          : intake?.targetIc ?? resolved.targetIc;
+      if (!position) throw new JarvisExecError("position required", "missing_arg");
+      if (!baseGoal) throw new JarvisExecError("goal required", "missing_arg");
+      const answers = intake?.answers ?? {};
+      let goal = mergeWorkGoal(baseGoal, answers);
+      if (targetIc) {
+        goal = `${goal}\n\nPreferred IC to spawn after intake: ${targetIc}`;
+      }
+      const phase = args.phase != null ? String(args.phase) : undefined;
+      const input = buildQueueForPacket(repoRoot, {
+        position,
+        goal,
+        phase,
+        targetIc,
+        require_inbox: true,
+      });
+      const queued = queueValidatedDispatch(repoRoot, input, { allowAnyManager: true });
+      assertExecOk(queued, (r) => ("errors" in r ? r.errors : []).join("; "));
+      const filename = queued.path.split("/").pop()!;
+      const spawned = spawnClaimedManagerDetached(repoRoot, {
+        filename,
+        wakeReason: "on_demand",
+        apiKey:
+          typeof args.apiKey === "string"
+            ? args.apiKey
+            : args.apiKey === null
+              ? null
+              : undefined,
+        adapter: args.adapter as RuntimeAdapter | undefined,
+      });
+      if (!spawned.ok) {
+        throw new JarvisExecError(spawned.error || "spawn failed", "spawn_failed");
+      }
+      const receipt = writeReviewInboxReceipt(repoRoot, {
+        position: queued.packet.position,
+        phase: queued.packet.phase,
+        goal,
+        runId: spawned.runId,
+      });
+      if (roomId) clearWorkIntake(roomId);
+      emitJarvisFocus(droot, { phase: queued.packet.phase, slug: queued.packet.position });
+      return {
+        ok: true,
+        runId: spawned.runId,
+        position: queued.packet.position,
+        filename,
+        queuePath: queued.path,
+        reviewInboxPath: receipt.path,
+        reviewInboxHint: receipt.path,
+        targetIc,
+      };
+    }
+
+    case "review.inbox_list":
+      return { items: listReviewInbox(repoRoot) };
 
     // Task 7: session meta + awareness reads
     case "session.help":
@@ -450,9 +580,10 @@ export async function executeIntent(
       if (mode !== "seat") {
         throw new JarvisExecError("mode must be seat", "invalid_arg");
       }
-      const slug = String(args.slug ?? "ceo-strategist");
+      const raw = String(args.slug ?? "ceo-strategist");
+      const slug = resolveSeatSlug(raw, snap.org.roster) ?? raw;
       if (!CSUITE_SLUGS.includes(slug as (typeof CSUITE_SLUGS)[number])) {
-        throw new JarvisExecError(`invalid seat for briefing: ${slug}`, "invalid_arg");
+        throw new JarvisExecError(`invalid seat for briefing: ${raw}`, "invalid_arg");
       }
       const report = buildSeatReport({
         slug,

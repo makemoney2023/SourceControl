@@ -36,12 +36,17 @@ export function buildSpawnPrompt(packet: ManagerPacket, repoRoot: string): strin
     .filter(Boolean)
     .join("\n");
 
+  const inboxDir = businessIdeaFile(repoRoot, "REVIEW/inbox/");
+  const ts = new Date().toISOString().replace(/[:.]/g, "").slice(0, 15);
+  const inboxHint = `${inboxDir}${packet.phase}-${packet.position}-${ts}-deliverable.md`;
+
   return [
     `You are the digital worker for position \`${packet.position}\`.`,
     `Read skills/org/positions/${packet.position}/SKILL.md and skills/org/MODEL-REGISTRY.md first.`,
     `If ${heartbeatPath} exists, follow that on-wake checklist after SKILL.md.`,
     `Execute this manager context packet. Do not spawn peer managers. Spawn only allowed ICs with write leases.`,
     `Write handoffs under ${businessIdeaFile(repoRoot, "HANDOFFS/")}. Do not mark the phase complete.`,
+    `Primary operator review artifact: write the deliverable to ${inboxHint} (or another file under ${inboxDir}) with YAML frontmatter status: pending_review, position, phase, goal, created.`,
     "",
     ancestry,
     "",
@@ -122,32 +127,20 @@ function applyUsageToRun(
   return next;
 }
 
-async function runAdapterAndPersist(args: {
-  repoRoot: string;
+function beginRunRecord(args: {
   root: string;
   packet: ManagerPacket;
   dispatchFilename: string;
   wakeReason: WakeReason;
-  prompt: string;
   agentId?: string;
-  adapter: RuntimeAdapter;
-  apiKey: string;
-}): Promise<{
-  ok: boolean;
-  error?: string;
-  runId?: string;
-  packet?: ManagerPacket;
-}> {
-  const { root, packet, dispatchFilename, wakeReason, prompt, agentId, adapter, apiKey, repoRoot } =
-    args;
+}): { runId: string; controller: AbortController; meta: RunRecord; runsDir: string } {
+  const { root, packet, dispatchFilename, wakeReason, agentId } = args;
   const runsDir = join(root, "runs");
   mkdirSync(runsDir, { recursive: true });
-
   const runId = `${Date.now()}-${packet.position}`;
   const controller = new AbortController();
   registerRun(runId, controller);
-
-  let meta: RunRecord = {
+  const meta: RunRecord = {
     runId,
     status: "running",
     position: packet.position,
@@ -166,6 +159,42 @@ async function runAdapterAndPersist(args: {
     position: packet.position,
     detail: wakeReason,
   });
+  return { runId, controller, meta, runsDir };
+}
+
+async function finishAdapterRun(args: {
+  repoRoot: string;
+  root: string;
+  packet: ManagerPacket;
+  dispatchFilename: string;
+  prompt: string;
+  agentId?: string;
+  adapter: RuntimeAdapter;
+  apiKey: string;
+  runId: string;
+  controller: AbortController;
+  meta: RunRecord;
+  runsDir: string;
+}): Promise<{
+  ok: boolean;
+  error?: string;
+  runId?: string;
+  packet?: ManagerPacket;
+}> {
+  const {
+    root,
+    packet,
+    dispatchFilename,
+    prompt,
+    agentId,
+    adapter,
+    apiKey,
+    repoRoot,
+    runId,
+    controller,
+    meta,
+    runsDir,
+  } = args;
 
   try {
     const result = await adapter.run({
@@ -193,7 +222,6 @@ async function runAdapterAndPersist(args: {
     };
 
     done = applyUsageToRun(root, done, result, packet.llm_model);
-    // budget check against packet budget
     const spent = seatSpendUsd(loadSpend(root), packet.position);
     const limit = effectiveBudget(root, packet.position, packet.budget_usd);
     if (isOverBudget(spent, limit)) {
@@ -251,7 +279,40 @@ async function runAdapterAndPersist(args: {
   }
 }
 
-export async function spawnClaimedManager(
+async function runAdapterAndPersist(args: {
+  repoRoot: string;
+  root: string;
+  packet: ManagerPacket;
+  dispatchFilename: string;
+  wakeReason: WakeReason;
+  prompt: string;
+  agentId?: string;
+  adapter: RuntimeAdapter;
+  apiKey: string;
+}): Promise<{
+  ok: boolean;
+  error?: string;
+  runId?: string;
+  packet?: ManagerPacket;
+}> {
+  const { runId, controller, meta, runsDir } = beginRunRecord(args);
+  return finishAdapterRun({ ...args, runId, controller, meta, runsDir });
+}
+
+type ClaimReady = {
+  ok: true;
+  apiKey: string;
+  root: string;
+  wakeReason: WakeReason;
+  adapter: RuntimeAdapter;
+  packet: ManagerPacket;
+  filename: string;
+  claimedPath: string;
+};
+
+type ClaimFail = { ok: false; error: string };
+
+function claimManagerForSpawn(
   repoRoot: string,
   opts?: {
     filename?: string;
@@ -259,13 +320,7 @@ export async function spawnClaimedManager(
     adapter?: RuntimeAdapter;
     apiKey?: string | null;
   },
-): Promise<{
-  ok: boolean;
-  error?: string;
-  runId?: string;
-  claimedPath?: string;
-  packet?: ManagerPacket;
-}> {
+): ClaimReady | ClaimFail {
   const apiKey = opts?.apiKey !== undefined ? opts.apiKey : process.env.CURSOR_API_KEY;
   if (!apiKey) {
     return {
@@ -329,7 +384,6 @@ export async function spawnClaimedManager(
     return { ok: false, error: `seat paused: ${peekPacket.position}` };
   }
 
-  // persist packet budget onto seat state for later burn checks
   if (typeof peekPacket.budget_usd === "number" && peekPacket.budget_usd > 0) {
     setSeatBudget(root, peekPacket.position, peekPacket.budget_usd);
   }
@@ -338,20 +392,109 @@ export async function spawnClaimedManager(
   if (!claimed.ok) return { ok: false, error: claimed.error };
 
   const packet = YAML.parse(claimed.content) as ManagerPacket;
+  return {
+    ok: true,
+    apiKey,
+    root,
+    wakeReason,
+    adapter,
+    packet,
+    filename: claimed.filename,
+    claimedPath: claimed.claimedPath,
+  };
+}
+
+export async function spawnClaimedManager(
+  repoRoot: string,
+  opts?: {
+    filename?: string;
+    wakeReason?: WakeReason;
+    adapter?: RuntimeAdapter;
+    apiKey?: string | null;
+  },
+): Promise<{
+  ok: boolean;
+  error?: string;
+  runId?: string;
+  claimedPath?: string;
+  packet?: ManagerPacket;
+  filename?: string;
+  position?: string;
+}> {
+  const claimed = claimManagerForSpawn(repoRoot, opts);
+  if (!claimed.ok) return claimed;
+
   const result = await runAdapterAndPersist({
     repoRoot,
-    root,
-    packet,
+    root: claimed.root,
+    packet: claimed.packet,
     dispatchFilename: claimed.filename,
-    wakeReason,
-    prompt: buildSpawnPrompt(packet, repoRoot),
-    adapter,
-    apiKey,
+    wakeReason: claimed.wakeReason,
+    prompt: buildSpawnPrompt(claimed.packet, repoRoot),
+    adapter: claimed.adapter,
+    apiKey: claimed.apiKey,
   });
 
   return {
     ...result,
     claimedPath: claimed.claimedPath,
+    filename: claimed.filename,
+    position: claimed.packet.position,
+  };
+}
+
+/**
+ * Claim + start Cursor run without awaiting completion (voice confirm path).
+ */
+export function spawnClaimedManagerDetached(
+  repoRoot: string,
+  opts?: {
+    filename?: string;
+    wakeReason?: WakeReason;
+    adapter?: RuntimeAdapter;
+    apiKey?: string | null;
+  },
+): {
+  ok: boolean;
+  error?: string;
+  runId?: string;
+  claimedPath?: string;
+  packet?: ManagerPacket;
+  filename?: string;
+  position?: string;
+} {
+  const claimed = claimManagerForSpawn(repoRoot, opts);
+  if (!claimed.ok) return claimed;
+
+  const prompt = buildSpawnPrompt(claimed.packet, repoRoot);
+  const { runId, controller, meta, runsDir } = beginRunRecord({
+    root: claimed.root,
+    packet: claimed.packet,
+    dispatchFilename: claimed.filename,
+    wakeReason: claimed.wakeReason,
+  });
+
+  void finishAdapterRun({
+    repoRoot,
+    root: claimed.root,
+    packet: claimed.packet,
+    dispatchFilename: claimed.filename,
+    prompt,
+    adapter: claimed.adapter,
+    apiKey: claimed.apiKey,
+    runId,
+    controller,
+    meta,
+    runsDir,
+  });
+
+  return {
+    ok: true,
+    runId,
+    claimedPath: claimed.claimedPath,
+    packet: claimed.packet,
+    filename: claimed.filename,
+    position: claimed.packet.position,
   };
 }
 

@@ -61,13 +61,10 @@ export function validateManagerPacket(
       errors.push(`Unknown preferred_ic slug: ${input.preferred_ic}`);
     } else if (ic.level !== "ic") {
       errors.push(`preferred_ic must be an IC, not ${ic.level}: ${input.preferred_ic}`);
-    } else {
-      const mgr = org.roster.find((r) => r.slug === ic.reportsTo);
-      if (!mgr || mgr.level !== "manager") {
-        errors.push(
-          `preferred_ic ${input.preferred_ic} does not report to a manager`,
-        );
-      }
+    } else if (ic.reportsTo !== input.position) {
+      errors.push(
+        `preferred_ic ${input.preferred_ic} must report to intake manager ${input.position}, not ${ic.reportsTo ?? "unknown"}`,
+      );
     }
   }
 

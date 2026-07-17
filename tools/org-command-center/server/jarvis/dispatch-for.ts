@@ -92,8 +92,13 @@ export function buildQueueForPacket(repoRoot: string, args: QueueForArgs): Manag
 
   if (preferred_ic) {
     input.preferred_ic = preferred_ic;
-    input.require_inbox = args.require_inbox ?? true;
     input.require_ic_handoff = args.require_ic_handoff ?? true;
+  }
+
+  if (args.require_inbox !== undefined) {
+    input.require_inbox = args.require_inbox;
+  } else if (preferred_ic) {
+    input.require_inbox = true;
   }
 
   return input;

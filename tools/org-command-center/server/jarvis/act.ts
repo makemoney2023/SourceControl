@@ -3,8 +3,19 @@ import { normalizeQueueForArgs } from "./dispatch-for";
 import { JarvisExecError } from "./errors";
 import { parseJarvisAct, type JarvisIntent, type JarvisMode } from "./intents";
 import { policyFor } from "./policy";
-import { cancelConfirm, consumeConfirm, createConfirmToken, getRoomMode, peekConfirm, setLastSummary } from "./session";
+import {
+  cancelConfirm,
+  consumeConfirm,
+  createConfirmToken,
+  getRoomMode,
+  getWorkIntake,
+  mergeWorkGoal,
+  peekConfirm,
+  setLastSummary,
+  setWorkIntake,
+} from "./session";
 import { executeIntent as executeIntentProd } from "./tools-exec";
+import { resolveWorkTarget } from "./work-request";
 
 export type JarvisActResult = {
   status: "ok" | "needs_confirm" | "denied" | "error";
@@ -52,6 +63,11 @@ function confirmSummary(intent: JarvisIntent, args: Record<string, unknown>): st
     const phase = String(args.phase ?? "?");
     return `Queue ${position} for phase ${phase}. Confirm?`;
   }
+  if (intent === "work.request") {
+    const position = String(args.position ?? "manager");
+    const ic = args.targetIc ? ` (IC ${args.targetIc})` : "";
+    return `Queue ${position}${ic} and start Cursor now. Confirm?`;
+  }
   return `Confirm ${intent.replace(/\./g, " ")}?`;
 }
 
@@ -60,8 +76,33 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
     const mission = (result as { mission: { idea?: string; currentPhase?: string } }).mission;
     return `Mission: ${mission.idea ?? "unknown"}, phase ${mission.currentPhase ?? "?"}.`;
   }
+  if (intent === "session.help" && typeof result === "object" && result !== null && "help" in result) {
+    return String((result as { help: string }).help);
+  }
+  if (intent === "session.repeat" && typeof result === "object" && result !== null && "summary" in result) {
+    return String((result as { summary: string }).summary);
+  }
   if (intent === "mode.set" && typeof result === "object" && result !== null && "mode" in result) {
     return `Switched to ${(result as { mode: string }).mode} mode.`;
+  }
+  if (intent === "work.resolve" && typeof result === "object" && result !== null && "spoken" in result) {
+    return String((result as { spoken: string }).spoken);
+  }
+  if (intent === "seat.report" && typeof result === "object" && result !== null) {
+    const r = result as { spoken?: string; report?: { title?: string; summary?: string } };
+    if (typeof r.spoken === "string" && r.spoken.trim()) return r.spoken;
+    if (r.report?.title) {
+      return `${r.report.title}: ${r.report.summary ?? "no summary yet"}.`;
+    }
+  }
+  if (
+    intent === "work.request" &&
+    typeof result === "object" &&
+    result !== null &&
+    "runId" in result
+  ) {
+    const r = result as { position?: string; runId?: string; reviewInboxHint?: string };
+    return `${r.position} running as ${r.runId}. Artifact will land in review inbox.`;
   }
   if (
     intent === "session.cancel_pending" &&
@@ -125,6 +166,40 @@ export async function handleJarvisAct(
       if (act.intent === "dispatch.queue_for") {
         try {
           confirmArgs = normalizeQueueForArgs(repoRoot, act.args);
+        } catch (err) {
+          const reason =
+            err instanceof JarvisExecError || err instanceof Error ? err.message : "Invalid request";
+          auditJarvis(
+            { roomId, type: "jarvis_error", intent: act.intent, detail: reason },
+            repoRoot,
+          );
+          return { status: "error", reason };
+        }
+      }
+      if (act.intent === "work.request") {
+        try {
+          const intake = getWorkIntake(roomId);
+          const resolved = resolveWorkTarget(repoRoot, {
+            position:
+              act.args.position != null
+                ? String(act.args.position)
+                : intake?.intakeSeat,
+            goal: act.args.goal != null ? String(act.args.goal) : intake?.goal,
+          });
+          const goal = mergeWorkGoal(resolved.goal, intake?.answers);
+          confirmArgs = normalizeQueueForArgs(repoRoot, {
+            position: resolved.intakeSeat,
+            goal,
+            phase: act.args.phase,
+            targetIc: resolved.targetIc ?? intake?.targetIc,
+            require_inbox: true,
+          });
+          setWorkIntake(roomId, {
+            intakeSeat: resolved.intakeSeat,
+            targetIc: resolved.targetIc ?? intake?.targetIc,
+            goal: resolved.goal,
+            answers: intake?.answers ?? {},
+          });
         } catch (err) {
           const reason =
             err instanceof JarvisExecError || err instanceof Error ? err.message : "Invalid request";

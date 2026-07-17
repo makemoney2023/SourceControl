@@ -37,7 +37,7 @@ const packet: ManagerPacket = {
   report_to: "ceo-strategist",
   parent_position: "orchestrator",
   llm_tier: "strong-general",
-  llm_model: "claude-sonnet-5",
+  llm_model: "composer-2.5",
   generation_profile: "none",
   inputs: [],
   must_read: [],
@@ -234,6 +234,33 @@ const INTENT_COVERAGE: CoverageCase[] = [
   { intent: "phase.list_open", args: {} },
   { intent: "digest.focus", args: { section: "blocked" } },
   { intent: "activity.tail", args: { n: 5 } },
+  {
+    intent: "work.resolve",
+    args: { goal: "write a short blog article", roomId: "coverage-room" },
+  },
+  {
+    intent: "work.intake_save",
+    args: {
+      roomId: "coverage-room",
+      goal: "write a short blog",
+      answers: { audience: "founders" },
+    },
+  },
+  {
+    intent: "work.request",
+    args: {
+      position: "cmo",
+      goal: "Write short blog",
+      phase: "2",
+      apiKey: "test-key",
+      adapter: {
+        async run() {
+          return { status: "completed", result: "done" };
+        },
+      },
+    },
+  },
+  { intent: "review.inbox_list", args: {} },
 ];
 
 describe("intent coverage checklist", () => {
@@ -307,8 +334,39 @@ describe("executeIntent", () => {
     repo = tempRepo();
     const result = (await executeIntent(repo, "seat.report", { slug: "ceo-strategist" })) as {
       report: { slug: string };
+      spoken: string;
     };
     expect(result.report.slug).toBe("ceo-strategist");
+    expect(result.spoken).toMatch(/CEO/i);
+  });
+
+  it("seat.report resolves spoken CEO aliases", async () => {
+    repo = tempRepo();
+    for (const slug of ["ceo", "CEO strategist", "ceo/strategist", "CEO / Strategist"]) {
+      const result = (await executeIntent(repo, "seat.report", { slug })) as {
+        report: { slug: string };
+      };
+      expect(result.report.slug).toBe("ceo-strategist");
+    }
+  });
+
+  it("seat.report resolves spoken titles for many seats", async () => {
+    repo = tempRepo();
+    // Sample fixture roster only — full-org coverage is in resolve-seat.test.ts
+    const cases: [string, string][] = [
+      ["head of research", "head-of-research"],
+      ["copy chief", "copy-chief"],
+      ["creative director", "creative-director"],
+      ["brand designer", "brand-designer"],
+      ["seo manager", "seo-manager"],
+      ["cfo", "cfo"],
+    ];
+    for (const [spoken, slug] of cases) {
+      const result = (await executeIntent(repo, "seat.report", { slug: spoken })) as {
+        report: { slug: string };
+      };
+      expect(result.report.slug, spoken).toBe(slug);
+    }
   });
 
   it("read intents append jarvis.focus activity", async () => {
@@ -355,6 +413,43 @@ describe("executeIntent", () => {
     expect(result.ok).toBe(true);
     expect(result.path).toMatch(/DISPATCH\/queue\//);
     expect(readdirSync(join(dispatchDir(repo), "queue")).length).toBe(1);
+  });
+
+  it("work.request sets require_inbox and preferred_ic on queued packet", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "work.request", {
+      position: "cmo",
+      goal: "Write short blog",
+      phase: "13",
+      apiKey: "test-key",
+      adapter: okAdapter,
+    })) as { ok: boolean; filename: string; targetIc?: string };
+    expect(result.ok).toBe(true);
+    expect(result.filename).toBeTruthy();
+    const raw = readFileSync(join(dispatchDir(repo), "claimed", result.filename), "utf8");
+    const queued = YAML.parse(raw) as ManagerPacket;
+    expect(queued.require_inbox).toBe(true);
+    expect(queued.position).toBe("cmo");
+    expect(queued.preferred_ic).toBeUndefined();
+  });
+
+  it("work.request passes targetIc as preferred_ic on queued packet", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "work.request", {
+      position: "copy-chief",
+      goal: "Write landing page copy",
+      phase: "13",
+      apiKey: "test-key",
+      adapter: okAdapter,
+    })) as { ok: boolean; filename: string; targetIc?: string };
+    expect(result.ok).toBe(true);
+    expect(result.targetIc).toBe("copy-chief");
+    const raw = readFileSync(join(dispatchDir(repo), "claimed", result.filename), "utf8");
+    const queued = YAML.parse(raw) as ManagerPacket;
+    expect(queued.preferred_ic).toBe("copy-chief");
+    expect(queued.require_inbox).toBe(true);
+    expect(queued.require_ic_handoff).toBe(true);
+    expect(queued.position).toBe("cmo");
   });
 
   it("spawn.run_next refuses without api key", async () => {
@@ -576,6 +671,7 @@ describe("executeIntent", () => {
     const result = (await executeIntent(repo, "session.help", {})) as { help: string };
     expect(result.help).toMatch(/Briefing/i);
     expect(result.help).toMatch(/mission\.get/i);
+    expect(result.help).not.toMatch(/\*\*/);
   });
 
   it("session.repeat returns last summary for room", async () => {
@@ -707,7 +803,7 @@ describe("executeIntent", () => {
         dispatch_filename: "2-a.yaml",
         wake_reason: "run_next",
         started_at: "2026-07-16T14:00:00.000Z",
-        llm_model: "claude-sonnet-5",
+        llm_model: "composer-2.5",
       }),
     );
     const result = (await executeIntent(repo, "runs.get", { runId })) as {
