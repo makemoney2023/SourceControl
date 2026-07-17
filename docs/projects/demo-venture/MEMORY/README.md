@@ -4,8 +4,20 @@ Filesystem memory for this venture. Active when `projects/registry.json` has `"a
 
 | Path | Purpose |
 |------|---------|
-| `decisions.md` | Durable decisions and rationale |
-| `sessions/` | Session summaries |
-| `entities/` | Named entity notes |
+| `notes.md` | Dated operator notes (`## YYYY-MM-DD` sections) |
+| `decisions.md` | Durable decisions table (`date \| decision \| rationale`) |
+| `preferences.md` | Standing preferences (bullets) |
+| `context.md` | Operator context note (sources index digest; not overwritten by Jarvis `memory.note`) |
+| `sessions/` | Session summaries and lifecycle lines (`YYYY-MM-DD.md`, digest files `YYYY-MM-DD-HHmm.md`) |
+| `entities/` | Named entity notes (`<slug>.md`) |
 
-No vector DB in v1.
+**Search:** Jarvis uses semantic recall via local Chroma when running (`tools/org-command-center/.data/chroma/`); grep fallback always works over this tree.
+
+**Chroma (optional):**
+
+```bash
+cd tools/org-command-center
+npx chroma run --path .data/chroma --port 8000
+```
+
+Filesystem is source of truth; Chroma is a rebuildable index only.
