@@ -1,4 +1,4 @@
-import { mkdtempSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 // join used by budget pause assertion path
@@ -67,6 +67,7 @@ function tempRepo() {
   mkdirSync(join(d, "queue"), { recursive: true });
   mkdirSync(join(d, "claimed"), { recursive: true });
   mkdirSync(join(d, "runs"), { recursive: true });
+  mkdirSync(join(root, "docs/projects/passive-grid/MEMORY/sessions"), { recursive: true });
   return root;
 }
 
@@ -350,6 +351,15 @@ describe("spawnClaimedManager", () => {
     expect(rec.wake_reason).toBe("run_next");
     expect(rec.dispatch_filename).toBe("3-cmo.yaml");
     expect(rec.status).toBe("completed");
+    const day = new Date().toISOString().slice(0, 10);
+    const lifecyclePath = join(
+      repo,
+      "docs/projects/passive-grid/MEMORY/sessions",
+      `${day}.md`,
+    );
+    expect(existsSync(lifecyclePath)).toBe(true);
+    const lifecycle = readFileSync(lifecyclePath, "utf8");
+    expect(lifecycle).toMatch(new RegExp(`run ${rec.runId} completed seat=cmo acceptance ok`));
   });
 
   it("marks completed_with_gaps when acceptance fails", async () => {

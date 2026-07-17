@@ -92,7 +92,7 @@ export async function memoryBrief(repoRoot: string): Promise<MemoryBrief & { spo
       nextAction: snap.mission.nextAction,
       blockerCount: snap.mission.blockerCount,
     },
-    recentRunLines: [],
+    recentRunLines: loadRecentRunLines(repoRoot),
   });
   return { ...brief, spoken: speakMemoryBrief(brief) };
 }

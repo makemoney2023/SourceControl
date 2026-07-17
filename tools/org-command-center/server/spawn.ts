@@ -24,6 +24,7 @@ import { cursorRuntimeAdapter, type RuntimeAdapter } from "./runtime-adapter";
 import { writeSession, readSession, findSessionByAgentId } from "./sessions";
 import { isOverBudget, loadSpend, recordSpend, seatSpendUsd } from "./spend";
 import { evaluateRunAcceptance } from "./jarvis/run-acceptance";
+import { recordRunLifecycle } from "./memory/run-lifecycle";
 
 export function buildSpawnPrompt(
   packet: ManagerPacket,
@@ -325,6 +326,9 @@ async function finishAdapterRun(args: {
     }
 
     writeRun(runsDir, done);
+    if (done.finished_at) {
+      recordRunLifecycle(repoRoot, done);
+    }
     if (done.agentId) {
       writeSession(root, {
         agentId: done.agentId,
@@ -362,6 +366,9 @@ async function finishAdapterRun(args: {
       error: err,
     };
     writeRun(runsDir, done);
+    if (done.finished_at) {
+      recordRunLifecycle(repoRoot, done);
+    }
     if (!aborted) {
       appendActivity(root, {
         type: "spawn_error",
