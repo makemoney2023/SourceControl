@@ -40,10 +40,12 @@ function buildSuggestion(input: SituationInput, blockers: string[]): string {
 }
 
 export function composeMemoryBrief(input: SituationInput): MemoryBrief {
+  const noteLines = input.noteLines ?? [];
   const memoryThin =
     input.recentSessionLines.length === 0 &&
     input.decisionLines.length === 0 &&
-    input.preferenceLines.length === 0;
+    input.preferenceLines.length === 0 &&
+    noteLines.length === 0;
 
   const sources: string[] = [];
 
@@ -56,6 +58,9 @@ export function composeMemoryBrief(input: SituationInput): MemoryBrief {
   if (input.preferenceLines.length > 0) {
     sources.push("MEMORY/preferences.md");
   }
+  if (noteLines.length > 0) {
+    sources.push("MEMORY/notes");
+  }
   if (input.mission.idea || input.mission.nextAction) {
     sources.push("mission");
   }
@@ -63,11 +68,20 @@ export function composeMemoryBrief(input: SituationInput): MemoryBrief {
     sources.push("runs");
   }
 
-  const done = cap(input.recentSessionLines.slice(-MAX_ITEMS));
+  // Prefer session digests; fall back to recent freeform notes / context lines.
+  const doneFromSessions = input.recentSessionLines.slice(-MAX_ITEMS);
+  const done =
+    doneFromSessions.length > 0
+      ? cap(doneFromSessions)
+      : cap(noteLines.slice(-MAX_ITEMS));
 
   const next: string[] = [];
   if (input.mission.nextAction.trim()) {
     next.push(input.mission.nextAction.trim());
+  }
+  // Surface a durable decision/preference when mission next is empty.
+  if (next.length === 0 && input.decisionLines.length > 0) {
+    next.push(input.decisionLines[input.decisionLines.length - 1]!);
   }
 
   const blockers: string[] = [];

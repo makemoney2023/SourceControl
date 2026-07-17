@@ -811,6 +811,8 @@ describe("executeIntent", () => {
     const result = (await executeIntent(repo, "session.help", {})) as { help: string };
     expect(result.help).toMatch(/Briefing/i);
     expect(result.help).toMatch(/mission\.get/i);
+    expect(result.help).toMatch(/memory\.brief/i);
+    expect(result.help).toMatch(/memory\.note/i);
     expect(result.help).not.toMatch(/\*\*/);
   });
 

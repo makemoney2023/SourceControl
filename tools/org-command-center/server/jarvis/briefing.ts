@@ -38,8 +38,12 @@ export async function buildJarvisContext(repoRoot: string) {
     spokenBrief = spokenMissionBrief(snap.mission);
   }
 
-  if (truncated) {
-    spokenBrief += ` Context note on file; ${sources.length} sources attached.`;
+  if (truncated || sources.length > 0) {
+    if (truncated) {
+      spokenBrief += ` Context note on file; ${sources.length} sources attached.`;
+    } else {
+      spokenBrief += ` ${sources.length} source${sources.length === 1 ? "" : "s"} attached.`;
+    }
   }
 
   return {

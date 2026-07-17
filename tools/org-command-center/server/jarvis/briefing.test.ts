@@ -136,4 +136,18 @@ describe("buildJarvisContext", () => {
     expect(ctx.contextNote).toHaveLength(500);
     expect(ctx.spokenBrief).toMatch(/Context note on file/);
   });
+
+  it("mentions sources when uploads exist without an operator note", async () => {
+    repo = tempRepo();
+    await uploadSource(repo, {
+      filename: "brief.md",
+      bytes: Buffer.from("# Brief\n", "utf8"),
+    });
+
+    const ctx = await buildJarvisContext(repo);
+    expect(ctx.contextNote).toBe("");
+    expect(ctx.sourcesCount).toBe(1);
+    expect(ctx.spokenBrief).toMatch(/1 source attached/);
+    expect(ctx.spokenBrief).not.toMatch(/Context note on file/);
+  });
 });

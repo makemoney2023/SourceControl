@@ -33,3 +33,18 @@ export function readJarvisPulseMs(): number {
   if (!Number.isFinite(ms) || ms < 0) return 0;
   return ms;
 }
+
+/**
+ * Soft-copilot wake/pulse opener: keep next + suggestion (up to 2 sentences),
+ * not only the first sentence of a multi-sentence memory brief.
+ */
+export function pickWakeGreeting(brief: string, maxLen = 160): string {
+  const trimmed = brief.trim();
+  if (!trimmed) return trimmed;
+  const sentences = trimmed.split(/(?<=[.!?])\s+/).filter(Boolean);
+  let out = sentences.slice(0, 2).join(" ");
+  if (out.length > maxLen) {
+    out = `${out.slice(0, Math.max(0, maxLen - 1)).trimEnd()}…`;
+  }
+  return out;
+}

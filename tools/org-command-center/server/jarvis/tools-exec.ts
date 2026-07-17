@@ -86,11 +86,12 @@ function emitJarvisFocus(
 /** Plain text only — voice TTS reads markdown asterisks aloud. */
 const SESSION_HELP = [
   "Modes: Briefing for mission, digest, seat report, tasks, runs, activity, alerts, spend.",
-  "Ops adds assign, run next, cancel, rewake, pause, resume, cancel pending.",
+  "Ops adds assign, run next, cancel, rewake, pause, resume, cancel pending, and memory writes.",
   "Review adds file read and csuite draft. Architect adds venture create or switch.",
-  "Top intents: mission.get for status; digest.get or digest.focus; blocker.list; blocker.resolve; dispatch.queue_batch; spawn.run_ready; seat.report; phase.list_open;",
+  "Top intents: mission.get for status; memory.brief for where we are; digest.get or digest.focus; blocker.list; blocker.resolve; dispatch.queue_batch; spawn.run_ready; seat.report; phase.list_open;",
   "activity.tail; session.help; session.repeat; jarvis.ping; brain.ask for Cursor Grok deep think; mode.set;",
   "work.resolve or work.request for intake and Cursor spawn; review.inbox_list for artifacts.",
+  "Memory: memory.brief and memory.recall are read-only; memory.note, memory.digest, and memory.reindex need Ops and confirm.",
 ].join(" ");
 
 function buildDigestPayload(snap: ReturnType<typeof loadSnapshot>, repoRoot: string) {

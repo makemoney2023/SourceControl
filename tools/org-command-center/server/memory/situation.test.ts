@@ -52,4 +52,23 @@ describe("composeMemoryBrief", () => {
     expect(spoken).not.toMatch(/[*`#]/);
     expect(spoken.split(/(?<=[.!?])\s+/).length).toBeLessThanOrEqual(3);
   });
+
+  it("uses noteLines for done when sessions are empty", () => {
+    const brief = composeMemoryBrief({
+      recentSessionLines: [],
+      decisionLines: [],
+      preferenceLines: [],
+      noteLines: ["MOF-303 is lead sorbent", "Prefer desert field tests"],
+      mission: {
+        idea: "Passive Grid",
+        currentPhase: "2",
+        nextAction: "finish evidence",
+        blockerCount: 0,
+      },
+      recentRunLines: [],
+    });
+    expect(brief.memoryThin).toBe(false);
+    expect(brief.done.some((d) => /MOF-303|desert/i.test(d))).toBe(true);
+    expect(brief.sources).toContain("MEMORY/notes");
+  });
 });

@@ -26,6 +26,8 @@ export type SituationInput = {
   recentSessionLines: string[];
   decisionLines: string[];
   preferenceLines: string[];
+  /** Freeform notes.md + operator MEMORY/context.md lines */
+  noteLines?: string[];
   mission: {
     idea: string;
     currentPhase: string;

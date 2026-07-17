@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   parsePulseSnapshot,
+  pickWakeGreeting,
   readJarvisPulseMs,
   shouldPulseSpeak,
   type PulseSnapshot,
@@ -60,5 +61,19 @@ describe("readJarvisPulseMs", () => {
     process.env.JARVIS_PULSE_MS = "300000";
     expect(readJarvisPulseMs()).toBe(300000);
     process.env.JARVIS_PULSE_MS = prev;
+  });
+});
+
+describe("pickWakeGreeting", () => {
+  it("keeps two sentences so suggestion survives", () => {
+    const brief = "Next is finish Phase 2. Focus on finish evidence base.";
+    expect(pickWakeGreeting(brief)).toBe(brief);
+  });
+
+  it("caps length with ellipsis", () => {
+    const brief = `${"A".repeat(100)}. ${"B".repeat(100)}.`;
+    const out = pickWakeGreeting(brief, 160);
+    expect(out.length).toBeLessThanOrEqual(160);
+    expect(out.endsWith("…")).toBe(true);
   });
 });

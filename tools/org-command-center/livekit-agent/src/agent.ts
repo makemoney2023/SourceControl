@@ -22,6 +22,7 @@ import { JARVIS_SYSTEM_PROMPT } from "./jarvis-system-prompt.js";
 import { sanitizeForSpeech } from "./occ-client.js";
 import {
   parsePulseSnapshot,
+  pickWakeGreeting,
   readJarvisPulseMs,
   shouldPulseSpeak,
   type JarvisContextForPulse,
@@ -125,8 +126,7 @@ export default defineAgent({
       // Prefer a short spoken open; truncate long mission briefs so we stay conversational.
       const brief = (context.spokenBrief || "").trim();
       if (brief) {
-        const sentence = brief.split(/(?<=[.!?])\s+/)[0] || brief;
-        greeting = sentence.length > 160 ? `${sentence.slice(0, 157)}…` : sentence;
+        greeting = pickWakeGreeting(brief, 160);
       }
       lastSpokenSnapshot = parsePulseSnapshot(context);
     } catch {

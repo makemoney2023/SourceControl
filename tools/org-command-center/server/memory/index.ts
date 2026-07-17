@@ -86,6 +86,7 @@ export async function memoryBrief(repoRoot: string): Promise<MemoryBrief & { spo
     recentSessionLines: snippets.recentSessionLines,
     decisionLines: snippets.decisionLines,
     preferenceLines: snippets.preferenceLines,
+    noteLines: snippets.noteLines,
     mission: {
       idea: snap.mission.idea,
       currentPhase: snap.mission.currentPhase,

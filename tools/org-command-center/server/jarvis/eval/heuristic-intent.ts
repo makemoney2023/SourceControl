@@ -220,13 +220,9 @@ export function heuristicIntent(utterance: string): JarvisIntent {
 
   if (
     /\b(remember that|remember:|note that|don't forget|dont forget)\b/.test(s) ||
-    (/\bremember\b/.test(s) && !/\b(digest|session)\b/.test(s))
+    (/\bremember\b/.test(s) && !/\b(digest|session|where|next)\b/.test(s))
   ) {
     return "memory.note";
-  }
-
-  if (/\b(digest this session|session digest|wrap up session|end of session)\b/.test(s)) {
-    return "memory.digest";
   }
 
   if (/\b(reindex memory|rebuild memory|reindex chroma|rebuild chroma)\b/.test(s)) {
