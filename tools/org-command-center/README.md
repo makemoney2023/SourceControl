@@ -168,6 +168,24 @@ Jarvis maps natural speech to **intents** via `jarvis_act`. Use **Ops** before q
 
 Review mode adds `file.read`, `csuite.draft`, and handoffs; spawn intents stay disabled there. IC spawn requests are always denied — use `work.resolve` / `work.request` so Jarvis intakes with the manager and starts Cursor.
 
+**Phase 1+2 lifecycle intents:** `runs.watch` (completion/gaps), `run.instruct` (mid-run operator delta), `blocker.list` / `blocker.resolve` (blocked seats), `dispatch.queue_batch` + `spawn.run_ready` (multi-manager kickoff). Started ≠ done — always confirm with `runs.watch` before reporting completion.
+
+## Manual soak
+
+Use a live voice session (LiveKit + Ops mode) to validate end-to-end behavior after deploy.
+
+**After Phase 1 (closed action loop):**
+
+1. Voice: “Spin up the CEO to review this project” → Confirm → hear **started** + runId
+2. Wait / ask “is it done?” → `runs.watch` reflects finished or gaps
+3. If gaps: “tell them to write the review to the inbox” → `run.instruct`
+4. Confirm inbox file has `runId` frontmatter
+
+**After Phase 2 (ops control plane):**
+
+1. Create a blocked handoff fixture → “what’s blocked?” → “resolve that blocker” → confirm → owner running
+2. “Kick off head of research and CFO on market and burn” → one confirm → two runIds
+
 ## Tests & eval
 
 ```bash
@@ -188,3 +206,4 @@ Golden cases live in `server/jarvis/eval/golden.json`; CI runs heuristic intent 
 - `docs/superpowers/specs/2026-07-16-jarvis-intent-catalog-v2-design.md` — catalog v2 (architect mode, ventures, `queue_for`)
 - `docs/superpowers/plans/2026-07-16-jarvis-intent-catalog-v2.md` — catalog v2 implementation plan
 - `docs/superpowers/specs/2026-07-16-jarvis-work-request-voice-spawn-design.md` — voice-driven `work.request` + REVIEW inbox
+- `docs/superpowers/specs/2026-07-17-jarvis-closed-action-loop-design.md` — closed action loop + ops control plane (Approved)

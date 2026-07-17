@@ -86,11 +86,11 @@ cd tools/org-command-center && npx vitest run src/lib/validate-packet.test.ts
 - Consumes: packet `preferred_ic`, `require_inbox`, `require_ic_handoff`
 - Produces: prompt lines that name acceptance criteria + require frontmatter `runId: <id>` when known (pass runId into prompt builder from `beginRunRecord` if needed — add optional `runId` arg to `buildSpawnPrompt`)
 
-- [ ] **Step 1: Failing test** — prompt contains `preferred_ic`, `require_inbox`, and `runId` frontmatter instruction when those fields set
+- [x] **Step 1: Failing test** — prompt contains `preferred_ic`, `require_inbox`, and `runId` frontmatter instruction when those fields set
 
-- [ ] **Step 2: Implement minimal prompt changes**
+- [x] **Step 2: Implement minimal prompt changes**
 
-- [ ] **Step 3: Tests PASS + commit** — `feat(occ): acceptance criteria in spawn prompts`
+- [x] **Step 3: Tests PASS + commit** — `feat(occ): acceptance criteria in spawn prompts`
 
 ---
 
@@ -121,13 +121,13 @@ export function evaluateRunAcceptance(
 ): RunAcceptance;
 ```
 
-- [ ] **Step 1: Failing tests** — temp repo with inbox file matching runId → ok; missing inbox → `missing` includes `inbox`; preferred_ic without handoff → missing `ic_handoff`
+- [x] **Step 1: Failing tests** — temp repo with inbox file matching runId → ok; missing inbox → `missing` includes `inbox`; preferred_ic without handoff → missing `ic_handoff`
 
-- [ ] **Step 2: Implement evaluator** using existing `listReviewInbox` / handoff parsers
+- [x] **Step 2: Implement evaluator** using existing `listReviewInbox` / handoff parsers
 
-- [ ] **Step 3: Call from `finishAdapterRun`**; set run status `completed_with_gaps` when Cursor ok but acceptance fails; emit activity `spawn_acceptance_failed`
+- [x] **Step 3: Call from `finishAdapterRun`**; set run status `completed_with_gaps` when Cursor ok but acceptance fails; emit activity `spawn_acceptance_failed`
 
-- [ ] **Step 4: Tests PASS + commit** — `feat(occ): evaluate run acceptance after Cursor finish`
+- [x] **Step 4: Tests PASS + commit** — `feat(occ): evaluate run acceptance after Cursor finish`
 
 ---
 
@@ -183,13 +183,13 @@ rewakeSession(repoRoot, { dispatchFilename?, agentId?, instruction?, ... })
 // run.instruct args: { instruction: string; dispatchFilename?: string; agentId?: string }
 ```
 
-- [ ] **Step 1: Failing tests** — rewake prompt includes instruction block; `run.instruct` without instruction → `JarvisExecError`
+- [x] **Step 1: Failing tests** — rewake prompt includes instruction block; `run.instruct` without instruction → `JarvisExecError`
 
-- [ ] **Step 2: Implement**
+- [x] **Step 2: Implement**
 
-- [ ] **Step 3: Fix UI CTA** — call existing rewake endpoint with seat’s `dispatch_filename`
+- [x] **Step 3: Fix UI CTA** — call existing rewake endpoint with seat’s `dispatch_filename`
 
-- [ ] **Step 4: Commit** — `feat(occ): rewake/instruct with operator delta`
+- [x] **Step 4: Commit** — `feat(occ): rewake/instruct with operator delta`
 
 ---
 
@@ -281,15 +281,15 @@ export function planBlockerResolve(repoRoot, args: { seat?: string; phase?: stri
 - Prompt, README, `docs/superpowers/specs/2026-07-17-jarvis-closed-action-loop-design.md` status → Approved
 - Manual soak checklist in README
 
-- [ ] **Step 1: Update docs status + cheatsheet**
+- [x] **Step 1: Update docs status + cheatsheet**
 
-- [ ] **Step 2: Full test suite**
+- [x] **Step 2: Full test suite**
 
 ```bash
 cd tools/org-command-center && npm test && npm run agent:test
 ```
 
-- [ ] **Step 3: Commit** — `docs(occ): action loop + ops control plane complete`
+- [x] **Step 3: Commit** — `docs(occ): action loop + ops control plane complete`
 
 ---
 
