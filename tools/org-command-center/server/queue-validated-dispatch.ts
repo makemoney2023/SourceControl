@@ -6,6 +6,7 @@ import { patchTrackerPhaseStatus, parseTracker, seedPositionsRow } from "../src/
 import { validateManagerPacket } from "../src/lib/validate-packet";
 import type { ManagerPacket, ManagerPacketInput } from "../src/lib/types";
 import { assertReadable, assertWritable, businessIdeaFile, dispatchRoot, trackerPath } from "./paths";
+import { appendVentureContextReads } from "./sources/context-reads";
 
 export type QueueValidatedDispatchResult =
   | { ok: true; packet: ManagerPacket; path: string }
@@ -36,6 +37,7 @@ export function queueValidatedDispatch(
   if (!body.phase_name) {
     body.phase_name = tracker.phases.find((p) => p.phase === body.phase)?.name;
   }
+  body.must_read = appendVentureContextReads(repoRoot, body.must_read);
   const result = validateManagerPacket(body, org, models, options);
   if (!result.ok) return { ok: false, errors: result.errors };
 

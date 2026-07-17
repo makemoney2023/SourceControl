@@ -107,6 +107,7 @@ function seedIndexMd(): string {
 }
 
 function ensureSourceLayout(repoRoot: string): void {
+  mkdirSync(memoryDir(repoRoot), { recursive: true });
   mkdirSync(sourcesDir(repoRoot), { recursive: true });
   const ctxPath = contextMdAbs(repoRoot);
   if (!existsSync(ctxPath)) {

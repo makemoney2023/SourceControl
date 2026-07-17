@@ -9,6 +9,8 @@ import {
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
+import { seedContextMd } from "../sources/context-md";
+import { uploadSource } from "../sources/store";
 import { buildJarvisContext, spokenMissionBrief } from "./briefing";
 
 const FIXTURES = join(import.meta.dirname, "../../src/lib/fixtures");
@@ -78,5 +80,45 @@ describe("buildJarvisContext", () => {
     expect(ctx.spokenBrief).toMatch(/Phase 2/i);
     expect(typeof ctx.spokenBrief).toBe("string");
     expect(ctx.spokenBrief.length).toBeGreaterThan(0);
+    expect(ctx.contextNote).toBe("");
+    expect(ctx.sourcesCount).toBe(0);
+  });
+
+  it("exposes contextNote, sourcesCount, and spoken clause when note set", async () => {
+    repo = tempRepo();
+    mkdirSync(join(repo, "docs/projects/passive-grid/MEMORY"), { recursive: true });
+    writeFileSync(
+      join(repo, "docs/projects/passive-grid/MEMORY/context.md"),
+      seedContextMd("Operator guidance for passive grid."),
+      "utf8",
+    );
+    await uploadSource(repo, {
+      filename: "brief.md",
+      bytes: Buffer.from("# Brief\n", "utf8"),
+    });
+    await uploadSource(repo, {
+      filename: "notes.md",
+      bytes: Buffer.from("# Notes\n", "utf8"),
+    });
+
+    const ctx = buildJarvisContext(repo);
+    expect(ctx.contextNote).toBe("Operator guidance for passive grid.");
+    expect(ctx.sourcesCount).toBe(2);
+    expect(ctx.spokenBrief).toMatch(/Context note on file/);
+    expect(ctx.spokenBrief).toMatch(/2 sources attached/);
+  });
+
+  it("truncates contextNote to 500 characters", () => {
+    repo = tempRepo();
+    mkdirSync(join(repo, "docs/projects/passive-grid/MEMORY"), { recursive: true });
+    writeFileSync(
+      join(repo, "docs/projects/passive-grid/MEMORY/context.md"),
+      seedContextMd("x".repeat(600)),
+      "utf8",
+    );
+
+    const ctx = buildJarvisContext(repo);
+    expect(ctx.contextNote).toHaveLength(500);
+    expect(ctx.spokenBrief).toMatch(/Context note on file/);
   });
 });
