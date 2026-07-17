@@ -95,4 +95,7 @@ describe("parseJarvisAct", () => {
       "memory.digest",
     );
   });
+  it("accepts memory.reindex", () => {
+    expect(parseJarvisAct({ intent: "memory.reindex", args: {} }).intent).toBe("memory.reindex");
+  });
 });

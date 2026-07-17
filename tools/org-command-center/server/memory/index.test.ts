@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ProjectRegistry } from "../paths";
 import * as chromaIndex from "./chroma-index";
-import { memoryDigest, memoryNote, memoryRecall } from "./index";
+import { memoryDigest, memoryNote, memoryRecall, memoryReindex } from "./index";
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "../../src/lib/fixtures");
 const BIZ_IDEA = "docs/projects/a/business-idea";
@@ -180,5 +180,22 @@ describe("memoryDigest", () => {
 
     expect(result.indexed).toBe(false);
     expect(existsSync(join(root, result.path))).toBe(true);
+  });
+});
+
+describe("memoryReindex", () => {
+  let root = "";
+
+  afterEach(() => {
+    if (root) rmSync(root, { recursive: true, force: true });
+    vi.restoreAllMocks();
+  });
+
+  it("delegates to reindexProjectFromFs for active slug", async () => {
+    root = seedRepo();
+    const spy = vi.spyOn(chromaIndex, "reindexProjectFromFs").mockResolvedValue({ count: 7 });
+    const result = await memoryReindex(root);
+    expect(result.count).toBe(7);
+    expect(spy).toHaveBeenCalledWith(root, "a");
   });
 });

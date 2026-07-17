@@ -57,7 +57,13 @@ import { planBlockerResolve } from "./blocker-resolve";
 import { listRunEvents, summarizeRunEvents } from "./run-events";
 import { resolveWorkTarget } from "./work-request";
 import { askBrain } from "./brain-ask";
-import { memoryBrief, memoryDigest, memoryNote, memoryRecall } from "../memory";
+import {
+  memoryBrief,
+  memoryDigest,
+  memoryNote,
+  memoryRecall,
+  memoryReindex,
+} from "../memory";
 
 export { JarvisExecError } from "./errors";
 
@@ -887,6 +893,9 @@ export async function executeIntent(
       const summary = args.summary != null ? String(args.summary).trim() : undefined;
       return memoryDigest(repoRoot, summary ? { summary } : undefined);
     }
+
+    case "memory.reindex":
+      return memoryReindex(repoRoot);
 
     default:
       throw new JarvisExecError(`executeIntent not wired for ${intent}`);

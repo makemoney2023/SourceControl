@@ -6,6 +6,7 @@ import {
   buildNoteDoc,
   chromaHeartbeat,
   queryMemoryDocs,
+  reindexProjectFromFs,
   upsertMemoryDocs,
 } from "./chroma-index";
 import { loadRecentRunLines } from "./run-lifecycle";
@@ -150,4 +151,9 @@ export async function memoryDigest(
     indexed,
     spoken: `Session digest saved to ${relName}.`,
   };
+}
+
+export async function memoryReindex(repoRoot: string): Promise<{ count: number }> {
+  const slug = activeProjectSlug(repoRoot);
+  return reindexProjectFromFs(repoRoot, slug);
 }

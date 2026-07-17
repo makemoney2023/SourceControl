@@ -95,6 +95,10 @@ function confirmSummary(intent: JarvisIntent, args: Record<string, unknown>): st
     const venture = String(args.ventureName ?? "this venture");
     return `Write a session digest for ${venture}. Confirm?`;
   }
+  if (intent === "memory.reindex") {
+    const venture = String(args.ventureName ?? "this venture");
+    return `Rebuild memory index for ${venture}. Confirm?`;
+  }
   return `Confirm ${intent.replace(/\./g, " ")}?`;
 }
 
@@ -187,6 +191,9 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
   }
   if (intent === "memory.digest" && typeof result === "object" && result !== null && "spoken" in result) {
     return String((result as { spoken: string }).spoken);
+  }
+  if (intent === "memory.reindex" && typeof result === "object" && result !== null && "count" in result) {
+    return `Reindexed ${(result as { count: number }).count} memory chunks.`;
   }
   return `Done: ${intent.replace(/\./g, " ")}.`;
 }
@@ -285,7 +292,7 @@ export async function handleJarvisAct(
       }
       const token = createConfirmToken(roomId, act.intent, confirmArgs, mode);
       let summaryArgs: Record<string, unknown> = confirmArgs;
-      if (act.intent === "memory.digest") {
+      if (act.intent === "memory.digest" || act.intent === "memory.reindex") {
         try {
           const reg = loadRegistry(repoRoot);
           summaryArgs = {

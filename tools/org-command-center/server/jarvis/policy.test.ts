@@ -318,4 +318,17 @@ describe("policyFor", () => {
       needsConfirm: true,
     });
   });
+  it("memory.reindex denied outside ops", () => {
+    expect(policyFor("memory.reindex", "briefing")).toEqual({
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    });
+  });
+  it("memory.reindex requires confirm in ops", () => {
+    expect(policyFor("memory.reindex", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
 });

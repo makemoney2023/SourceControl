@@ -570,4 +570,42 @@ describe("handleJarvisAct", () => {
     expect(confirmed.status).toBe("ok");
     expect(confirmed.summary).toBe("Session digest saved to 2026-07-17-1830.md.");
   });
+
+  it("returns needs_confirm for memory.reindex in ops", async () => {
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.reindex",
+      args: {},
+      mode: "ops",
+    });
+    expect(r.status).toBe("needs_confirm");
+    expect(r.summary).toMatch(/Rebuild memory index for Passive Grid/i);
+  });
+
+  it("denies memory.reindex in briefing", async () => {
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.reindex",
+      args: {},
+      mode: "briefing",
+    });
+    expect(r.status).toBe("denied");
+    expect(r.reason).toMatch(/Ops/i);
+  });
+
+  it("uses memory.reindex count for confirmed ok summary", async () => {
+    setExecuteIntentForTests(async () => ({ count: 12 }));
+    const pending = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.reindex",
+      args: {},
+      mode: "ops",
+    });
+    expect(pending.status).toBe("needs_confirm");
+    const confirmed = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.reindex",
+      args: {},
+      mode: "ops",
+      confirmToken: pending.token,
+    });
+    expect(confirmed.status).toBe("ok");
+    expect(confirmed.summary).toBe("Reindexed 12 memory chunks.");
+  });
 });

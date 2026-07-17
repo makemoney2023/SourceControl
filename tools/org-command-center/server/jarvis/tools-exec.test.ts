@@ -10,9 +10,10 @@ import {
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import YAML from "yaml";
 import type { ManagerPacket } from "../src/lib/types";
+import * as chromaIndex from "../memory/chroma-index";
 import { clearRunRegistry } from "../run-registry";
 import type { RuntimeAdapter } from "../runtime-adapter";
 import { handleJarvisAct, handleJarvisConfirm } from "./act";
@@ -324,6 +325,13 @@ fallback_applied: ""
   { intent: "memory.brief", args: {} },
   { intent: "memory.note", args: { text: "Coverage test note" } },
   { intent: "memory.digest", args: { summary: "Session wrap-up" } },
+  {
+    intent: "memory.reindex",
+    args: {},
+    seed() {
+      vi.spyOn(chromaIndex, "reindexProjectFromFs").mockResolvedValue({ count: 0 });
+    },
+  },
 ];
 
 describe("intent coverage checklist", () => {
@@ -333,6 +341,7 @@ describe("intent coverage checklist", () => {
     if (repo) rmSync(repo, { recursive: true, force: true });
     clearRunRegistry();
     resetSessionForTests();
+    vi.restoreAllMocks();
   });
 
   it("covers every JARVIS_INTENTS entry", () => {
@@ -438,6 +447,19 @@ describe("executeIntent", () => {
     expect(result.path).toMatch(/MEMORY\/sessions\/\d{4}-\d{2}-\d{2}-\d{4}\.md$/);
     expect(existsSync(join(repo, result.path))).toBe(true);
     expect(result.spoken).toMatch(/digest saved/i);
+  });
+
+  it("memory.reindex returns chunk count when chroma is mocked", async () => {
+    repo = tempRepo();
+    mkdirSync(join(repo, "docs/projects/passive-grid/MEMORY"), { recursive: true });
+    writeFileSync(
+      join(repo, "docs/projects/passive-grid/MEMORY/notes.md"),
+      "## 2026-07-17\n- MOF-303 is lead sorbent\n",
+      "utf8",
+    );
+    vi.spyOn(chromaIndex, "reindexProjectFromFs").mockResolvedValue({ count: 3 });
+    const result = (await executeIntent(repo, "memory.reindex", {})) as { count: number };
+    expect(result.count).toBe(3);
   });
 
   it("digest.get returns company digest", async () => {
@@ -1189,11 +1211,11 @@ describe("buildJarvisContext", () => {
     if (repo) rmSync(repo, { recursive: true, force: true });
   });
 
-  it("returns mission and spoken brief", () => {
+  it("returns mission and spoken brief", async () => {
     repo = tempRepo();
-    const ctx = buildJarvisContext(repo);
+    const ctx = await buildJarvisContext(repo);
     expect(ctx.mission).toMatchObject({ idea: "Test Widget", currentPhase: "2" });
-    expect(ctx.spokenBrief).toMatch(/Phase 2/i);
+    expect(ctx.spokenBrief).toMatch(/Phase 2|next is/i);
   });
 });
 

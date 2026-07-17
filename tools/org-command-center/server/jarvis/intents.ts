@@ -59,6 +59,7 @@ export const JARVIS_INTENTS = [
   "memory.recall",
   "memory.brief",
   "memory.digest",
+  "memory.reindex",
 ] as const;
 
 export type JarvisIntent = (typeof JARVIS_INTENTS)[number];
