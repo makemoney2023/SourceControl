@@ -55,6 +55,9 @@ export const JARVIS_INTENTS = [
   "work.intake_save",
   "work.request",
   "review.inbox_list",
+  "memory.note",
+  "memory.recall",
+  "memory.brief",
 ] as const;
 
 export type JarvisIntent = (typeof JARVIS_INTENTS)[number];

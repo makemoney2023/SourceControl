@@ -451,4 +451,81 @@ describe("handleJarvisAct", () => {
     expect(confirmed.summary).toMatch(/Started head of research/i);
     expect(confirmed.summary).toMatch(/skipped/i);
   });
+
+  it("returns needs_confirm for memory.note in ops", async () => {
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.note",
+      args: { text: "MOF-303 is lead sorbent" },
+      mode: "ops",
+    });
+    expect(r.status).toBe("needs_confirm");
+    expect(r.summary).toMatch(/I'll remember:/i);
+    expect(r.summary).toMatch(/MOF-303/);
+  });
+
+  it("denies memory.note in briefing", async () => {
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.note",
+      args: { text: "Remember this" },
+      mode: "briefing",
+    });
+    expect(r.status).toBe("denied");
+    expect(r.reason).toMatch(/Ops/i);
+  });
+
+  it("uses memory.brief spoken for voice ok response", async () => {
+    setExecuteIntentForTests(async () => ({
+      spoken: "Next is finish evidence. Venture memory is still thin.",
+      memoryThin: true,
+      done: [],
+      next: ["finish evidence"],
+      blockers: [],
+      suggestion: "Focus on finish evidence.",
+      sources: ["mission"],
+    }));
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.brief",
+      args: {},
+      mode: "briefing",
+    });
+    expect(r.status).toBe("ok");
+    expect(r.summary).toBe("Next is finish evidence. Venture memory is still thin.");
+  });
+
+  it("uses memory.recall summary for voice ok response", async () => {
+    setExecuteIntentForTests(async () => ({
+      hits: [{ text: "MOF-303 is lead sorbent", path: "docs/projects/a/MEMORY/notes.md", kind: "note" }],
+      via: "grep",
+      summary: "Found 1 match: MOF-303 is lead sorbent",
+    }));
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.recall",
+      args: { query: "MOF sorbent" },
+      mode: "briefing",
+    });
+    expect(r.status).toBe("ok");
+    expect(r.summary).toBe("Found 1 match: MOF-303 is lead sorbent");
+  });
+
+  it("uses memory.note path for confirmed ok summary", async () => {
+    setExecuteIntentForTests(async () => ({
+      path: "docs/projects/passive-grid/MEMORY/notes.md",
+      kind: "note",
+      indexed: false,
+    }));
+    const pending = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.note",
+      args: { text: "MOF-303 is lead sorbent" },
+      mode: "ops",
+    });
+    expect(pending.status).toBe("needs_confirm");
+    const confirmed = await handleJarvisAct(repo, "room-1", {
+      intent: "memory.note",
+      args: { text: "MOF-303 is lead sorbent" },
+      mode: "ops",
+      confirmToken: pending.token,
+    });
+    expect(confirmed.status).toBe("ok");
+    expect(confirmed.summary).toBe("Saved to docs/projects/passive-grid/MEMORY/notes.md.");
+  });
 });

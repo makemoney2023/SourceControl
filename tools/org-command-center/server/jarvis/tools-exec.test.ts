@@ -320,6 +320,9 @@ fallback_applied: ""
     },
   },
   { intent: "review.inbox_list", args: {} },
+  { intent: "memory.recall", args: { query: "sorbent evidence" } },
+  { intent: "memory.brief", args: {} },
+  { intent: "memory.note", args: { text: "Coverage test note" } },
 ];
 
 describe("intent coverage checklist", () => {
@@ -379,6 +382,50 @@ describe("executeIntent", () => {
         currentPhase: "2",
       }),
     });
+  });
+
+  it("memory.note writes note and returns indexed false", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "memory.note", {
+      text: "MOF-303 is lead sorbent",
+    })) as { path: string; kind: string; indexed: boolean };
+    expect(result.kind).toBe("note");
+    expect(result.indexed).toBe(false);
+    expect(result.path).toMatch(/MEMORY\/notes\.md$/);
+  });
+
+  it("memory.recall returns grep hits and summary", async () => {
+    repo = tempRepo();
+    await executeIntent(repo, "memory.note", { text: "MOF-303 is lead sorbent" });
+    const result = (await executeIntent(repo, "memory.recall", {
+      query: "MOF sorbent",
+    })) as { hits: unknown[]; via: string; summary: string };
+    expect(result.via).toBe("grep");
+    expect(result.hits.length).toBeGreaterThan(0);
+    expect(result.summary).toMatch(/match/i);
+  });
+
+  it("memory.brief returns spoken situation brief", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "memory.brief", {})) as {
+      spoken: string;
+      memoryThin: boolean;
+      next: string[];
+    };
+    expect(result.spoken.length).toBeGreaterThan(0);
+    expect(result.spoken).not.toMatch(/[*`#]/);
+    expect(result.memoryThin).toBe(true);
+    expect(result.next.length).toBeGreaterThan(0);
+  });
+
+  it("memory.recall requires query", async () => {
+    repo = tempRepo();
+    await expect(executeIntent(repo, "memory.recall", {})).rejects.toThrow(/query required/i);
+  });
+
+  it("memory.note requires text", async () => {
+    repo = tempRepo();
+    await expect(executeIntent(repo, "memory.note", {})).rejects.toThrow(/text required/i);
   });
 
   it("digest.get returns company digest", async () => {

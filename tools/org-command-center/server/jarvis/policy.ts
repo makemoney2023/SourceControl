@@ -33,6 +33,14 @@ const STRUCTURAL = new Set<JarvisIntent>(["venture.create", "venture.switch"]);
 const ARCHITECT_ONLY = new Set<JarvisIntent>([...STRUCTURAL]);
 
 export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy {
+  if (intent === "memory.note" && mode !== "ops") {
+    return {
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    };
+  }
+
   if (intent === "agent.spawn_ic") {
     return {
       allowed: false,
@@ -90,6 +98,7 @@ export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy 
     intent === "dispatch.queue" ||
     intent === "dispatch.queue_for" ||
     intent === "dispatch.queue_batch" ||
+    intent === "memory.note" ||
     STRUCTURAL.has(intent);
 
   return { allowed: true, needsConfirm };

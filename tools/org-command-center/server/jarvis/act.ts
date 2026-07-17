@@ -85,6 +85,11 @@ function confirmSummary(intent: JarvisIntent, args: Record<string, unknown>): st
     const limit = args.limit != null ? String(args.limit) : "ready";
     return `Start up to ${limit} queued managers. Confirm?`;
   }
+  if (intent === "memory.note") {
+    const text = String(args.text ?? "").trim();
+    const truncated = text.length > 80 ? `${text.slice(0, 77)}...` : text;
+    return `I'll remember: ${truncated}. Confirm?`;
+  }
   return `Confirm ${intent.replace(/\./g, " ")}?`;
 }
 
@@ -165,6 +170,15 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
     return cancelled?.intent
       ? `Cancelled pending ${cancelled.intent.replace(/\./g, " ")}.`
       : "Cancelled pending confirm.";
+  }
+  if (intent === "memory.note" && typeof result === "object" && result !== null && "path" in result) {
+    return `Saved to ${(result as { path: string }).path}.`;
+  }
+  if (intent === "memory.brief" && typeof result === "object" && result !== null && "spoken" in result) {
+    return String((result as { spoken: string }).spoken);
+  }
+  if (intent === "memory.recall" && typeof result === "object" && result !== null && "summary" in result) {
+    return String((result as { summary: string }).summary);
   }
   return `Done: ${intent.replace(/\./g, " ")}.`;
 }

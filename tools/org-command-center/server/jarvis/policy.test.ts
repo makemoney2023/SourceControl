@@ -262,4 +262,47 @@ describe("policyFor", () => {
       needsConfirm: false,
     });
   });
+  it("memory.recall allowed in any mode without confirm", () => {
+    expect(policyFor("memory.recall", "briefing")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+    expect(policyFor("memory.recall", "review")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
+  it("memory.brief allowed in any mode without confirm", () => {
+    expect(policyFor("memory.brief", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+    expect(policyFor("memory.brief", "architect")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
+  it("memory.note denied outside ops", () => {
+    expect(policyFor("memory.note", "briefing")).toEqual({
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    });
+    expect(policyFor("memory.note", "review")).toEqual({
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    });
+    expect(policyFor("memory.note", "architect")).toEqual({
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    });
+  });
+  it("memory.note requires confirm in ops", () => {
+    expect(policyFor("memory.note", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
 });

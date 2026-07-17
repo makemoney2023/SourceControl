@@ -77,4 +77,17 @@ describe("parseJarvisAct", () => {
       "run.instruct",
     );
   });
+  it("accepts memory.note", () => {
+    expect(parseJarvisAct({ intent: "memory.note", args: { text: "Remember MOF-303" } }).intent).toBe(
+      "memory.note",
+    );
+  });
+  it("accepts memory.recall", () => {
+    expect(parseJarvisAct({ intent: "memory.recall", args: { query: "MOF sorbent" } }).intent).toBe(
+      "memory.recall",
+    );
+  });
+  it("accepts memory.brief", () => {
+    expect(parseJarvisAct({ intent: "memory.brief", args: {} }).intent).toBe("memory.brief");
+  });
 });

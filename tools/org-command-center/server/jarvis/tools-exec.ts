@@ -57,6 +57,7 @@ import { planBlockerResolve } from "./blocker-resolve";
 import { listRunEvents, summarizeRunEvents } from "./run-events";
 import { resolveWorkTarget } from "./work-request";
 import { askBrain } from "./brain-ask";
+import { memoryBrief, memoryNote, memoryRecall } from "../memory";
 
 export { JarvisExecError } from "./errors";
 
@@ -848,6 +849,39 @@ export async function executeIntent(
       // snapshot activity is newest-first (see readActivityTail)
       return { activity: snap.activity.slice(0, n) };
     }
+
+    case "memory.note": {
+      const text = String(args.text ?? "").trim();
+      if (!text) throw new JarvisExecError("text required", "missing_arg");
+      const kindRaw = args.kind;
+      const kind =
+        kindRaw === "note" ||
+        kindRaw === "decision" ||
+        kindRaw === "preference" ||
+        kindRaw === "entity" ||
+        kindRaw === "lifecycle"
+          ? kindRaw
+          : undefined;
+      return memoryNote(repoRoot, {
+        text,
+        kind,
+        entityId: args.entityId != null ? String(args.entityId) : undefined,
+      });
+    }
+
+    case "memory.recall": {
+      const query = String(args.query ?? "").trim();
+      if (!query) throw new JarvisExecError("query required", "missing_arg");
+      const limitRaw = args.limit;
+      const limit =
+        typeof limitRaw === "number" && Number.isFinite(limitRaw) && limitRaw > 0
+          ? Math.floor(limitRaw)
+          : undefined;
+      return memoryRecall(repoRoot, { query, limit });
+    }
+
+    case "memory.brief":
+      return memoryBrief(repoRoot);
 
     default:
       throw new JarvisExecError(`executeIntent not wired for ${intent}`);
