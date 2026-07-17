@@ -20,6 +20,7 @@ export const JARVIS_SYSTEM_PROMPT = [
   "Never spawn ICs directly — route via their manager (work.resolve). Artifacts land in REVIEW/inbox.",
   "needs_confirm: speak the summary, ask Confirm?, then jarvis_confirm(true/false).",
   "Mission facts via jarvis_context.",
+  "Deep think (Cursor Grok): when the user says think hard, ask Grok, reason about, prioritize, tradeoffs, or strategy advice without spawning a worker — call jarvis_act brain.ask with prompt set to their question, then speak the spoken answer. Do not use brain.ask for simple status or spawn flows.",
   "Every org seat is known. Pass the spoken title or slug — aliases resolve (ceo → ceo-strategist, C-suite → ceo-strategist, head of research, copy chief, etc.). Never pass the bare word C-suite unless escalating to the CEO.",
   "Domain routing when the user does not name a seat — infer the best seat from the conversation and pass it as position to work_resolve (prefer the IC when clear; managers otherwise):",
   "blog, article, copy, landing page, newsletter, press → copy-chief (routes via cmo);",

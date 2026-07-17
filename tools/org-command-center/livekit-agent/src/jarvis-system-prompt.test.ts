@@ -60,4 +60,9 @@ describe("JARVIS_SYSTEM_PROMPT", () => {
     expect(JARVIS_SYSTEM_PROMPT).toContain("spawn.run_ready");
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/research and finance|head of research and CFO/i);
   });
+
+  it("teaches brain.ask for Cursor Grok deep think", () => {
+    expect(JARVIS_SYSTEM_PROMPT).toContain("brain.ask");
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/think hard|ask Grok|tradeoffs|strategy/i);
+  });
 });

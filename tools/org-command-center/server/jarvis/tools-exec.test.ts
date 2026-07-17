@@ -247,6 +247,18 @@ const INTENT_COVERAGE: CoverageCase[] = [
     expectThrow: /no pending confirmation/i,
   },
   { intent: "jarvis.ping", args: {} },
+  {
+    intent: "brain.ask",
+    args: {
+      prompt: "What should we prioritize?",
+      apiKey: "test-key",
+      runtime: {
+        async prompt() {
+          return { status: "finished", result: "Prioritize the yield experiment." };
+        },
+      },
+    },
+  },
   { intent: "handoff.list", args: { phase: "2" } },
   { intent: "briefing.pin", args: { mode: "seat", slug: "ceo-strategist" } },
   { intent: "phase.list_open", args: {} },

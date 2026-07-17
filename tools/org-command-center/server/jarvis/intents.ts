@@ -43,6 +43,7 @@ export const JARVIS_INTENTS = [
   "session.repeat",
   "session.cancel_pending",
   "jarvis.ping",
+  "brain.ask",
   "handoff.list",
   "briefing.pin",
   "phase.list_open",

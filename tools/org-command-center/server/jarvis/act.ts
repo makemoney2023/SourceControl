@@ -127,6 +127,11 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
   if (intent === "blocker.list" && typeof result === "object" && result !== null && "summary" in result) {
     return String((result as { summary: string }).summary);
   }
+  if (intent === "brain.ask" && typeof result === "object" && result !== null) {
+    const r = result as { spoken?: string; answer?: string };
+    if (typeof r.spoken === "string" && r.spoken.trim()) return r.spoken;
+    if (typeof r.answer === "string" && r.answer.trim()) return r.answer;
+  }
   if (
     intent === "blocker.resolve" &&
     typeof result === "object" &&

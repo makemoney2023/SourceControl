@@ -28,7 +28,11 @@ export function defaultXaiBaseUrl() {
   return (process.env.XAI_BASE_URL || "https://api.x.ai/v1").replace(/\/$/, "");
 }
 
-/** Prefer xAI when a key is present; override with JARVIS_LLM_BACKEND. */
+/**
+ * Voice turn-taking LLM backend.
+ * Prefer JARVIS_LLM_BACKEND=ollama for local harness; xAI only when forced or
+ * XAI_API_KEY is set and backend is not forced to ollama.
+ */
 export function resolveJarvisLlmBackend(): JarvisLlmBackend {
   const forced = (process.env.JARVIS_LLM_BACKEND || "").trim().toLowerCase();
   if (forced === "xai" || forced === "ollama") return forced;
@@ -57,7 +61,7 @@ export function createXaiLLM() {
   });
 }
 
-/** Voice brain: xAI Grok when configured, else local Ollama. */
+/** Voice turn-taking LLM. Deep think uses OCC brain.ask (Cursor Grok), not this. */
 export function createJarvisLLM() {
   return resolveJarvisLlmBackend() === "xai" ? createXaiLLM() : createOllamaLLM();
 }

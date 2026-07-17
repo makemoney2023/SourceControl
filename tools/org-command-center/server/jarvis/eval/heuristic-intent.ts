@@ -203,6 +203,13 @@ export function heuristicIntent(utterance: string): JarvisIntent {
     return "blocker.list";
   }
 
+  if (
+    /\b(think hard|ask grok|deep think|reason about|trade-?offs?|prioritize)\b/.test(s) ||
+    (/\b(strategy|strategic)\b/.test(s) && /\b(advice|think|recommend)\b/.test(s))
+  ) {
+    return "brain.ask";
+  }
+
   if (/\b(help|cheatsheet|what can you do|capabilities)\b/.test(s)) {
     return "session.help";
   }

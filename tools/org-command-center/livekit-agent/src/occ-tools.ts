@@ -148,6 +148,15 @@ export function buildOccTools(occ: OccClient, ctx: OccToolsContext): FunctionCon
       execute: async ({ limit }) =>
         logTool("runs_watch", { limit }, () => act("runs.watch", { limit })),
     },
+    brain_ask: {
+      description:
+        "Deep think via Cursor SDK Grok (grok-4.5). Use for hard reasoning, tradeoffs, prioritize — not for spawn or simple status.",
+      parameters: z.object({
+        prompt: z.string(),
+      }),
+      execute: async ({ prompt }) =>
+        logTool("brain_ask", { prompt }, () => act("brain.ask", { prompt })),
+    },
   };
 }
 

@@ -32,6 +32,11 @@ describe("parseJarvisAct", () => {
   it("accepts jarvis.ping", () => {
     expect(parseJarvisAct({ intent: "jarvis.ping", args: {} }).intent).toBe("jarvis.ping");
   });
+  it("accepts brain.ask", () => {
+    expect(
+      parseJarvisAct({ intent: "brain.ask", args: { prompt: "What next?" } }).intent,
+    ).toBe("brain.ask");
+  });
   it("accepts phase.list_open", () => {
     expect(parseJarvisAct({ intent: "phase.list_open", args: {} }).intent).toBe("phase.list_open");
   });

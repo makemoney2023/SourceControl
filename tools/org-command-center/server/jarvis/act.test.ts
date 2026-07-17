@@ -402,6 +402,22 @@ describe("handleJarvisAct", () => {
     expect(r.summary).toBe("1 blocker: market research analyst — no data.");
   });
 
+  it("uses brain.ask spoken for voice ok response", async () => {
+    setExecuteIntentForTests(async () => ({
+      ok: true,
+      model: "grok-4.5",
+      answer: "Prioritize the yield experiment this week.",
+      spoken: "Prioritize the yield experiment this week.",
+      status: "finished",
+    }));
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "brain.ask",
+      args: { prompt: "What should we prioritize?" },
+    });
+    expect(r.status).toBe("ok");
+    expect(r.summary).toBe("Prioritize the yield experiment this week.");
+  });
+
   it("dispatch.queue_batch confirm summary mentions batch count", async () => {
     const r = await handleJarvisAct(repo, "room-1", {
       intent: "dispatch.queue_batch",

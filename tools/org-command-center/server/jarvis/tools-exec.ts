@@ -56,6 +56,7 @@ import {
 import { planBlockerResolve } from "./blocker-resolve";
 import { listRunEvents, summarizeRunEvents } from "./run-events";
 import { resolveWorkTarget } from "./work-request";
+import { askBrain } from "./brain-ask";
 
 export { JarvisExecError } from "./errors";
 
@@ -81,7 +82,7 @@ const SESSION_HELP = [
   "Ops adds assign, run next, cancel, rewake, pause, resume, cancel pending.",
   "Review adds file read and csuite draft. Architect adds venture create or switch.",
   "Top intents: mission.get for status; digest.get or digest.focus; blocker.list; blocker.resolve; dispatch.queue_batch; spawn.run_ready; seat.report; phase.list_open;",
-  "activity.tail; session.help; session.repeat; jarvis.ping; mode.set;",
+  "activity.tail; session.help; session.repeat; jarvis.ping; brain.ask for Cursor Grok deep think; mode.set;",
   "work.resolve or work.request for intake and Cursor spawn; review.inbox_list for artifacts.",
 ].join(" ");
 
@@ -661,6 +662,22 @@ export async function executeIntent(
 
     case "jarvis.ping":
       return { ok: true, time: new Date().toISOString() };
+
+    case "brain.ask": {
+      const prompt = String(args.prompt ?? args.question ?? "");
+      return askBrain({
+        prompt,
+        cwd: repoRoot,
+        model: args.model != null ? String(args.model) : undefined,
+        apiKey:
+          typeof args.apiKey === "string"
+            ? args.apiKey
+            : args.apiKey === null
+              ? null
+              : undefined,
+        runtime: args.runtime as Parameters<typeof askBrain>[0]["runtime"],
+      });
+    }
 
     case "phase.list_open": {
       const phases = snap.tracker.phases.filter(
