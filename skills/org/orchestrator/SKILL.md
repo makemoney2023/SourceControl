@@ -28,6 +28,7 @@ You are the **main-session dispatcher**. You spawn **managers only**, enforce th
 1. Read `projects/registry.json` — resolve `active` slug and that entry's `businessIdea` + `memory` paths.
 2. Treat `docs/projects/<active>/business-idea/` as the only business-idea root for this session (DISPATCH, tracker, HANDOFFS, BRIEFINGS, phase artifacts).
 3. Skim `docs/projects/<active>/MEMORY/README.md` + recent `MEMORY/sessions/` before phase work.
+3b. Skim `docs/projects/<active>/MEMORY/context.md` and `docs/projects/<active>/business-idea/SOURCES/INDEX.md` when present (operator business context + uploaded sources).
 4. Never write another venture's tree while this slug is active. Switch ventures via OCC Situation Room or `POST /api/project`.
 5. Packet paths must use the concrete active prefix (e.g. `docs/projects/passive-grid/business-idea/...`), not the literal string `<active>`.
 

@@ -59,7 +59,7 @@
 - Produces: `isWritableRel` accepts `docs/projects/<slug>/business-idea/SOURCES/**`
 - Produces (optional): `sourcesDir(repoRoot, slug?) => string` absolute path to SOURCES
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `paths.test.ts`:
 
@@ -85,7 +85,7 @@ it("rejects SOURCES path traversal", () => {
 
 (Use the same `root` fixture pattern already in `paths.test.ts`.)
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 ```bash
 cd tools/org-command-center && npx vitest run server/paths.test.ts
@@ -93,7 +93,7 @@ cd tools/org-command-center && npx vitest run server/paths.test.ts
 
 Expected: FAIL — SOURCES not on allowlist.
 
-- [ ] **Step 3: Minimal implementation**
+- [x] **Step 3: Minimal implementation**
 
 In `isWritableRel`:
 
@@ -109,7 +109,7 @@ export function sourcesDir(repoRoot: string, slug?: string): string {
 }
 ```
 
-- [ ] **Step 4: Run tests — expect PASS**
+- [x] **Step 4: Run tests — expect PASS**
 
 ```bash
 cd tools/org-command-center && npx vitest run server/paths.test.ts
@@ -146,13 +146,13 @@ export const ALLOWED_EXTENSIONS = new Set([
 ]);
 ```
 
-- [ ] **Step 1: Install deps**
+- [x] **Step 1: Install deps**
 
 ```bash
 cd tools/org-command-center && npm install pdf-parse mammoth
 ```
 
-- [ ] **Step 2: Write failing tests** in `extract.test.ts`
+- [x] **Step 2: Write failing tests** in `extract.test.ts`
 
 ```ts
 import { describe, expect, it, vi } from "vitest";
@@ -196,13 +196,13 @@ describe("isAllowedExtension", () => {
 
 Note: If dynamic mock is awkward with ESM, implement pdf/docx behind injectable adapters in `extract.ts` and unit-test the adapter failure path instead — keep behavior identical.
 
-- [ ] **Step 3: Run — expect FAIL**
+- [x] **Step 3: Run — expect FAIL**
 
 ```bash
 cd tools/org-command-center && npx vitest run server/sources/extract.test.ts
 ```
 
-- [ ] **Step 4: Implement `extract.ts`**
+- [x] **Step 4: Implement `extract.ts`**
 
 - Extension from filename (lowercase, last segment)
 - Text: `bytes.toString("utf8")`
@@ -212,7 +212,7 @@ cd tools/org-command-center && npx vitest run server/sources/extract.test.ts
 - Catch → `{ status: "extract_failed", text: "…", method, warning }`
 - Empty text after success → treat as `extract_failed`
 
-- [ ] **Step 5: Tests PASS**
+- [x] **Step 5: Tests PASS**
 
 ```bash
 cd tools/org-command-center && npx vitest run server/sources/extract.test.ts
@@ -270,7 +270,7 @@ export function newestExtractRels(repoRoot: string, limit: number): string[];
 
 Parser: read file, extract first ` ```json ` … ` ``` ` fence, `JSON.parse`.
 
-- [ ] **Step 1: Failing tests for context-md**
+- [x] **Step 1: Failing tests for context-md**
 
 ```ts
 it("preserves operator note when rewriting digest", () => {
@@ -290,7 +290,7 @@ it("writeOperatorNote does not wipe digest", () => {
 });
 ```
 
-- [ ] **Step 2: Implement context-md.ts** using markers:
+- [x] **Step 2: Implement context-md.ts** using markers:
 
 ```md
 <!-- auto:sources-digest -->
@@ -300,7 +300,7 @@ it("writeOperatorNote does not wipe digest", () => {
 
 Operator note = body between `## Operator note` and `## Sources digest`.
 
-- [ ] **Step 3: Failing tests for store** (temp registry fixture like `project-api.test.ts`)
+- [x] **Step 3: Failing tests for store** (temp registry fixture like `project-api.test.ts`)
 
 ```ts
 it("uploads md as self-extract and refreshes INDEX + digest", () => {
@@ -343,7 +343,7 @@ it("delete removes files and digest entry", () => {
 
 Throw errors with `.code` property or message tokens `unsupported_type` / `too_large` / `not_found` for routes to map.
 
-- [ ] **Step 4: Implement store.ts**
+- [x] **Step 4: Implement store.ts**
 
 - Ensure `SOURCES/` + `MEMORY/context.md` exist
 - `id = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z")` plus random suffix if collision
@@ -353,7 +353,7 @@ Throw errors with `.code` property or message tokens `unsupported_type` / `too_l
 - Rebuild INDEX JSON + digest lines (newest 20, summary = first ~200 chars of extract body)
 - `setContextNote` load/write via context-md helpers + `assertWritable`
 
-- [ ] **Step 5: All store/context-md tests PASS**
+- [x] **Step 5: All store/context-md tests PASS**
 
 ```bash
 cd tools/org-command-center && npx vitest run server/sources/context-md.test.ts server/sources/store.test.ts
@@ -381,7 +381,7 @@ Behavior:
 2. Dedupe with `Set`, prefix first, then caller `mustRead`
 3. Paths POSIX, repo-relative
 
-- [ ] **Step 1: Failing test**
+- [x] **Step 1: Failing test**
 
 ```ts
 it("prepends context + index + up to 3 extracts before caller paths", () => {
@@ -401,7 +401,7 @@ it("dedupes if caller already included context.md", () => {
 });
 ```
 
-- [ ] **Step 2: Implement + PASS**
+- [x] **Step 2: Implement + PASS**
 
 ```bash
 cd tools/org-command-center && npx vitest run server/sources/context-reads.test.ts
@@ -420,7 +420,7 @@ cd tools/org-command-center && npx vitest run server/sources/context-reads.test.
 - `registerSourcesRoutes(app: Hono, repoRoot: string): void`
 - Routes per spec: `GET /api/sources`, `POST /api/sources/upload`, `PUT /api/sources/context`, `DELETE /api/sources/:id`
 
-- [ ] **Step 1: Failing route tests** using `registerSourcesRoutes` + temp repo
+- [x] **Step 1: Failing route tests** using `registerSourcesRoutes` + temp repo
 
 ```ts
 it("GET returns empty sources and note", async () => {
@@ -462,7 +462,7 @@ it("PUT updates context note", async () => {
 });
 ```
 
-- [ ] **Step 2: Implement routes**
+- [x] **Step 2: Implement routes**
 
 - `GET` → `listSources`
 - `POST` → parse multipart (`c.req.parseBody()`), support `file` or multiple `files`; map thrown codes to 400 JSON `{ ok:false, error, code }`
@@ -470,7 +470,7 @@ it("PUT updates context note", async () => {
 - `PUT` → `{ note: string }` required
 - `DELETE` → 404 `not_found` if missing
 
-- [ ] **Step 3: Wire in `createApi`**
+- [x] **Step 3: Wire in `createApi`**
 
 ```ts
 import { registerSourcesRoutes } from "./sources-routes";
@@ -479,7 +479,7 @@ registerProjectRoutes(app, repoRoot);
 registerSourcesRoutes(app, repoRoot);
 ```
 
-- [ ] **Step 4: Tests PASS**
+- [x] **Step 4: Tests PASS**
 
 ```bash
 cd tools/org-command-center && npx vitest run server/sources-api.test.ts
@@ -500,7 +500,7 @@ cd tools/org-command-center && npx vitest run server/sources-api.test.ts
 - `CreateVentureInput.contextNote?: string`
 - Creates `business-idea/SOURCES/` + `INDEX.md` + `MEMORY/context.md` via `seedContextMd(contextNote)`
 
-- [ ] **Step 1: Failing test**
+- [x] **Step 1: Failing test**
 
 ```ts
 it("createVenture seeds SOURCES and context note", () => {
@@ -520,9 +520,9 @@ it("createVenture seeds SOURCES and context note", () => {
 
 If no createVenture unit test file exists, add `server/create-venture.test.ts`.
 
-- [ ] **Step 2: Implement seed dirs + INDEX + context.md; extend project route body type with `contextNote`**
+- [x] **Step 2: Implement seed dirs + INDEX + context.md; extend project route body type with `contextNote`**
 
-- [ ] **Step 3: PASS**
+- [x] **Step 3: PASS**
 
 ```bash
 cd tools/org-command-center && npx vitest run server/create-venture.test.ts server/project-api.test.ts
@@ -562,14 +562,14 @@ Spoken clause when note trimmed non-empty:
 ` Context note on file; ${n} sources attached.`  
 (single trailing sentence fragment; keep total brief short)
 
-- [ ] **Step 1: Failing tests**
+- [x] **Step 1: Failing tests**
 
 ```ts
 // queue: after queueValidatedDispatch, packet.must_read includes MEMORY/context.md
 // briefing: contextNote + sourcesCount; spokenBrief includes "Context note on file" when note set
 ```
 
-- [ ] **Step 2: Implement**
+- [x] **Step 2: Implement**
 
 ```ts
 // briefing.ts
@@ -595,7 +595,7 @@ export function buildJarvisContext(repoRoot: string) {
 
 Ensure `listSources` is safe when MEMORY/SOURCES missing (return empty + `""`).
 
-- [ ] **Step 3: PASS**
+- [x] **Step 3: PASS**
 
 ```bash
 cd tools/org-command-center && npx vitest run server/jarvis/briefing.test.ts server/queue-validated-dispatch.test.ts
@@ -644,9 +644,9 @@ export async function deleteSource(id: string): Promise<{ ok: true }>;
 
 `uploadSources` uses `FormData` without setting `Content-Type` (browser sets boundary).
 
-- [ ] **Step 1: Add client functions**
+- [x] **Step 1: Add client functions**
 
-- [ ] **Step 2: Implement `SourcesPanel`**
+- [x] **Step 2: Implement `SourcesPanel`**
 
 Props:
 
@@ -667,7 +667,7 @@ UI:
 - List buttons: title, status chip, Delete
 - On row click: `onSelectPath(extractRel === "self" ? originalRel : extractRel)`
 
-- [ ] **Step 3: OutputsDashboard tabs**
+- [x] **Step 3: OutputsDashboard tabs**
 
 ```tsx
 const [tab, setTab] = useState<"artifacts" | "sources">("artifacts");
@@ -678,7 +678,7 @@ const [tab, setTab] = useState<"artifacts" | "sources">("artifacts");
 
 Prefer: Sources tab still uses right Preview column — panel only left/center controls; selecting a source sets `selectedPath` like artifacts.
 
-- [ ] **Step 4: Manual UI smoke** (no Playwright required)
+- [x] **Step 4: Manual UI smoke** (no Playwright required)
 
 ```bash
 cd tools/org-command-center && npm run typecheck
@@ -694,9 +694,9 @@ Expected: clean (or only pre-existing unrelated errors).
 - Modify: `tools/org-command-center/src/api/client.ts` — `createProject` accepts `contextNote?: string`
 - Modify: `tools/org-command-center/src/jarvis/SituationRoom.tsx`
 
-- [ ] **Step 1: Add state `newVentureContext` + textarea in New idea panel** (below slug)
+- [x] **Step 1: Add state `newVentureContext` + textarea in New idea panel** (below slug)
 
-- [ ] **Step 2: Pass into create**
+- [x] **Step 2: Pass into create**
 
 ```ts
 await createProject({
@@ -709,7 +709,7 @@ await createProject({
 
 Clear note on success/cancel.
 
-- [ ] **Step 3: Typecheck PASS**
+- [x] **Step 3: Typecheck PASS**
 
 ```bash
 cd tools/org-command-center && npm run typecheck
@@ -724,7 +724,7 @@ cd tools/org-command-center && npm run typecheck
 - Modify: `tools/org-command-center/README.md` — one Sources bullet
 - Optionally seed `docs/projects/demo-venture/MEMORY/context.md` + `SOURCES/INDEX.md` and same for `passive-grid` (empty digest) so live OCC does not 500 — **only if** `listSources` requires files; prefer code tolerating missing files instead
 
-- [ ] **Step 1: Orchestrator bullet**
+- [x] **Step 1: Orchestrator bullet**
 
 After MEMORY sessions skim line, add:
 
@@ -734,13 +734,13 @@ After MEMORY sessions skim line, add:
 
 Renumber only if needed; keep adjacent to item 3.
 
-- [ ] **Step 2: README** under Situation Room / Outputs:
+- [x] **Step 2: README** under Situation Room / Outputs:
 
 ```md
 **Sources / context:** Outputs drawer → **Sources** — upload docs (text extracted for agents), edit the venture context note. New idea can set the note at create time. Assign/queue auto-adds `MEMORY/context.md` + source index to `must_read`.
 ```
 
-- [ ] **Step 3: Full test suite slice**
+- [x] **Step 3: Full test suite slice**
 
 ```bash
 cd tools/org-command-center && npx vitest run server/paths.test.ts server/sources server/sources-api.test.ts server/jarvis/briefing.test.ts
@@ -748,7 +748,7 @@ cd tools/org-command-center && npx vitest run server/paths.test.ts server/source
 
 Expected: all PASS.
 
-- [ ] **Step 4: Manual smoke checklist**
+- [x] **Step 4: Manual smoke checklist**
 
 1. Start OCC (`npm run dev` + API as you normally do)
 2. Switch to `demo-venture` (or create new)
