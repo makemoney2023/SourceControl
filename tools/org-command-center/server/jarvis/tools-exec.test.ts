@@ -115,6 +115,7 @@ const INTENT_COVERAGE: CoverageCase[] = [
   { intent: "tasks.list", args: {} },
   { intent: "runs.list", args: {} },
   { intent: "runs.get", args: { runId: "missing-run" }, expectThrow: /not found/i },
+  { intent: "runs.watch", args: { limit: 5 } },
   { intent: "activity.list", args: {} },
   { intent: "alerts.list", args: {} },
   { intent: "spend.get", args: {} },
@@ -818,6 +819,26 @@ describe("executeIntent", () => {
     await expect(executeIntent(repo, "runs.get", { runId: "missing" })).rejects.toThrow(
       /not found/i,
     );
+  });
+
+  it("runs.watch returns events and spoken summary", async () => {
+    repo = tempRepo();
+    const droot = dispatchRoot(repo);
+    const { appendRunEvent } = await import("./run-events");
+    appendRunEvent(droot, {
+      at: "2026-07-17T12:00:00.000Z",
+      type: "acceptance_failed",
+      runId: "20260717-ceo-strategist",
+      position: "ceo-strategist",
+      detail: "inbox",
+    });
+    const result = (await executeIntent(repo, "runs.watch", { limit: 5 })) as {
+      events: Array<{ type: string }>;
+      summary: string;
+    };
+    expect(result.events).toHaveLength(1);
+    expect(result.events[0]?.type).toBe("acceptance_failed");
+    expect(result.summary).toBe("CEO finished with gaps: inbox.");
   });
 
   it("spawn.run claims specific filename with test adapter", async () => {

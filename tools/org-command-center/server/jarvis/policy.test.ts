@@ -32,6 +32,20 @@ describe("policyFor", () => {
       needsConfirm: false,
     });
   });
+  it("allows runs.watch in any mode without confirm", () => {
+    expect(policyFor("runs.watch", "briefing")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+    expect(policyFor("runs.watch", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+    expect(policyFor("runs.watch", "review")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
   it("allows routine.list in ops without confirm", () => {
     expect(policyFor("routine.list", "ops")).toEqual({
       allowed: true,

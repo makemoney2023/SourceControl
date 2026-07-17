@@ -48,6 +48,7 @@ import {
   setRoomMode,
   setWorkIntake,
 } from "./session";
+import { listRunEvents, summarizeRunEvents } from "./run-events";
 import { resolveWorkTarget } from "./work-request";
 
 export { JarvisExecError } from "./errors";
@@ -175,6 +176,16 @@ export async function executeIntent(
       const run = readRun(join(droot, "runs"), runId);
       if (!run) throw new JarvisExecError(`run not found: ${runId}`, "not_found");
       return { run };
+    }
+
+    case "runs.watch": {
+      const limitRaw = args.limit;
+      const limit =
+        typeof limitRaw === "number" && Number.isFinite(limitRaw) && limitRaw > 0
+          ? Math.floor(limitRaw)
+          : 50;
+      const events = listRunEvents(droot, limit);
+      return { events, summary: summarizeRunEvents(events) };
     }
 
     case "activity.list":

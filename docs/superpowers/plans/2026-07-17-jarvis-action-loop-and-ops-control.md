@@ -156,11 +156,11 @@ export function appendRunEvent(dispatchRoot: string, event: RunEvent): void;
 export function listRunEvents(dispatchRoot: string, limit?: number): RunEvent[];
 ```
 
-- [ ] **Step 1: Failing tests** for append/list + tools-exec `runs.watch` returns spoken-friendly `{ events, summary }`
+- [x] **Step 1: Failing tests** for append/list + tools-exec `runs.watch` returns spoken-friendly `{ events, summary }`
 
-- [ ] **Step 2: Implement jsonl under `DISPATCH/run-events.jsonl` (cap read last 50)**
+- [x] **Step 2: Implement jsonl under `DISPATCH/run-events.jsonl` (cap read last 50)**
 
-- [ ] **Step 3: Wire intent + summaries** (“CEO finished with gaps: missing inbox.”)
+- [x] **Step 3: Wire intent + summaries** (“CEO finished with gaps: missing inbox.”)
 
 - [ ] **Step 4: Commit** — `feat(occ): runs.watch event feed for voice status`
 

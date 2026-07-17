@@ -10,6 +10,7 @@ import {
 } from "../src/lib/runs";
 import type { ManagerPacket } from "../src/lib/types";
 import { appendActivity } from "./activity";
+import { appendRunEvent } from "./jarvis/run-events";
 import {
   isSeatPaused,
   readAgentState,
@@ -211,6 +212,13 @@ function beginRunRecord(args: {
     position: packet.position,
     detail: wakeReason,
   });
+  appendRunEvent(root, {
+    at: new Date().toISOString(),
+    type: "started",
+    runId,
+    position: packet.position,
+    detail: wakeReason,
+  });
   return { runId, controller, meta, runsDir };
 }
 
@@ -296,6 +304,13 @@ async function finishAdapterRun(args: {
           position: packet.position,
           detail: acceptance.missing.join(", "),
         });
+        appendRunEvent(root, {
+          at: new Date().toISOString(),
+          type: "acceptance_failed",
+          runId,
+          position: packet.position,
+          detail: acceptance.missing.join(", "),
+        });
       }
     }
 
@@ -310,11 +325,19 @@ async function finishAdapterRun(args: {
         status: done.status,
       });
     }
-    appendActivity(root, {
-      type: "spawn_finished",
-      runId,
-      position: packet.position,
-    });
+    if (done.status === "completed") {
+      appendActivity(root, {
+        type: "spawn_finished",
+        runId,
+        position: packet.position,
+      });
+      appendRunEvent(root, {
+        at: new Date().toISOString(),
+        type: "finished",
+        runId,
+        position: packet.position,
+      });
+    }
     unregisterRun(runId);
     return { ok: true, runId, packet };
   } catch (e) {
@@ -329,12 +352,28 @@ async function finishAdapterRun(args: {
       error: err,
     };
     writeRun(runsDir, done);
-    appendActivity(root, {
-      type: aborted ? "spawn_cancelled" : "spawn_error",
-      runId,
-      position: packet.position,
-      detail: err,
-    });
+    if (!aborted) {
+      appendActivity(root, {
+        type: "spawn_error",
+        runId,
+        position: packet.position,
+        detail: err,
+      });
+      appendRunEvent(root, {
+        at: new Date().toISOString(),
+        type: "error",
+        runId,
+        position: packet.position,
+        detail: err,
+      });
+    } else {
+      appendActivity(root, {
+        type: "spawn_cancelled",
+        runId,
+        position: packet.position,
+        detail: err,
+      });
+    }
     unregisterRun(runId);
     return {
       ok: false,

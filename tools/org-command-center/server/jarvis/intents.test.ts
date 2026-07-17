@@ -43,4 +43,7 @@ describe("parseJarvisAct", () => {
   it("accepts activity.tail", () => {
     expect(parseJarvisAct({ intent: "activity.tail", args: { n: 5 } }).intent).toBe("activity.tail");
   });
+  it("accepts runs.watch", () => {
+    expect(parseJarvisAct({ intent: "runs.watch", args: { limit: 10 } }).intent).toBe("runs.watch");
+  });
 });

@@ -7,6 +7,7 @@ export const JARVIS_INTENTS = [
   "tasks.list",
   "runs.list",
   "runs.get",
+  "runs.watch",
   "activity.list",
   "alerts.list",
   "spend.get",

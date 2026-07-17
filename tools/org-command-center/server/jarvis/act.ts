@@ -104,6 +104,9 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
     const r = result as { position?: string; runId?: string; reviewInboxHint?: string };
     return `${r.position} running as ${r.runId}. Artifact will land in review inbox.`;
   }
+  if (intent === "runs.watch" && typeof result === "object" && result !== null && "summary" in result) {
+    return String((result as { summary: string }).summary);
+  }
   if (
     intent === "session.cancel_pending" &&
     typeof result === "object" &&

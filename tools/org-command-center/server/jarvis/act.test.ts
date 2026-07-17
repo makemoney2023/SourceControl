@@ -374,4 +374,17 @@ describe("handleJarvisAct", () => {
     expect(r.reason).toMatch(/no pending confirmation/i);
     expect(r.summary).toBeUndefined();
   });
+
+  it("uses runs.watch summary for voice ok response", async () => {
+    setExecuteIntentForTests(async () => ({
+      events: [{ type: "acceptance_failed" }],
+      summary: "CEO finished with gaps: inbox.",
+    }));
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "runs.watch",
+      args: {},
+    });
+    expect(r.status).toBe("ok");
+    expect(r.summary).toBe("CEO finished with gaps: inbox.");
+  });
 });
