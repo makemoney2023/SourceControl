@@ -95,6 +95,9 @@ export function heuristicIntent(utterance: string): JarvisIntent {
   ) {
     return "spawn.run_next";
   }
+  if (/\b(run ready|spawn ready|start queued managers?|start the queued)\b/.test(s)) {
+    return "spawn.run_ready";
+  }
   if (/\bspawn\b/.test(s) && !/\b(cancel|rewake)\b/.test(s)) {
     return "spawn.run_next";
   }
@@ -107,6 +110,16 @@ export function heuristicIntent(utterance: string): JarvisIntent {
   }
   if (/\b(list|show)\b/.test(s) && /\b(venture|idea|project)s?\b/.test(s)) {
     return "venture.list";
+  }
+
+  if (
+    (/\bspin up\b/.test(s) || /\bkick off\b/.test(s)) &&
+    /\band\b/.test(s) &&
+    (/\b(research|finance|cfo|head.of.research|head-of-research|burn|market)\b/.test(s) ||
+      /\bresearch and finance\b/.test(s) ||
+      /\bresearch and cfo\b/.test(s))
+  ) {
+    return "dispatch.queue_batch";
   }
 
   if (

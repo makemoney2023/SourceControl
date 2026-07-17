@@ -3,6 +3,7 @@ import { join } from "node:path";
 import YAML from "yaml";
 import { estimateCostUsd, loadCostRates } from "../src/lib/cost-rates";
 import { claimDispatch, listQueuedDispatches } from "../src/lib/dispatch-queue";
+import { MAX_BATCH } from "./jarvis/dispatch-for";
 import {
   assertBudgetAllowsSpawn,
   type RunRecord,
@@ -677,4 +678,110 @@ export async function rewakeSession(
     apiKey,
     instruction: opts.instruction,
   });
+}
+
+function spawnSeatLabel(slug: string): string {
+  if (slug === "ceo-strategist") return "CEO";
+  return slug.replace(/-/g, " ");
+}
+
+export function summarizeSpawnRunReadySpoken(
+  started: Array<{ position: string }>,
+  skipped: Array<{ position?: string; filename: string; reason: string }>,
+): string {
+  const startedLabels = started.map((s) => spawnSeatLabel(s.position));
+  if (!started.length && skipped.length) {
+    const skip = skipped[0];
+    const who = skip.position ? spawnSeatLabel(skip.position) : skip.filename;
+    return `Skipped ${who} (${skip.reason}).`;
+  }
+  if (!started.length) {
+    return "No managers started.";
+  }
+  let head = "";
+  if (startedLabels.length === 1) {
+    head = `Started ${startedLabels[0]}.`;
+  } else {
+    const last = startedLabels[startedLabels.length - 1];
+    const rest = startedLabels.slice(0, -1);
+    head = `Started ${rest.join(", ")} and ${last}.`;
+  }
+  if (!skipped.length) return head;
+  const skipParts = skipped.map((s) => {
+    const who = s.position ? spawnSeatLabel(s.position) : s.filename;
+    return `${who} (${s.reason})`;
+  });
+  return `${head.replace(/\.$/, "")}; skipped ${skipParts.join(", ")}.`;
+}
+
+export function spawnRunReady(
+  repoRoot: string,
+  opts?: {
+    filenames?: string[];
+    limit?: number;
+    wakeReason?: WakeReason;
+    apiKey?: string | null;
+    adapter?: RuntimeAdapter;
+  },
+): {
+  ok: boolean;
+  error?: string;
+  started: Array<{ position: string; runId: string; filename: string }>;
+  skipped: Array<{ position?: string; filename: string; reason: string }>;
+  spoken: string;
+} {
+  const limit =
+    typeof opts?.limit === "number" && Number.isFinite(opts.limit) && opts.limit > 0
+      ? Math.min(Math.floor(opts.limit), MAX_BATCH)
+      : MAX_BATCH;
+
+  let targets: string[] = [];
+  if (opts?.filenames?.length) {
+    targets = opts.filenames.slice(0, limit);
+  } else {
+    targets = listQueuedDispatches(dispatchRoot(repoRoot)).slice(0, limit);
+  }
+
+  if (!targets.length) {
+    return {
+      ok: false,
+      error: "DISPATCH queue empty",
+      started: [],
+      skipped: [],
+      spoken: "No queued managers to start.",
+    };
+  }
+
+  const started: Array<{ position: string; runId: string; filename: string }> = [];
+  const skipped: Array<{ position?: string; filename: string; reason: string }> = [];
+
+  for (const filename of targets) {
+    const result = spawnClaimedManagerDetached(repoRoot, {
+      filename,
+      wakeReason: opts?.wakeReason ?? "on_demand",
+      apiKey: opts?.apiKey,
+      adapter: opts?.adapter,
+    });
+    if (result.ok && result.runId && result.position) {
+      started.push({
+        position: result.position,
+        runId: result.runId,
+        filename: result.filename ?? filename,
+      });
+      continue;
+    }
+    skipped.push({
+      position: result.position,
+      filename,
+      reason: result.error ?? "spawn failed",
+    });
+  }
+
+  return {
+    ok: started.length > 0,
+    error: started.length ? undefined : skipped[0]?.reason ?? "spawn failed",
+    started,
+    skipped,
+    spoken: summarizeSpawnRunReadySpoken(started, skipped),
+  };
 }

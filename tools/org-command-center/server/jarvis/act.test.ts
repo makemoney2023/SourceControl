@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { handleJarvisAct, setExecuteIntentForTests } from "./act";
+import { handleJarvisAct, handleJarvisConfirm, setExecuteIntentForTests } from "./act";
 import { getAuditEvents, resetAuditForTests } from "./audit";
 import { resetSessionForTests } from "./session";
 
@@ -400,5 +400,39 @@ describe("handleJarvisAct", () => {
     });
     expect(r.status).toBe("ok");
     expect(r.summary).toBe("1 blocker: market research analyst — no data.");
+  });
+
+  it("dispatch.queue_batch confirm summary mentions batch count", async () => {
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "dispatch.queue_batch",
+      args: {
+        items: [
+          { position: "head-of-research", goal: "Market" },
+          { position: "cfo", goal: "Burn" },
+        ],
+      },
+      mode: "ops",
+    });
+    expect(r.status).toBe("needs_confirm");
+    expect(r.summary).toMatch(/2 managers/i);
+  });
+
+  it("spawn.run_ready ok summary uses spoken partial result", async () => {
+    setExecuteIntentForTests(async () => ({
+      ok: true,
+      started: [{ position: "head-of-research", runId: "run-1", filename: "2-a.yaml" }],
+      skipped: [{ filename: "2-cfo.yaml", reason: "seat paused: cfo" }],
+      spoken: "Started head of research; skipped cfo (seat paused: cfo).",
+    }));
+    const pending = await handleJarvisAct(repo, "room-1", {
+      intent: "spawn.run_ready",
+      args: { filenames: ["2-a.yaml", "2-cfo.yaml"] },
+      mode: "ops",
+    });
+    expect(pending.status).toBe("needs_confirm");
+    const confirmed = await handleJarvisConfirm(repo, "room-1", pending.token!, true);
+    expect(confirmed.status).toBe("ok");
+    expect(confirmed.summary).toMatch(/Started head of research/i);
+    expect(confirmed.summary).toMatch(/skipped/i);
   });
 });

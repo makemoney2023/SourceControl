@@ -13,6 +13,7 @@ import {
   buildSpawnPrompt,
   spawnClaimedManager,
   spawnClaimedManagerDetached,
+  spawnRunReady,
 } from "./spawn";
 import { resolveRepoRoot } from "./paths";
 
@@ -346,5 +347,57 @@ describe("spawnClaimedManager", () => {
       readFileSync(join(dispatchDir(repo), "runs", runs[0]), "utf8"),
     );
     expect(rec.status).toBe("cancelled");
+  });
+});
+
+describe("spawnRunReady", () => {
+  const okAdapter: RuntimeAdapter = {
+    async run() {
+      return { status: "completed", result: "done" };
+    },
+  };
+
+  const cfoPacket: ManagerPacket = {
+    ...packet,
+    position: "cfo",
+    goal: "Burn review",
+    llm_tier: "frontier-reasoning",
+    llm_model: "grok-4-5",
+  };
+
+  it("spawns multiple queued managers detached with mock adapter", () => {
+    const repo = tempRepo();
+    enqueue(repo, packet, "2-head-of-research-a.yaml");
+    enqueue(repo, cfoPacket, "2-cfo-a.yaml");
+    const result = spawnRunReady(repo, {
+      apiKey: "test-key",
+      adapter: okAdapter,
+      limit: 2,
+    });
+    expect(result.ok).toBe(true);
+    expect(result.started).toHaveLength(2);
+    expect(result.started.map((s) => s.position).sort()).toEqual(["cfo", "head-of-research"]);
+    expect(result.skipped).toHaveLength(0);
+    expect(result.spoken).toMatch(/started/i);
+    expect(readdirSync(join(dispatchDir(repo), "runs")).length).toBe(2);
+  });
+
+  it("spawns explicit filenames and skips paused seat with spoken partial summary", () => {
+    const repo = tempRepo();
+    enqueue(repo, packet, "2-head-of-research-a.yaml");
+    enqueue(repo, cfoPacket, "2-cfo-a.yaml");
+    setSeatPaused(dispatchDir(repo), "cfo", true);
+    const result = spawnRunReady(repo, {
+      filenames: ["2-head-of-research-a.yaml", "2-cfo-a.yaml"],
+      apiKey: "test-key",
+      adapter: okAdapter,
+    });
+    expect(result.ok).toBe(true);
+    expect(result.started).toHaveLength(1);
+    expect(result.started[0]?.position).toBe("head-of-research");
+    expect(result.skipped).toHaveLength(1);
+    expect(result.skipped[0]?.reason).toMatch(/paused/i);
+    expect(result.spoken).toMatch(/skipped/i);
+    expect(result.spoken).toMatch(/paused/i);
   });
 });

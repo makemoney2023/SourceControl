@@ -72,6 +72,19 @@ function confirmSummary(intent: JarvisIntent, args: Record<string, unknown>): st
     const seat = String(args.seat ?? "blocked seat");
     return `Resolve blocker for ${seat} (queue or rewake owner). Confirm?`;
   }
+  if (intent === "dispatch.queue_batch") {
+    const items = Array.isArray(args.items) ? args.items : [];
+    const count = items.length || "?";
+    return `Queue ${count} managers in one batch. Confirm?`;
+  }
+  if (intent === "spawn.run_ready") {
+    const filenames = Array.isArray(args.filenames) ? args.filenames : [];
+    if (filenames.length) {
+      return `Start ${filenames.length} queued manager${filenames.length === 1 ? "" : "s"}. Confirm?`;
+    }
+    const limit = args.limit != null ? String(args.limit) : "ready";
+    return `Start up to ${limit} queued managers. Confirm?`;
+  }
   return `Confirm ${intent.replace(/\./g, " ")}?`;
 }
 
@@ -125,6 +138,17 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
       return `${r.spoken ?? "Blocker resolve started."} Run ${r.runId}.`;
     }
     return String(r.spoken ?? "Blocker resolve started.");
+  }
+  if (intent === "dispatch.queue_batch" && typeof result === "object" && result !== null) {
+    const r = result as { spoken?: string; filenames?: string[] };
+    if (typeof r.spoken === "string" && r.spoken.trim()) return r.spoken;
+    const n = r.filenames?.length ?? 0;
+    return n ? `Queued ${n} managers.` : "Batch queue complete.";
+  }
+  if (intent === "spawn.run_ready" && typeof result === "object" && result !== null) {
+    const r = result as { spoken?: string };
+    if (typeof r.spoken === "string" && r.spoken.trim()) return r.spoken;
+    return "Managers started.";
   }
   if (
     intent === "session.cancel_pending" &&

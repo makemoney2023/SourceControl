@@ -218,6 +218,22 @@ const INTENT_COVERAGE: CoverageCase[] = [
     intent: "dispatch.queue_for",
     args: { position: "cfo", goal: "Review financial model", phase: "2" },
   },
+  {
+    intent: "dispatch.queue_batch",
+    args: {
+      items: [
+        { position: "head-of-research", goal: "Market scan", phase: "2" },
+        { position: "cfo", goal: "Burn review", phase: "2" },
+      ],
+    },
+  },
+  {
+    intent: "spawn.run_ready",
+    args: { apiKey: "test-key", adapter: okAdapter, limit: 1 },
+    seed(repoRoot) {
+      enqueue(repoRoot, packet, "2-a.yaml");
+    },
+  },
   { intent: "dispatch.list", args: {} },
   {
     intent: "delegate.plan",
@@ -862,6 +878,58 @@ Recommendation: escalate
     repo = tempRepo();
     const result = (await executeIntent(repo, "blocker.list", {})) as { summary: string };
     expect(result.summary).toMatch(/no blockers/i);
+  });
+
+  it("dispatch.queue_batch enqueues multiple managers with spoken summary", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "dispatch.queue_batch", {
+      items: [
+        { position: "head-of-research", goal: "Market evidence", phase: "2" },
+        { position: "cfo", goal: "Review burn", phase: "2" },
+      ],
+    })) as { ok: boolean; filenames: string[]; spoken: string };
+    expect(result.ok).toBe(true);
+    expect(result.filenames).toHaveLength(2);
+    expect(readdirSync(join(dispatchDir(repo), "queue")).length).toBe(2);
+    expect(result.spoken).toMatch(/head of research/i);
+    expect(result.spoken).toMatch(/cfo/i);
+  });
+
+  it("dispatch.queue_batch rejects batches over max size", async () => {
+    repo = tempRepo();
+    await expect(
+      executeIntent(repo, "dispatch.queue_batch", {
+        items: Array.from({ length: 6 }, (_, i) => ({
+          position: "head-of-research",
+          goal: `Task ${i}`,
+          phase: "2",
+        })),
+      }),
+    ).rejects.toThrow(/max/i);
+  });
+
+  it("spawn.run_ready starts queued managers with partial skip when paused", async () => {
+    repo = tempRepo();
+    const cfoPacket: ManagerPacket = { ...packet, position: "cfo", goal: "Burn" };
+    enqueue(repo, packet, "2-head-of-research-a.yaml");
+    enqueue(repo, cfoPacket, "2-cfo-a.yaml");
+    await executeIntent(repo, "agent.pause", { slug: "cfo" });
+    const result = (await executeIntent(repo, "spawn.run_ready", {
+      filenames: ["2-head-of-research-a.yaml", "2-cfo-a.yaml"],
+      apiKey: "test-key",
+      adapter: okAdapter,
+    })) as {
+      ok: boolean;
+      started: Array<{ position: string; runId: string }>;
+      skipped: Array<{ reason: string }>;
+      spoken: string;
+    };
+    expect(result.ok).toBe(true);
+    expect(result.started).toHaveLength(1);
+    expect(result.started[0]?.position).toBe("head-of-research");
+    expect(result.skipped).toHaveLength(1);
+    expect(result.spoken).toMatch(/skipped/i);
+    expect(readdirSync(join(dispatchDir(repo), "runs")).length).toBe(1);
   });
 
   it("digest.focus returns full digest when section omitted", async () => {

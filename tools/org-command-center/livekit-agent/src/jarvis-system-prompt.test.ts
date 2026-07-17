@@ -54,4 +54,10 @@ describe("JARVIS_SYSTEM_PROMPT", () => {
     expect(JARVIS_SYSTEM_PROMPT).toContain("blocker.list");
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/what'?s blocked|blockers?/i);
   });
+
+  it("teaches batch queue and run_ready for multi-manager kickoff", () => {
+    expect(JARVIS_SYSTEM_PROMPT).toContain("dispatch.queue_batch");
+    expect(JARVIS_SYSTEM_PROMPT).toContain("spawn.run_ready");
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/research and finance|head of research and CFO/i);
+  });
 });

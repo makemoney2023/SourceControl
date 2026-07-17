@@ -202,6 +202,28 @@ describe("policyFor", () => {
       needsConfirm: true,
     });
   });
+  it("dispatch.queue_batch requires ops and confirm", () => {
+    expect(policyFor("dispatch.queue_batch", "briefing")).toEqual({
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    });
+    expect(policyFor("dispatch.queue_batch", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
+  it("spawn.run_ready requires ops and hard confirm", () => {
+    expect(policyFor("spawn.run_ready", "briefing")).toEqual({
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    });
+    expect(policyFor("spawn.run_ready", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
   it("activity.tail allowed in briefing without confirm", () => {
     expect(policyFor("activity.tail", "briefing")).toEqual({
       allowed: true,

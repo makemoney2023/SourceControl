@@ -30,9 +30,9 @@ import type { RuntimeAdapter } from "../runtime-adapter";
 import { readRun } from "../runs-fs";
 import { listRoutineDefs, routineSummaries, writeRoutine } from "../routines";
 import { loadSnapshot } from "../snapshot";
-import { rewakeSession, spawnClaimedManager, spawnClaimedManagerDetached } from "../spawn";
+import { rewakeSession, spawnClaimedManager, spawnClaimedManagerDetached, spawnRunReady } from "../spawn";
 import { writeCsuiteDraft } from "../write-csuite-draft";
-import { buildQueueForPacket, previewQueueFor } from "./dispatch-for";
+import { buildQueueForPacket, parseBatchQueueItems, previewQueueFor, queueDispatchBatch } from "./dispatch-for";
 import { JarvisExecError } from "./errors";
 import type { JarvisIntent } from "./intents";
 import { listReviewInbox, writeReviewInboxReceipt } from "./review-inbox";
@@ -75,7 +75,7 @@ const SESSION_HELP = [
   "Modes: Briefing for mission, digest, seat report, tasks, runs, activity, alerts, spend.",
   "Ops adds assign, run next, cancel, rewake, pause, resume, cancel pending.",
   "Review adds file read and csuite draft. Architect adds venture create or switch.",
-  "Top intents: mission.get for status; digest.get or digest.focus; blocker.list; blocker.resolve; seat.report; phase.list_open;",
+  "Top intents: mission.get for status; digest.get or digest.focus; blocker.list; blocker.resolve; dispatch.queue_batch; spawn.run_ready; seat.report; phase.list_open;",
   "activity.tail; session.help; session.repeat; jarvis.ping; mode.set;",
   "work.resolve or work.request for intake and Cursor spawn; review.inbox_list for artifacts.",
 ].join(" ");
@@ -287,6 +287,39 @@ export async function executeIntent(
       });
     }
 
+    case "spawn.run_ready": {
+      const filenamesRaw = args.filenames;
+      const filenames =
+        Array.isArray(filenamesRaw) && filenamesRaw.length
+          ? filenamesRaw.map((f) => String(f))
+          : undefined;
+      const limitRaw = args.limit;
+      const limit =
+        typeof limitRaw === "number" && Number.isFinite(limitRaw) && limitRaw > 0
+          ? Math.floor(limitRaw)
+          : undefined;
+      const result = spawnRunReady(repoRoot, {
+        filenames,
+        limit,
+        wakeReason: (args.wakeReason as WakeReason | undefined) ?? "on_demand",
+        apiKey:
+          typeof args.apiKey === "string"
+            ? args.apiKey
+            : args.apiKey === null
+              ? null
+              : undefined,
+        adapter: args.adapter as RuntimeAdapter | undefined,
+      });
+      if (!result.ok && !result.started.length) {
+        throw new JarvisExecError(result.error ?? "spawn failed", "spawn_failed");
+      }
+      if (result.started.length) {
+        const last = result.started[result.started.length - 1];
+        emitJarvisFocus(droot, { slug: last.position });
+      }
+      return result;
+    }
+
     case "run.cancel": {
       const runId = String(args.runId ?? "");
       if (!runId) throw new JarvisExecError("runId required", "missing_arg");
@@ -419,6 +452,16 @@ export async function executeIntent(
       const result = queueValidatedDispatch(repoRoot, input, { allowAnyManager: true });
       assertExecOk(result, (r) => ("errors" in r ? r.errors : []).join("; "));
       emitJarvisFocus(droot, { phase: input.phase, slug: input.position });
+      return result;
+    }
+
+    case "dispatch.queue_batch": {
+      const items = parseBatchQueueItems(args.items);
+      const result = queueDispatchBatch(repoRoot, items);
+      const last = result.items[result.items.length - 1];
+      if (last) {
+        emitJarvisFocus(droot, { phase: last.phase, slug: last.position });
+      }
       return result;
     }
 

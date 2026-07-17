@@ -251,7 +251,7 @@ export function planBlockerResolve(repoRoot, args: { seat?: string; phase?: stri
 
 - [x] **Step 2: Implement + wire intent**
 
-- [ ] **Step 3: Commit** — `feat(occ): blocker.resolve queues or rewakes owner`
+- [x] **Step 3: Commit** — `feat(occ): blocker.resolve queues or rewakes owner`
 
 ---
 
@@ -267,11 +267,11 @@ export function planBlockerResolve(repoRoot, args: { seat?: string; phase?: stri
 - One confirm summarizes all seats
 - Partial success allowed (paused/budget skip)
 
-- [ ] **Step 1: Failing tests** for batch queue count + run_ready spawns N detached adapters (mock)
+- [x] **Step 1: Failing tests** for batch queue count + run_ready spawns N detached adapters (mock)
 
-- [ ] **Step 2: Implement**
+- [x] **Step 2: Implement**
 
-- [ ] **Step 3: Commit** — `feat(occ): batch queue and spawn.run_ready`
+- [x] **Step 3: Commit** — `feat(occ): batch queue and spawn.run_ready`
 
 ---
 

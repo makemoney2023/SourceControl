@@ -9,7 +9,12 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
-import { buildQueueForPacket, previewQueueFor } from "./dispatch-for";
+import {
+  buildQueueForPacket,
+  MAX_BATCH,
+  previewQueueFor,
+  queueDispatchBatch,
+} from "./dispatch-for";
 import { JarvisExecError } from "./errors";
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "../../src/lib/fixtures");
@@ -177,5 +182,41 @@ describe("previewQueueFor", () => {
         phase: "2",
       }),
     ).toThrow(/manager/i);
+  });
+});
+
+describe("queueDispatchBatch", () => {
+  let repo = "";
+
+  afterEach(() => {
+    if (repo) rmSync(repo, { recursive: true, force: true });
+  });
+
+  it("queues multiple managers and returns filenames with spoken summary", () => {
+    repo = tempRepo();
+    const result = queueDispatchBatch(repo, [
+      { position: "head-of-research", goal: "Market evidence", phase: "2" },
+      { position: "cfo", goal: "Review burn", phase: "2" },
+    ]);
+    expect(result.ok).toBe(true);
+    expect(result.filenames).toHaveLength(2);
+    expect(result.items.map((i) => i.position).sort()).toEqual(["cfo", "head-of-research"]);
+    expect(result.spoken).toMatch(/head of research/i);
+    expect(result.spoken).toMatch(/cfo/i);
+  });
+
+  it(`rejects more than ${MAX_BATCH} items`, () => {
+    repo = tempRepo();
+    const items = Array.from({ length: MAX_BATCH + 1 }, (_, i) => ({
+      position: "head-of-research",
+      goal: `Task ${i}`,
+      phase: "2",
+    }));
+    expect(() => queueDispatchBatch(repo, items)).toThrow(/max/i);
+  });
+
+  it("rejects empty batch", () => {
+    repo = tempRepo();
+    expect(() => queueDispatchBatch(repo, [])).toThrow(/items/i);
   });
 });

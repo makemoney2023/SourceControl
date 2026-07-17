@@ -300,5 +300,23 @@
     "expectIntent": "blocker.resolve",
     "mode": "ops",
     "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "spin up research and finance",
+    "expectIntent": "dispatch.queue_batch",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "kick off head of research and CFO on market and burn",
+    "expectIntent": "dispatch.queue_batch",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "run ready managers",
+    "expectIntent": "spawn.run_ready",
+    "mode": "ops",
+    "expectNeedsConfirm": true
   }
 ]

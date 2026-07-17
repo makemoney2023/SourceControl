@@ -4,6 +4,7 @@ import { parseTracker } from "../../src/lib/parse-tracker";
 import { validateManagerPacket } from "../../src/lib/validate-packet";
 import type { ManagerPacketInput } from "../../src/lib/types";
 import { assertReadable, trackerPath } from "../paths";
+import { queueValidatedDispatch } from "../queue-validated-dispatch";
 import { loadSnapshot } from "../snapshot";
 import { JarvisExecError } from "./errors";
 import { resolveSeatSlug } from "./resolve-seat";
@@ -18,6 +19,113 @@ export type QueueForArgs = {
   require_inbox?: boolean;
   require_ic_handoff?: boolean;
 };
+
+export const MAX_BATCH = 5;
+
+export type BatchQueueItem = {
+  position: string;
+  goal: string;
+  phase?: string;
+};
+
+function seatLabel(slug: string): string {
+  if (slug === "ceo-strategist") return "CEO";
+  return slug.replace(/-/g, " ");
+}
+
+export function parseBatchQueueItems(raw: unknown): BatchQueueItem[] {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    throw new JarvisExecError("items required (non-empty array)", "missing_arg");
+  }
+  if (raw.length > MAX_BATCH) {
+    throw new JarvisExecError(`max ${MAX_BATCH} items per batch`, "invalid_arg");
+  }
+  const items: BatchQueueItem[] = [];
+  for (const entry of raw) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+      throw new JarvisExecError("each item must be an object", "invalid_arg");
+    }
+    const row = entry as Record<string, unknown>;
+    const position = String(row.position ?? "").trim();
+    const goal = String(row.goal ?? "").trim();
+    const phase = row.phase != null ? String(row.phase).trim() : undefined;
+    if (!position) throw new JarvisExecError("position required on each item", "missing_arg");
+    if (!goal) throw new JarvisExecError("goal required on each item", "missing_arg");
+    items.push({ position, goal, phase: phase || undefined });
+  }
+  return items;
+}
+
+export function summarizeQueueBatchSpoken(
+  items: Array<{ position: string; phase: string }>,
+): string {
+  if (!items.length) return "No managers queued.";
+  const labels = items.map((i) => seatLabel(i.position));
+  const phases = [...new Set(items.map((i) => i.phase))];
+  const phasePhrase =
+    phases.length === 1 ? ` for phase ${phases[0]}` : ` across phases ${phases.join(", ")}`;
+  if (labels.length === 1) {
+    return `Queued ${labels[0]}${phasePhrase}.`;
+  }
+  const last = labels.pop();
+  return `Queued ${labels.join(", ")} and ${last}${phasePhrase}.`;
+}
+
+export function queueDispatchBatch(
+  repoRoot: string,
+  items: BatchQueueItem[],
+): {
+  ok: true;
+  items: Array<{
+    position: string;
+    phase: string;
+    goal: string;
+    filename: string;
+    path: string;
+  }>;
+  filenames: string[];
+  spoken: string;
+} {
+  if (!items.length) {
+    throw new JarvisExecError("items required (non-empty array)", "missing_arg");
+  }
+  if (items.length > MAX_BATCH) {
+    throw new JarvisExecError(`max ${MAX_BATCH} items per batch`, "invalid_arg");
+  }
+  const queued: Array<{
+    position: string;
+    phase: string;
+    goal: string;
+    filename: string;
+    path: string;
+  }> = [];
+
+  for (const item of items) {
+    const input = buildQueueForPacket(repoRoot, item);
+    const result = queueValidatedDispatch(repoRoot, input, { allowAnyManager: true });
+    if (!result.ok) {
+      throw new JarvisExecError(
+        ("errors" in result ? result.errors : ["queue failed"]).join("; "),
+        "validation_error",
+      );
+    }
+    const filename = result.path.split("/").pop()!;
+    queued.push({
+      position: result.packet.position,
+      phase: result.packet.phase,
+      goal: result.packet.goal,
+      filename,
+      path: result.path,
+    });
+  }
+
+  return {
+    ok: true,
+    items: queued,
+    filenames: queued.map((q) => q.filename),
+    spoken: summarizeQueueBatchSpoken(queued),
+  };
+}
 
 function resolvePositionArg(repoRoot: string, raw: string): string {
   const org = parseOrgRegistry(

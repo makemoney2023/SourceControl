@@ -48,6 +48,19 @@ describe("parseJarvisAct", () => {
       "blocker.resolve",
     );
   });
+  it("accepts dispatch.queue_batch", () => {
+    expect(
+      parseJarvisAct({
+        intent: "dispatch.queue_batch",
+        args: { items: [{ position: "cfo", goal: "Burn" }] },
+      }).intent,
+    ).toBe("dispatch.queue_batch");
+  });
+  it("accepts spawn.run_ready", () => {
+    expect(parseJarvisAct({ intent: "spawn.run_ready", args: { limit: 2 } }).intent).toBe(
+      "spawn.run_ready",
+    );
+  });
   it("accepts activity.tail", () => {
     expect(parseJarvisAct({ intent: "activity.tail", args: { n: 5 } }).intent).toBe("activity.tail");
   });

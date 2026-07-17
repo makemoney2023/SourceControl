@@ -17,11 +17,13 @@ const HARD = new Set<JarvisIntent>([
   "csuite.draft",
   "work.request",
   "blocker.resolve",
+  "spawn.run_ready",
 ]);
 const OPS_ONLY = new Set<JarvisIntent>([
   ...HARD,
   "dispatch.queue",
   "dispatch.queue_for",
+  "dispatch.queue_batch",
   "dispatch.preview",
   "dispatch.list",
   "delegate.plan",
@@ -66,7 +68,8 @@ export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy 
       intent === "work.request" ||
       intent === "work.intake_save" ||
       intent === "dispatch.queue" ||
-      intent === "dispatch.queue_for")
+      intent === "dispatch.queue_for" ||
+      intent === "dispatch.queue_batch")
   ) {
     return {
       allowed: false,
@@ -86,6 +89,7 @@ export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy 
     HARD.has(intent) ||
     intent === "dispatch.queue" ||
     intent === "dispatch.queue_for" ||
+    intent === "dispatch.queue_batch" ||
     STRUCTURAL.has(intent);
 
   return { allowed: true, needsConfirm };

@@ -147,6 +147,8 @@ Jarvis maps natural speech to **intents** via `jarvis_act`. Use **Ops** before q
 | Spend / budget by seat | `spend.get` | No |
 | Assign phase 2 research / queue dispatch | `dispatch.queue` | Yes |
 | Give CFO a task to … / queue head-of-research to … | `dispatch.queue_for` | Yes |
+| Spin up research and finance / kick off multiple managers | `dispatch.queue_batch` then `spawn.run_ready` | Yes (each) |
+| Run ready / start queued managers | `spawn.run_ready` | Yes |
 | Run next / spawn / execute queue | `spawn.run_next` | Yes |
 | Cancel run … | `run.cancel` | Yes |
 | Rewake / resume session … | `run.rewake` | Yes |
