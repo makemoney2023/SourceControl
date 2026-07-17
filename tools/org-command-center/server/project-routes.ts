@@ -45,8 +45,8 @@ export function registerProjectRoutes(app: Hono, repoRoot: string): void {
 
   app.post("/api/project/create", async (c) => {
     const body = await c.req
-      .json<{ name?: string; slug?: string; activate?: boolean }>()
-      .catch(() => ({} as { name?: string; slug?: string; activate?: boolean }));
+      .json<{ name?: string; slug?: string; activate?: boolean; contextNote?: string }>()
+      .catch(() => ({} as { name?: string; slug?: string; activate?: boolean; contextNote?: string }));
     if (!body.name?.trim()) {
       return c.json({ ok: false, error: "name is required" }, 400);
     }
@@ -55,6 +55,7 @@ export function registerProjectRoutes(app: Hono, repoRoot: string): void {
         name: body.name,
         slug: body.slug,
         activate: body.activate !== false,
+        contextNote: body.contextNote,
       });
       return c.json(
         {

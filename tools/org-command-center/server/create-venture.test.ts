@@ -83,6 +83,19 @@ describe("createVenture", () => {
       createVenture(root, { name: "Existing", slug: "existing" }),
     ).toThrow(/already/i);
   });
+
+  it("createVenture seeds SOURCES and context note", () => {
+    root = seedRepo();
+    const result = createVenture(root, {
+      name: "Solar Lantern",
+      slug: "solar-lantern",
+      contextNote: "Hardware first",
+    });
+    expect(existsSync(join(root, result.businessIdea, "SOURCES", "INDEX.md"))).toBe(true);
+    const ctx = readFileSync(join(root, result.memory, "context.md"), "utf8");
+    expect(ctx).toContain("Hardware first");
+    expect(ctx).toContain("auto:sources-digest");
+  });
 });
 
 describe("POST /api/project/create", () => {

@@ -7,6 +7,7 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { loadRegistry, saveRegistry, type ProjectRegistry } from "./paths";
+import { seedContextMd } from "./sources/context-md";
 
 const SLUG_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
 
@@ -28,6 +29,7 @@ export type CreateVentureInput = {
   slug?: string;
   /** Default true — switch Situation Room to the new venture. */
   activate?: boolean;
+  contextNote?: string;
 };
 
 export type CreateVentureResult = {
@@ -87,6 +89,24 @@ function seedTracker(repoRoot: string, bi: string, name: string) {
   );
 }
 
+function seedSourcesIndex(repoRoot: string, bi: string) {
+  const sources = join(bi, "SOURCES");
+  mkdirSync(sources, { recursive: true });
+  const dest = join(sources, "INDEX.md");
+  if (existsSync(dest)) return;
+  copyFirstExisting(
+    [join(repoRoot, "templates/business-idea/SOURCES/INDEX.md")],
+    dest,
+  );
+  if (!existsSync(dest)) {
+    writeFileSync(dest, "# Sources index\n\n```json\n[]\n```\n", "utf8");
+  }
+}
+
+function seedContextFile(mem: string, contextNote?: string) {
+  writeFileSync(join(mem, "context.md"), seedContextMd(contextNote), "utf8");
+}
+
 export function createVenture(repoRoot: string, input: CreateVentureInput): CreateVentureResult {
   const name = input.name?.trim();
   if (!name) throw new Error("name is required");
@@ -124,6 +144,8 @@ export function createVenture(repoRoot: string, input: CreateVentureInput): Crea
   mkdirSync(join(mem, "entities"), { recursive: true });
 
   seedTracker(repoRoot, bi, name);
+  seedSourcesIndex(repoRoot, bi);
+  seedContextFile(mem, input.contextNote);
 
   copyFirstExisting(
     [
@@ -150,6 +172,7 @@ Filesystem memory for this venture. Active when \`projects/registry.json\` has \
 | Path | Purpose |
 |------|---------|
 | \`decisions.md\` | Durable decisions and rationale |
+| \`context.md\` | Operator context note and sources digest |
 | \`sessions/\` | Session summaries |
 | \`entities/\` | Named entity notes |
 
