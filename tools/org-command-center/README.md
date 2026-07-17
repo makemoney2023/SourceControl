@@ -189,6 +189,25 @@ Use a live voice session (LiveKit + Ops mode) to validate end-to-end behavior af
 1. Create a blocked handoff fixture → “what’s blocked?” → “resolve that blocker” → confirm → owner running
 2. “Kick off head of research and CFO on market and burn” → one confirm → two runIds
 
+## Jarvis venture memory (Chroma)
+
+Filesystem under each venture `MEMORY/` is the source of truth. Optional semantic recall uses a **local Chroma server** (not in-process):
+
+```bash
+cd tools/org-command-center
+npx chroma run --path .data/chroma --port 8000
+```
+
+Env (optional):
+
+```bash
+CHROMA_URL=http://127.0.0.1:8000   # default
+JARVIS_CHROMA_AUTOSTART=1          # spawn `npx chroma run` if heartbeat fails
+JARVIS_CHROMA_TEST=1               # run live Chroma integration tests
+```
+
+`memory.note` always writes to disk; Chroma upsert is best-effort. `memory.recall` tries Chroma when the server is up, otherwise ripgrep-style grep over MEMORY.
+
 ## Tests & eval
 
 ```bash

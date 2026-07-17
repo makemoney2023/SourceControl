@@ -3,6 +3,7 @@ dist
 .DS_Store
 *.local
 node_modules/.tmp
+.data/
 mlx-tts/.venv
 mlx-tts/logs
 whisper-sidecar/.venv

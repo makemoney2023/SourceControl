@@ -26,6 +26,7 @@
     "jarvis:eval:ollama": "node server/jarvis/eval/ollama-eval.mjs"
   },
   "dependencies": {
+    "@chroma-core/default-embed": "^0.1.9",
     "@cursor/sdk": "^1.0.23",
     "@hono/node-server": "^2.0.10",
     "@livekit/components-react": "^2.9.23",
@@ -35,6 +36,7 @@
     "@react-three/fiber": "^9.6.1",
     "@react-three/postprocessing": "^3.0.4",
     "chokidar": "^5.0.0",
+    "chromadb": "^3.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
