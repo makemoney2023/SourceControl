@@ -21,6 +21,7 @@ import { registerRun, unregisterRun } from "./run-registry";
 import { cursorRuntimeAdapter, type RuntimeAdapter } from "./runtime-adapter";
 import { writeSession, readSession, findSessionByAgentId } from "./sessions";
 import { isOverBudget, loadSpend, recordSpend, seatSpendUsd } from "./spend";
+import { evaluateRunAcceptance } from "./jarvis/run-acceptance";
 
 export function buildSpawnPrompt(
   packet: ManagerPacket,
@@ -284,6 +285,20 @@ async function finishAdapterRun(args: {
       });
     }
 
+    if (done.status === "completed") {
+      const acceptance = evaluateRunAcceptance(repoRoot, { runId, packet });
+      done = { ...done, acceptance };
+      if (!acceptance.ok) {
+        done.status = "completed_with_gaps";
+        appendActivity(root, {
+          type: "spawn_acceptance_failed",
+          runId,
+          position: packet.position,
+          detail: acceptance.missing.join(", "),
+        });
+      }
+    }
+
     writeRun(runsDir, done);
     if (done.agentId) {
       writeSession(root, {
@@ -336,7 +351,6 @@ async function runAdapterAndPersist(args: {
   packet: ManagerPacket;
   dispatchFilename: string;
   wakeReason: WakeReason;
-  prompt: string;
   agentId?: string;
   adapter: RuntimeAdapter;
   apiKey: string;
@@ -347,7 +361,11 @@ async function runAdapterAndPersist(args: {
   packet?: ManagerPacket;
 }> {
   const { runId, controller, meta, runsDir } = beginRunRecord(args);
-  return finishAdapterRun({ ...args, runId, controller, meta, runsDir });
+  const prompt =
+    args.wakeReason === "rewake"
+      ? buildRewakePrompt(args.packet, args.repoRoot, runId)
+      : buildSpawnPrompt(args.packet, args.repoRoot, runId);
+  return finishAdapterRun({ ...args, prompt, runId, controller, meta, runsDir });
 }
 
 type ClaimReady = {
@@ -481,7 +499,6 @@ export async function spawnClaimedManager(
     packet: claimed.packet,
     dispatchFilename: claimed.filename,
     wakeReason: claimed.wakeReason,
-    prompt: buildSpawnPrompt(claimed.packet, repoRoot),
     adapter: claimed.adapter,
     apiKey: claimed.apiKey,
   });
@@ -517,13 +534,13 @@ export function spawnClaimedManagerDetached(
   const claimed = claimManagerForSpawn(repoRoot, opts);
   if (!claimed.ok) return claimed;
 
-  const prompt = buildSpawnPrompt(claimed.packet, repoRoot);
   const { runId, controller, meta, runsDir } = beginRunRecord({
     root: claimed.root,
     packet: claimed.packet,
     dispatchFilename: claimed.filename,
     wakeReason: claimed.wakeReason,
   });
+  const prompt = buildSpawnPrompt(claimed.packet, repoRoot, runId);
 
   void finishAdapterRun({
     repoRoot,
@@ -605,7 +622,6 @@ export async function rewakeSession(
     packet,
     dispatchFilename: session.dispatch_filename,
     wakeReason,
-    prompt: buildRewakePrompt(packet, repoRoot),
     agentId: session.agentId,
     adapter,
     apiKey,

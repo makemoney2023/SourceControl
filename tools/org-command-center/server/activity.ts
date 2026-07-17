@@ -6,6 +6,7 @@ export type ActivityEventType =
   | "spawn_refused_paused"
   | "spawn_started"
   | "spawn_finished"
+  | "spawn_acceptance_failed"
   | "spawn_error"
   | "spawn_cancelled"
   | "seat_paused"

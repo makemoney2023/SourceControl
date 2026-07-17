@@ -14,8 +14,15 @@ export type RunStatus =
   | "starting"
   | "running"
   | "completed"
+  | "completed_with_gaps"
   | "error"
   | "cancelled";
+
+export type RunAcceptance = {
+  ok: boolean;
+  missing: string[];
+  checkedAt: string;
+};
 
 export interface RunRecord {
   runId: string;
@@ -34,6 +41,7 @@ export interface RunRecord {
   usage?: TokenUsageLike;
   cost_usd?: number;
   duration_ms?: number;
+  acceptance?: RunAcceptance;
 }
 
 const WAKE: WakeReason[] = [
@@ -50,6 +58,7 @@ const STATUSES: RunStatus[] = [
   "starting",
   "running",
   "completed",
+  "completed_with_gaps",
   "error",
   "cancelled",
 ];
@@ -91,5 +100,6 @@ export function parseRunRecord(raw: unknown): RunRecord {
     usage: o.usage as TokenUsageLike | undefined,
     cost_usd: typeof o.cost_usd === "number" ? o.cost_usd : undefined,
     duration_ms: typeof o.duration_ms === "number" ? o.duration_ms : undefined,
+    acceptance: o.acceptance as RunAcceptance | undefined,
   };
 }

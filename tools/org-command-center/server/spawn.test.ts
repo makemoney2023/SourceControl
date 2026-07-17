@@ -279,6 +279,30 @@ describe("spawnClaimedManager", () => {
     expect(rec.status).toBe("completed");
   });
 
+  it("marks completed_with_gaps when acceptance fails", async () => {
+    const repo = tempRepo();
+    const withAcceptance: ManagerPacket = {
+      ...packet,
+      preferred_ic: "copy-chief",
+      require_inbox: true,
+      require_ic_handoff: true,
+    };
+    enqueue(repo, withAcceptance, "2-a.yaml");
+    const result = await spawnClaimedManager(repo, {
+      apiKey: "test-key",
+      adapter: okAdapter,
+    });
+    expect(result.ok).toBe(true);
+    const runs = readdirSync(join(dispatchDir(repo), "runs"));
+    const rec = JSON.parse(
+      readFileSync(join(dispatchDir(repo), "runs", runs[0]), "utf8"),
+    );
+    expect(rec.status).toBe("completed_with_gaps");
+    expect(rec.acceptance?.ok).toBe(false);
+    expect(rec.acceptance?.missing).toContain("inbox");
+    expect(rec.acceptance?.missing).toContain("ic_handoff");
+  });
+
   it("marks cancelled when adapter aborts", async () => {
     const repo = tempRepo();
     enqueue(repo, packet, "2-a.yaml");
