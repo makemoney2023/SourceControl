@@ -194,6 +194,7 @@ export async function createProject(input: {
   name: string;
   slug?: string;
   activate?: boolean;
+  contextNote?: string;
 }): Promise<{
   ok: true;
   slug: string;

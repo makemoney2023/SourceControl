@@ -27,6 +27,7 @@ import {
 import { formatActivityLine } from "./activity-ui";
 import { handoffFilePath } from "../lib/project-paths";
 import type { CompanyDigest } from "./company-digest";
+import { Textarea } from "../components/ui/textarea";
 import { OutputsDashboard } from "./hud/OutputsDashboard";
 import { QuickAssign } from "./hud/QuickAssign";
 import "./hud/theme.css";
@@ -90,6 +91,7 @@ export function SituationRoom() {
   const [showNewVenture, setShowNewVenture] = useState(false);
   const [newVentureName, setNewVentureName] = useState("");
   const [newVentureSlug, setNewVentureSlug] = useState("");
+  const [newVentureContext, setNewVentureContext] = useState("");
   const [creatingVenture, setCreatingVenture] = useState(false);
   const [jarvisFocus, setJarvisFocus] = useState<JarvisFocus | null>(null);
   const seatCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -154,10 +156,16 @@ export function SituationRoom() {
     setActionError(null);
     try {
       const slug = newVentureSlug.trim() || undefined;
-      await createProject({ name, slug, activate: true });
+      await createProject({
+        name,
+        slug,
+        activate: true,
+        contextNote: newVentureContext.trim() || undefined,
+      });
       setShowNewVenture(false);
       setNewVentureName("");
       setNewVentureSlug("");
+      setNewVentureContext("");
       await reload();
     } catch (e) {
       setActionError(e instanceof Error ? e.message : String(e));
@@ -482,6 +490,17 @@ export function SituationRoom() {
                   value={newVentureSlug}
                   onChange={(e) => setNewVentureSlug(e.target.value)}
                 />
+                <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-new-context">
+                  Business context (optional)
+                </label>
+                <Textarea
+                  id="sr-new-context"
+                  className="j-btn"
+                  placeholder="Operator notes for agents — market, constraints, priorities…"
+                  rows={3}
+                  value={newVentureContext}
+                  onChange={(e) => setNewVentureContext(e.target.value)}
+                />
                 <div style={{ display: "flex", gap: 8 }}>
                   <button
                     type="button"
@@ -500,6 +519,7 @@ export function SituationRoom() {
                       setShowNewVenture(false);
                       setNewVentureName("");
                       setNewVentureSlug("");
+                      setNewVentureContext("");
                     }}
                   >
                     Cancel
