@@ -202,11 +202,11 @@ rewakeSession(repoRoot, { dispatchFilename?, agentId?, instruction?, ... })
 - Modify: `tools/org-command-center/README.md`
 - Modify: `tools/org-command-center/server/jarvis/eval/golden.json` — “is the CEO done?”, “tell them to also cover pricing”
 
-- [ ] **Step 1: Failing prompt tests** — must say started≠done; teach `runs.watch`; teach instruct/rewake
+- [x] **Step 1: Failing prompt tests** — must say started≠done; teach `runs.watch`; teach instruct/rewake
 
-- [ ] **Step 2: Update prompt + README cheatsheet rows**
+- [x] **Step 2: Update prompt + README cheatsheet rows**
 
-- [ ] **Step 3: Goldens + `npm test` / `npm run agent:test`**
+- [x] **Step 3: Goldens + `npm test` / `npm run agent:test`**
 
 - [ ] **Step 4: Commit** — `docs(occ): voice playbook for run lifecycle`
 

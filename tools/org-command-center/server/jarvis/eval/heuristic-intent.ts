@@ -54,8 +54,38 @@ export function heuristicIntent(utterance: string): JarvisIntent {
     return "run.rewake";
   }
 
+  if (
+    /\b(tell them to|also (do|cover|add|include|write|fix)|instruct them|pass along|let them know to)\b/.test(
+      s,
+    )
+  ) {
+    return "run.instruct";
+  }
+
+  if (
+    /\b(is it done|are they done|finished yet|done yet|status of the run|run status)\b/.test(s) ||
+    (/\b(ceo|cfo|cmo|cto|manager|run)\b/.test(s) && /\b(done|finished|complete)\b/.test(s))
+  ) {
+    return "runs.watch";
+  }
+
   if (/\bspawn\b/.test(s) && /\b(ic|copywriter|copy-chief|analyst)\b/.test(s)) {
     return "agent.spawn_ic";
+  }
+
+  if (
+    /\b(write|writing|creat(?:e|ing)|draft|produce|producing)\b/.test(s) &&
+    /\b(blog|article|copy|newsletter|landing\s*page|press\s*release)\b/.test(s)
+  ) {
+    return "work.resolve";
+  }
+  if (
+    /\b(work request|queue and (spawn|run|start)|start cursor|kick off (the )?work)\b/.test(s)
+  ) {
+    return "work.request";
+  }
+  if (/\b(review inbox|needs review|inbox)\b/.test(s)) {
+    return "review.inbox_list";
   }
 
   if (
@@ -125,6 +155,8 @@ export function heuristicIntent(utterance: string): JarvisIntent {
 
   if (
     /\b(seat report|report on|status of|how is)\b/.test(s) ||
+    (/\b(ceo|strategist|cfo|cmo|cto|coo)\b/.test(s) &&
+      /\b(look|review|reviewed|check|checked|seen|status|report|update)\b/.test(s)) ||
     (/\bhead of\b/.test(s) && !/\b(pause|resume|cancel)\b/.test(s))
   ) {
     return "seat.report";

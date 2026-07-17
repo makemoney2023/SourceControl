@@ -235,5 +235,43 @@
     "utterance": "jarvis help",
     "expectIntent": "session.help",
     "mode": "architect"
+  },
+  {
+    "utterance": "Maybe we just jump to creating a short blog article",
+    "expectIntent": "work.resolve",
+    "mode": "ops"
+  },
+  {
+    "utterance": "write a short blog article",
+    "expectIntent": "work.resolve",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "kick off the work request",
+    "expectIntent": "work.request",
+    "mode": "ops",
+    "expectNeedsConfirm": true,
+    "expectAllowed": true
+  },
+  {
+    "utterance": "show the review inbox",
+    "expectIntent": "review.inbox_list",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "is the CEO done",
+    "expectIntent": "runs.watch",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "is it done yet",
+    "expectIntent": "runs.watch",
+    "mode": "ops"
+  },
+  {
+    "utterance": "tell them to also cover pricing",
+    "expectIntent": "run.instruct",
+    "mode": "ops",
+    "expectNeedsConfirm": true
   }
 ]

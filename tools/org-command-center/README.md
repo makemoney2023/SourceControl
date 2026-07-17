@@ -49,6 +49,8 @@ npm run dev                 # UI — floating mic FAB bottom-right
 
 **Talk FAB:** tap to connect · tap again to mute/unmute · × to hang up. Mission strip **Talk** uses the same session. **Legacy voice** = old Web Speech + HTTP chat (`OCC_VOICE_BACKEND=legacy`).
 
+**Speech hygiene:** Tool results are sanitized for TTS (`sanitizeForSpeech`) and prefer the act `summary` over raw JSON/markdown so Kokoro does not say “asterisk” or monologue dump payloads. Restart `npm run jarvis:agent` (or your voice-stack recipe) after pulling these changes.
+
 Env (defaults work for local):
 
 ```bash
@@ -64,10 +66,16 @@ OMNIVOICE_MODEL=mlx-community/Kokoro-82M-bf16
 OMNIVOICE_VOICE=am_adam
 OCC_API_BASE=http://127.0.0.1:5177
 JARVIS_PULSE_MS=0          # optional idle mission pulse (ms; 0 = off)
-CURSOR_API_KEY=   # digital workers only (Run next), not voice LLM
+XAI_API_KEY=               # Jarvis voice LLM (Grok); omit or JARVIS_LLM_BACKEND=ollama for local
+JARVIS_LLM_MODEL=grok-4.5  # optional override
+CURSOR_API_KEY=   # required for voice work.request + Run next (Cursor SDK workers)
 ```
 
-Verify Ollama tool-calling before Talk:
+**Voice LLM:** With `XAI_API_KEY` in repo `.env.local`, Jarvis’s spoken brain uses xAI Grok (`grok-4.5` by default; override with `JARVIS_LLM_MODEL`). STT/TTS stay local (Whisper + Kokoro). Force Ollama with `JARVIS_LLM_BACKEND=ollama`. Worker spawn is separate and still uses the Cursor SDK + `CURSOR_API_KEY`. The system prompt includes a domain→seat routing cheat sheet so Grok can infer who to spin up when you don’t name a seat.
+
+**Voice → Cursor spawn:** In Ops, say e.g. “spin up the CEO to look at this project” or “write a short blog”. Jarvis switches to Ops, runs `work.resolve` once, then `work.request` → one confirm → queues the manager and starts Cursor (`spawnClaimedManagerDetached`). Content asks (blog/copy) may gather a couple of requirements first; clear seat+goal asks skip invented clarifying questions. Deliverables land under `docs/projects/<active>/business-idea/REVIEW/inbox/` (Outputs drawer → **Needs review**). Without `CURSOR_API_KEY` in repo `.env.local`, confirm will fail with “CURSOR_API_KEY missing”.
+
+Optional Ollama smoke (only if using `JARVIS_LLM_BACKEND=ollama`):
 
 ```bash
 npm run jarvis:smoke   # requires: ollama pull qwen3 && ollama serve
@@ -80,7 +88,7 @@ Default on connect: **Briefing** (read-only). Hard writes require the right mode
 | Mode | Say | Unlocks |
 |------|-----|---------|
 | **Briefing** | “switch to briefing” | Reads, digests, `venture.list` / `venture.get` |
-| **Ops** | “switch to ops” | Queue, `queue_for`, spawn, pause, cancel, rewake |
+| **Ops** | “switch to ops” | Queue, `queue_for`, `work.request`, spawn, pause, cancel, rewake |
 | **Review** | “switch to review” | `file.read`, `csuite.draft`, handoffs |
 | **Architect** | “switch to architect” | `venture.create`, `venture.switch` |
 
@@ -129,6 +137,8 @@ Jarvis maps natural speech to **intents** via `jarvis_act`. Use **Ops** before q
 | Report on CEO / seat report for … | `seat.report` | No |
 | What tasks / live tasks | `tasks.list` | No |
 | List runs / what’s running | `runs.list` | No |
+| Is it done / run status / watch runs | `runs.watch` | No |
+| Status of run … (by id) | `runs.get` | No |
 | Activity / recent pulse | `activity.list` | No |
 | Alerts / handoff alerts | `alerts.list` | No |
 | Ack alert … / dismiss alert … | `alerts.ack` | Soft |
@@ -138,6 +148,7 @@ Jarvis maps natural speech to **intents** via `jarvis_act`. Use **Ops** before q
 | Run next / spawn / execute queue | `spawn.run_next` | Yes |
 | Cancel run … | `run.cancel` | Yes |
 | Rewake / resume session … | `run.rewake` | Yes |
+| Tell them to … / also cover … (mid-run) | `run.instruct` | Yes |
 | Pause head-of-research / pause seat … | `agent.pause` | Yes |
 | Resume … / unpause seat … | `agent.resume` | Yes |
 | Draft csuite / csuite review phase 2 | `csuite.draft` | Yes |
@@ -147,8 +158,11 @@ Jarvis maps natural speech to **intents** via `jarvis_act`. Use **Ops** before q
 | Create a venture called X | `venture.create` | Yes (auto-activates) |
 | Switch to venture slug | `venture.switch` | Yes |
 | Spawn the copywriter | `agent.spawn_ic` | Denied |
+| Write a short blog / create an article | `work.resolve` → intake → `work.request` | Yes (on request) |
+| Kick off the work / start Cursor | `work.request` | Yes |
+| Show review inbox / needs review | `review.inbox_list` | No |
 
-Review mode adds `file.read`, `csuite.draft`, and handoffs; spawn intents stay disabled there. IC spawn requests are always denied — queue the manager instead.
+Review mode adds `file.read`, `csuite.draft`, and handoffs; spawn intents stay disabled there. IC spawn requests are always denied — use `work.resolve` / `work.request` so Jarvis intakes with the manager and starts Cursor.
 
 ## Tests & eval
 
@@ -169,3 +183,4 @@ Golden cases live in `server/jarvis/eval/golden.json`; CI runs heuristic intent 
 - `docs/superpowers/plans/2026-07-16-enterprise-jarvis-dialog.md` — implementation plan
 - `docs/superpowers/specs/2026-07-16-jarvis-intent-catalog-v2-design.md` — catalog v2 (architect mode, ventures, `queue_for`)
 - `docs/superpowers/plans/2026-07-16-jarvis-intent-catalog-v2.md` — catalog v2 implementation plan
+- `docs/superpowers/specs/2026-07-16-jarvis-work-request-voice-spawn-design.md` — voice-driven `work.request` + REVIEW inbox
