@@ -1,6 +1,7 @@
 import type { MissionState } from "../../src/jarvis/mission";
 import { loadSnapshot } from "../snapshot";
 import { listSources } from "../sources/store";
+import { memoryBrief } from "../memory";
 
 export type MissionBriefInput = Pick<
   MissionState,
@@ -24,14 +25,23 @@ export function spokenMissionBrief(mission: MissionBriefInput): string {
   return `${opener} Next is ${mission.nextAction}.`;
 }
 
-export function buildJarvisContext(repoRoot: string) {
+export async function buildJarvisContext(repoRoot: string) {
   const snap = loadSnapshot(repoRoot);
   const { sources, contextNote } = listSources(repoRoot);
   const truncated = contextNote.trim().slice(0, 500);
-  let spokenBrief = spokenMissionBrief(snap.mission);
+
+  let spokenBrief: string;
+  try {
+    const brief = await memoryBrief(repoRoot);
+    spokenBrief = brief.spoken;
+  } catch {
+    spokenBrief = spokenMissionBrief(snap.mission);
+  }
+
   if (truncated) {
     spokenBrief += ` Context note on file; ${sources.length} sources attached.`;
   }
+
   return {
     mission: snap.mission,
     spokenBrief,

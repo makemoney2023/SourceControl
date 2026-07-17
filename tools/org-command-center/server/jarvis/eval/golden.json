@@ -1,7 +1,7 @@
 [
   {
     "utterance": "where are we with the atmospheric water generator",
-    "expectIntent": "mission.get",
+    "expectIntent": "memory.brief",
     "mode": "briefing"
   },
   {
@@ -316,6 +316,28 @@
   {
     "utterance": "run ready managers",
     "expectIntent": "spawn.run_ready",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "where are we?",
+    "expectIntent": "memory.brief",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "what's next?",
+    "expectIntent": "memory.brief",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "remember that MOF is the lead sorbent",
+    "expectIntent": "memory.note",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "digest this session",
+    "expectIntent": "memory.digest",
     "mode": "ops",
     "expectNeedsConfirm": true
   }

@@ -1,7 +1,7 @@
 # Design: Jarvis Memory + Reasoning (Long-term Learner)
 
 **Date:** 2026-07-17  
-**Status:** Approved  
+**Status:** Approved (M1–M4 implemented 2026-07-17; `memory.reindex` + soft co-pilot wake/disconnect digest in Task 9–10)  
 **Extends:** `2026-07-16-jarvis-intent-catalog-v2-design.md` (`memory.note` / `memory.recall`), `2026-07-16-multi-venture-projects-design.md` (MEMORY layout; Chroma previously deferred), `2026-07-17-jarvis-closed-action-loop-design.md` (run lifecycle hooks)  
 **App:** `tools/org-command-center/`  
 **Plan:** `docs/superpowers/plans/2026-07-17-jarvis-memory-and-reasoning.md`  

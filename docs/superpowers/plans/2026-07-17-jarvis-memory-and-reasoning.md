@@ -1,6 +1,6 @@
 # Jarvis Memory + Reasoning Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Give Jarvis durable venture memory (FS + local Chroma) and soft co-pilot reasoning so it can say what was done, what’s next, and suggest one move — without auto-spawning.
 
@@ -108,7 +108,7 @@ export function speakMemoryBrief(brief: MemoryBrief): string;
 // speakMemoryBrief → one short sentence for TTS (done/next/blocker hint + suggestion)
 ```
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -168,19 +168,19 @@ describe("composeMemoryBrief", () => {
 });
 ```
 
-- [ ] **Step 2: Run — expect FAIL**
+- [x] **Step 2: Run — expect FAIL**
 
 ```bash
 cd tools/org-command-center && npx vitest run server/memory/situation.test.ts
 ```
 
-- [ ] **Step 3: Implement `types.ts` + `situation.ts` (deterministic heuristics only — no LLM)**
+- [x] **Step 3: Implement `types.ts` + `situation.ts` (deterministic heuristics only — no LLM)**
 
 Suggestion heuristic (v1): if blockers/run gaps mention inbox → suggest rewake/queue owning seat from `mission.nextAction`; else suggest acting on `mission.nextAction`. Never invent phase numbers not in input.
 
-- [ ] **Step 4: Tests PASS**
+- [x] **Step 4: Tests PASS**
 
-- [ ] **Step 5: Commit** — `feat(occ): memory situation composer`
+- [x] **Step 5: Commit** — `feat(occ): memory situation composer`
 
 ---
 
@@ -239,7 +239,7 @@ Path rules (locked):
 
 Use `memoryDir` / `memoryRel` / `activeProjectSlug` from `server/paths.ts`. Create files/dirs if missing. Throw `JarvisExecError`-friendly `Error` if registry invalid.
 
-- [ ] **Step 1: Failing tests** with `mkdtemp` mini-repo containing `projects/registry.json` pointing memory at temp MEMORY dir
+- [x] **Step 1: Failing tests** with `mkdtemp` mini-repo containing `projects/registry.json` pointing memory at temp MEMORY dir
 
 ```ts
 it("appendMemoryNote writes notes.md under active venture", () => { /* ... */ });
@@ -247,11 +247,11 @@ it("entity kind requires entityId and writes entities/<id>.md", () => { /* ... *
 it("appendLifecycleLine creates sessions/YYYY-MM-DD.md", () => { /* ... */ });
 ```
 
-- [ ] **Step 2: Run FAIL → implement → PASS**
+- [x] **Step 2: Run FAIL → implement → PASS**
 
-- [ ] **Step 3: Update both venture MEMORY READMEs** with `notes.md`, `preferences.md`, sessions lifecycle note; state Chroma lives in OCC `.data/chroma/`
+- [x] **Step 3: Update both venture MEMORY READMEs** with `notes.md`, `preferences.md`, sessions lifecycle note; state Chroma lives in OCC `.data/chroma/`
 
-- [ ] **Step 4: Commit** — `feat(occ): filesystem memory store`
+- [x] **Step 4: Commit** — `feat(occ): filesystem memory store`
 
 ---
 
@@ -272,7 +272,7 @@ export function grepRecallMemory(
 
 Pure Node walk of MEMORY (no shell `rg` required): split query into tokens (≥2 chars), score files by token hits, return top snippets (line containing match ± context). Skip `.chroma` if present.
 
-- [ ] **Step 1–4: TDD + commit** — `feat(occ): grep memory recall fallback`
+- [x] **Step 1–4: TDD + commit** — `feat(occ): grep memory recall fallback`
 
 ---
 
@@ -317,11 +317,11 @@ M1: `indexed` always `false`; `memoryRecall` always `via: "grep"`.
 - Confirm: `I'll remember: <truncated text>. Confirm?`
 - okSummary brief → `spoken`; note → `Saved to <path>.`; recall → `summary`
 
-- [ ] **Step 1: Failing policy + tools-exec + act tests** for the three intents
+- [x] **Step 1: Failing policy + tools-exec + act tests** for the three intents
 
-- [ ] **Step 2: Implement intents + policy + handlers + summaries**
+- [x] **Step 2: Implement intents + policy + handlers + summaries**
 
-- [ ] **Step 3: PASS + commit** — `feat(occ): jarvis memory.note recall brief intents`
+- [x] **Step 3: PASS + commit** — `feat(occ): jarvis memory.note recall brief intents`
 
 ---
 
@@ -370,13 +370,13 @@ Tests:
 - Integration test gated: `if (!process.env.JARVIS_CHROMA_TEST) return` — upsert/query against live local Chroma
 - Mock client path: injectable `getChromaClient` for failure simulation
 
-- [ ] **Step 1: `npm install chromadb` in OCC**
+- [x] **Step 1: `npm install chromadb` in OCC**
 
-- [ ] **Step 2: Failing unit tests for doc id + heartbeat false when URL down**
+- [x] **Step 2: Failing unit tests for doc id + heartbeat false when URL down**
 
-- [ ] **Step 3: Implement index + process helper**
+- [x] **Step 3: Implement index + process helper**
 
-- [ ] **Step 4: Document in README:**
+- [x] **Step 4: Document in README:**
 
 ```bash
 cd tools/org-command-center
@@ -384,7 +384,7 @@ npx chroma run --path .data/chroma --port 8000
 # optional: JARVIS_CHROMA_AUTOSTART=1 CHROMA_URL=http://127.0.0.1:8000
 ```
 
-- [ ] **Step 5: Commit** — `feat(occ): local chroma memory index`
+- [x] **Step 5: Commit** — `feat(occ): local chroma memory index`
 
 ---
 
@@ -400,9 +400,9 @@ npx chroma run --path .data/chroma --port 8000
 - `memoryRecall`: try Chroma; on throw/empty+chroma down → `grepRecallMemory`; set `via` accordingly
 - Never fail `memory.note` because Chroma is down
 
-- [ ] **Step 1: Test** — mock chroma throw → note still writes; recall returns grep hits with `via: "grep"`
+- [x] **Step 1: Test** — mock chroma throw → note still writes; recall returns grep hits with `via: "grep"`
 
-- [ ] **Step 2: Implement → PASS → commit** — `feat(occ): chroma upsert and recall with grep fallback`
+- [x] **Step 2: Implement → PASS → commit** — `feat(occ): chroma upsert and recall with grep fallback`
 
 ---
 
@@ -435,7 +435,7 @@ export async function memoryDigest(repoRoot: string, args?: {
 
 Policy: ops + confirm. Confirm text: `Write a session digest for <venture>. Confirm?`
 
-- [ ] **Step 1–4: TDD + commit** — `feat(occ): memory.digest session digests`
+- [x] **Step 1–4: TDD + commit** — `feat(occ): memory.digest session digests`
 
 ---
 
@@ -449,9 +449,9 @@ Policy: ops + confirm. Confirm text: `Write a session digest for <venture>. Conf
 ` - run <id> <status> seat=<pos> acceptance=<ok|gap:…>`  
 Best-effort; never fail the run finish if MEMORY write fails.
 
-- [ ] **Step 1: Failing test** on extracted helper or spawn finish mock
+- [x] **Step 1: Failing test** on extracted helper or spawn finish mock
 
-- [ ] **Step 2: Implement → PASS → commit** — `feat(occ): append memory lifecycle on run finish`
+- [x] **Step 2: Implement → PASS → commit** — `feat(occ): append memory lifecycle on run finish`
 
 ---
 
@@ -464,7 +464,7 @@ Best-effort; never fail the run finish if MEMORY write fails.
 
 **Behavior:** `reindexProjectFromFs` for active slug; ops + confirm; okSummary `Reindexed N memory chunks.`
 
-- [ ] **Step 1–4: TDD + commit** — `feat(occ): memory.reindex intent`
+- [x] **Step 1–4: TDD + commit** — `feat(occ): memory.reindex intent`
 
 ---
 
@@ -490,15 +490,15 @@ Best-effort; never fail the run finish if MEMORY write fails.
 5. Goldens: “where are we?”, “what’s next?”, “remember that MOF is the lead sorbent”, “digest this session”
 6. `readMemorySnippets` / grep recall should include `MEMORY/context.md` when present (do not overwrite it from `memory.note`).
 
-- [ ] **Step 1: Failing briefing test** — with temp MEMORY containing a decision, `spokenBrief` mentions suggestion/next
+- [x] **Step 1: Failing briefing test** — with temp MEMORY containing a decision, `spokenBrief` mentions suggestion/next
 
-- [ ] **Step 2: Implement briefing enrichment**
+- [x] **Step 2: Implement briefing enrichment**
 
-- [ ] **Step 3: Prompt + goldens + disconnect hook**
+- [x] **Step 3: Prompt + goldens + disconnect hook**
 
-- [ ] **Step 4: `npm test` + `npm run agent:test` PASS**
+- [x] **Step 4: `npm test` + `npm run agent:test` PASS**
 
-- [ ] **Step 5: Commit** — `feat(occ): jarvis soft co-pilot memory brief on wake`
+- [x] **Step 5: Commit** — `feat(occ): jarvis soft co-pilot memory brief on wake`
 
 ---
 

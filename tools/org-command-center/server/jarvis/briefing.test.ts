@@ -73,15 +73,30 @@ describe("buildJarvisContext", () => {
     if (repo) rmSync(repo, { recursive: true, force: true });
   });
 
-  it("returns mission and spoken brief for agent opener", () => {
+  it("returns mission and spoken brief for agent opener", async () => {
     repo = tempRepo();
-    const ctx = buildJarvisContext(repo);
+    const ctx = await buildJarvisContext(repo);
     expect(ctx.mission).toMatchObject({ idea: "Test Widget", currentPhase: "2" });
-    expect(ctx.spokenBrief).toMatch(/Phase 2/i);
+    expect(ctx.spokenBrief).toMatch(/Phase 2|next is/i);
     expect(typeof ctx.spokenBrief).toBe("string");
     expect(ctx.spokenBrief.length).toBeGreaterThan(0);
     expect(ctx.contextNote).toBe("");
     expect(ctx.sourcesCount).toBe(0);
+  });
+
+  it("uses memory brief when decisions exist in MEMORY", async () => {
+    repo = tempRepo();
+    const memoryDir = join(repo, "docs/projects/passive-grid/MEMORY");
+    mkdirSync(memoryDir, { recursive: true });
+    writeFileSync(
+      join(memoryDir, "decisions.md"),
+      "| date | decision | rationale |\n| --- | --- | --- |\n| 2026-07-17 | MOF-303 is lead sorbent | evidence |\n",
+      "utf8",
+    );
+
+    const ctx = await buildJarvisContext(repo);
+    expect(ctx.spokenBrief).toMatch(/next is/i);
+    expect(ctx.spokenBrief).not.toMatch(/[*`#]/);
   });
 
   it("exposes contextNote, sourcesCount, and spoken clause when note set", async () => {
@@ -101,14 +116,14 @@ describe("buildJarvisContext", () => {
       bytes: Buffer.from("# Notes\n", "utf8"),
     });
 
-    const ctx = buildJarvisContext(repo);
+    const ctx = await buildJarvisContext(repo);
     expect(ctx.contextNote).toBe("Operator guidance for passive grid.");
     expect(ctx.sourcesCount).toBe(2);
     expect(ctx.spokenBrief).toMatch(/Context note on file/);
     expect(ctx.spokenBrief).toMatch(/2 sources attached/);
   });
 
-  it("truncates contextNote to 500 characters", () => {
+  it("truncates contextNote to 500 characters", async () => {
     repo = tempRepo();
     mkdirSync(join(repo, "docs/projects/passive-grid/MEMORY"), { recursive: true });
     writeFileSync(
@@ -117,7 +132,7 @@ describe("buildJarvisContext", () => {
       "utf8",
     );
 
-    const ctx = buildJarvisContext(repo);
+    const ctx = await buildJarvisContext(repo);
     expect(ctx.contextNote).toHaveLength(500);
     expect(ctx.spokenBrief).toMatch(/Context note on file/);
   });

@@ -128,6 +128,30 @@ describe("createOccClient", () => {
     expect(ctx.spokenBrief).toContain("AWG");
   });
 
+  it("memoryDigest POSTs to /api/jarvis/memory/digest", async () => {
+    const calls: { url: string; init?: RequestInit }[] = [];
+    vi.stubGlobal(
+      "fetch",
+      async (url: string, init?: RequestInit) => {
+        calls.push({ url: String(url), init });
+        return new Response(
+          JSON.stringify({
+            path: "docs/projects/a/MEMORY/sessions/2026-07-17-1200.md",
+            indexed: false,
+            spoken: "Session digest saved to 2026-07-17-1200.md.",
+          }),
+        );
+      },
+    );
+    const c = createOccClient("http://127.0.0.1:5177");
+    const result = (await c.memoryDigest("Voice session ended.")) as { spoken: string };
+    expect(calls[0].url).toContain("/api/jarvis/memory/digest");
+    expect(calls[0].init?.method).toBe("POST");
+    const body = JSON.parse(calls[0].init?.body as string);
+    expect(body.summary).toBe("Voice session ended.");
+    expect(result.spoken).toMatch(/digest saved/i);
+  });
+
   it("jarvisConfirm POSTs to /api/jarvis/confirm", async () => {
     const calls: { url: string; init?: RequestInit }[] = [];
     vi.stubGlobal(

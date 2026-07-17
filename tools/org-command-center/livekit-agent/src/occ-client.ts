@@ -63,6 +63,11 @@ export function createOccClient(baseUrl: string) {
         body: JSON.stringify(body),
       }),
     jarvisContext: () => getJson("/api/jarvis/context"),
+    memoryDigest: (summary?: string) =>
+      getJson("/api/jarvis/memory/digest", {
+        method: "POST",
+        body: JSON.stringify(summary ? { summary } : {}),
+      }),
     jarvisConfirm: (body: JarvisConfirmBody) =>
       getJson("/api/jarvis/confirm", {
         method: "POST",

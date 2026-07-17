@@ -187,6 +187,10 @@ export function heuristicIntent(utterance: string): JarvisIntent {
     return "tasks.list";
   }
 
+  if (/\b(digest this session|session digest|wrap up session|end of session)\b/.test(s)) {
+    return "memory.digest";
+  }
+
   if (/\b(digest|company brief|daily brief|morning brief)\b/.test(s)) {
     return "digest.get";
   }
@@ -214,7 +218,30 @@ export function heuristicIntent(utterance: string): JarvisIntent {
     return "session.help";
   }
 
-  if (/\b(where are we|mission|status|awg|atmospheric|phase progress)\b/.test(s)) {
+  if (
+    /\b(remember that|remember:|note that|don't forget|dont forget)\b/.test(s) ||
+    (/\bremember\b/.test(s) && !/\b(digest|session)\b/.test(s))
+  ) {
+    return "memory.note";
+  }
+
+  if (/\b(digest this session|session digest|wrap up session|end of session)\b/.test(s)) {
+    return "memory.digest";
+  }
+
+  if (/\b(reindex memory|rebuild memory|reindex chroma|rebuild chroma)\b/.test(s)) {
+    return "memory.reindex";
+  }
+
+  if (/\b(recall memory|search memory|what did we decide|memory search)\b/.test(s)) {
+    return "memory.recall";
+  }
+
+  if (/\b(where are we|what'?s next|what is next)\b/.test(s)) {
+    return "memory.brief";
+  }
+
+  if (/\b(mission|status|awg|atmospheric|phase progress)\b/.test(s)) {
     return "mission.get";
   }
 

@@ -65,4 +65,13 @@ describe("JARVIS_SYSTEM_PROMPT", () => {
     expect(JARVIS_SYSTEM_PROMPT).toContain("brain.ask");
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/think hard|ask Grok|tradeoffs|strategy/i);
   });
+
+  it("teaches memory brief, note, digest, and recall playbooks", () => {
+    expect(JARVIS_SYSTEM_PROMPT).toContain("memory.brief");
+    expect(JARVIS_SYSTEM_PROMPT).toContain("memory.note");
+    expect(JARVIS_SYSTEM_PROMPT).toContain("memory.digest");
+    expect(JARVIS_SYSTEM_PROMPT).toContain("memory.recall");
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/where are we|what'?s next/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/never.*spawn|suggestion alone/i);
+  });
 });

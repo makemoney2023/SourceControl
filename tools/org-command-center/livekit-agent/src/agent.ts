@@ -112,6 +112,14 @@ export default defineAgent({
 
     let greeting = FALLBACK_GREETING;
     let lastSpokenSnapshot: PulseSnapshot | null = null;
+    let disconnectDigestSent = false;
+    const fireDisconnectDigest = () => {
+      if (disconnectDigestSent) return;
+      disconnectDigestSent = true;
+      void occ.memoryDigest("Voice session ended.").catch(() => {
+        // best-effort session digest on disconnect
+      });
+    };
     try {
       const context = (await occ.jarvisContext()) as JarvisContextForPulse;
       // Prefer a short spoken open; truncate long mission briefs so we stay conversational.
@@ -156,7 +164,11 @@ export default defineAgent({
 
     ctx.addShutdownCallback(async () => {
       clearPulseTimer();
+      fireDisconnectDigest();
     });
-    ctx.room.on(RoomEvent.Disconnected, clearPulseTimer);
+    ctx.room.on(RoomEvent.Disconnected, () => {
+      clearPulseTimer();
+      fireDisconnectDigest();
+    });
   },
 });

@@ -208,6 +208,14 @@ JARVIS_CHROMA_TEST=1               # run live Chroma integration tests
 
 `memory.note` always writes to disk; Chroma upsert is best-effort. `memory.recall` tries Chroma when the server is up, otherwise ripgrep-style grep over MEMORY.
 
+Voice cheatsheet:
+
+- **Where are we / what's next?** → `memory.brief` (read-only; spoken on wake via `spokenBrief`)
+- **Remember that …** → Ops mode + `memory.note` (confirm)
+- **Digest this session** → Ops mode + `memory.digest` (confirm); LiveKit also best-effort auto-digest on disconnect
+- **Search memory** → `memory.recall`
+- **Rebuild index** → Ops mode + `memory.reindex` (confirm)
+
 ## Tests & eval
 
 ```bash

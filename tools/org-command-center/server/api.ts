@@ -58,6 +58,7 @@ import { registerSourcesRoutes } from "./sources-routes";
 import { handleJarvisAct, handleJarvisConfirm } from "./jarvis/act";
 import { buildJarvisContext } from "./jarvis/briefing";
 import { listReviewInbox } from "./jarvis/review-inbox";
+import { memoryDigest } from "./memory";
 import { queueValidatedDispatch } from "./queue-validated-dispatch";
 import { writeCsuiteDraft } from "./write-csuite-draft";
 
@@ -597,7 +598,14 @@ export function createApi(repoRoot = resolveRepoRoot()) {
     return c.json(result);
   });
 
-  app.get("/api/jarvis/context", (c) => c.json(buildJarvisContext(repoRoot)));
+  app.get("/api/jarvis/context", async (c) => c.json(await buildJarvisContext(repoRoot)));
+
+  app.post("/api/jarvis/memory/digest", async (c) => {
+    const body = (await c.req.json().catch(() => ({}))) as { summary?: string };
+    const summary = typeof body.summary === "string" ? body.summary.trim() : undefined;
+    const result = await memoryDigest(repoRoot, summary ? { summary } : undefined);
+    return c.json(result);
+  });
 
   app.get("/api/jarvis/review-inbox", (c) => {
     return c.json({ items: listReviewInbox(repoRoot) });
