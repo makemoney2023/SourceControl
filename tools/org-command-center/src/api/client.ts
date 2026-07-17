@@ -461,3 +461,59 @@ export function subscribeEvents(onChange: () => void) {
   };
   return () => es.close();
 }
+
+export type SourceRecord = {
+  id: string;
+  title: string;
+  ext: string;
+  originalRel: string;
+  extractRel: string | "self";
+  status: "ok" | "extract_failed" | "image_stub";
+  uploadedAt: string;
+};
+
+export async function fetchSources(): Promise<{
+  sources: SourceRecord[];
+  contextNote: string;
+}> {
+  const res = await fetch("/api/sources");
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function uploadSources(files: FileList | File[]): Promise<{
+  ok: true;
+  sources: SourceRecord[];
+  warnings?: string[];
+}> {
+  const form = new FormData();
+  const list = Array.isArray(files) ? files : Array.from(files);
+  for (const file of list) form.append("files", file);
+
+  const res = await fetch("/api/sources/upload", { method: "POST", body: form });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "upload failed");
+
+  const warnings =
+    data.warnings ?? (data.warning ? [data.warning as string] : undefined);
+
+  return { ok: true, sources: data.sources, warnings };
+}
+
+export async function saveContextNote(note: string): Promise<{ ok: true; contextNote: string }> {
+  const res = await fetch("/api/sources/context", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ note }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "save context failed");
+  return data;
+}
+
+export async function deleteSource(id: string): Promise<{ ok: true }> {
+  const res = await fetch(`/api/sources/${encodeURIComponent(id)}`, { method: "DELETE" });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "delete failed");
+  return data;
+}
