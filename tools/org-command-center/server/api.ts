@@ -54,6 +54,7 @@ import { loadSpend } from "./spend";
 import { mintTalkToken, probeLivekitHealth } from "./livekit-token";
 import { omnivoiceHealth, omnivoiceSpeak } from "./voice";
 import { registerProjectRoutes } from "./project-routes";
+import { registerSourcesRoutes } from "./sources-routes";
 import { handleJarvisAct, handleJarvisConfirm } from "./jarvis/act";
 import { buildJarvisContext } from "./jarvis/briefing";
 import { listReviewInbox } from "./jarvis/review-inbox";
@@ -81,6 +82,7 @@ export function createApi(repoRoot = resolveRepoRoot()) {
   });
 
   registerProjectRoutes(app, repoRoot);
+  registerSourcesRoutes(app, repoRoot);
 
   app.get("/api/health", (c) =>
     c.json({
