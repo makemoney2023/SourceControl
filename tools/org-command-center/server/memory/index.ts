@@ -1,6 +1,13 @@
 import { loadSnapshot } from "../snapshot";
+import { activeProjectSlug } from "../paths";
 import { appendMemoryNote, readMemorySnippets } from "./fs-store";
 import { grepRecallMemory } from "./grep-recall";
+import {
+  buildNoteDoc,
+  chromaHeartbeat,
+  queryMemoryDocs,
+  upsertMemoryDocs,
+} from "./chroma-index";
 import { composeMemoryBrief, speakMemoryBrief } from "./situation";
 import type { MemoryBrief, MemoryNoteKind, MemoryRecallHit } from "./types";
 
@@ -30,7 +37,18 @@ export async function memoryNote(
     text: args.text,
     entityId: args.entityId,
   });
-  return { path, kind: writtenKind, indexed: false };
+
+  let indexed = false;
+  try {
+    const slug = activeProjectSlug(repoRoot);
+    const doc = buildNoteDoc(slug, path, args.text, writtenKind);
+    await upsertMemoryDocs([doc]);
+    indexed = true;
+  } catch (err) {
+    console.warn("[memory] chroma upsert failed:", err instanceof Error ? err.message : err);
+  }
+
+  return { path, kind: writtenKind, indexed };
 }
 
 export async function memoryRecall(
@@ -41,7 +59,20 @@ export async function memoryRecall(
   },
 ): Promise<{ hits: MemoryRecallHit[]; via: "chroma" | "grep"; summary: string }> {
   const query = args.query.trim();
-  const hits = grepRecallMemory(repoRoot, query, args.limit ?? 5);
+  const limit = args.limit ?? 5;
+
+  try {
+    const chromaUp = await chromaHeartbeat();
+    if (chromaUp) {
+      const slug = activeProjectSlug(repoRoot);
+      const hits = await queryMemoryDocs({ project: slug, query, limit });
+      return { hits, via: "chroma", summary: summarizeRecall(query, hits) };
+    }
+  } catch (err) {
+    console.warn("[memory] chroma recall failed:", err instanceof Error ? err.message : err);
+  }
+
+  const hits = grepRecallMemory(repoRoot, query, limit);
   return { hits, via: "grep", summary: summarizeRecall(query, hits) };
 }
 
