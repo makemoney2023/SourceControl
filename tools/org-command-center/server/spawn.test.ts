@@ -8,7 +8,12 @@ import type { ManagerPacket } from "../src/lib/types";
 import { clearRunRegistry } from "./run-registry";
 import { setSeatPaused } from "./agent-state";
 import type { RuntimeAdapter } from "./runtime-adapter";
-import { buildSpawnPrompt, spawnClaimedManager, spawnClaimedManagerDetached } from "./spawn";
+import {
+  buildRewakePrompt,
+  buildSpawnPrompt,
+  spawnClaimedManager,
+  spawnClaimedManagerDetached,
+} from "./spawn";
 import { resolveRepoRoot } from "./paths";
 
 const BIZ_IDEA = "docs/projects/passive-grid/business-idea";
@@ -91,6 +96,58 @@ describe("buildSpawnPrompt", () => {
     expect(prompt).toContain(`${BIZ_IDEA}/HANDOFFS/`);
     expect(prompt).toContain(`${BIZ_IDEA}/REVIEW/inbox/`);
     expect(prompt).toContain("pending_review");
+  });
+
+  it("states hard acceptance criteria from packet fields", () => {
+    const repo = resolveRepoRoot();
+    const withAcceptance: ManagerPacket = {
+      ...packet,
+      preferred_ic: "copy-chief",
+      require_inbox: true,
+      require_ic_handoff: true,
+    };
+    const prompt = buildSpawnPrompt(withAcceptance, repo);
+    expect(prompt).toMatch(/hard acceptance criteria/i);
+    expect(prompt).toContain("copy-chief");
+    expect(prompt).toMatch(/require_inbox|REVIEW\/inbox/i);
+    expect(prompt).toMatch(/require_ic_handoff|HANDOFFS/i);
+  });
+
+  it("instructs runId frontmatter when runId arg provided", () => {
+    const repo = resolveRepoRoot();
+    const withAcceptance: ManagerPacket = {
+      ...packet,
+      preferred_ic: "copy-chief",
+      require_inbox: true,
+      require_ic_handoff: true,
+    };
+    const prompt = buildSpawnPrompt(withAcceptance, repo, "run-123");
+    expect(prompt).toContain("runId: run-123");
+    expect(prompt).toMatch(/frontmatter/i);
+  });
+
+  it("omits optional acceptance lines when flags unset", () => {
+    const repo = resolveRepoRoot();
+    const prompt = buildSpawnPrompt(packet, repo);
+    expect(prompt).not.toMatch(/hard acceptance criteria/i);
+    expect(prompt).not.toContain("preferred_ic");
+  });
+});
+
+describe("buildRewakePrompt", () => {
+  it("includes hard acceptance criteria via buildSpawnPrompt", () => {
+    const repo = resolveRepoRoot();
+    const withAcceptance: ManagerPacket = {
+      ...packet,
+      preferred_ic: "copy-chief",
+      require_inbox: true,
+      require_ic_handoff: true,
+    };
+    const prompt = buildRewakePrompt(withAcceptance, repo, "run-456");
+    expect(prompt).toMatch(/Continue the manager packet/i);
+    expect(prompt).toMatch(/hard acceptance criteria/i);
+    expect(prompt).toContain("copy-chief");
+    expect(prompt).toContain("runId: run-456");
   });
 });
 

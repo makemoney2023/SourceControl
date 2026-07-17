@@ -22,7 +22,11 @@ import { cursorRuntimeAdapter, type RuntimeAdapter } from "./runtime-adapter";
 import { writeSession, readSession, findSessionByAgentId } from "./sessions";
 import { isOverBudget, loadSpend, recordSpend, seatSpendUsd } from "./spend";
 
-export function buildSpawnPrompt(packet: ManagerPacket, repoRoot: string): string {
+export function buildSpawnPrompt(
+  packet: ManagerPacket,
+  repoRoot: string,
+  runId?: string,
+): string {
   const heartbeatPath = `skills/org/positions/${packet.position}/HEARTBEAT.md`;
   const ancestry = [
     "## Goal ancestry",
@@ -37,16 +41,59 @@ export function buildSpawnPrompt(packet: ManagerPacket, repoRoot: string): strin
     .join("\n");
 
   const inboxDir = businessIdeaFile(repoRoot, "REVIEW/inbox/");
+  const handoffsDir = businessIdeaFile(repoRoot, "HANDOFFS/");
   const ts = new Date().toISOString().replace(/[:.]/g, "").slice(0, 15);
   const inboxHint = `${inboxDir}${packet.phase}-${packet.position}-${ts}-deliverable.md`;
+
+  const frontmatterFields = [
+    "status: pending_review",
+    "position",
+    "phase",
+    "goal",
+    "created",
+    ...(runId ? [`runId: ${runId}`] : []),
+  ].join(", ");
+
+  const acceptanceLines: string[] = [];
+  const hasAcceptance =
+    packet.preferred_ic ||
+    packet.require_inbox === true ||
+    packet.require_ic_handoff === true;
+
+  if (hasAcceptance) {
+    acceptanceLines.push(
+      "## Hard acceptance criteria",
+      "These deliverables are mandatory — not suggestions. The run fails acceptance if any are missing.",
+    );
+    if (packet.preferred_ic) {
+      acceptanceLines.push(
+        `- Spawn and delegate to preferred IC \`${packet.preferred_ic}\` (write lease required).`,
+      );
+    }
+    if (packet.require_inbox === true) {
+      acceptanceLines.push(
+        `- require_inbox: write at least one deliverable under ${inboxDir} with YAML frontmatter including ${frontmatterFields}.`,
+      );
+    }
+    if (packet.require_ic_handoff === true && packet.preferred_ic) {
+      acceptanceLines.push(
+        `- require_ic_handoff: write at least one handoff under ${handoffsDir} for \`${packet.preferred_ic}\` with a non-empty status.`,
+      );
+    } else if (packet.require_ic_handoff === true) {
+      acceptanceLines.push(
+        `- require_ic_handoff: write at least one handoff under ${handoffsDir} with a non-empty status.`,
+      );
+    }
+  }
 
   return [
     `You are the digital worker for position \`${packet.position}\`.`,
     `Read skills/org/positions/${packet.position}/SKILL.md and skills/org/MODEL-REGISTRY.md first.`,
     `If ${heartbeatPath} exists, follow that on-wake checklist after SKILL.md.`,
     `Execute this manager context packet. Do not spawn peer managers. Spawn only allowed ICs with write leases.`,
-    `Write handoffs under ${businessIdeaFile(repoRoot, "HANDOFFS/")}. Do not mark the phase complete.`,
-    `Primary operator review artifact: write the deliverable to ${inboxHint} (or another file under ${inboxDir}) with YAML frontmatter status: pending_review, position, phase, goal, created.`,
+    `Write handoffs under ${handoffsDir}. Do not mark the phase complete.`,
+    `Primary operator review artifact: write the deliverable to ${inboxHint} (or another file under ${inboxDir}) with YAML frontmatter ${frontmatterFields}.`,
+    ...(acceptanceLines.length ? ["", ...acceptanceLines] : []),
     "",
     ancestry,
     "",
@@ -56,12 +103,16 @@ export function buildSpawnPrompt(packet: ManagerPacket, repoRoot: string): strin
   ].join("\n");
 }
 
-export function buildRewakePrompt(packet: ManagerPacket, repoRoot: string): string {
+export function buildRewakePrompt(
+  packet: ManagerPacket,
+  repoRoot: string,
+  runId?: string,
+): string {
   return [
     "Continue the manager packet. Read HEARTBEAT if present. Do not restart from scratch.",
     "Pick up unfinished work, update handoffs, respect write leases.",
     "",
-    buildSpawnPrompt(packet, repoRoot),
+    buildSpawnPrompt(packet, repoRoot, runId),
   ].join("\n");
 }
 
