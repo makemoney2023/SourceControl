@@ -221,11 +221,11 @@ rewakeSession(repoRoot, { dispatchFilename?, agentId?, instruction?, ... })
 - Modify: `server/jarvis/eval/heuristic-intent.ts` + tests
 - Modify: `golden.json`, system prompt, README
 
-- [ ] **Step 1: Failing tests** — `blocker.list` returns blocked seats; heuristic “resolve the blocker” / “what’s blocked” → `blocker.list`
+- [x] **Step 1: Failing tests** — `blocker.list` returns blocked seats; heuristic “resolve the blocker” / “what’s blocked” → `blocker.list`
 
-- [ ] **Step 2: Implement as thin wrapper over `digest.focus` blocked (+ escalate snippet)
+- [x] **Step 2: Implement as thin wrapper over `digest.focus` blocked (+ escalate snippet)
 
-- [ ] **Step 3: Commit** — `feat(occ): blocker.list intent`
+- [x] **Step 3: Commit** — `feat(occ): blocker.list intent`
 
 ---
 

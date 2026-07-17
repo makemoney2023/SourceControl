@@ -178,11 +178,19 @@ export function heuristicIntent(utterance: string): JarvisIntent {
     return "digest.get";
   }
 
+  if (
+    /\b(blockers?|what'?s blocked|what is blocked|resolve the blocker|resolve blockers?)\b/.test(
+      s,
+    )
+  ) {
+    return "blocker.list";
+  }
+
   if (/\b(help|cheatsheet|what can you do|capabilities)\b/.test(s)) {
     return "session.help";
   }
 
-  if (/\b(where are we|mission|status|awg|atmospheric|phase progress|blocker)/.test(s)) {
+  if (/\b(where are we|mission|status|awg|atmospheric|phase progress)\b/.test(s)) {
     return "mission.get";
   }
 

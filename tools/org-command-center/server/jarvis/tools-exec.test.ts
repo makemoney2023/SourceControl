@@ -235,6 +235,7 @@ const INTENT_COVERAGE: CoverageCase[] = [
   { intent: "briefing.pin", args: { mode: "seat", slug: "ceo-strategist" } },
   { intent: "phase.list_open", args: {} },
   { intent: "digest.focus", args: { section: "blocked" } },
+  { intent: "blocker.list", args: {} },
   { intent: "activity.tail", args: { n: 5 } },
   {
     intent: "work.resolve",
@@ -766,6 +767,73 @@ describe("executeIntent", () => {
     };
     expect(result.section).toBe("blocked");
     expect(Array.isArray(result.data)).toBe(true);
+  });
+
+  it("blocker.list returns blocked seats and spoken summary", async () => {
+    repo = tempRepo();
+    writeFileSync(
+      join(repo, BIZ_IDEA, "HANDOFFS", "2-market-research-analyst.md"),
+      `---
+kind: ic
+phase: "2"
+position: market-research-analyst
+reports_to: head-of-research
+status: blocked
+verdict_for_manager: ""
+verdict: ""
+llm_tier: strong-general
+generation_profile: none
+fallback_applied: ""
+---
+
+# Handoff
+
+## Risks / blockers
+
+- no primary data source
+`,
+    );
+    writeFileSync(
+      join(repo, BIZ_IDEA, "HANDOFFS", "2-manager-head-of-research.md"),
+      `---
+kind: manager
+phase: "2"
+position: head-of-research
+reports_to: ceo-strategist
+status: on_track
+verdict_for_manager: proceed
+verdict: ""
+llm_tier: strong-general
+generation_profile: none
+fallback_applied: ""
+recommendation: escalate
+escalation_tags:
+  - evidence
+---
+
+# Handoff
+Recommendation: escalate
+`,
+    );
+    const result = (await executeIntent(repo, "blocker.list", {})) as {
+      blocked: Array<{ slug: string; reason: string }>;
+      escalate: Array<{ slug: string }>;
+      summary: string;
+    };
+    expect(result.blocked).toHaveLength(1);
+    expect(result.blocked[0]?.slug).toBe("market-research-analyst");
+    expect(result.blocked[0]?.reason).toMatch(/no primary data source/i);
+    expect(result.escalate).toHaveLength(1);
+    expect(result.escalate[0]?.slug).toBe("head-of-research");
+    expect(result.summary).toMatch(/blocker/i);
+    expect(result.summary).toMatch(/market research analyst/i);
+    expect(result.summary).toMatch(/escalation/i);
+  });
+
+  it("blocker.list reports none when no blockers", async () => {
+    repo = tempRepo();
+    const result = (await executeIntent(repo, "blocker.list", {})) as { summary: string };
+    expect(result.summary).toMatch(/no blockers/i);
   });
 
   it("digest.focus returns full digest when section omitted", async () => {

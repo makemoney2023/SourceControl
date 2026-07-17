@@ -74,7 +74,7 @@ const SESSION_HELP = [
   "Modes: Briefing for mission, digest, seat report, tasks, runs, activity, alerts, spend.",
   "Ops adds assign, run next, cancel, rewake, pause, resume, cancel pending.",
   "Review adds file read and csuite draft. Architect adds venture create or switch.",
-  "Top intents: mission.get for status; digest.get or digest.focus; seat.report; phase.list_open;",
+  "Top intents: mission.get for status; digest.get or digest.focus; blocker.list; seat.report; phase.list_open;",
   "activity.tail; session.help; session.repeat; jarvis.ping; mode.set;",
   "work.resolve or work.request for intake and Cursor spawn; review.inbox_list for artifacts.",
 ].join(" ");
@@ -100,6 +100,32 @@ function digestSectionKey(section: string): keyof ReturnType<typeof buildCompany
   if (section === "escalate") return "escalateSeats";
   if (section === "awaiting") return "awaitingCsuite";
   return null;
+}
+
+function seatLabel(slug: string): string {
+  if (slug === "ceo-strategist") return "CEO";
+  return slug.replace(/-/g, " ");
+}
+
+function summarizeBlockers(
+  blocked: Array<{ slug: string; reason: string }>,
+  escalate: Array<{ slug: string; tags: string[]; secondaries: string[] }>,
+): string {
+  if (!blocked.length) {
+    if (!escalate.length) return "No blockers.";
+    const esc = escalate.map((e) => seatLabel(e.slug)).join(", ");
+    return `No blockers. ${escalate.length === 1 ? "1 escalation" : `${escalate.length} escalations`}: ${esc}.`;
+  }
+  const parts = blocked.map((b) => `${seatLabel(b.slug)} — ${b.reason}`);
+  const head =
+    blocked.length === 1
+      ? `1 blocker: ${parts[0]}.`
+      : `${blocked.length} blockers: ${parts.join("; ")}.`;
+  if (!escalate.length) return head;
+  const esc = escalate.map((e) => seatLabel(e.slug)).join(", ");
+  const escPhrase =
+    escalate.length === 1 ? `Also 1 escalation: ${esc}.` : `Also ${escalate.length} escalations: ${esc}.`;
+  return `${head} ${escPhrase}`;
 }
 
 export async function executeIntent(
@@ -662,6 +688,17 @@ export async function executeIntent(
         );
       }
       return { section, data: digest[key] };
+    }
+
+    case "blocker.list": {
+      const digest = buildDigestPayload(snap, repoRoot);
+      const blocked = digest.blockedSeats;
+      const escalate = digest.escalateSeats;
+      return {
+        blocked,
+        escalate,
+        summary: summarizeBlockers(blocked, escalate),
+      };
     }
 
     case "activity.tail": {

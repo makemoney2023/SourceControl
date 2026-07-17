@@ -134,6 +134,7 @@ Jarvis maps natural speech to **intents** via `jarvis_act`. Use **Ops** before q
 |----------------|--------|----------|
 | Where are we / mission status / AWG status | `mission.get` | No |
 | Company digest / rollup / blockers | `digest.get` | No |
+| What's blocked / any blockers / list blockers | `blocker.list` | No |
 | Report on CEO / seat report for … | `seat.report` | No |
 | What tasks / live tasks | `tasks.list` | No |
 | List runs / what’s running | `runs.list` | No |

@@ -45,6 +45,7 @@ export const JARVIS_INTENTS = [
   "briefing.pin",
   "phase.list_open",
   "digest.focus",
+  "blocker.list",
   "activity.tail",
   "work.resolve",
   "work.intake_save",

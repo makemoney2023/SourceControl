@@ -107,6 +107,9 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
   if (intent === "runs.watch" && typeof result === "object" && result !== null && "summary" in result) {
     return String((result as { summary: string }).summary);
   }
+  if (intent === "blocker.list" && typeof result === "object" && result !== null && "summary" in result) {
+    return String((result as { summary: string }).summary);
+  }
   if (
     intent === "session.cancel_pending" &&
     typeof result === "object" &&

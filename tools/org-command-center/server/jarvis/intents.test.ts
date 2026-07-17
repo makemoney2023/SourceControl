@@ -40,6 +40,9 @@ describe("parseJarvisAct", () => {
       "digest.focus",
     );
   });
+  it("accepts blocker.list", () => {
+    expect(parseJarvisAct({ intent: "blocker.list", args: {} }).intent).toBe("blocker.list");
+  });
   it("accepts activity.tail", () => {
     expect(parseJarvisAct({ intent: "activity.tail", args: { n: 5 } }).intent).toBe("activity.tail");
   });

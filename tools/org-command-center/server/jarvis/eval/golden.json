@@ -273,5 +273,20 @@
     "expectIntent": "run.instruct",
     "mode": "ops",
     "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "what's blocked",
+    "expectIntent": "blocker.list",
+    "mode": "briefing"
+  },
+  {
+    "utterance": "any blockers",
+    "expectIntent": "blocker.list",
+    "mode": "ops"
+  },
+  {
+    "utterance": "resolve the blocker",
+    "expectIntent": "blocker.list",
+    "mode": "briefing"
   }
 ]

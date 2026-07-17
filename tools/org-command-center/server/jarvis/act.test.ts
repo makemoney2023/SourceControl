@@ -387,4 +387,18 @@ describe("handleJarvisAct", () => {
     expect(r.status).toBe("ok");
     expect(r.summary).toBe("CEO finished with gaps: inbox.");
   });
+
+  it("uses blocker.list summary for voice ok response", async () => {
+    setExecuteIntentForTests(async () => ({
+      blocked: [{ slug: "market-research-analyst", reason: "no data" }],
+      escalate: [],
+      summary: "1 blocker: market research analyst — no data.",
+    }));
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "blocker.list",
+      args: {},
+    });
+    expect(r.status).toBe("ok");
+    expect(r.summary).toBe("1 blocker: market research analyst — no data.");
+  });
 });

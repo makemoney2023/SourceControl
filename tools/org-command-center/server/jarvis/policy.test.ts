@@ -177,6 +177,20 @@ describe("policyFor", () => {
       needsConfirm: false,
     });
   });
+  it("blocker.list allowed in any mode without confirm", () => {
+    expect(policyFor("blocker.list", "briefing")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+    expect(policyFor("blocker.list", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+    expect(policyFor("blocker.list", "review")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
   it("activity.tail allowed in briefing without confirm", () => {
     expect(policyFor("activity.tail", "briefing")).toEqual({
       allowed: true,

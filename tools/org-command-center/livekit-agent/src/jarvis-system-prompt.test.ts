@@ -49,4 +49,9 @@ describe("JARVIS_SYSTEM_PROMPT", () => {
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/also do|tell them|instruction|mid-flight|operator/i);
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/set_mode\(ops\)|ops.*confirm|Confirm\?/i);
   });
+
+  it("teaches blocker.list for blocked seats", () => {
+    expect(JARVIS_SYSTEM_PROMPT).toContain("blocker.list");
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/what'?s blocked|blockers?/i);
+  });
 });
