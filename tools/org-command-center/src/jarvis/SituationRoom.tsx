@@ -36,6 +36,24 @@ import { requestTalkConnect, VoiceFab } from "./VoiceFab";
 import { JarvisFocusListener } from "./JarvisFocusListener";
 import type { JarvisFocus } from "./jarvis-focus";
 
+function resolveRewakeDispatchFilename(
+  snap: SituationSnapshot | null,
+  a: SeatNextAction,
+  selectedSlug: string | null,
+): string | undefined {
+  if (!snap) return undefined;
+  if (a.runId) {
+    const run = snap.runs?.find((r) => r.runId === a.runId);
+    if (run?.dispatch_filename) return run.dispatch_filename;
+  }
+  const slug = a.relatedSlug ?? selectedSlug;
+  if (slug) {
+    const session = snap.sessions?.find((s) => s.position === slug);
+    if (session?.dispatch_filename) return session.dispatch_filename;
+  }
+  return undefined;
+}
+
 type Drawer =
   | null
   | "assign"
@@ -228,8 +246,15 @@ export function SituationRoom() {
         if (a.runId) setSelectedRunId(a.runId);
         setDrawer("run");
         break;
-      case "rewake":
+      case "rewake": {
+        const dispatchFilename = resolveRewakeDispatchFilename(snap, a, selectedSlug);
+        if (!dispatchFilename) {
+          setActionError("No session to rewake for this action");
+          break;
+        }
+        await onRewake(dispatchFilename);
         break;
+      }
       case "draft_csuite":
         if (a.phase) {
           try {

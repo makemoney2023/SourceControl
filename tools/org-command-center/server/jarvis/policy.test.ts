@@ -23,6 +23,15 @@ describe("policyFor", () => {
       needsConfirm: true,
     });
   });
+  it("requires confirm for run.instruct in Ops", () => {
+    expect(policyFor("run.instruct", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
+  it("denies run.instruct in Briefing mode", () => {
+    expect(policyFor("run.instruct", "briefing").allowed).toBe(false);
+  });
   it("denies spawn.run in Briefing mode", () => {
     expect(policyFor("spawn.run", "briefing").allowed).toBe(false);
   });

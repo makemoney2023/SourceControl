@@ -143,11 +143,32 @@ describe("buildRewakePrompt", () => {
       require_inbox: true,
       require_ic_handoff: true,
     };
-    const prompt = buildRewakePrompt(withAcceptance, repo, "run-456");
+    const prompt = buildRewakePrompt(withAcceptance, repo, undefined, "run-456");
     expect(prompt).toMatch(/Continue the manager packet/i);
     expect(prompt).toMatch(/hard acceptance criteria/i);
     expect(prompt).toContain("copy-chief");
     expect(prompt).toContain("runId: run-456");
+  });
+
+  it("prepends operator instruction block when instruction provided", () => {
+    const repo = resolveRepoRoot();
+    const prompt = buildRewakePrompt(
+      packet,
+      repo,
+      "Focus on the inbox review first.",
+      "run-789",
+    );
+    expect(prompt).toMatch(/## Operator instruction \(new\)/);
+    expect(prompt).toContain("Focus on the inbox review first.");
+    expect(prompt).toMatch(/Continue the existing packet\. Do not discard prior work\./);
+    expect(prompt).toMatch(/Continue the manager packet/i);
+    expect(prompt).toContain("runId: run-789");
+  });
+
+  it("omits operator instruction block when instruction omitted", () => {
+    const repo = resolveRepoRoot();
+    const prompt = buildRewakePrompt(packet, repo, undefined, "run-789");
+    expect(prompt).not.toMatch(/## Operator instruction \(new\)/);
   });
 });
 

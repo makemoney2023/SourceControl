@@ -275,10 +275,26 @@ export async function executeIntent(
         dispatchFilename:
           typeof args.dispatchFilename === "string" ? args.dispatchFilename : undefined,
         agentId: typeof args.agentId === "string" ? args.agentId : undefined,
+        instruction: typeof args.instruction === "string" ? args.instruction : undefined,
         wakeReason: (args.wakeReason as WakeReason | undefined) ?? "rewake",
         apiKey: typeof args.apiKey === "string" ? args.apiKey : args.apiKey === null ? null : undefined,
         adapter: args.adapter as RuntimeAdapter | undefined,
       });
+
+    case "run.instruct": {
+      const instruction =
+        typeof args.instruction === "string" ? args.instruction.trim() : "";
+      if (!instruction) throw new JarvisExecError("instruction required", "missing_arg");
+      return rewakeSession(repoRoot, {
+        dispatchFilename:
+          typeof args.dispatchFilename === "string" ? args.dispatchFilename : undefined,
+        agentId: typeof args.agentId === "string" ? args.agentId : undefined,
+        instruction,
+        wakeReason: "rewake",
+        apiKey: typeof args.apiKey === "string" ? args.apiKey : args.apiKey === null ? null : undefined,
+        adapter: args.adapter as RuntimeAdapter | undefined,
+      });
+    }
 
     case "agent.pause": {
       const raw = String(args.slug ?? args.seat ?? "");

@@ -11,6 +11,7 @@ const HARD = new Set<JarvisIntent>([
   "spawn.run",
   "run.cancel",
   "run.rewake",
+  "run.instruct",
   "agent.pause",
   "agent.resume",
   "csuite.draft",

@@ -46,4 +46,9 @@ describe("parseJarvisAct", () => {
   it("accepts runs.watch", () => {
     expect(parseJarvisAct({ intent: "runs.watch", args: { limit: 10 } }).intent).toBe("runs.watch");
   });
+  it("accepts run.instruct", () => {
+    expect(parseJarvisAct({ intent: "run.instruct", args: { instruction: "Focus inbox" } }).intent).toBe(
+      "run.instruct",
+    );
+  });
 });

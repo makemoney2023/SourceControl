@@ -194,6 +194,7 @@ const INTENT_COVERAGE: CoverageCase[] = [
   { intent: "spawn.run", args: { filename: "2-a.yaml", apiKey: null } },
   { intent: "run.cancel", args: { runId: "missing-run" } },
   { intent: "run.rewake", args: { apiKey: null } },
+  { intent: "run.instruct", args: { instruction: "Write the inbox review.", apiKey: null } },
   { intent: "agent.pause", args: { slug: "head-of-research" } },
   { intent: "agent.resume", args: { slug: "head-of-research" } },
   { intent: "csuite.draft", args: { phase: "2" } },
@@ -818,6 +819,16 @@ describe("executeIntent", () => {
     repo = tempRepo();
     await expect(executeIntent(repo, "runs.get", { runId: "missing" })).rejects.toThrow(
       /not found/i,
+    );
+  });
+
+  it("run.instruct throws JarvisExecError when instruction missing", async () => {
+    repo = tempRepo();
+    await expect(executeIntent(repo, "run.instruct", { apiKey: null })).rejects.toThrow(
+      JarvisExecError,
+    );
+    await expect(executeIntent(repo, "run.instruct", { apiKey: null })).rejects.toThrow(
+      /instruction required/i,
     );
   });
 

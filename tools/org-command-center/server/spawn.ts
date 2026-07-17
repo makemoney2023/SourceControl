@@ -108,14 +108,23 @@ export function buildSpawnPrompt(
 export function buildRewakePrompt(
   packet: ManagerPacket,
   repoRoot: string,
+  instruction?: string,
   runId?: string,
 ): string {
-  return [
+  const lines = [
     "Continue the manager packet. Read HEARTBEAT if present. Do not restart from scratch.",
     "Pick up unfinished work, update handoffs, respect write leases.",
-    "",
-    buildSpawnPrompt(packet, repoRoot, runId),
-  ].join("\n");
+  ];
+  if (instruction?.trim()) {
+    lines.unshift(
+      "## Operator instruction (new)",
+      instruction.trim(),
+      "Continue the existing packet. Do not discard prior work.",
+      "",
+    );
+  }
+  lines.push("", buildSpawnPrompt(packet, repoRoot, runId));
+  return lines.join("\n");
 }
 
 function writeRun(runsDir: string, record: RunRecord) {
@@ -393,6 +402,7 @@ async function runAdapterAndPersist(args: {
   agentId?: string;
   adapter: RuntimeAdapter;
   apiKey: string;
+  instruction?: string;
 }): Promise<{
   ok: boolean;
   error?: string;
@@ -402,7 +412,7 @@ async function runAdapterAndPersist(args: {
   const { runId, controller, meta, runsDir } = beginRunRecord(args);
   const prompt =
     args.wakeReason === "rewake"
-      ? buildRewakePrompt(args.packet, args.repoRoot, runId)
+      ? buildRewakePrompt(args.packet, args.repoRoot, args.instruction, runId)
       : buildSpawnPrompt(args.packet, args.repoRoot, runId);
   return finishAdapterRun({ ...args, prompt, runId, controller, meta, runsDir });
 }
@@ -610,6 +620,7 @@ export async function rewakeSession(
   opts: {
     dispatchFilename?: string;
     agentId?: string;
+    instruction?: string;
     wakeReason?: WakeReason;
     adapter?: RuntimeAdapter;
     apiKey?: string | null;
@@ -664,5 +675,6 @@ export async function rewakeSession(
     agentId: session.agentId,
     adapter,
     apiKey,
+    instruction: opts.instruction,
   });
 }

@@ -56,6 +56,7 @@ import { omnivoiceHealth, omnivoiceSpeak } from "./voice";
 import { registerProjectRoutes } from "./project-routes";
 import { handleJarvisAct, handleJarvisConfirm } from "./jarvis/act";
 import { buildJarvisContext } from "./jarvis/briefing";
+import { listReviewInbox } from "./jarvis/review-inbox";
 import { queueValidatedDispatch } from "./queue-validated-dispatch";
 import { writeCsuiteDraft } from "./write-csuite-draft";
 
@@ -464,6 +465,8 @@ export function createApi(repoRoot = resolveRepoRoot()) {
                 ? call.input.dispatchFilename
                 : undefined,
             agentId: typeof call.input.agentId === "string" ? call.input.agentId : undefined,
+            instruction:
+              typeof call.input.instruction === "string" ? call.input.instruction : undefined,
             wakeReason: "rewake",
           }),
         });
@@ -540,11 +543,13 @@ export function createApi(repoRoot = resolveRepoRoot()) {
     const body = (await c.req.json().catch(() => ({}))) as {
       dispatchFilename?: string;
       agentId?: string;
+      instruction?: string;
       wakeReason?: WakeReason;
     };
     const result = await rewakeSession(repoRoot, {
       dispatchFilename: body.dispatchFilename,
       agentId: body.agentId,
+      instruction: body.instruction,
       wakeReason: body.wakeReason ?? "rewake",
     });
     return c.json(result, result.ok ? 200 : 400);
@@ -591,6 +596,10 @@ export function createApi(repoRoot = resolveRepoRoot()) {
   });
 
   app.get("/api/jarvis/context", (c) => c.json(buildJarvisContext(repoRoot)));
+
+  app.get("/api/jarvis/review-inbox", (c) => {
+    return c.json({ items: listReviewInbox(repoRoot) });
+  });
 
   app.post("/api/jarvis/confirm", async (c) => {
     const body = await c.req.json<{ roomId?: string; token?: string; accept?: boolean }>();

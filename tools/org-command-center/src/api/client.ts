@@ -314,6 +314,23 @@ export async function fetchLivekitHealth() {
   return res.json() as Promise<{ ok: boolean; detail: string; backend?: string }>;
 }
 
+export type ReviewInboxItem = {
+  filename: string;
+  path: string;
+  status: string;
+  position?: string;
+  phase?: string;
+  goal?: string;
+  created?: string;
+  mtimeMs: number;
+};
+
+export async function fetchReviewInbox() {
+  const res = await fetch("/api/jarvis/review-inbox");
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<{ items: ReviewInboxItem[] }>;
+}
+
 export async function fetchLivekitToken(opts?: { roomName?: string; identity?: string }) {
   const res = await fetch("/api/livekit/token", {
     method: "POST",
@@ -384,6 +401,7 @@ export async function spawnManager(opts?: {
 export async function rewakeSession(opts: {
   dispatchFilename?: string;
   agentId?: string;
+  instruction?: string;
 }) {
   const res = await fetch("/api/runs/rewake", {
     method: "POST",
