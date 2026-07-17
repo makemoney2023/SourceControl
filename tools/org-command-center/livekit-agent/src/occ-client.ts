@@ -80,19 +80,57 @@ export type JarvisActSpeechResult = {
   result?: unknown;
 };
 
+/** Strip markdown / punctuation TTS would read aloud as "asterisk asterisk". */
+export function sanitizeForSpeech(text: string): string {
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/_([^_\s][^_]*)_/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/\*/g, "")
+    .replace(/\r?\n+/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function speechFieldFromObject(value: Record<string, unknown>): string | null {
+  for (const key of ["spokenBrief", "spoken", "help", "summary", "reason"] as const) {
+    const v = value[key];
+    if (typeof v === "string" && v.trim()) return v;
+  }
+  return null;
+}
+
 export function summarizeJarvisSpeech(value: unknown, max = 600): string {
   if (value && typeof value === "object" && "status" in value) {
     const r = value as JarvisActSpeechResult;
-    if (r.status === "denied" && r.reason) return r.reason;
-    if (r.status === "error" && r.reason) return r.reason;
-    if (r.status === "needs_confirm" && r.summary) return r.summary;
-    if (r.status === "ok") return summarizeForSpeech(r.result ?? value, max);
+    if (r.status === "denied" && r.reason) return summarizeForSpeech(r.reason, max);
+    if (r.status === "error" && r.reason) return summarizeForSpeech(r.reason, max);
+    if (r.status === "needs_confirm" && r.summary) return summarizeForSpeech(r.summary, max);
+    // Prefer server `summary` — raw `result` is often JSON/markdown that TTS mangles into loops.
+    if (r.status === "ok") {
+      if (typeof r.summary === "string" && r.summary.trim()) {
+        return summarizeForSpeech(r.summary, max);
+      }
+      return summarizeForSpeech(r.result ?? value, max);
+    }
   }
   return summarizeForSpeech(value, max);
 }
 
 export function summarizeForSpeech(value: unknown, max = 600): string {
-  const s = typeof value === "string" ? value : JSON.stringify(value);
+  let s: string;
+  if (typeof value === "string") {
+    s = value;
+  } else if (value && typeof value === "object" && !Array.isArray(value)) {
+    s = speechFieldFromObject(value as Record<string, unknown>) ?? JSON.stringify(value);
+  } else {
+    s = JSON.stringify(value);
+  }
+  s = sanitizeForSpeech(s);
   if (s.length <= max) return s;
   return `${s.slice(0, max)}…`;
 }

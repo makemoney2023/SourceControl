@@ -2,10 +2,9 @@ import { WorkerOptions, cli } from "@livekit/agents";
 import { config } from "dotenv";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveRepoEnvLocal } from "./env-path.js";
 
-config({
-  path: resolve(fileURLToPath(new URL(".", import.meta.url)), "../../../.env.local"),
-});
+config({ path: resolveRepoEnvLocal() });
 config({ path: resolve(fileURLToPath(new URL(".", import.meta.url)), "../.env") });
 
 process.env.LIVEKIT_URL ||= "ws://127.0.0.1:7880";

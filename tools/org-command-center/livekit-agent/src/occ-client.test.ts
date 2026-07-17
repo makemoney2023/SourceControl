@@ -1,5 +1,22 @@
 import { describe, expect, it, vi } from "vitest";
-import { createOccClient, summarizeForSpeech, summarizeJarvisSpeech } from "./occ-client";
+import {
+  createOccClient,
+  sanitizeForSpeech,
+  summarizeForSpeech,
+  summarizeJarvisSpeech,
+} from "./occ-client";
+
+describe("sanitizeForSpeech", () => {
+  it("strips markdown bold so TTS does not say asterisk", () => {
+    expect(sanitizeForSpeech("**Modes** and **Top intents**")).toBe("Modes and Top intents");
+  });
+
+  it("strips bullets, headings, and backticks", () => {
+    expect(sanitizeForSpeech("## Help\n- mission.get — status\n`ops` mode")).toBe(
+      "Help mission.get — status ops mode",
+    );
+  });
+});
 
 describe("createOccClient", () => {
   it("getSeatReport hits /api/seat-report/:slug", async () => {
@@ -20,6 +37,10 @@ describe("createOccClient", () => {
 
   it("summarizeForSpeech truncates", () => {
     expect(summarizeForSpeech("a".repeat(10), 5)).toBe("aaaaa…");
+  });
+
+  it("summarizeForSpeech strips markdown before truncate", () => {
+    expect(summarizeForSpeech("**Bold** help", 20)).toBe("Bold help");
   });
 
   it("summarizeJarvisSpeech returns deny reason only", () => {
@@ -44,10 +65,23 @@ describe("createOccClient", () => {
     ).toBe("Confirm spawn run next?");
   });
 
-  it("summarizeJarvisSpeech summarizes ok result", () => {
-    expect(summarizeJarvisSpeech({ status: "ok", result: { mission: "AWG" } })).toBe(
-      '{"mission":"AWG"}',
-    );
+  it("summarizeJarvisSpeech prefers ok summary over raw result JSON", () => {
+    expect(
+      summarizeJarvisSpeech({
+        status: "ok",
+        summary: "Mission: AWG, phase 2.",
+        result: { mission: { idea: "AWG", currentPhase: "2", huge: "x".repeat(2000) } },
+      }),
+    ).toBe("Mission: AWG, phase 2.");
+  });
+
+  it("summarizeJarvisSpeech sanitizes markdown in ok help payloads", () => {
+    expect(
+      summarizeJarvisSpeech({
+        status: "ok",
+        result: { help: "**Modes**\n- Briefing — read only" },
+      }),
+    ).not.toMatch(/\*/);
   });
 
   it("jarvisAct POSTs to /api/jarvis/act with body", async () => {
