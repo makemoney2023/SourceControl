@@ -162,7 +162,7 @@ export function listRunEvents(dispatchRoot: string, limit?: number): RunEvent[];
 
 - [x] **Step 3: Wire intent + summaries** (“CEO finished with gaps: missing inbox.”)
 
-- [ ] **Step 4: Commit** — `feat(occ): runs.watch event feed for voice status`
+- [x] **Step 4: Commit** — `feat(occ): runs.watch event feed for voice status`
 
 ---
 
