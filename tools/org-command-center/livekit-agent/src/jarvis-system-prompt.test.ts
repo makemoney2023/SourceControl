@@ -32,15 +32,30 @@ describe("JARVIS_SYSTEM_PROMPT", () => {
 
   it("teaches started is not done after work.request confirm", () => {
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/started/i);
-    expect(JARVIS_SYSTEM_PROMPT).toMatch(/runId|run id/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/never read runIds|long numbers|never.*runId/i);
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/never.*(done|finished|complete)|not done|started is not done/i);
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/work\.request|work_request/i);
+  });
+
+  it("teaches Phase 0 C-suite roundtable confirm wording", () => {
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/Phase 0 C-suite roundtable/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/CEO → peers → CEO merge/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/do not manually queue those peers|auto peer/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/never set_mode\(briefing\)|never.*briefing/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/Never re-speak|pulse line|Next is Phase/i);
   });
 
   it("teaches runs.watch for run completion status", () => {
     expect(JARVIS_SYSTEM_PROMPT).toContain("runs.watch");
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/runs\.get|runs_get/i);
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/is it done|done\?|finished|run status/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/never work_request|status update/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/NEVER re-speak|Next is/i);
+  });
+
+  it("teaches proactive completion announce without inventing finishes", () => {
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/proactively announce|system may.*announce/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/never invent/i);
   });
 
   it("teaches run.instruct and run.rewake for mid-flight operator delta", () => {
@@ -73,5 +88,15 @@ describe("JARVIS_SYSTEM_PROMPT", () => {
     expect(JARVIS_SYSTEM_PROMPT).toContain("memory.recall");
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/where are we|what'?s next/i);
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/never.*spawn|suggestion alone/i);
+  });
+
+  it("forbids inventing confirm tokens", () => {
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/never invent.*token|omit token|no token/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/jarvis_confirm.*accept|accept:\s*true|accept true/i);
+  });
+
+  it("requires speaking Confirm and waiting before more tools", () => {
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/Confirm\?.*out loud|speak the confirm|ask Confirm\?/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/stop all tools|Never call work_request again|wait for the user/i);
   });
 });

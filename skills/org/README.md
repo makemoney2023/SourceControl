@@ -7,6 +7,8 @@ Portable **position skills** + Cursor **agent definitions** so the business-idea
 **Orchestrator:** [orchestrator/SKILL.md](./orchestrator/SKILL.md) — CEO dispatcher  
 **Template:** [POSITION-TEMPLATE.md](./POSITION-TEMPLATE.md)
 
+**MCP posture:** Position skills are markdown brains, not MCP servers. External SaaS access goes through integration skills / connected MCPs in TOOL-REGISTRY. Company actions go through OCC (Jarvis HTTP or optional `occ-control`). See [MCP posture design](../../docs/superpowers/specs/2026-07-20-mcp-posture-and-control-plane-design.md).
+
 ## Install into a project
 
 ```bash

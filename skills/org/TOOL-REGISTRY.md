@@ -13,6 +13,20 @@ Craft packs stay in position `Skill packs`. Live tool access uses `skills/integr
 4. Seats may only use tools listed as **primary** or **secondary** for their slug (orchestrator may grant one-off exceptions in the packet).
 5. Managers ensure IC packets include required env/property IDs when a phase expects live data.
 
+## MCP posture
+
+Seat `SKILL.md` files are **instructions**, not MCP servers. Do not create an MCP server per digital worker.
+
+| Layer | Role |
+|-------|------|
+| Brain | `skills/org/positions/<seat>/SKILL.md` loaded locally into Cursor workers |
+| External toolbelt | MCP/REST tools in this registry (Firecrawl, GitHub, GA, …) |
+| Internal toolbelt | OCC HTTP (Jarvis) and optional **`occ-control`** MCP for non-Jarvis clients |
+
+**Forbidden:** wrapping Cursor SDK as an MCP tool solely for LiveKit; per-seat MCP under `positions/`.  
+**Allowed:** one proprietary OCC Control MCP (`occ-control`) when a non-Jarvis MCP host needs company actions.  
+**Spec:** [`docs/superpowers/specs/2026-07-20-mcp-posture-and-control-plane-design.md`](../../docs/superpowers/specs/2026-07-20-mcp-posture-and-control-plane-design.md)
+
 ## Tool catalog
 
 | tool_id | Skill path | Depth | Preferred access | Env / secrets | MCP server id(s) | Fallback |

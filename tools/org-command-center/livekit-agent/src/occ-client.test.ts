@@ -11,9 +11,24 @@ describe("sanitizeForSpeech", () => {
     expect(sanitizeForSpeech("**Modes** and **Top intents**")).toBe("Modes and Top intents");
   });
 
+  it("does not leave timestamp runIds as spoken numbers", () => {
+    const out = sanitizeForSpeech(
+      "head-of-research running as 1784308096815-head-of-research. Artifact will land in review inbox.",
+    );
+    expect(out).not.toMatch(/1784308096815/);
+    expect(out).toMatch(/head of research/i);
+  });
+
   it("strips bullets, headings, and backticks", () => {
     expect(sanitizeForSpeech("## Help\n- mission.get — status\n`ops` mode")).toBe(
       "Help mission.get — status ops mode",
+    );
+  });
+
+  it("strips incomplete bold and think tags before TTS", () => {
+    expect(sanitizeForSpeech("**Modes and **Top")).toBe("Modes and Top");
+    expect(sanitizeForSpeech("<think>secret</think> Phase zero ready.")).toBe(
+      "Phase zero ready.",
     );
   });
 });
@@ -55,7 +70,7 @@ describe("createOccClient", () => {
     ).toBe("Invalid or expired confirm token");
   });
 
-  it("summarizeJarvisSpeech returns confirm summary", () => {
+  it("summarizeJarvisSpeech returns confirm summary only", () => {
     expect(
       summarizeJarvisSpeech({
         status: "needs_confirm",
@@ -169,5 +184,22 @@ describe("createOccClient", () => {
     expect(body.roomId).toBe("room-1");
     expect(body.token).toBe("tok-abc");
     expect(body.accept).toBe(true);
+  });
+
+  it("eventsSince GETs /api/jarvis/events/since with optional cursor", async () => {
+    const calls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      async (url: string) => {
+        calls.push(String(url));
+        return new Response(
+          JSON.stringify({ events: [], nextCursor: null, active: false }),
+        );
+      },
+    );
+    const c = createOccClient("http://127.0.0.1:5177");
+    await c.eventsSince("2026-07-17T12:00:00.000Z|r1|finished");
+    expect(calls[0]).toContain("/api/jarvis/events/since");
+    expect(calls[0]).toContain("cursor=");
   });
 });

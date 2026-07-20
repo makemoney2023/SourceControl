@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "occ-control": {
+      "command": "npx",
+      "args": [
+        "tsx",
+        "tools/org-command-center/server/mcp/occ-control-stdio.ts"
+      ],
+      "env": {
+        "OCC_API_BASE": "http://127.0.0.1:5177"
+      }
+    }
+  }
+}

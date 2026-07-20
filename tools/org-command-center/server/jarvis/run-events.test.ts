@@ -4,8 +4,11 @@ import { tmpdir } from "node:os";
 import { describe, expect, it } from "vitest";
 import {
   appendRunEvent,
+  eventCursor,
   listRunEvents,
+  listRunEventsSince,
   runEventsPath,
+  spokenAnnounceLine,
   summarizeRunEvents,
   type RunEvent,
 } from "./run-events";
@@ -66,5 +69,50 @@ describe("run-events", () => {
 
   it("summarizeRunEvents handles empty feed", () => {
     expect(summarizeRunEvents([])).toBe("No recent run events.");
+  });
+
+  it("listRunEventsSince returns events after cursor in chronological order", () => {
+    const droot = tempDispatchRoot();
+    appendRunEvent(droot, sampleEvent({ at: "2026-07-17T12:00:01.000Z", runId: "run-1", type: "started" }));
+    appendRunEvent(
+      droot,
+      sampleEvent({ at: "2026-07-17T12:00:02.000Z", runId: "run-1", type: "finished" }),
+    );
+    appendRunEvent(
+      droot,
+      sampleEvent({
+        at: "2026-07-17T12:00:03.000Z",
+        runId: "run-2",
+        type: "acceptance_failed",
+        position: "cmo",
+        detail: "inbox",
+      }),
+    );
+    const first = listRunEventsSince(droot);
+    expect(first.events.map((e) => e.type)).toEqual(["started", "finished", "acceptance_failed"]);
+    expect(first.nextCursor).toBe(eventCursor(first.events[2]!));
+
+    const after = listRunEventsSince(droot, eventCursor(first.events[0]!));
+    expect(after.events.map((e) => `${e.runId}:${e.type}`)).toEqual([
+      "run-1:finished",
+      "run-2:acceptance_failed",
+    ]);
+  });
+
+  it("spokenAnnounceLine covers terminal events without runIds", () => {
+    expect(spokenAnnounceLine(sampleEvent({ type: "started" }))).toBeNull();
+    const finished = spokenAnnounceLine(
+      sampleEvent({ type: "finished", runId: "1784308096815-ceo-strategist" }),
+    );
+    expect(finished).toBe("CEO finished.");
+    expect(finished).not.toMatch(/\d{6,}/);
+    expect(
+      spokenAnnounceLine(
+        sampleEvent({ type: "acceptance_failed", detail: "inbox", position: "cmo" }),
+      ),
+    ).toBe("cmo finished with gaps: inbox.");
+    expect(
+      spokenAnnounceLine(sampleEvent({ type: "error", detail: "timeout", position: "cfo" })),
+    ).toBe("cfo failed: timeout.");
   });
 });

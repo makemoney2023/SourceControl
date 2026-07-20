@@ -10,7 +10,7 @@ export type JarvisActBody = {
 
 export type JarvisConfirmBody = {
   roomId: string;
-  token: string;
+  token?: string;
   accept: boolean;
 };
 
@@ -73,6 +73,20 @@ export function createOccClient(baseUrl: string) {
         method: "POST",
         body: JSON.stringify(body),
       }),
+    eventsSince: (cursor?: string) => {
+      const q = cursor ? `?cursor=${encodeURIComponent(cursor)}` : "";
+      return getJson(`/api/jarvis/events/since${q}`) as Promise<{
+        events: Array<{
+          at: string;
+          type: string;
+          runId: string;
+          position: string;
+          detail?: string;
+        }>;
+        nextCursor: string | null;
+        active: boolean;
+      }>;
+    },
   };
 }
 
@@ -88,6 +102,9 @@ export type JarvisActSpeechResult = {
 /** Strip markdown / punctuation TTS would read aloud as "asterisk asterisk". */
 export function sanitizeForSpeech(text: string): string {
   return text
+    // Qwen / reasoning models sometimes leak think blocks into spoken content
+    .replace(/<think>[\s\S]*?<\/think>/gi, " ")
+    .replace(/<\/?think>/gi, " ")
     .replace(/\*\*([^*]+)\*\*/g, "$1")
     .replace(/__([^_]+)__/g, "$1")
     .replace(/\*([^*]+)\*/g, "$1")
@@ -95,7 +112,14 @@ export function sanitizeForSpeech(text: string): string {
     .replace(/`([^`]+)`/g, "$1")
     .replace(/^#{1,6}\s+/gm, "")
     .replace(/^\s*[-*+]\s+/gm, "")
-    .replace(/\*/g, "")
+    // Any leftover markdown / unicode asterisks (TTS says "asterisk")
+    .replace(/[*＊✱✶✷✸]/g, "")
+    // Timestamp runIds like 1784308096815-head-of-research → seat name only
+    .replace(/\b\d{10,}(?:-[a-z0-9-]+)+\b/gi, (id) => {
+      const seat = id.replace(/^\d+-/, "").replace(/-/g, " ");
+      return seat || "the run";
+    })
+    .replace(/\b\d{10,}\b/g, "")
     .replace(/\r?\n+/g, " ")
     .replace(/\s{2,}/g, " ")
     .trim();
@@ -114,7 +138,9 @@ export function summarizeJarvisSpeech(value: unknown, max = 600): string {
     const r = value as JarvisActSpeechResult;
     if (r.status === "denied" && r.reason) return summarizeForSpeech(r.reason, max);
     if (r.status === "error" && r.reason) return summarizeForSpeech(r.reason, max);
-    if (r.status === "needs_confirm" && r.summary) return summarizeForSpeech(r.summary, max);
+    if (r.status === "needs_confirm" && r.summary) {
+      return summarizeForSpeech(r.summary, max);
+    }
     // Prefer server `summary` — raw `result` is often JSON/markdown that TTS mangles into loops.
     if (r.status === "ok") {
       if (typeof r.summary === "string" && r.summary.trim()) {

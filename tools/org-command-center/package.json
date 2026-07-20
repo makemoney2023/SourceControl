@@ -22,6 +22,7 @@
     "voice-stack": "bash scripts/voice-stack-up.sh",
     "agent:dev": "npm --prefix livekit-agent run dev",
     "agent:test": "npm --prefix livekit-agent test",
+    "check:mcp-posture": "bash scripts/check-no-seat-mcp.sh",
     "jarvis:smoke": "bash livekit-agent/scripts/smoke-ollama-tools.sh",
     "jarvis:eval:ollama": "node server/jarvis/eval/ollama-eval.mjs"
   },
@@ -63,6 +64,7 @@
     "@vitejs/plugin-react": "^6.0.3",
     "oxlint": "^1.71.0",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.1",
     "typescript": "~6.0.2",
     "vite": "^8.1.1",
     "vitest": "^4.1.10"

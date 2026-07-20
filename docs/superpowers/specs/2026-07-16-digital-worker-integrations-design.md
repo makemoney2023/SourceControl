@@ -42,6 +42,8 @@ Give every digital worker a clear path from seat → tool → MCP/API skill, wit
 
 ## Non-goals
 
-- Building or hosting MCP servers in this repo  
+- Building or hosting **per-seat / per-skill** MCP servers in this repo  
 - Replacing community craft packs  
 - Live API calls during skill authoring  
+
+**Clarification (2026-07-20):** The optional proprietary **OCC Control MCP** (`occ-control`) for non-Jarvis clients is allowed under [`2026-07-20-mcp-posture-and-control-plane-design.md`](./2026-07-20-mcp-posture-and-control-plane-design.md). That exception does **not** authorize turning digital workers into MCP servers.  

@@ -57,8 +57,10 @@ import { registerProjectRoutes } from "./project-routes";
 import { registerSourcesRoutes } from "./sources-routes";
 import { handleJarvisAct, handleJarvisConfirm } from "./jarvis/act";
 import { buildJarvisContext } from "./jarvis/briefing";
+import { buildEventsSincePayload } from "./jarvis/events-since";
 import { listReviewInbox } from "./jarvis/review-inbox";
 import { memoryDigest } from "./memory";
+import { handleOccControlRpc } from "./mcp/occ-control";
 import { queueValidatedDispatch } from "./queue-validated-dispatch";
 import { writeCsuiteDraft } from "./write-csuite-draft";
 
@@ -600,6 +602,16 @@ export function createApi(repoRoot = resolveRepoRoot()) {
 
   app.get("/api/jarvis/context", async (c) => c.json(await buildJarvisContext(repoRoot)));
 
+  app.get("/api/jarvis/events/since", (c) => {
+    const cursor = c.req.query("cursor") || undefined;
+    return c.json(buildEventsSincePayload(repoRoot, cursor));
+  });
+
+  app.post("/api/mcp/occ-control", async (c) => {
+    const body = await c.req.json().catch(() => ({}));
+    return c.json(await handleOccControlRpc(repoRoot, body));
+  });
+
   app.post("/api/jarvis/memory/digest", async (c) => {
     const body = (await c.req.json().catch(() => ({}))) as { summary?: string };
     const summary = typeof body.summary === "string" ? body.summary.trim() : undefined;
@@ -614,7 +626,8 @@ export function createApi(repoRoot = resolveRepoRoot()) {
   app.post("/api/jarvis/confirm", async (c) => {
     const body = await c.req.json<{ roomId?: string; token?: string; accept?: boolean }>();
     const roomId = String(body.roomId || "default");
-    const token = String(body.token ?? "");
+    // Token optional — empty resolves latest pending (voice agents omit UUID).
+    const token = typeof body.token === "string" ? body.token : "";
     const accept = body.accept === true;
     return c.json(await handleJarvisConfirm(repoRoot, roomId, token, accept));
   });

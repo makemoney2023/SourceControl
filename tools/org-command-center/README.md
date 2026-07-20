@@ -173,6 +173,10 @@ Review mode adds `file.read`, `csuite.draft`, and handoffs; spawn intents stay d
 
 **Phase 1+2 lifecycle intents:** `runs.watch` (completion/gaps), `run.instruct` (mid-run operator delta), `blocker.list` / `blocker.resolve` (blocked seats), `dispatch.queue_batch` + `spawn.run_ready` (multi-manager kickoff). Started ≠ done — always confirm with `runs.watch` before reporting completion.
 
+**MCP posture:** Seat skills stay markdown; do not wrap Cursor as MCP for voice. Jarvis uses OCC HTTP. Optional `occ-control` MCP is for non-Jarvis clients only. Design: [`docs/superpowers/specs/2026-07-20-mcp-posture-and-control-plane-design.md`](../../docs/superpowers/specs/2026-07-20-mcp-posture-and-control-plane-design.md). Example client config: [`docs/mcp.json`](./docs/mcp.json).
+
+**Proactive completion:** While runs are active (and briefly after), the LiveKit agent polls `GET /api/jarvis/events/since` and may announce finish/gap lines without the user asking. Announces defer while waiting on Confirm?. Pull path (`runs.watch`) remains.
+
 ## Manual soak
 
 Use a live voice session (LiveKit + Ops mode) to validate end-to-end behavior after deploy.
