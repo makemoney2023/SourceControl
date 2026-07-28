@@ -1,0 +1,28 @@
+{
+  "runId": "1784315043337-cmo",
+  "status": "completed",
+  "position": "cmo",
+  "phase": "0",
+  "claimed": "0-cmo-20260717T190403Z.yaml",
+  "dispatch_filename": "0-cmo-20260717T190403Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-17T19:04:03.337Z",
+  "llm_model": "grok-4.5",
+  "finished_at": "2026-07-17T19:05:28.565Z",
+  "result": "CMO Phase 0 peer brief is ready for CEO merge — not phase-complete.\n\n**Delivered**\n- IC: `HANDOFFS/0-product-marketing-manager.md` (customer / positioning / channels)\n- Manager brief: `HANDOFFS/0-manager-cmo.md` (`ready_for_csuite`, **approve**)\n- Operator review: `REVIEW/inbox/0-cmo-2026-07-17T1904-deliverable.md` (`pending_review`, runId `1784315043337-cmo`)\n\n**Assumptions (thin evidence — sources empty)**\n| Lens | Call |\n|------|------|\n| Customer | Event attendees primary; organizers secondary |\n| Positioning | Fresh + cold + occasion + honest simplicity — *Ice-cold lemonade, squeezed fresh at the event.* |\n| Channels | P0 booth + organizer slots; defer paid/SEO |\n\nNo peer managers spawned. Soft flags for CEO: zero sources; live-squeeze theater vs throughput (COO).",
+  "agentId": "agent-1708cb68-0f24-49a5-a4a8-0318fe5266a8",
+  "usage": {
+    "inputTokens": 261006,
+    "outputTokens": 6895,
+    "cacheReadTokens": 219264,
+    "cacheWriteTokens": 0,
+    "totalTokens": 487165
+  },
+  "cost_usd": 0.952222,
+  "duration_ms": 83734,
+  "acceptance": {
+    "ok": true,
+    "missing": [],
+    "checkedAt": "2026-07-17T19:05:28.566Z"
+  }
+}

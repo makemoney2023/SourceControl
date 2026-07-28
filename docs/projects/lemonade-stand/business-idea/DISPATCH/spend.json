@@ -1,0 +1,39 @@
+{
+  "bySeat": {
+    "ceo-strategist": {
+      "tokens": 3753252,
+      "cost_usd": 7.441901,
+      "updated_at": "2026-07-20T15:48:40.618Z"
+    },
+    "head-of-research": {
+      "tokens": 1162620,
+      "cost_usd": 2.329224,
+      "updated_at": "2026-07-20T15:48:19.304Z"
+    },
+    "cmo": {
+      "tokens": 1174281,
+      "cost_usd": 2.341292,
+      "updated_at": "2026-07-20T15:49:11.272Z"
+    },
+    "cfo": {
+      "tokens": 1182475,
+      "cost_usd": 2.354717,
+      "updated_at": "2026-07-20T15:48:35.182Z"
+    },
+    "coo": {
+      "tokens": 1308266,
+      "cost_usd": 2.632163,
+      "updated_at": "2026-07-20T15:49:16.760Z"
+    }
+  },
+  "byDay": {
+    "2026-07-17": {
+      "tokens": 6161159,
+      "cost_usd": 12.173041
+    },
+    "2026-07-20": {
+      "tokens": 2419735,
+      "cost_usd": 4.926256
+    }
+  }
+}

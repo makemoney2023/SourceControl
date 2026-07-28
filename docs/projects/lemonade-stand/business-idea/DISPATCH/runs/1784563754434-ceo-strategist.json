@@ -1,0 +1,15 @@
+{
+  "runId": "1784563754434-ceo-strategist",
+  "status": "error",
+  "position": "ceo-strategist",
+  "phase": "1",
+  "claimed": "1-ceo-strategist-20260720T160914Z.yaml",
+  "dispatch_filename": "1-ceo-strategist-20260720T160914Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-20T16:09:14.434Z",
+  "llm_model": "grok-4.5",
+  "finished_at": "2026-07-20T17:48:49.358Z",
+  "agentId": "agent-cafe8d30-8b7f-475b-a37d-61650916e266",
+  "cost_usd": 0,
+  "duration_ms": 5973589
+}

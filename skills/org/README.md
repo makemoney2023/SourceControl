@@ -34,6 +34,10 @@ Also copy the community packs each position needs (or the whole `skills/communit
 
 **Contracts:** `HANDOFF-TEMPLATE.md` · `MANAGER-BRIEF-TEMPLATE.md` · `CSUITE-REVIEW-TEMPLATE.md` · `COLLABORATION.md` · `ESCALATION.md`
 
+**Handoff merge gate:** Managers/orchestrator reject creative/eng/CRO/brand/web handoffs that lack (1) pack paths and (2) one decision tied to each pack. See `HANDOFF-TEMPLATE.md` § Merge gate.
+
+**Pack path CI:** `scripts/validate-skill-pack-paths.sh` (also runs from `scripts/sync-org-agents.sh`) — fails if position Skill pack tables point at missing paths.
+
 **Degrade path:** Role-play in hierarchy order; still write handoff files; still run C-suite gate.
 
 ## Org Command Center (Jarvis Theater)

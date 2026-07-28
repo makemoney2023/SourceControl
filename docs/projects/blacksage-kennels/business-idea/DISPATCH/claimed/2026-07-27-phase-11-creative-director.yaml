@@ -1,0 +1,37 @@
+phase: "11"
+position: creative-director
+goal: >-
+  Produce Phase 11 brand system for Blacksage Kennels (German Rottweiler breeder).
+  Document colors, type, voice, logo direction, imagery rules for a cinematic 3D
+  website. Spawn brand-designer IC with write_lease. Merge into 11-brand-system.md
+  and write manager brief. Do not mark phase complete.
+report_to: ceo-strategist
+parent_position: orchestrator
+llm_tier: creative-language
+llm_model: composer-2.5
+generation_profile: brand-stills
+inputs:
+  - docs/projects/blacksage-kennels/business-idea/00-intake.md
+  - docs/projects/blacksage-kennels/MEMORY/context.md
+  - docs/projects/blacksage-kennels/MEMORY/decisions.md
+  - docs/projects/blacksage-kennels/business-idea/.agents/product-marketing.md
+must_read:
+  - skills/org/positions/creative-director/SKILL.md
+  - skills/org/MODEL-REGISTRY.md
+  - skills/org/COLLABORATION.md
+  - docs/projects/blacksage-kennels/business-idea/RUNBOOK-TRACKER.md
+outputs:
+  - docs/projects/blacksage-kennels/business-idea/11-brand-system.md
+write_lease:
+  - docs/projects/blacksage-kennels/business-idea/11-brand-system.md
+  - docs/projects/blacksage-kennels/business-idea/HANDOFFS/11-manager-creative-director.md
+budget_usd: null
+collaborators: []
+delegate_budget: 2
+constraints:
+  - Spawn only Delegates from your position SKILL.md (brand-designer for phase 11)
+  - Each IC packet MUST include llm_tier + generation_profile (brand-stills or none with skip reason — operator photos later; document placeholder rules; do not invent kennel photos)
+  - Visual direction locked: deep black/charcoal, amber-tan coat accents, sage undertone; brand-first hero; no purple-gradient AI clichés; no cream+terracotta cliché
+  - Await IC handoffs; merge; write manager brief
+  - Do not mark phase complete
+  - Do not spawn peer managers

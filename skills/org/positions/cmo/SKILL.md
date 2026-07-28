@@ -44,7 +44,11 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/marketingskills/marketing-plan/` | Marketing plan |
 | `skills/community/marketingskills/marketing-loops/` | Growth loops |
 | `skills/community/marketingskills/launch/` | Launch |
+| `skills/community/marketingskills/cro/` | CRO (Phase 18) |
+| `skills/community/marketingskills/ab-testing/` | Experiment design |
+| `skills/community/marketingskills/signup/` | Inquiry / signup patterns |
 | `skills/community/awesome-claude-corporate-skills/04-marketing/campaign-planner/` | Campaigns |
+| `skills/community/advertising-skills/skills/orchestrators/full-funnel-campaign-orchestrator/` | Full-funnel campaign QA |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/05-prd.md`
@@ -85,7 +89,7 @@ Use orchestrator schemas. Managers receive manager packets; ICs receive IC packe
 | Field | Value |
 |-------|-------|
 | `llm_tier` | `frontier-reasoning` |
-| Preferred Cursor `model` | `grok-4-5` |
+| Preferred Cursor `model` | `grok-4.5` |
 | `generation_profile` | `none` |
 | Fallback | See `skills/org/MODEL-REGISTRY.md` |
 

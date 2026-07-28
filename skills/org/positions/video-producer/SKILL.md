@@ -30,7 +30,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 | Pack path | Use for |
 |-----------|---------|
-| `skills/community/openmontage/` | OpenMontage pipelines — read AGENT_GUIDE.md |
+| `skills/community/openmontage/` | OpenMontage entry — AGENT_GUIDE + Rule Zero |
+| `skills/community/openmontage/.agents/skills/hyperframes/` | HyperFrames runtime |
+| `skills/community/openmontage/.agents/skills/hyperframes-registry/` | Registry compositions |
+| `skills/community/openmontage/.claude/skills/remotion-best-practices/` | Remotion practices |
 | `skills/community/visual-skills/video/` | Video prompt craft |
 | `skills/community/marketingskills/video/` | Video channel strategy |
 | `skills/community/remotion/video/remotion-create/` | Remotion helpers |

@@ -162,9 +162,18 @@ ${body.trim()}
 `;
 }
 
-function extractSummary(repoRoot: string, record: SourceRecord): string {
+/** File-backed INDEX rows only — citation/url rows omit these paths. */
+function fileRelForRecord(record: SourceRecord): string | null {
   const rel =
-    record.extractRel === "self" ? record.originalRel : record.extractRel;
+    record.extractRel === "self" || record.extractRel == null
+      ? record.originalRel
+      : record.extractRel;
+  return typeof rel === "string" && rel.length > 0 ? rel : null;
+}
+
+function extractSummary(repoRoot: string, record: SourceRecord): string {
+  const rel = fileRelForRecord(record);
+  if (!rel) return record.title;
   const abs = join(repoRoot, rel);
   if (!existsSync(abs)) return record.title;
   const raw = readFileSync(abs, "utf8");
@@ -300,8 +309,15 @@ export function deleteSource(repoRoot: string, id: string): void {
   }
 
   const [removed] = records.splice(index, 1);
-  const paths = new Set<string>([removed.originalRel]);
-  if (removed.extractRel !== "self") {
+  const paths = new Set<string>();
+  if (typeof removed.originalRel === "string" && removed.originalRel) {
+    paths.add(removed.originalRel);
+  }
+  if (
+    typeof removed.extractRel === "string" &&
+    removed.extractRel &&
+    removed.extractRel !== "self"
+  ) {
     paths.add(removed.extractRel);
   }
 
@@ -318,8 +334,8 @@ export function newestExtractRels(repoRoot: string, limit: number): string[] {
   const { sources } = listSources(repoRoot);
   const rels: string[] = [];
   for (const record of sources) {
-    const rel =
-      record.extractRel === "self" ? record.originalRel : record.extractRel;
+    const rel = fileRelForRecord(record);
+    if (!rel) continue;
     if (existsSync(join(repoRoot, rel))) {
       rels.push(rel);
     }

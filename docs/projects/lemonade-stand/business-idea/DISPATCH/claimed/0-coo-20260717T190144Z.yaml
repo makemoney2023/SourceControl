@@ -1,0 +1,38 @@
+schema_version: 1
+queued_at: 2026-07-17T19:01:44.383Z
+phase: "0"
+position: coo
+goal: Phase 0 peer brief (COO). Read 00-intake.md and MEMORY/context.md. Write
+  ONLY HANDOFFS/0-manager-coo.md with ops, delivery, and legal/compliance flags.
+  Do not rewrite intake. Do not mark phase complete. Do not spawn peer managers.
+report_to: ceo-strategist
+parent_position: orchestrator
+llm_tier: frontier-reasoning
+llm_model: grok-4.5
+generation_profile: none
+inputs: []
+must_read:
+  - docs/projects/lemonade-stand/MEMORY/context.md
+  - docs/projects/lemonade-stand/business-idea/SOURCES/INDEX.md
+outputs: []
+write_lease:
+  - docs/projects/lemonade-stand/business-idea/HANDOFFS/0-manager-coo.md
+budget_usd: null
+collaborators: []
+delegate_budget: 2
+constraints:
+  - Spawn only Delegates to from your position SKILL.md
+  - Give each IC a write_lease subset (no colliding paths)
+  - Each IC packet MUST include llm_tier
+  - Await IC handoffs; merge; write manager brief
+  - Do not mark phase complete
+  - Do not spawn peer managers yourself — ask orchestrator
+company_goal: Lemonade Stand
+parent_goal: Phase 0 — Intake
+goal_path:
+  - Lemonade Stand
+  - Phase 0 — Intake
+  - Phase 0 peer brief (COO). Read 00-intake.md and MEMORY/context.md. Write
+    ONLY HANDOFFS/0-manager-coo.md with ops, delivery, and legal/compliance
+    flags. Do not rewrite intake. Do not mark phase complete. Do not spawn peer
+    managers.

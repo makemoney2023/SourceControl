@@ -1,8 +1,15 @@
 import type { JarvisIntent, JarvisMode } from "./intents";
 
-const CONFIRM_TTL_MS = 60_000;
+/** Voice turns (speak Confirm? → STT → yes) often exceed 60s. */
+const CONFIRM_TTL_MS = 10 * 60_000;
 
-type Pending = { intent: JarvisIntent; args: unknown; mode: JarvisMode; expires: number };
+type Pending = {
+  intent: JarvisIntent;
+  args: unknown;
+  mode: JarvisMode;
+  expires: number;
+  createdAt: number;
+};
 
 export type WorkIntakeState = {
   intakeSeat: string;
@@ -29,14 +36,30 @@ export function setRoomMode(roomId: string, mode: JarvisMode): JarvisMode {
   return mode;
 }
 
+function clearRoomPending(roomId: string): void {
+  const prefix = `${roomId}:`;
+  for (const mapKey of pending.keys()) {
+    if (mapKey.startsWith(prefix)) pending.delete(mapKey);
+  }
+}
+
 export function createConfirmToken(
   roomId: string,
   intent: JarvisIntent,
   args: unknown,
   mode: JarvisMode,
 ): string {
+  // One pending confirm per room — stacked tokens make "yes" confirm the wrong action.
+  clearRoomPending(roomId);
   const token = crypto.randomUUID();
-  pending.set(key(roomId, token), { intent, args, mode, expires: Date.now() + CONFIRM_TTL_MS });
+  const now = Date.now();
+  pending.set(key(roomId, token), {
+    intent,
+    args,
+    mode,
+    expires: now + CONFIRM_TTL_MS,
+    createdAt: now,
+  });
   return token;
 }
 
@@ -77,7 +100,13 @@ export function cancelConfirm(
 
 export function peekLatestConfirm(
   roomId: string,
-): { token: string; intent: JarvisIntent; args: unknown; mode: JarvisMode } | null {
+): {
+  token: string;
+  intent: JarvisIntent;
+  args: unknown;
+  mode: JarvisMode;
+  createdAt: number;
+} | null {
   const prefix = `${roomId}:`;
   let latest: {
     token: string;
@@ -85,6 +114,7 @@ export function peekLatestConfirm(
     args: unknown;
     mode: JarvisMode;
     expires: number;
+    createdAt: number;
   } | null = null;
 
   for (const [mapKey, entry] of pending.entries()) {
@@ -95,12 +125,25 @@ export function peekLatestConfirm(
     }
     const token = mapKey.slice(prefix.length);
     if (!latest || entry.expires >= latest.expires) {
-      latest = { token, intent: entry.intent, args: entry.args, mode: entry.mode, expires: entry.expires };
+      latest = {
+        token,
+        intent: entry.intent,
+        args: entry.args,
+        mode: entry.mode,
+        expires: entry.expires,
+        createdAt: entry.createdAt,
+      };
     }
   }
 
   return latest
-    ? { token: latest.token, intent: latest.intent, args: latest.args, mode: latest.mode }
+    ? {
+        token: latest.token,
+        intent: latest.intent,
+        args: latest.args,
+        mode: latest.mode,
+        createdAt: latest.createdAt,
+      }
     : null;
 }
 

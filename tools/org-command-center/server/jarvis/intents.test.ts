@@ -37,6 +37,15 @@ describe("parseJarvisAct", () => {
       parseJarvisAct({ intent: "brain.ask", args: { prompt: "What next?" } }).intent,
     ).toBe("brain.ask");
   });
+
+  it("accepts brain.route", () => {
+    expect(
+      parseJarvisAct({
+        intent: "brain.route",
+        args: { utterance: "what are the next steps?" },
+      }).intent,
+    ).toBe("brain.route");
+  });
   it("accepts phase.list_open", () => {
     expect(parseJarvisAct({ intent: "phase.list_open", args: {} }).intent).toBe("phase.list_open");
   });

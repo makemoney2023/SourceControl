@@ -157,9 +157,10 @@ export function buildTasks(args: {
     const review = csuiteByPhase.get(mb.phase);
     if (!review || (review.verdict !== "approve" && review.verdict !== "skip-review")) {
       if (mb.status === "ready_for_csuite" || mb.verdictForManager === "ready_to_merge" || mb.status) {
+        const seat = mb.position || mb.filename.replace(/\.md$/i, "") || "manager";
         tasks.push({
-          id: `review:${mb.phase}`,
-          title: `C-suite review phase ${mb.phase}`,
+          id: `review:${mb.phase}:${seat}`,
+          title: `C-suite review phase ${mb.phase} (${seat})`,
           status: "awaiting_csuite",
           phase: mb.phase,
           slug: mb.position,

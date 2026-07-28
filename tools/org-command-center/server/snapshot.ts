@@ -20,7 +20,8 @@ import {
   trackerPath,
 } from "./paths";
 import { routineSummaries } from "./routines";
-import { listRuns } from "./runs-fs";
+import { advancePhase0Roundtable } from "./jarvis/phase0-roundtable";
+import { listRuns, reconcileStaleRuns } from "./runs-fs";
 import { listSessions } from "./sessions";
 import { loadSpend, totalSpendUsd } from "./spend";
 import { syncHandoffAlerts } from "./alerts-fs";
@@ -60,7 +61,17 @@ export function loadSnapshot(repoRoot: string) {
   const droot = dispatchRoot(repoRoot);
   const queue = listDispatchFiles(droot, "queue");
   const claimed = listDispatchFiles(droot, "claimed");
-  const runs = listRuns(join(droot, "runs"), 40);
+  const runsDir = join(droot, "runs");
+  reconcileStaleRuns(runsDir);
+  try {
+    advancePhase0Roundtable(repoRoot);
+  } catch (err) {
+    console.warn(
+      "[phase0-roundtable] snapshot advance failed:",
+      err instanceof Error ? err.message : err,
+    );
+  }
+  const runs = listRuns(runsDir, 40);
   const agentStates = listAgentStates(droot);
   const activity = readActivityTail(droot, 40);
   const sessions = listSessions(droot);

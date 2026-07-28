@@ -65,7 +65,7 @@ Use orchestrator schemas. Managers receive manager packets; ICs receive IC packe
 | Field | Value |
 |-------|-------|
 | `llm_tier` | `frontier-reasoning` |
-| Preferred Cursor `model` | `grok-4-5` |
+| Preferred Cursor `model` | `grok-4.5` |
 | `generation_profile` | `none` |
 | Fallback | See `skills/org/MODEL-REGISTRY.md` |
 

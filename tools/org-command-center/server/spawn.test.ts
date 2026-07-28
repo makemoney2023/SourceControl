@@ -99,9 +99,18 @@ describe("buildSpawnPrompt", () => {
     expect(prompt).toContain("skills/org/positions/head-of-research/HEARTBEAT.md");
     expect(prompt).toContain("Goal ancestry");
     expect(prompt).toContain("Test company");
-    expect(prompt).toContain(`${BIZ_IDEA}/HANDOFFS/`);
-    expect(prompt).toContain(`${BIZ_IDEA}/REVIEW/inbox/`);
+    expect(prompt).toMatch(/business-idea\/HANDOFFS\//);
+    expect(prompt).toMatch(/business-idea\/REVIEW\/inbox\//);
     expect(prompt).toContain("pending_review");
+  });
+
+  it("requires plain-English operator sections and next steps", () => {
+    const repo = resolveRepoRoot();
+    const prompt = buildSpawnPrompt(packet, repo);
+    expect(prompt).toMatch(/In plain English/i);
+    expect(prompt).toMatch(/Next steps/i);
+    expect(prompt).toMatch(/Operator deliverable format/i);
+    expect(prompt).toMatch(/who acts/i);
   });
 
   it("states hard acceptance criteria from packet fields", () => {
@@ -423,7 +432,7 @@ describe("spawnRunReady", () => {
     position: "cfo",
     goal: "Burn review",
     llm_tier: "frontier-reasoning",
-    llm_model: "grok-4-5",
+    llm_model: "grok-4.5",
   };
 
   it("spawns multiple queued managers detached with mock adapter", () => {

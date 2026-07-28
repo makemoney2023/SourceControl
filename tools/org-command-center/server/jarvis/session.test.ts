@@ -25,12 +25,19 @@ describe("session confirm tokens", () => {
     expect(consumeConfirm("room-1", "bad-token")).toBeNull();
   });
 
-  it("expires after 60s", () => {
+  it("expires after 10 minutes", () => {
     vi.useFakeTimers();
     const token = createConfirmToken("room-1", "spawn.run_next", {}, "ops");
-    vi.advanceTimersByTime(61_000);
+    vi.advanceTimersByTime(10 * 60_000 + 1);
     expect(consumeConfirm("room-1", token)).toBeNull();
     vi.useRealTimers();
+  });
+
+  it("replaces prior pending for the same room", () => {
+    const first = createConfirmToken("room-1", "spawn.run_next", {}, "ops");
+    const second = createConfirmToken("room-1", "work.request", { goal: "x" }, "ops");
+    expect(consumeConfirm("room-1", first)).toBeNull();
+    expect(consumeConfirm("room-1", second)?.intent).toBe("work.request");
   });
 
   it("is single-use", () => {
@@ -76,7 +83,7 @@ describe("peekLatestConfirm", () => {
   beforeEach(() => resetSessionForTests());
   afterEach(() => resetSessionForTests());
 
-  it("returns latest pending token for room", () => {
+  it("returns the single pending token for room", () => {
     createConfirmToken("room-1", "spawn.run_next", {}, "ops");
     const second = createConfirmToken("room-1", "agent.pause", { slug: "cfo" }, "ops");
     const latest = peekLatestConfirm("room-1");

@@ -1,0 +1,37 @@
+schema_version: 1
+queued_at: 2026-07-17T17:17:54.544Z
+phase: "2"
+position: head-of-research
+goal: Kick off Phase 2 Market — resolve the open blocker and deliver the phase-2
+  research brief
+report_to: ceo-strategist
+parent_position: orchestrator
+llm_tier: strong-general
+llm_model: composer-2.5
+generation_profile: none
+inputs: []
+must_read:
+  - docs/projects/passive-grid/MEMORY/context.md
+  - docs/projects/passive-grid/business-idea/SOURCES/INDEX.md
+outputs: []
+write_lease:
+  - docs/projects/passive-grid/business-idea/HANDOFFS/2-manager-head-of-research.md
+budget_usd: null
+collaborators: []
+delegate_budget: 3
+constraints:
+  - Spawn only Delegates to from your position SKILL.md
+  - Give each IC a write_lease subset (no colliding paths)
+  - Each IC packet MUST include llm_tier
+  - Await IC handoffs; merge; write manager brief
+  - Do not mark phase complete
+  - Do not spawn peer managers yourself — ask orchestrator
+company_goal: Smart sorbent-based atmospheric water generator with Raspberry Pi edge control
+parent_goal: Phase 2 — Market
+goal_path:
+  - Smart sorbent-based atmospheric water generator with Raspberry Pi edge
+    control
+  - Phase 2 — Market
+  - Kick off Phase 2 Market — resolve the open blocker and deliver the phase-2
+    research brief
+require_inbox: true

@@ -1,0 +1,15 @@
+{
+  "bySeat": {
+    "head-of-research": {
+      "tokens": 566949,
+      "cost_usd": 1.134577,
+      "updated_at": "2026-07-17T17:27:50.214Z"
+    }
+  },
+  "byDay": {
+    "2026-07-17": {
+      "tokens": 566949,
+      "cost_usd": 1.134577
+    }
+  }
+}

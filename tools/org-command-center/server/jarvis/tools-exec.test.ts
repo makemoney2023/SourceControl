@@ -260,6 +260,26 @@ const INTENT_COVERAGE: CoverageCase[] = [
       },
     },
   },
+  {
+    intent: "brain.route",
+    args: {
+      utterance: "what are the next steps?",
+      spokenBrief: "Phase 0 is done.",
+      apiKey: "test-key",
+      runtime: {
+        async prompt() {
+          return {
+            status: "finished",
+            result: JSON.stringify({
+              intent: "clarify",
+              clarifyQuestion: "List next steps, or start Phase 1?",
+              confidence: 0.88,
+            }),
+          };
+        },
+      },
+    },
+  },
   { intent: "handoff.list", args: { phase: "2" } },
   { intent: "briefing.pin", args: { mode: "seat", slug: "ceo-strategist" } },
   { intent: "phase.list_open", args: {} },
@@ -571,6 +591,33 @@ describe("executeIntent", () => {
     expect(queued.require_inbox).toBe(true);
     expect(queued.position).toBe("cmo");
     expect(queued.preferred_ic).toBeUndefined();
+  });
+
+  it("work.request Phase 0 starts roundtable state for CEO intake", async () => {
+    repo = tempRepo();
+    // In-process test adapter finishes before the test continues; seed intake so advance
+    // can move past awaiting_ceo_intake without marking the roundtable failed.
+    writeFileSync(join(repo, BIZ_IDEA, "00-intake.md"), "# Intake\nclassification: service\n");
+    const result = (await executeIntent(repo, "work.request", {
+      position: "ceo-strategist",
+      goal: "Phase 0 Intake — classify new venture",
+      phase: "0",
+      apiKey: "test-key",
+      adapter: okAdapter,
+    })) as { ok: boolean; runId?: string; phase0Roundtable?: boolean };
+    expect(result.ok).toBe(true);
+    expect(result.phase0Roundtable).toBe(true);
+    expect(result.runId).toBeTruthy();
+    const statePath = join(dispatchDir(repo), "phase0-roundtable.json");
+    expect(existsSync(statePath)).toBe(true);
+    const state = JSON.parse(readFileSync(statePath, "utf8")) as {
+      status: string;
+      ceoIntakeRunId?: string;
+    };
+    expect(state.ceoIntakeRunId).toBe(result.runId);
+    expect(["awaiting_ceo_intake", "peers_running", "awaiting_ceo_merge"]).toContain(
+      state.status,
+    );
   });
 
   it("work.request passes targetIc as preferred_ic on queued packet", async () => {
@@ -1247,7 +1294,10 @@ describe("handleJarvisConfirm", () => {
       mode: "ops",
       confirmToken: pending.token,
     });
-    expect(retry.status).toBe("error");
+    // Stale/fake tokens re-issue needs_confirm instead of hard-failing voice flows.
+    expect(retry.status).toBe("needs_confirm");
+    expect(retry.token).toBeTruthy();
+    expect(retry.token).not.toBe(pending.token);
   });
 
   it("executes when accept is true", async () => {

@@ -1,0 +1,39 @@
+phase: "12"
+position: creative-director
+goal: >-
+  Produce Phase 12 web design & IA for Blacksage Kennels cinematic 3D site.
+  Spawn web-designer (primary) and brand-designer if needed for stills/placeholders.
+  Deliver 12-web-design.md: sitemap, section IA, hero composition, 3D scroll map,
+  component inventory (shadcn), apply flow, responsive/reduced-motion, design-system path notes.
+  Write manager brief. Do not mark phase complete.
+report_to: ceo-strategist
+parent_position: orchestrator
+llm_tier: creative-language
+llm_model: composer-2.5
+generation_profile: brand-stills
+inputs:
+  - docs/projects/blacksage-kennels/business-idea/11-brand-system.md
+  - docs/projects/blacksage-kennels/business-idea/00-intake.md
+  - docs/projects/blacksage-kennels/MEMORY/context.md
+  - docs/projects/blacksage-kennels/business-idea/.agents/product-marketing.md
+must_read:
+  - skills/org/positions/creative-director/SKILL.md
+  - skills/org/positions/web-designer/SKILL.md
+  - skills/org/MODEL-REGISTRY.md
+  - skills/org/COLLABORATION.md
+  - docs/projects/blacksage-kennels/business-idea/RUNBOOK-TRACKER.md
+outputs:
+  - docs/projects/blacksage-kennels/business-idea/12-web-design.md
+write_lease:
+  - docs/projects/blacksage-kennels/business-idea/12-web-design.md
+  - docs/projects/blacksage-kennels/business-idea/HANDOFFS/12-manager-creative-director.md
+budget_usd: null
+delegate_budget: 3
+constraints:
+  - Spawn web-designer as primary IC; brand-designer optional for placeholder frames only
+  - Follow 11-brand-system.md tokens and R3F scroll narrative exactly
+  - Site job: brand prestige + applications equally; landing + /apply
+  - Stack: Next.js App Router, Tailwind, shadcn/ui, R3F, Framer Motion
+  - Full-bleed hero; no cards in first viewport; brand-first
+  - generation_profile brand-stills may skip with reason if no image API
+  - Do not mark phase complete; no peer managers

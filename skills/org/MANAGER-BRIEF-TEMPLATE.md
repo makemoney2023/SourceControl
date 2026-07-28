@@ -17,8 +17,19 @@ fallback_applied: false
 
 # Manager brief — <Title> — Phase <id>
 
+## In plain English
+3–5 short sentences a non-technical operator can understand: what the team did, what it means, and whether we can continue. No runIds, no scorecard tables here.
+
+## What we found
+- Up to 5 load-bearing facts or labeled assumptions
+
+## Next steps
+1. Who acts next (operator / seat) and the concrete ask
+2. …
+3. Blocking questions the operator must answer (if any)
+
 ## Summary (5 bullets max)
-- …
+- … (optional detail; prefer the three sections above for Jarvis / operators)
 
 ## IC handoffs merged
 | IC | Handoff path | Status | llm_tier | generation_used |

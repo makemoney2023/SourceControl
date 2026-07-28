@@ -35,7 +35,7 @@ function tempRepo() {
   const modelMd = readFileSync(join(FIXTURES, "sample-model-registry.md"), "utf8");
   const extendedModels = modelMd.replace(
     "| brand-designer | strong-general | `composer-2.5` | brand-stills |",
-    "| brand-designer | strong-general | `composer-2.5` | brand-stills |\n| cfo | frontier-reasoning | `grok-4-5` | none |",
+    "| brand-designer | strong-general | `composer-2.5` | brand-stills |\n| cfo | frontier-reasoning | `grok-4.5` | none |",
   );
   writeFileSync(join(root, "skills/org/MODEL-REGISTRY.md"), extendedModels);
 

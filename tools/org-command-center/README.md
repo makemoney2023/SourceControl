@@ -67,12 +67,12 @@ OMNIVOICE_VOICE=am_adam
 OCC_API_BASE=http://127.0.0.1:5177
 JARVIS_PULSE_MS=0          # optional idle mission pulse (ms; 0 = off)
 JARVIS_LLM_BACKEND=ollama  # voice turn-taking LLM (local Ollama)
-JARVIS_BRAIN_MODEL=grok-4.5  # Cursor SDK model for brain.ask deep think
+JARVIS_BRAIN_MODEL=grok-4.5  # Cursor SDK model for brain.ask + brain.route
 XAI_API_KEY=               # optional direct xAI voice LLM; ignored when JARVIS_LLM_BACKEND=ollama
-CURSOR_API_KEY=   # required for brain.ask + voice work.request + Run next (Cursor SDK)
+CURSOR_API_KEY=   # required for brain.route / brain.ask + voice work.request + Run next (Cursor SDK)
 ```
 
-**Voice LLM:** Default harness is local Ollama (`JARVIS_LLM_BACKEND=ollama`) for turn-taking, routing, and OCC tools. STT/TTS stay local (Whisper + Kokoro). Say “think hard / ask Grok / tradeoffs…” to call `brain.ask`, which runs Cursor SDK `grok-4.5` (billed on `CURSOR_API_KEY`) and speaks the answer. Worker spawn is separate and also uses the Cursor SDK. Domain→seat routing stays in the voice system prompt.
+**Voice LLM:** Default harness is local Ollama (`JARVIS_LLM_BACKEND=ollama`) for leftover tool turns after routing. STT/TTS stay local (Whisper + Kokoro). **Intent routing** uses Cursor SDK `brain.route` (`grok-4.5` via `CURSOR_API_KEY`) to classify ask vs proceed vs clarify, then OCC tools answer or Confirm?. Deep think remains `brain.ask` (“think hard / ask Grok / tradeoffs…”). Worker spawn is separate and also uses the Cursor SDK.
 
 **Voice → Cursor spawn:** In Ops, say e.g. “spin up the CEO to look at this project” or “write a short blog”. Jarvis switches to Ops, runs `work.resolve` once, then `work.request` → one confirm → queues the manager and starts Cursor (`spawnClaimedManagerDetached`). Content asks (blog/copy) may gather a couple of requirements first; clear seat+goal asks skip invented clarifying questions. Deliverables land under `docs/projects/<active>/business-idea/REVIEW/inbox/` (Outputs drawer → **Needs review**). Without `CURSOR_API_KEY` in repo `.env.local`, confirm will fail with “CURSOR_API_KEY missing”.
 

@@ -1,0 +1,35 @@
+phase: "0"
+position: ceo-strategist
+goal: >-
+  Full Phase 0 intake for Blacksage Kennels after operator rejected v1 fast-forward website.
+  Replace stub 00-intake.md with complete intake (classification, mode, depth, success,
+  non-negotiables, what exists, phases to emphasize/skip). Document that v1 app is prototype only.
+  Write manager brief / csuite skip-review as allowed for Phase 0. Do not mark phase complete
+  without review file. Do not redesign the website in this phase.
+report_to: orchestrator
+parent_position: orchestrator
+llm_tier: frontier-reasoning
+llm_model: grok-4.5
+generation_profile: none
+inputs:
+  - docs/projects/blacksage-kennels/MEMORY/context.md
+  - docs/projects/blacksage-kennels/MEMORY/decisions.md
+  - docs/projects/blacksage-kennels/business-idea/RUNBOOK-TRACKER.md
+  - docs/projects/blacksage-kennels/business-idea/SOURCES/INDEX.md
+must_read:
+  - skills/org/positions/ceo-strategist/SKILL.md
+  - skills/org/MODEL-REGISTRY.md
+  - templates/business-idea/00-intake.md
+  - docs/projects/lemonade-stand/business-idea/00-intake.md
+outputs:
+  - docs/projects/blacksage-kennels/business-idea/00-intake.md
+write_lease:
+  - docs/projects/blacksage-kennels/business-idea/00-intake.md
+  - docs/projects/blacksage-kennels/business-idea/HANDOFFS/0-manager-ceo-strategist.md
+  - docs/projects/blacksage-kennels/business-idea/HANDOFFS/0-csuite-review.md
+delegate_budget: 0
+constraints:
+  - Phase 0 may use skip-review with reason after intake complete
+  - Surface blocking questions for operator (especially why v1 felt subpar)
+  - Do not spawn website rebuild; do not rewrite phases 11–14 yet
+  - Assume German Rottweiler kennel; validate business model and site role

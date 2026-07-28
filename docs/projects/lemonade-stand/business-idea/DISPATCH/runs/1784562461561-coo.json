@@ -1,0 +1,28 @@
+{
+  "runId": "1784562461561-coo",
+  "status": "completed",
+  "position": "coo",
+  "phase": "0",
+  "claimed": "0-coo-20260720T154741Z.yaml",
+  "dispatch_filename": "0-coo-20260720T154741Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-20T15:47:41.561Z",
+  "llm_model": "grok-4.5",
+  "finished_at": "2026-07-20T15:49:16.760Z",
+  "result": "Phase 0 COO peer brief is done. Planning can continue; event sales stay gated on geography, permits, and insurance.\n\n**ICs spawned (no peer managers):**\n- `ops-manager` → `HANDOFFS/0-ops-manager.md`\n- `legal-counsel` → `HANDOFFS/0-legal-counsel.md`\n\n**Manager brief:** `HANDOFFS/0-manager-coo.md`  \n**Operator review:** `REVIEW/inbox/0-coo-2026-07-20T1547-deliverable.md` (`status: pending_review`, `runId: 1784562461561-coo`)\n\n**Load-bearing call:** explore-mode OK; do not treat a pilot sale as cleared until geography + temp food permit + insurance/COI are answered. Fresh open lemonade is usually not a cottage-food shortcut.\n\n**Recommendation:** approve into CEO roundtable merge. Phase 0 not marked complete.",
+  "agentId": "agent-c19bc145-491c-4b71-916f-4b4ad03a591e",
+  "usage": {
+    "inputTokens": 256698,
+    "outputTokens": 7476,
+    "cacheReadTokens": 205760,
+    "cacheWriteTokens": 0,
+    "totalTokens": 469934
+  },
+  "cost_usd": 0.943962,
+  "duration_ms": 93811,
+  "acceptance": {
+    "ok": true,
+    "missing": [],
+    "checkedAt": "2026-07-20T15:49:16.760Z"
+  }
+}

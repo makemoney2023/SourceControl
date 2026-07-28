@@ -1,0 +1,28 @@
+{
+  "runId": "1784315043334-cfo",
+  "status": "completed",
+  "position": "cfo",
+  "phase": "0",
+  "claimed": "0-cfo-20260717T190403Z.yaml",
+  "dispatch_filename": "0-cfo-20260717T190403Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-17T19:04:03.334Z",
+  "llm_model": "grok-4.5",
+  "finished_at": "2026-07-17T19:05:09.152Z",
+  "result": "**CFO Phase 0 peer brief complete** — ready for roundtable merge; phase not marked complete.\n\n**Recommendation:** approve\n\n| Artifact | Path |\n|----------|------|\n| Manager brief | `docs/projects/lemonade-stand/business-idea/HANDOFFS/0-manager-cfo.md` |\n| IC handoff | `docs/projects/lemonade-stand/business-idea/HANDOFFS/0-fpa-analyst.md` |\n| Operator review | `docs/projects/lemonade-stand/business-idea/REVIEW/inbox/0-cfo-2026-07-17T1904-deliverable.md` (`pending_review`, runId `1784315043334-cfo`) |\n\n**Economics (assumptions):** startup **$535–$2,550**; season-one **~$2.4k–$6.7k**; mid COGS **$1.30**/cup @ **$5** → break-even **~61 cups**/mid-festival day. **4B skipped** (bootstrapped).\n\n**Delegation:** spawned `fpa-analyst` only; did not spawn `fundraising-lead` or peer managers.",
+  "agentId": "agent-ada89426-bb76-4c3a-9007-a13adb108f35",
+  "usage": {
+    "inputTokens": 210175,
+    "outputTokens": 5377,
+    "cacheReadTokens": 171520,
+    "cacheWriteTokens": 0,
+    "totalTokens": 387072
+  },
+  "cost_usd": 0.762636,
+  "duration_ms": 64320,
+  "acceptance": {
+    "ok": true,
+    "missing": [],
+    "checkedAt": "2026-07-17T19:05:09.152Z"
+  }
+}

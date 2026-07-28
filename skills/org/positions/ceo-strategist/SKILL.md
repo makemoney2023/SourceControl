@@ -31,7 +31,7 @@ Own company coherence: intake, strategy, quality gates, launch summary, and ongo
 ## Owns phases / steps
 | Phase | Scope |
 |-------|-------|
-| 0 | Intake & classification |
+| 0 | Intake & classification — Jarvis auto-spawns peer roundtable (CFO/CMO/COO/HoR) after intake; you merge into `HANDOFFS/0-csuite-review.md`. Do not spawn those peer managers yourself. |
 | 1 | Frame opportunity |
 | 3 | Strategy ownership |
 | 10 | Strategy QA |
@@ -94,7 +94,7 @@ Use orchestrator schemas. Managers receive manager packets; ICs receive IC packe
 | Field | Value |
 |-------|-------|
 | `llm_tier` | `frontier-reasoning` |
-| Preferred Cursor `model` | `grok-4-5` |
+| Preferred Cursor `model` | `grok-4.5` |
 | `generation_profile` | `none` |
 | Fallback | See `skills/org/MODEL-REGISTRY.md` |
 

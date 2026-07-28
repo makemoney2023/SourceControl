@@ -1,5 +1,5 @@
 {
-  "active": "passive-grid",
+  "active": "blacksage-kennels",
   "projects": {
     "passive-grid": {
       "name": "Passive Grid",
@@ -10,6 +10,16 @@
       "name": "Demo Venture",
       "businessIdea": "docs/projects/demo-venture/business-idea",
       "memory": "docs/projects/demo-venture/MEMORY"
+    },
+    "lemonade-stand": {
+      "name": "Lemonade Stand",
+      "businessIdea": "docs/projects/lemonade-stand/business-idea",
+      "memory": "docs/projects/lemonade-stand/MEMORY"
+    },
+    "blacksage-kennels": {
+      "name": "Blacksage Kennels",
+      "businessIdea": "docs/projects/blacksage-kennels/business-idea",
+      "memory": "docs/projects/blacksage-kennels/MEMORY"
     }
   }
 }

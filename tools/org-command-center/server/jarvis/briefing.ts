@@ -2,6 +2,10 @@ import type { MissionState } from "../../src/jarvis/mission";
 import { loadSnapshot } from "../snapshot";
 import { listSources } from "../sources/store";
 import { memoryBrief } from "../memory";
+import {
+  loadPhase0Roundtable,
+  spokenPhase0FindingsBrief,
+} from "./phase0-roundtable";
 
 export type MissionBriefInput = Pick<
   MissionState,
@@ -31,19 +35,30 @@ export async function buildJarvisContext(repoRoot: string) {
   const truncated = contextNote.trim().slice(0, 500);
 
   let spokenBrief: string;
-  try {
-    const brief = await memoryBrief(repoRoot);
-    spokenBrief = brief.spoken;
-  } catch {
-    spokenBrief = spokenMissionBrief(snap.mission);
+  const phase0 = loadPhase0Roundtable(repoRoot);
+  const phase0Pulse = phase0?.pulse?.trim();
+  if (phase0?.status === "done") {
+    // Prefer findings from 0-csuite-review.md over a thin "verdict approve" pulse.
+    spokenBrief =
+      spokenPhase0FindingsBrief(repoRoot) ||
+      phase0Pulse ||
+      spokenMissionBrief(snap.mission);
+  } else if (phase0Pulse && phase0?.status && phase0.status !== "failed") {
+    // Live roundtable pulse beats stale tracker "Next is Phase 0 Intake…"
+    spokenBrief = phase0Pulse;
+  } else {
+    try {
+      const brief = await memoryBrief(repoRoot);
+      spokenBrief = brief.spoken;
+    } catch {
+      spokenBrief = spokenMissionBrief(snap.mission);
+    }
   }
 
-  if (truncated || sources.length > 0) {
-    if (truncated) {
-      spokenBrief += ` Context note on file; ${sources.length} sources attached.`;
-    } else {
-      spokenBrief += ` ${sources.length} source${sources.length === 1 ? "" : "s"} attached.`;
-    }
+  // Keep wake/FAB speech clean — never append MEMORY context prose (often noisy).
+  // Only mention attached sources when present.
+  if (sources.length > 0) {
+    spokenBrief += ` ${sources.length} source${sources.length === 1 ? "" : "s"} attached.`;
   }
 
   return {

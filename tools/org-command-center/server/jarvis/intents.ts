@@ -44,6 +44,7 @@ export const JARVIS_INTENTS = [
   "session.cancel_pending",
   "jarvis.ping",
   "brain.ask",
+  "brain.route",
   "handoff.list",
   "briefing.pin",
   "phase.list_open",

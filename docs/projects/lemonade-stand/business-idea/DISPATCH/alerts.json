@@ -1,0 +1,148 @@
+{
+  "alerts": [
+    {
+      "id": "new:0-manager-ceo-strategist.md",
+      "filename": "0-manager-ceo-strategist.md",
+      "slug": "",
+      "phase": "0",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T19:01:28.908Z",
+      "acked": true
+    },
+    {
+      "id": "new:0-ops-manager.md",
+      "filename": "0-ops-manager.md",
+      "slug": "ops-manager",
+      "phase": "0",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T19:02:38.303Z",
+      "acked": false
+    },
+    {
+      "id": "new:0-fpa-analyst.md",
+      "filename": "0-fpa-analyst.md",
+      "slug": "fpa-analyst",
+      "phase": "0",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T19:02:40.303Z",
+      "acked": false
+    },
+    {
+      "id": "new:0-manager-head-of-research.md",
+      "filename": "0-manager-head-of-research.md",
+      "slug": "",
+      "phase": "0",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T19:02:40.976Z",
+      "acked": false
+    },
+    {
+      "id": "new:0-manager-cmo.md",
+      "filename": "0-manager-cmo.md",
+      "slug": "",
+      "phase": "0",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T19:02:54.303Z",
+      "acked": false
+    },
+    {
+      "id": "new:0-manager-cfo.md",
+      "filename": "0-manager-cfo.md",
+      "slug": "",
+      "phase": "0",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T19:02:56.306Z",
+      "acked": false
+    },
+    {
+      "id": "new:0-legal-counsel.md",
+      "filename": "0-legal-counsel.md",
+      "slug": "legal-counsel",
+      "phase": "0",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T19:03:02.303Z",
+      "acked": false
+    },
+    {
+      "id": "blocked:0-legal-counsel.md:needs_input",
+      "filename": "0-legal-counsel.md",
+      "slug": "legal-counsel",
+      "phase": "0",
+      "kind": "blocked",
+      "createdAt": "2026-07-17T19:03:02.303Z",
+      "acked": false
+    },
+    {
+      "id": "new:0-manager-coo.md",
+      "filename": "0-manager-coo.md",
+      "slug": "",
+      "phase": "0",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T19:03:18.976Z",
+      "acked": false
+    },
+    {
+      "id": "new:0-csuite-review.md",
+      "filename": "0-csuite-review.md",
+      "slug": "",
+      "phase": "0",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T19:04:34.301Z",
+      "acked": false
+    },
+    {
+      "id": "new:0-product-marketing-manager.md",
+      "filename": "0-product-marketing-manager.md",
+      "slug": "product-marketing-manager",
+      "phase": "0",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T19:05:00.302Z",
+      "acked": false
+    },
+    {
+      "id": "new:2-manager-ceo-strategist.md",
+      "filename": "2-manager-ceo-strategist.md",
+      "slug": "",
+      "phase": "2",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T19:34:50.970Z",
+      "acked": false
+    },
+    {
+      "id": "blocked:2-manager-ceo-strategist.md:blocked",
+      "filename": "2-manager-ceo-strategist.md",
+      "slug": "",
+      "phase": "2",
+      "kind": "blocked",
+      "createdAt": "2026-07-17T19:34:50.970Z",
+      "acked": false
+    },
+    {
+      "id": "escalate:2-manager-ceo-strategist.md",
+      "filename": "2-manager-ceo-strategist.md",
+      "slug": "",
+      "phase": "2",
+      "kind": "escalate",
+      "createdAt": "2026-07-17T19:34:50.970Z",
+      "acked": false
+    },
+    {
+      "id": "new:1-manager-ceo-strategist.md",
+      "filename": "1-manager-ceo-strategist.md",
+      "slug": "",
+      "phase": "1",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T19:36:27.331Z",
+      "acked": false
+    },
+    {
+      "id": "new:1-csuite-review.md",
+      "filename": "1-csuite-review.md",
+      "slug": "",
+      "phase": "1",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-20T15:44:05.663Z",
+      "acked": false
+    }
+  ]
+}

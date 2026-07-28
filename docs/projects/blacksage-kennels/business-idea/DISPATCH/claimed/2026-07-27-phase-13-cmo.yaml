@@ -1,0 +1,35 @@
+phase: "13"
+position: cmo
+goal: >-
+  Produce Phase 13 copy foundation for Blacksage Kennels: voice, messaging pillars,
+  awareness levels, headline systems, section copy frameworks, apply CTA language.
+  Spawn copy-chief (creative-language), content-strategist, product-marketing-manager
+  in parallel with non-colliding write leases. Merge into 13-copy-foundation.md.
+  Write manager brief. Do not mark phase complete.
+report_to: ceo-strategist
+parent_position: orchestrator
+llm_tier: frontier-reasoning
+llm_model: grok-4.5
+generation_profile: none
+inputs:
+  - docs/projects/blacksage-kennels/business-idea/11-brand-system.md
+  - docs/projects/blacksage-kennels/business-idea/12-web-design.md
+  - docs/projects/blacksage-kennels/business-idea/.agents/product-marketing.md
+  - docs/projects/blacksage-kennels/MEMORY/context.md
+  - docs/projects/blacksage-kennels/business-idea/00-intake.md
+must_read:
+  - skills/org/positions/cmo/SKILL.md
+  - skills/org/MODEL-REGISTRY.md
+  - skills/org/COLLABORATION.md
+outputs:
+  - docs/projects/blacksage-kennels/business-idea/13-copy-foundation.md
+write_lease:
+  - docs/projects/blacksage-kennels/business-idea/13-copy-foundation.md
+  - docs/projects/blacksage-kennels/business-idea/HANDOFFS/13-manager-cmo.md
+delegate_budget: 4
+constraints:
+  - copy-chief MUST use llm_tier creative-language
+  - Voice: confident, calm, precise — power with nobility; no aggression stereotypes
+  - Align to 12-web-design section IA and 11 brand pillars
+  - ADRK-aligned breed facts only (cite MEMORY/context + ADRK research)
+  - Do not mark phase complete; ask orchestrator for creative-director peer help if needed

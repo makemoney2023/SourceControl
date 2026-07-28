@@ -20,20 +20,21 @@ export function shouldPollEvents(
   return nowMs - lastTerminalAtMs <= POLL_AFTER_TERMINAL_MS;
 }
 
+/**
+ * @param deferSpeak - true while Confirm? pending or user is mid Q&A.
+ *   Still mark cursors so finish events do not pile up and dump later.
+ */
 export function selectAnnounceEvents(
   events: AnnounceEvent[],
   announcedKeys: Set<string>,
-  waitingConfirm: boolean,
+  deferSpeak: boolean,
 ): { speak: string[]; mark: string[] } {
-  if (waitingConfirm) {
-    return { speak: [], mark: [] };
-  }
   const speak: string[] = [];
   const mark: string[] = [];
   for (const event of events) {
     if (announcedKeys.has(event.cursor)) continue;
     mark.push(event.cursor);
-    if (event.spoken) speak.push(event.spoken);
+    if (!deferSpeak && event.spoken) speak.push(event.spoken);
   }
   return { speak, mark };
 }

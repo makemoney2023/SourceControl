@@ -40,7 +40,19 @@ import { writeCsuiteDraft } from "../write-csuite-draft";
 import { buildQueueForPacket, parseBatchQueueItems, previewQueueFor, queueDispatchBatch } from "./dispatch-for";
 import { JarvisExecError } from "./errors";
 import type { JarvisIntent } from "./intents";
-import { listReviewInbox, writeReviewInboxReceipt } from "./review-inbox";
+import {
+  isPhase0RoundtableRequest,
+  startPhase0Roundtable,
+} from "./phase0-roundtable";
+import {
+  extractOperatorSummary,
+  formatOperatorSummarySpoken,
+} from "./operator-summary";
+import {
+  findInboxDeliverableByRunId,
+  listReviewInbox,
+  writeReviewInboxReceipt,
+} from "./review-inbox";
 import {
   cancelConfirm,
   clearWorkIntake,
@@ -57,6 +69,7 @@ import { planBlockerResolve } from "./blocker-resolve";
 import { listRunEvents, summarizeRunEvents } from "./run-events";
 import { resolveWorkTarget } from "./work-request";
 import { askBrain } from "./brain-ask";
+import { routeBrain } from "./brain-route";
 import {
   memoryBrief,
   memoryDigest,
@@ -89,7 +102,7 @@ const SESSION_HELP = [
   "Ops adds assign, run next, cancel, rewake, pause, resume, cancel pending, and memory writes.",
   "Review adds file read and csuite draft. Architect adds venture create or switch.",
   "Top intents: mission.get for status; memory.brief for where we are; digest.get or digest.focus; blocker.list; blocker.resolve; dispatch.queue_batch; spawn.run_ready; seat.report; phase.list_open;",
-  "activity.tail; session.help; session.repeat; jarvis.ping; brain.ask for Cursor Grok deep think; mode.set;",
+  "activity.tail; session.help; session.repeat; jarvis.ping; brain.ask for Cursor Grok deep think; brain.route for voice intent; mode.set;",
   "work.resolve or work.request for intake and Cursor spawn; review.inbox_list for artifacts.",
   "Memory: memory.brief and memory.recall are read-only; memory.note, memory.digest, and memory.reindex need Ops and confirm.",
 ].join(" ");
@@ -216,7 +229,15 @@ export async function executeIntent(
       if (!runId) throw new JarvisExecError("runId required", "missing_arg");
       const run = readRun(join(droot, "runs"), runId);
       if (!run) throw new JarvisExecError(`run not found: ${runId}`, "not_found");
-      return { run };
+      const inbox = findInboxDeliverableByRunId(repoRoot, runId);
+      const operatorSpoken = inbox
+        ? formatOperatorSummarySpoken(extractOperatorSummary(inbox.markdown))
+        : null;
+      return {
+        run,
+        operatorSpoken: operatorSpoken ?? undefined,
+        inboxPath: inbox?.rel,
+      };
     }
 
     case "runs.watch": {
@@ -531,6 +552,7 @@ export async function executeIntent(
       const resolved = resolveWorkTarget(repoRoot, {
         position: args.position != null ? String(args.position) : undefined,
         goal: args.goal != null ? String(args.goal) : undefined,
+        phase: args.phase != null ? String(args.phase) : undefined,
       });
       const roomId = String(args.roomId ?? "");
       if (roomId) {
@@ -551,8 +573,15 @@ export async function executeIntent(
       const answers: Record<string, string> = {};
       if (answersRaw && typeof answersRaw === "object" && !Array.isArray(answersRaw)) {
         for (const [k, v] of Object.entries(answersRaw as Record<string, unknown>)) {
-          answers[k] = String(v ?? "");
+          const text = String(v ?? "").trim();
+          // Drop empty / ultra-short STT garbage so it cannot pollute Cursor goals.
+          if (text.length < 8) continue;
+          if (!/[a-zA-Z]{3,}/.test(text)) continue;
+          answers[k] = text;
         }
+      }
+      if (Object.keys(answers).length === 0) {
+        throw new JarvisExecError("No usable intake answers", "invalid_intake");
       }
       let state = patchWorkIntakeAnswers(roomId, answers);
       if (!state) {
@@ -573,15 +602,19 @@ export async function executeIntent(
     case "work.request": {
       const roomId = String(args.roomId ?? "");
       const intake = roomId ? getWorkIntake(roomId) : undefined;
+      const rawPhase = args.phase != null ? String(args.phase) : undefined;
+      const rawGoal =
+        args.goal != null ? String(args.goal) : intake?.goal;
       const resolved = resolveWorkTarget(repoRoot, {
         position:
           args.position != null
             ? String(args.position)
             : intake?.intakeSeat,
-        goal: args.goal != null ? String(args.goal) : intake?.goal,
+        goal: rawGoal,
+        phase: rawPhase,
       });
       const position = resolved.intakeSeat;
-      const baseGoal = String(args.goal ?? intake?.goal ?? resolved.goal ?? "").trim();
+      const baseGoal = String(rawGoal ?? resolved.goal ?? "").trim();
       const targetIc =
         args.targetIc != null
           ? String(args.targetIc)
@@ -589,11 +622,26 @@ export async function executeIntent(
       if (!position) throw new JarvisExecError("position required", "missing_arg");
       if (!baseGoal) throw new JarvisExecError("goal required", "missing_arg");
       const answers = intake?.answers ?? {};
-      let goal = mergeWorkGoal(baseGoal, answers);
+      let goal = mergeWorkGoal(
+        resolved.intakeSeat === "ceo-strategist" &&
+          isPhase0RoundtableRequest({
+            phase: rawPhase,
+            goal: baseGoal,
+          })
+          ? resolved.goal
+          : baseGoal,
+        answers,
+      );
       if (targetIc) {
         goal = `${goal}\n\nPreferred IC to spawn after intake: ${targetIc}`;
       }
-      const phase = args.phase != null ? String(args.phase) : undefined;
+      const phase = isPhase0RoundtableRequest({
+        phase: rawPhase,
+        position,
+        goal: baseGoal,
+      })
+        ? "0"
+        : rawPhase;
       const input = buildQueueForPacket(repoRoot, {
         position,
         goal,
@@ -624,6 +672,18 @@ export async function executeIntent(
         goal,
         runId: spawned.runId,
       });
+      let phase0Roundtable = false;
+      if (
+        spawned.runId &&
+        isPhase0RoundtableRequest({
+          phase: queued.packet.phase,
+          position: queued.packet.position,
+          goal,
+        })
+      ) {
+        startPhase0Roundtable(repoRoot, { ceoIntakeRunId: spawned.runId });
+        phase0Roundtable = true;
+      }
       if (roomId) clearWorkIntake(roomId);
       emitJarvisFocus(droot, { phase: queued.packet.phase, slug: queued.packet.position });
       return {
@@ -635,6 +695,7 @@ export async function executeIntent(
         reviewInboxPath: receipt.path,
         reviewInboxHint: receipt.path,
         targetIc,
+        phase0Roundtable,
       };
     }
 
@@ -684,6 +745,32 @@ export async function executeIntent(
               ? null
               : undefined,
         runtime: args.runtime as Parameters<typeof askBrain>[0]["runtime"],
+      });
+    }
+
+    case "brain.route": {
+      const utterance = String(args.utterance ?? args.prompt ?? args.question ?? "");
+      return routeBrain({
+        utterance,
+        spokenBrief:
+          args.spokenBrief != null
+            ? String(args.spokenBrief)
+            : args.brief != null
+              ? String(args.brief)
+              : undefined,
+        cwd: repoRoot,
+        model: args.model != null ? String(args.model) : undefined,
+        timeoutMs:
+          args.timeoutMs != null && Number.isFinite(Number(args.timeoutMs))
+            ? Number(args.timeoutMs)
+            : undefined,
+        apiKey:
+          typeof args.apiKey === "string"
+            ? args.apiKey
+            : args.apiKey === null
+              ? null
+              : undefined,
+        runtime: args.runtime as Parameters<typeof routeBrain>[0]["runtime"],
       });
     }
 

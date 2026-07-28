@@ -205,6 +205,17 @@ describe("policyFor", () => {
       needsConfirm: false,
     });
   });
+
+  it("brain.route allowed in any mode without confirm", () => {
+    expect(policyFor("brain.route", "briefing")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+    expect(policyFor("brain.route", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
   it("blocker.resolve requires ops and hard confirm", () => {
     expect(policyFor("blocker.resolve", "briefing")).toEqual({
       allowed: false,

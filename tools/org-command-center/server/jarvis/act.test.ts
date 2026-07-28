@@ -80,6 +80,194 @@ describe("handleJarvisAct", () => {
     expect(r.summary).toMatch(/Cursor/i);
   });
 
+  it("work.request Phase 0 confirm summary names C-suite roundtable", async () => {
+    const r = await handleJarvisAct(repo, "room-phase0", {
+      intent: "work.request",
+      args: {
+        position: "ceo-strategist",
+        goal: "Phase 0 Intake for new lemonade stand",
+        phase: "0",
+      },
+      mode: "ops",
+    });
+    expect(r.status).toBe("needs_confirm");
+    expect(r.summary).toMatch(/Phase 0 C-suite roundtable/i);
+    expect(r.summary).toMatch(/CEO → peers → CEO merge/i);
+  });
+
+  it("work.request Phase 0 with wrong seat still confirms CEO roundtable", async () => {
+    const r = await handleJarvisAct(repo, "room-phase0-wrong", {
+      intent: "work.request",
+      args: {
+        position: "head-of-research",
+        goal: "Restart 5 Phase 0",
+        phase: "0",
+      },
+      mode: "ops",
+    });
+    expect(r.status).toBe("needs_confirm");
+    expect(r.summary).toMatch(/Phase 0 C-suite roundtable/i);
+    expect(r.summary).not.toMatch(/head-of-research/i);
+  });
+
+  it("repeat work.request with different args does not auto-confirm pending", async () => {
+    vi.useFakeTimers();
+    const execute = vi.fn(async () => ({ runId: "should-not-run" }));
+    setExecuteIntentForTests(execute);
+
+    const first = await handleJarvisAct(repo, "room-mismatch", {
+      intent: "work.request",
+      args: {
+        position: "ceo-strategist",
+        goal: "Phase 0 Intake",
+        phase: "0",
+      },
+      mode: "ops",
+    });
+    expect(first.status).toBe("needs_confirm");
+
+    vi.advanceTimersByTime(2500);
+    const second = await handleJarvisAct(repo, "room-mismatch", {
+      intent: "work.request",
+      args: {
+        position: "manager",
+        goal: "head-of-research",
+        phase: "0",
+      },
+      mode: "ops",
+    });
+    expect(second.status).toBe("needs_confirm");
+    expect(second.summary).toMatch(/Phase 0 C-suite roundtable/i);
+    expect(execute).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
+  it("returns the same needs_confirm when work.request is re-called within 2s", async () => {
+    const first = await handleJarvisAct(repo, "room-1", {
+      intent: "work.request",
+      args: { position: "head-of-research", goal: "Resolve the blocker" },
+      mode: "ops",
+    });
+    expect(first.status).toBe("needs_confirm");
+
+    const second = await handleJarvisAct(repo, "room-1", {
+      intent: "work.request",
+      args: { position: "head-of-research", goal: "Resolve the blocker" },
+      mode: "ops",
+    });
+    expect(second.status).toBe("needs_confirm");
+    expect(second.token).toBe(first.token);
+  });
+
+  it("treats a later repeat work.request as confirm (voice yes loop)", async () => {
+    vi.useFakeTimers();
+    const execute = vi.fn(async () => ({
+      runId: "1784309999999-head-of-research",
+      position: "head-of-research",
+    }));
+    setExecuteIntentForTests(execute);
+
+    const first = await handleJarvisAct(repo, "room-yes", {
+      intent: "work.request",
+      args: { position: "head-of-research", goal: "Kick off phase 2 market" },
+      mode: "ops",
+    });
+    expect(first.status).toBe("needs_confirm");
+
+    vi.advanceTimersByTime(2500);
+    const second = await handleJarvisAct(repo, "room-yes", {
+      intent: "work.request",
+      args: { position: "head-of-research", goal: "Kick off phase 2 market" },
+      mode: "ops",
+    });
+    expect(second.status).toBe("ok");
+    expect(execute).toHaveBeenCalled();
+    expect(second.summary).not.toMatch(/\d{10,}/);
+    vi.useRealTimers();
+  });
+
+  it("recovers from invented confirmToken by consuming latest pending", async () => {
+    const execute = vi.fn(async () => ({ runId: "run-recovered" }));
+    setExecuteIntentForTests(execute);
+
+    const first = await handleJarvisAct(repo, "room-1", {
+      intent: "work.request",
+      args: { position: "ceo-strategist", goal: "review project status" },
+      mode: "ops",
+    });
+    expect(first.status).toBe("needs_confirm");
+
+    const recovered = await handleJarvisAct(repo, "room-1", {
+      intent: "work.request",
+      args: {},
+      mode: "ops",
+      confirmToken: "token_123",
+    });
+    expect(recovered.status).toBe("ok");
+    expect(execute).toHaveBeenCalled();
+  });
+
+  it("re-issues needs_confirm when fake token and no pending", async () => {
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "work.request",
+      args: { position: "cmo", goal: "draft launch plan" },
+      mode: "ops",
+      confirmToken: "token_123",
+    });
+    expect(r.status).toBe("needs_confirm");
+    expect(r.token).toBeTruthy();
+  });
+
+  it("handleJarvisConfirm accepts without token via latest pending", async () => {
+    const execute = vi.fn(async () => ({ runId: "run-yes" }));
+    setExecuteIntentForTests(execute);
+
+    const first = await handleJarvisAct(repo, "room-1", {
+      intent: "work.request",
+      args: { position: "ceo-strategist", goal: "status review" },
+      mode: "ops",
+    });
+    expect(first.status).toBe("needs_confirm");
+
+    const confirmed = await handleJarvisConfirm(repo, "room-1", "", true);
+    expect(confirmed.status).toBe("ok");
+    expect(execute).toHaveBeenCalled();
+  });
+
+  it("handleJarvisConfirm recovers from invented token", async () => {
+    const execute = vi.fn(async () => ({ runId: "run-fake-tok" }));
+    setExecuteIntentForTests(execute);
+
+    await handleJarvisAct(repo, "room-1", {
+      intent: "work.request",
+      args: { position: "ceo-strategist", goal: "status review" },
+      mode: "ops",
+    });
+
+    const confirmed = await handleJarvisConfirm(repo, "room-1", "token_123", true);
+    expect(confirmed.status).toBe("ok");
+    expect(execute).toHaveBeenCalled();
+  });
+
+  it("handleJarvisConfirm accept with no pending is a soft ok (already confirmed)", async () => {
+    const execute = vi.fn(async () => ({ runId: "run-once" }));
+    setExecuteIntentForTests(execute);
+
+    const first = await handleJarvisAct(repo, "room-1", {
+      intent: "work.request",
+      args: { position: "ceo-strategist", goal: "status review" },
+      mode: "ops",
+    });
+    expect(first.status).toBe("needs_confirm");
+    await handleJarvisConfirm(repo, "room-1", "", true);
+    expect(execute).toHaveBeenCalledTimes(1);
+
+    const again = await handleJarvisConfirm(repo, "room-1", "queue head-of-research", true);
+    expect(again.status).toBe("ok");
+    expect(again.summary).toMatch(/already|nothing pending/i);
+    expect(execute).toHaveBeenCalledTimes(1);
+  });
+
   it("binds targetIc and require_inbox on work.request confirm", async () => {
     const execute = vi.fn(async () => ({ runId: "run-1" }));
     setExecuteIntentForTests(execute);
@@ -192,26 +380,51 @@ describe("handleJarvisAct", () => {
     expect(execute).toHaveBeenCalledOnce();
   });
 
-  it("rejects expired confirm token", async () => {
+  it("keeps ops after set_mode even when client still sends briefing", async () => {
+    setExecuteIntentForTests(async (root, intent, args) => {
+      if (intent === "mode.set") {
+        const { setRoomMode } = await import("./session");
+        setRoomMode(String(args.roomId), "ops");
+        return { ok: true, mode: "ops", previous: "briefing" };
+      }
+      return { runId: "run-stale-mode" };
+    });
+
+    await handleJarvisAct(repo, "room-1", {
+      intent: "mode.set",
+      args: { mode: "ops" },
+      mode: "briefing",
+    });
+
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "work.request",
+      args: { position: "cmo", goal: "ship campaign" },
+      mode: "briefing",
+    });
+    expect(r.status).toBe("needs_confirm");
+  });
+
+  it("re-issues needs_confirm for expired confirm token", async () => {
     vi.useFakeTimers();
     const first = await handleJarvisAct(repo, "room-1", {
       intent: "spawn.run_next",
       args: {},
       mode: "ops",
     });
-    vi.advanceTimersByTime(61_000);
+    vi.advanceTimersByTime(10 * 60_000 + 1);
     const second = await handleJarvisAct(repo, "room-1", {
       intent: "spawn.run_next",
       args: {},
       mode: "ops",
       confirmToken: first.token,
     });
-    expect(second.status).toBe("error");
-    expect(second.reason).toMatch(/expired|invalid/i);
+    expect(second.status).toBe("needs_confirm");
+    expect(second.token).toBeTruthy();
+    expect(second.token).not.toBe(first.token);
     vi.useRealTimers();
   });
 
-  it("rejects reused confirm token", async () => {
+  it("re-issues needs_confirm for reused confirm token", async () => {
     const first = await handleJarvisAct(repo, "room-1", {
       intent: "spawn.run_next",
       args: {},
@@ -231,8 +444,9 @@ describe("handleJarvisAct", () => {
       mode: "ops",
       confirmToken: first.token,
     });
-    expect(third.status).toBe("error");
-    expect(third.reason).toMatch(/invalid/i);
+    expect(third.status).toBe("needs_confirm");
+    expect(third.token).toBeTruthy();
+    expect(third.token).not.toBe(first.token);
   });
 
   it("returns error for invalid intent", async () => {
@@ -418,6 +632,25 @@ describe("handleJarvisAct", () => {
     expect(r.summary).toBe("Prioritize the yield experiment this week.");
   });
 
+  it("uses brain.route spoken for voice ok response", async () => {
+    setExecuteIntentForTests(async () => ({
+      ok: true,
+      model: "grok-4.5",
+      intent: "clarify",
+      clarifyQuestion: "Start Phase 1 framing now?",
+      confidence: 0.9,
+      spoken: "Start Phase 1 framing now?",
+      status: "finished",
+      latencyMs: 12,
+    }));
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "brain.route",
+      args: { utterance: "what are the next steps?" },
+    });
+    expect(r.status).toBe("ok");
+    expect(r.summary).toBe("Start Phase 1 framing now?");
+  });
+
   it("dispatch.queue_batch confirm summary mentions batch count", async () => {
     const r = await handleJarvisAct(repo, "room-1", {
       intent: "dispatch.queue_batch",
@@ -431,6 +664,23 @@ describe("handleJarvisAct", () => {
     });
     expect(r.status).toBe("needs_confirm");
     expect(r.summary).toMatch(/2 managers/i);
+  });
+
+  it("work.request ok summary speaks seat started without numeric runId", async () => {
+    setExecuteIntentForTests(async () => ({
+      runId: "1784308096815-head-of-research",
+      position: "head-of-research",
+    }));
+
+    const pending = await handleJarvisAct(repo, "room-1", {
+      intent: "work.request",
+      args: { position: "head-of-research", goal: "Resolve the blocker" },
+      mode: "ops",
+    });
+    const confirmed = await handleJarvisConfirm(repo, "room-1", pending.token!, true);
+    expect(confirmed.status).toBe("ok");
+    expect(confirmed.summary).toMatch(/head of research started/i);
+    expect(confirmed.summary).not.toMatch(/\d{10,}/);
   });
 
   it("spawn.run_ready ok summary uses spoken partial result", async () => {

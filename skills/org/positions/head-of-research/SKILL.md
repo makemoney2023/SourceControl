@@ -34,6 +34,9 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/academic-research-skills/deep-research/` | Evidence report |
 | `skills/community/business-analysis-skills/skills/evidence-gap-review/` | Gap review |
 | `skills/community/awesome-claude-corporate-skills/01-executive-leadership/competitive-analysis/` | Competitive analysis |
+| `skills/plugins/parallel/parallel-deep-research/` | Exhaustive research runs |
+| `skills/plugins/parallel/parallel-web-search/` | Web search craft |
+| `skills/plugins/firecrawl/firecrawl/` | Site crawl / extract |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/00-intake.md`

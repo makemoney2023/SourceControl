@@ -1,3 +1,31 @@
 {
-  "alerts": []
+  "alerts": [
+    {
+      "id": "new:2-competitive-intelligence-analyst.md",
+      "filename": "2-competitive-intelligence-analyst.md",
+      "slug": "competitive-intelligence-analyst",
+      "phase": "2",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T17:20:53.927Z",
+      "acked": true
+    },
+    {
+      "id": "new:2-market-research-analyst.md",
+      "filename": "2-market-research-analyst.md",
+      "slug": "market-research-analyst",
+      "phase": "2",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T17:20:54.988Z",
+      "acked": false
+    },
+    {
+      "id": "new:2-manager-head-of-research.md",
+      "filename": "2-manager-head-of-research.md",
+      "slug": "",
+      "phase": "2",
+      "kind": "new_handoff",
+      "createdAt": "2026-07-17T18:58:04.913Z",
+      "acked": false
+    }
+  ]
 }

@@ -33,7 +33,15 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 |-----------|---------|
 | `skills/plugins/superpowers/test-driven-development/` | TDD |
 | `skills/plugins/superpowers/verification-before-completion/` | Verification |
+| `skills/plugins/vercel/nextjs/` | Next.js review |
+| `skills/plugins/vercel/react-best-practices/` | Performance review |
+| `skills/plugins/vercel/deployments-cicd/` | Deploy / CI review |
 | `skills/community/awesome-claude-corporate-skills/08-it-engineering/system-design/` | System design |
+| `skills/community/awesome-claude-corporate-skills/08-it-engineering/code-review/` | Code review |
+| `skills/community/openmontage/.agents/skills/vercel-react-best-practices/` | Bundle / Suspense review |
+| `skills/community/openmontage/.agents/skills/threejs-fundamentals/` | WebGL architecture review |
+| `skills/community/openmontage/.agents/skills/threejs-loaders/` | Asset pipeline review |
+| `skills/community/openmontage/.agents/skills/threejs-lighting/` | Hero lighting QA |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/05-prd.md`

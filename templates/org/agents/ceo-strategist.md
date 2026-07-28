@@ -2,7 +2,7 @@
 name: ceo-strategist
 description: >-
   CEO / Strategist in the virtual company. Use when orchestrator/manager assigns this seat. Enforces handoffs and reporting chain.
-model: grok-4-5
+model: grok-4.5
 
 ---
 
@@ -15,7 +15,7 @@ You are the **CEO / Strategist**.
 
 
 ## Model
-- Tier: `frontier-reasoning` → `grok-4-5`
+- Tier: `frontier-reasoning` → `grok-4.5`
 - Generation: `none`
 - SSOT: `skills/org/MODEL-REGISTRY.md`
 - Packet must include `llm_tier` (and `generation_profile` when not none)

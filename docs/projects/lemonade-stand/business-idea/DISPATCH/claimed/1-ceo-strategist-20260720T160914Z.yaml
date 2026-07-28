@@ -1,0 +1,36 @@
+schema_version: 1
+queued_at: 2026-07-20T16:09:14.422Z
+phase: "1"
+position: ceo-strategist
+goal: Phase 1 problem framing — second differentiator beyond fresh+cold; note
+  operator still owes geography/events before any sale
+report_to: ceo-strategist
+parent_position: orchestrator
+llm_tier: frontier-reasoning
+llm_model: grok-4.5
+generation_profile: none
+inputs: []
+must_read:
+  - docs/projects/lemonade-stand/MEMORY/context.md
+  - docs/projects/lemonade-stand/business-idea/SOURCES/INDEX.md
+outputs: []
+write_lease:
+  - docs/projects/lemonade-stand/business-idea/HANDOFFS/1-manager-ceo-strategist.md
+budget_usd: null
+collaborators: []
+delegate_budget: 0
+constraints:
+  - Spawn only Delegates to from your position SKILL.md
+  - Give each IC a write_lease subset (no colliding paths)
+  - Each IC packet MUST include llm_tier
+  - Await IC handoffs; merge; write manager brief
+  - Do not mark phase complete
+  - Do not spawn peer managers yourself — ask orchestrator
+company_goal: Lemonade Stand
+parent_goal: Phase 1 — Frame
+goal_path:
+  - Lemonade Stand
+  - Phase 1 — Frame
+  - Phase 1 problem framing — second differentiator beyond fresh+cold; note
+    operator still owes geography/events before any sale
+require_inbox: true

@@ -2,7 +2,7 @@
 
 Copy to `docs/projects/<active>/business-idea/HANDOFFS/<phase>-csuite-review.md`. Orchestrator must not mark the phase ✅ until `verdict: approve` (Phase 0 may use `skip-review` with reason).
 
-Reviewer always uses **`frontier-reasoning`** (`grok-4-5` per MODEL-REGISTRY).
+Reviewer always uses **`frontier-reasoning`** (`grok-4.5` per MODEL-REGISTRY).
 
 ```markdown
 ---
@@ -17,6 +17,17 @@ fallback_applied: false
 ---
 
 # C-suite review — Phase <id>
+
+## In plain English
+3–5 short sentences: the verdict in human terms, what is safe to do next, and what is still blocked. No runIds or dense tables here.
+
+## What we found
+- Up to 5 load-bearing agreements or tensions (plain language)
+
+## Next steps
+1. Who acts next (operator / orchestrator / seat) and the concrete ask
+2. …
+3. Blocking questions for the operator (if any)
 
 ## Inputs reviewed
 - Manager brief: `HANDOFFS/<phase>-manager-<slug>.md`

@@ -19,6 +19,7 @@
 
 | Phase | Manager owner | Manager may spawn | C-suite reviewer | Secondary if tagged | Scorecard (must pass) |
 |-------|---------------|-------------------|------------------|---------------------|------------------------|
+| 0 | ceo-strategist | — | ceo-strategist | cfo, cmo, coo, head-of-research (Jarvis roundtable) | Intake complete; classification set |
 | 2 | head-of-research | market-research-analyst, competitive-intelligence-analyst, seo-manager `(parallel: true)` | ceo-strategist | evidence→HoR | Evidence base cites sources |
 | 11 | creative-director | brand-designer | ceo-strategist | brand→CD | Brand system documented |
 | 13 | cmo | copy-chief, content-strategist, product-marketing-manager `(parallel: true)` | ceo-strategist | — | Voice + awareness |

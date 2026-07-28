@@ -41,6 +41,8 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/marketingskills/programmatic-seo/` | Programmatic SEO |
 | `skills/community/marketingskills/ai-seo/` | AI SEO |
 | `skills/community/awesome-claude-corporate-skills/04-marketing/seo-content-optimizer/` | SEO content optimizer |
+| `skills/community/marketingskills/schema/` | Schema patterns |
+| `skills/community/notfair-seo/broken-link-checker/` | Broken link QA |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/12-web-design.md`

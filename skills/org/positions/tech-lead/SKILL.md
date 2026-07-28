@@ -31,10 +31,26 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 |-----------|---------|
 | `skills/plugins/superpowers/test-driven-development/` | TDD |
 | `skills/plugins/superpowers/systematic-debugging/` | Debugging |
+| `skills/plugins/superpowers/verification-before-completion/` | Verified MVP gate |
 | `skills/plugins/vercel/nextjs/` | Next.js |
 | `skills/plugins/vercel/shadcn/` | shadcn |
+| `skills/plugins/vercel/react-best-practices/` | React/Next performance |
 | `skills/plugins/supabase/supabase/` | Supabase |
 | `skills/community/awesome-claude-corporate-skills/08-it-engineering/code-review/` | Code review |
+| `skills/community/openmontage/.agents/skills/vercel-react-best-practices/` | Bundle, Suspense, dynamic islands |
+| `skills/community/openmontage/.agents/skills/vercel-composition-patterns/` | Compound component composition |
+| `skills/community/openmontage/.agents/skills/web-design-guidelines/` | Build-time UI QA |
+| `skills/community/openmontage/.agents/skills/tailwind-design-system/` | Tailwind / design tokens |
+| `skills/community/openmontage/.agents/skills/framer-motion/` | Motion (non-WebGL) |
+| `skills/community/openmontage/.agents/skills/threejs-fundamentals/` | Three.js / R3F scene setup |
+| `skills/community/openmontage/.agents/skills/threejs-loaders/` | GLTF/GLB loading |
+| `skills/community/openmontage/.agents/skills/threejs-lighting/` | Lights, shadows, exposure |
+| `skills/community/openmontage/.agents/skills/threejs-materials/` | PBR materials |
+| `skills/community/openmontage/.agents/skills/threejs-textures/` | Maps / env / color space |
+| `skills/community/openmontage/.agents/skills/threejs-animation/` | Idle / clip animation |
+| `skills/community/openmontage/.agents/skills/threejs-interaction/` | Pointer / orbit (no scroll-jack) |
+| `skills/community/openmontage/.agents/skills/threejs-geometry/` | Procedural stand-ins |
+| `skills/community/openmontage/.agents/skills/threejs-postprocessing/` | Optional hero polish |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/05-prd.md`

@@ -10,7 +10,7 @@ import {
   resetSessionForTests,
   setWorkIntake,
 } from "./session";
-import { inferTargetIcFromGoal, resolveWorkTarget } from "./work-request";
+import { inferSeatFromGoalText, inferTargetIcFromGoal, resolveWorkTarget } from "./work-request";
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "../../src/lib/fixtures");
 const BIZ_IDEA = "docs/projects/passive-grid/business-idea";
@@ -89,6 +89,39 @@ describe("resolveWorkTarget", () => {
     const r = resolveWorkTarget(root, { goal: "Maybe create a short blog article" });
     expect(r.targetIc).toBe("copy-chief");
     expect(r.intakeSeat).toBe("cmo");
+  });
+
+  it("infers head-of-research from goal when position omitted", () => {
+    const root = tempRepo();
+    const r = resolveWorkTarget(root, { goal: "spin up head of research on competitors" });
+    expect(r.intakeSeat).toBe("head-of-research");
+    expect(r.spoken).toMatch(/head-of-research/i);
+  });
+
+  it("forces ceo-strategist for Phase 0 even if model passes another seat", () => {
+    const root = tempRepo();
+    const r = resolveWorkTarget(root, {
+      position: "head-of-research",
+      goal: "Restart 5 Phase 0",
+      phase: "0",
+    });
+    expect(r.intakeSeat).toBe("ceo-strategist");
+    expect(r.targetIc).toBeUndefined();
+    expect(r.spoken).toMatch(/Phase 0|roundtable|ceo/i);
+  });
+});
+
+describe("inferSeatFromGoalText", () => {
+  it("finds spoken seat titles in goal prose", () => {
+    const roster = [
+      { slug: "head-of-research", title: "Head of Research" },
+      { slug: "cfo", title: "CFO" },
+      { slug: "ceo-strategist", title: "CEO / Strategist" },
+    ];
+    expect(inferSeatFromGoalText("Please spin up the head of research", roster)).toBe(
+      "head-of-research",
+    );
+    expect(inferSeatFromGoalText("ask the CFO for a burn update", roster)).toBe("cfo");
   });
 });
 

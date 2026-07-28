@@ -184,7 +184,18 @@ describe("readMemorySnippets", () => {
     root = seedActiveVenture();
     writeFileSync(
       join(root, "docs/projects/a/MEMORY/context.md"),
-      "Operator context note about TEBS.",
+      `# Venture context
+
+## Operator note
+
+Operator context note about TEBS.
+
+## Sources digest
+
+<!-- auto:sources-digest -->
+- fake source
+<!-- /auto:sources-digest -->
+`,
       "utf8",
     );
     writeFileSync(
@@ -212,6 +223,8 @@ describe("readMemorySnippets", () => {
     const snippets = readMemorySnippets(root);
     expect(snippets.noteLines.some((l) => /TEBS/.test(l))).toBe(true);
     expect(snippets.noteLines.some((l) => /Yesterday note/.test(l))).toBe(true);
+    expect(snippets.noteLines.some((l) => /auto:sources-digest|<!--/.test(l))).toBe(false);
+    expect(snippets.noteLines.some((l) => /fake source/.test(l))).toBe(false);
     expect(snippets.decisionLines.some((l) => /MOF lead/.test(l))).toBe(true);
     expect(snippets.preferenceLines.some((l) => /digests short/.test(l))).toBe(true);
     expect(snippets.recentSessionLines.some((l) => /Intake completed/.test(l))).toBe(true);

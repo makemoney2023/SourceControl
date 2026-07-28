@@ -30,8 +30,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | Pack path | Use for |
 |-----------|---------|
 | `skills/community/marketingskills/analytics/` | Analytics |
+| `skills/community/marketingskills/ab-testing/` | Experiment instrumentation |
 | `skills/community/awesome-claude-corporate-skills/10-data-analytics/interactive-dashboard-builder/` | Dashboards |
 | `skills/community/marketingskills/revops/` | RevOps |
+| `skills/plugins/supabase/supabase-postgres-best-practices/` | Event store / DB patterns |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/14-pages/`

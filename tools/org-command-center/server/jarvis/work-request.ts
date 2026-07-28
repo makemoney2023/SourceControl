@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { parseOrgRegistry } from "../../src/lib/parse-registry";
 import { assertReadable } from "../paths";
 import { JarvisExecError } from "./errors";
+import { looksLikePhase0Request, phase0WorkGoal } from "./phase0-roundtable";
 import { resolveSeatSlug } from "./resolve-seat";
 
 export type WorkTarget = {
@@ -24,17 +25,69 @@ export function inferTargetIcFromGoal(goal: string): string | undefined {
   return undefined;
 }
 
+/** Pull a roster seat named inside freeform goal text (e.g. "spin up head of research"). */
+export function inferSeatFromGoalText(
+  goal: string,
+  roster: { slug: string; title: string }[],
+): string | undefined {
+  const g = goal.trim();
+  if (!g) return undefined;
+
+  // Prefer longer titles/slugs so "head of research" wins over bare "research".
+  const candidates = roster
+    .flatMap((r) => [
+      { key: r.title, slug: r.slug },
+      { key: r.slug.replace(/-/g, " "), slug: r.slug },
+      { key: r.slug, slug: r.slug },
+    ])
+    .sort((a, b) => b.key.length - a.key.length);
+
+  const lower = g.toLowerCase();
+  for (const c of candidates) {
+    if (c.key.length < 3) continue;
+    if (lower.includes(c.key.toLowerCase())) {
+      return resolveSeatSlug(c.slug, roster) ?? c.slug;
+    }
+  }
+
+  // Phrase windows: try resolveSeatSlug on 2–5 word spans.
+  const words = g.split(/\s+/).filter(Boolean);
+  for (let n = Math.min(5, words.length); n >= 2; n--) {
+    for (let i = 0; i + n <= words.length; i++) {
+      const phrase = words.slice(i, i + n).join(" ");
+      const hit = resolveSeatSlug(phrase, roster);
+      if (hit) return hit;
+    }
+  }
+  return undefined;
+}
+
 export function resolveWorkTarget(
   repoRoot: string,
-  args: { position?: string; goal?: string },
+  args: { position?: string; goal?: string; phase?: string },
 ): WorkTarget {
-  const goal = String(args.goal ?? "").trim() || "On-the-fly work request";
+  const rawGoal = String(args.goal ?? "").trim() || "On-the-fly work request";
+  if (looksLikePhase0Request({ phase: args.phase, goal: rawGoal })) {
+    const goal = phase0WorkGoal(rawGoal);
+    return {
+      intakeSeat: "ceo-strategist",
+      goal,
+      spoken: `Phase 0 C-suite roundtable via ceo-strategist. Goal: ${goal}`,
+    };
+  }
+
+  const goal = rawGoal;
   const org = parseOrgRegistry(
     readFileSync(assertReadable(repoRoot, "skills/org/ORG-REGISTRY.md"), "utf8"),
   );
 
   let position = String(args.position ?? "").trim();
   let targetIc: string | undefined;
+
+  if (!position) {
+    const fromGoal = inferSeatFromGoalText(goal, org.roster);
+    if (fromGoal) position = fromGoal;
+  }
 
   if (!position) {
     const inferred = inferTargetIcFromGoal(goal);

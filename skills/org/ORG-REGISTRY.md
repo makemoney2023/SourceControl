@@ -7,7 +7,7 @@ Single source of truth for position slugs, reporting lines, phase ownership, and
 **Env placeholders:** repo-root `.env.local`  
 **Position skills:** `skills/org/positions/<slug>/SKILL.md`  
 **Cursor agents:** `templates/org/agents/<slug>.md` → install with `./scripts/sync-org-agents.sh` → `.cursor/agents/`  
-**Note:** Cursor only honors agent `model:` from `.cursor/agents/` (or `~/.cursor/agents/`). Plane A defaults: `grok-4-5` for frontier-reasoning; `composer-2.5` for all other seats.
+**Note:** Cursor only honors agent `model:` from `.cursor/agents/` (or `~/.cursor/agents/`). Plane A defaults: `grok-4.5` for frontier-reasoning; `composer-2.5` for all other seats.
 
 ## Org tree
 
@@ -101,7 +101,7 @@ ceo-strategist
 
 | Phase | Manager owner | Manager may spawn | C-suite reviewer | Secondary if tagged | Scorecard (must pass) |
 |-------|---------------|-------------------|------------------|---------------------|------------------------|
-| 0 | ceo-strategist | — | ceo-strategist | — | Intake complete; classification set (`skip-review` allowed) |
+| 0 | ceo-strategist | — | ceo-strategist | cfo, cmo, coo, head-of-research (Jarvis roundtable; not manager-spawned) | Intake complete; classification set; peer briefs + `0-csuite-review.md` (`skip-review` allowed) |
 | 1 | ceo-strategist | business-analyst | ceo-strategist | — | Problem + assumptions labeled |
 | 2 | head-of-research | market-research-analyst, competitive-intelligence-analyst, seo-manager `(parallel: true)` | ceo-strategist | evidence→HoR | Evidence base cites sources; market doc non-empty |
 | 3 | ceo-strategist | product-marketing-manager, business-analyst | ceo-strategist | — | Strategy + `.agents/product-marketing.md` exist |

@@ -53,6 +53,51 @@ describe("buildTasks", () => {
     expect(tasks.some((t) => t.id === "phase:3" && t.status === "pending")).toBe(true);
   });
 
+  it("gives unique review task ids when multiple manager briefs share a phase", () => {
+    const handoffs: HandoffRecord[] = [
+      {
+        filename: "2-manager-ceo-strategist.md",
+        kind: "manager",
+        phase: "2",
+        position: "ceo-strategist",
+        reportsTo: "orchestrator",
+        status: "blocked",
+        verdictForManager: "",
+        verdict: "",
+        llmTier: "",
+        generationProfile: "",
+        fallbackApplied: "",
+        artifacts: [],
+        asks: [],
+        blockers: ["misrouted"],
+        recommendation: "escalate",
+        escalationTags: [],
+      },
+      {
+        filename: "2-manager-head-of-research.md",
+        kind: "manager",
+        phase: "2",
+        position: "head-of-research",
+        reportsTo: "ceo-strategist",
+        status: "ready_for_csuite",
+        verdictForManager: "ready_to_merge",
+        verdict: "",
+        llmTier: "",
+        generationProfile: "",
+        fallbackApplied: "",
+        artifacts: [],
+        asks: [],
+        blockers: [],
+        recommendation: "",
+        escalationTags: [],
+      },
+    ];
+    const tasks = buildTasks({ tracker, handoffs, queueFiles: [], claimedFiles: [] });
+    const reviewIds = tasks.filter((t) => t.id.startsWith("review:")).map((t) => t.id);
+    expect(reviewIds.length).toBeGreaterThanOrEqual(2);
+    expect(new Set(reviewIds).size).toBe(reviewIds.length);
+  });
+
   it("marks claimed row canCancel when run is active", () => {
     const tasks = buildTasks({
       tracker,

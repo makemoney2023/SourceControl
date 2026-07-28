@@ -1,0 +1,13 @@
+{
+  "runId": "1784308344059-head-of-research",
+  "status": "error",
+  "position": "head-of-research",
+  "phase": "2",
+  "claimed": "2-head-of-research-20260717T171224Z.yaml",
+  "dispatch_filename": "2-head-of-research-20260717T171224Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-17T17:12:24.059Z",
+  "llm_model": "composer-2.5",
+  "finished_at": "2026-07-17T17:17:54.489Z",
+  "error": "Superseded — confirm loop left run stuck; re-kicking phase 2"
+}

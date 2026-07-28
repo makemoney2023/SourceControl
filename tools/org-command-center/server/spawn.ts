@@ -1,5 +1,7 @@
+import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import YAML from "yaml";
 import { estimateCostUsd, loadCostRates } from "../src/lib/cost-rates";
 import { claimDispatch, listQueuedDispatches } from "../src/lib/dispatch-queue";
@@ -11,6 +13,7 @@ import {
 } from "../src/lib/runs";
 import type { ManagerPacket } from "../src/lib/types";
 import { appendActivity } from "./activity";
+import { OPERATOR_DELIVERABLE_FORMAT } from "./jarvis/operator-summary";
 import { appendRunEvent } from "./jarvis/run-events";
 import {
   isSeatPaused,
@@ -97,6 +100,8 @@ export function buildSpawnPrompt(
     `Execute this manager context packet. Do not spawn peer managers. Spawn only allowed ICs with write leases.`,
     `Write handoffs under ${handoffsDir}. Do not mark the phase complete.`,
     `Primary operator review artifact: write the deliverable to ${inboxHint} (or another file under ${inboxDir}) with YAML frontmatter ${frontmatterFields}.`,
+    "",
+    OPERATOR_DELIVERABLE_FORMAT,
     ...(acceptanceLines.length ? ["", ...acceptanceLines] : []),
     "",
     ancestry,
@@ -568,8 +573,92 @@ export async function spawnClaimedManager(
   };
 }
 
+export type DetachedCursorPayload = {
+  repoRoot: string;
+  root: string;
+  packet: ManagerPacket;
+  dispatchFilename: string;
+  prompt: string;
+  apiKey: string;
+  runId: string;
+  agentId?: string;
+  meta: RunRecord;
+  runsDir: string;
+};
+
+/** Entry for cursor-run-worker.ts (separate process). */
+export async function finishDetachedCursorPayload(
+  payload: DetachedCursorPayload,
+): Promise<{ ok: boolean; error?: string; runId?: string; packet?: ManagerPacket }> {
+  const controller = new AbortController();
+  registerRun(payload.runId, controller);
+  return finishAdapterRun({
+    repoRoot: payload.repoRoot,
+    root: payload.root,
+    packet: payload.packet,
+    dispatchFilename: payload.dispatchFilename,
+    prompt: payload.prompt,
+    agentId: payload.agentId,
+    adapter: cursorRuntimeAdapter,
+    apiKey: payload.apiKey,
+    runId: payload.runId,
+    controller,
+    meta: payload.meta,
+    runsDir: payload.runsDir,
+  });
+}
+
+/** Absolute path to tools/org-command-center/server/ */
+function occServerDir(): string {
+  return fileURLToPath(new URL(".", import.meta.url));
+}
+
+function resolveTsxCli(packageRoot: string): string {
+  const candidates = [
+    join(packageRoot, "node_modules/tsx/dist/cli.mjs"),
+    join(packageRoot, "livekit-agent/node_modules/tsx/dist/cli.mjs"),
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  throw new Error(
+    `tsx CLI missing under ${packageRoot} (install devDependency tsx)`,
+  );
+}
+
+function launchDetachedCursorWorker(payloadPath: string): void {
+  const serverDir = occServerDir();
+  const worker = join(serverDir, "cursor-run-worker.ts");
+  const packageRoot = dirname(serverDir);
+  const tsxCli = resolveTsxCli(packageRoot);
+  if (!existsSync(worker)) {
+    throw new Error(`Cursor worker missing: ${worker}`);
+  }
+  const logPath = payloadPath.replace(/\.payload\.json$/, ".worker.log");
+  const child = spawn(
+    process.execPath,
+    [tsxCli, worker, payloadPath],
+    {
+      cwd: packageRoot,
+      detached: true,
+      stdio: ["ignore", "ignore", "ignore"],
+      env: process.env,
+    },
+  );
+  child.on("error", (err) => {
+    writeFileSync(
+      logPath,
+      `Failed to spawn cursor worker: ${err instanceof Error ? err.message : String(err)}\n`,
+      "utf8",
+    );
+  });
+  child.unref();
+}
+
 /**
  * Claim + start Cursor run without awaiting completion (voice confirm path).
+ * Real Cursor SDK runs in a detached worker so Vite/OCC cannot crash on spawn EBADF.
+ * Custom adapters (tests) still run in-process.
  */
 export function spawnClaimedManagerDetached(
   repoRoot: string,
@@ -599,19 +688,54 @@ export function spawnClaimedManagerDetached(
   });
   const prompt = buildSpawnPrompt(claimed.packet, repoRoot, runId);
 
-  void finishAdapterRun({
-    repoRoot,
-    root: claimed.root,
-    packet: claimed.packet,
-    dispatchFilename: claimed.filename,
-    prompt,
-    adapter: claimed.adapter,
-    apiKey: claimed.apiKey,
-    runId,
-    controller,
-    meta,
-    runsDir,
-  });
+  const useInProcess =
+    Boolean(opts?.adapter) ||
+    process.env.OCC_CURSOR_INPROCESS === "1" ||
+    claimed.adapter !== cursorRuntimeAdapter;
+
+  if (useInProcess) {
+    void finishAdapterRun({
+      repoRoot,
+      root: claimed.root,
+      packet: claimed.packet,
+      dispatchFilename: claimed.filename,
+      prompt,
+      adapter: claimed.adapter,
+      apiKey: claimed.apiKey,
+      runId,
+      controller,
+      meta,
+      runsDir,
+    });
+  } else {
+    const payloadPath = join(runsDir, `${runId}.payload.json`);
+    const payload: DetachedCursorPayload = {
+      repoRoot,
+      root: claimed.root,
+      packet: claimed.packet,
+      dispatchFilename: claimed.filename,
+      prompt,
+      apiKey: claimed.apiKey,
+      runId,
+      meta,
+      runsDir,
+    };
+    writeFileSync(payloadPath, JSON.stringify(payload), "utf8");
+    try {
+      launchDetachedCursorWorker(payloadPath);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      const done: RunRecord = {
+        ...meta,
+        status: "error",
+        finished_at: new Date().toISOString(),
+        error: `Failed to launch Cursor worker: ${message}`,
+      };
+      writeRun(runsDir, done);
+      unregisterRun(runId);
+      return { ok: false, error: done.error };
+    }
+  }
 
   return {
     ok: true,

@@ -1,0 +1,28 @@
+{
+  "runId": "1784316906046-ceo-strategist",
+  "status": "completed",
+  "position": "ceo-strategist",
+  "phase": "2",
+  "claimed": "2-ceo-strategist-20260717T193506Z.yaml",
+  "dispatch_filename": "2-ceo-strategist-20260717T193506Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-17T19:35:06.046Z",
+  "llm_model": "grok-4.5",
+  "finished_at": "2026-07-17T19:35:41.198Z",
+  "result": "**Escalate — Phase 2 blocked.** Same mis-dispatch as the prior run; no craft written.\n\n| Gate | Finding |\n|------|---------|\n| Owner | ORG-REGISTRY Phase 2 → `head-of-research`, not CEO |\n| Sequencing | Phase 1 still ⬜ (`01-problem-framing.md` missing) |\n| Packet | `delegate_budget: 0`; lease = manager brief only |\n| Scorecard | `02-evidence-base.md` / `02-market-research.md` absent |\n\n**Written**\n- `HANDOFFS/2-manager-ceo-strategist.md` (blocked brief)\n- `REVIEW/inbox/2-ceo-strategist-2026-07-17T1935-deliverable.md` (`pending_review`, `runId: 1784316906046-ceo-strategist`)\n\n**Honored:** no peer managers, no ICs, phase not marked ✅.\n\n**Orchestrator next:** run Phase 1 under CEO, then re-queue Phase 2 to `head-of-research` (`strong-general` / `composer-2.5`) with craft leases + IC budget after geography/events (or an explicit light-assumption path).",
+  "agentId": "agent-dd2d87b7-856f-4cd0-93dc-5c6efc27299b",
+  "usage": {
+    "inputTokens": 161075,
+    "outputTokens": 4119,
+    "cacheReadTokens": 114496,
+    "cacheWriteTokens": 0,
+    "totalTokens": 279690
+  },
+  "cost_usd": 0.579359,
+  "duration_ms": 33686,
+  "acceptance": {
+    "ok": true,
+    "missing": [],
+    "checkedAt": "2026-07-17T19:35:41.200Z"
+  }
+}

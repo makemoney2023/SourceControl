@@ -26,10 +26,15 @@ echo "If the IDE strips YAML frontmatter, re-run this script or edit externally.
 
 # Smoke: ceo-strategist must pin grok-4-5
 if [[ -f "$DEST/ceo-strategist.md" ]]; then
-  if ! grep -q '^model: grok-4-5' "$DEST/ceo-strategist.md"; then
-    echo "warning: ceo-strategist.md missing expected grok-4-5 model pin" >&2
+  if ! grep -qE '^model: grok-4[.-]5' "$DEST/ceo-strategist.md"; then
+    echo "warning: ceo-strategist.md missing expected grok-4.5 / grok-4-5 model pin" >&2
     head -n 12 "$DEST/ceo-strategist.md" >&2
     exit 1
   fi
   echo "OK: ceo-strategist model pin present"
+fi
+
+# Validate Skill pack paths listed on org positions (allowlist hygiene)
+if [[ -x "$ROOT/scripts/validate-skill-pack-paths.sh" ]] || [[ -f "$ROOT/scripts/validate-skill-pack-paths.sh" ]]; then
+  bash "$ROOT/scripts/validate-skill-pack-paths.sh"
 fi

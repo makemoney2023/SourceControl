@@ -9,6 +9,7 @@ import {
 } from "node:fs";
 import { join, relative } from "node:path";
 import { activeProjectSlug, memoryDir, memoryRel } from "../paths";
+import { readOperatorNote } from "../sources/context-md";
 import type { MemoryNoteKind } from "./types";
 
 export type AppendNoteArgs = {
@@ -234,10 +235,11 @@ export function readMemorySnippets(repoRoot: string): {
 
   const contextPath = join(absDir, "context.md");
   if (existsSync(contextPath)) {
-    const ctx = readFileSync(contextPath, "utf8");
-    for (const line of ctx.split("\n")) {
+    // Strip auto:sources HTML markers — only operator-authored note text.
+    const note = readOperatorNote(readFileSync(contextPath, "utf8")).trim();
+    for (const line of note.split("\n")) {
       const trimmed = line.trim();
-      if (trimmed && !trimmed.startsWith("#")) {
+      if (trimmed && !trimmed.startsWith("#") && !trimmed.startsWith("<!--")) {
         noteLines.push(trimmed);
       }
     }

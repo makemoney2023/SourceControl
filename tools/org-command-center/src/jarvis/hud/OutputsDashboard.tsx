@@ -123,6 +123,10 @@ export function OutputsDashboard({
     };
   }, [snapshot.tracker, snapshot.handoffs]);
 
+  const pendingInbox = inbox.filter(
+    (item) => (item.status || "pending_review") === "pending_review",
+  );
+
   return (
     <div
       style={{
@@ -166,11 +170,13 @@ export function OutputsDashboard({
           <section className="j-glass" style={{ padding: 14, overflow: "auto" }}>
             <p className="j-title">Needs review</p>
             <p className="j-muted" style={{ marginTop: 4 }}>
-              REVIEW/inbox — voice-spawned deliverables
+              REVIEW/inbox — pending deliverables only
             </p>
             <ul style={{ listStyle: "none", margin: "12px 0 0", padding: 0 }}>
-              {inbox.length === 0 && <li className="j-muted">Inbox empty.</li>}
-              {inbox.map((item) => (
+              {pendingInbox.length === 0 && (
+                <li className="j-muted">Inbox clear — nothing pending review.</li>
+              )}
+              {pendingInbox.map((item) => (
                 <li key={item.path}>
                   <button
                     type="button"

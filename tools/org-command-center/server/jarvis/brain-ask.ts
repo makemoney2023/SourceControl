@@ -1,3 +1,4 @@
+import { normalizeCursorModelId } from "../../src/lib/cursor-models";
 import { JarvisExecError } from "./errors";
 
 export type BrainAskRuntime = {
@@ -86,7 +87,7 @@ export async function askBrain(input: BrainAskInput): Promise<BrainAskResult> {
     );
   }
 
-  const model = (input.model || defaultBrainModel()).trim() || defaultBrainModel();
+  const model = normalizeCursorModelId(input.model || defaultBrainModel());
   const runtime = input.runtime ?? (await defaultRuntime());
   const result = await runtime.prompt(buildBrainPrompt(question), {
     apiKey,

@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { listRuns } from "../../server/runs-fs";
+import { listRuns, reconcileStaleRuns } from "../../server/runs-fs";
 import { assertBudgetAllowsSpawn, parseRunRecord, type WakeReason } from "./runs";
 import type { ManagerPacket } from "./types";
 
@@ -108,5 +108,64 @@ describe("parseRunRecord / listRuns", () => {
     const listed = listRuns(runsDir, 10);
     expect(listed[0].runId).toBe("newer");
     expect(listed[1].runId).toBe("older");
+  });
+
+  it("reconcileStaleRuns marks abandoned running records as error", () => {
+    const root = mkdtempSync(join(tmpdir(), "runs-stale-"));
+    const runsDir = join(root, "runs");
+    mkdirSync(runsDir, { recursive: true });
+    writeFileSync(
+      join(runsDir, "stale-head.json"),
+      JSON.stringify({
+        runId: "stale-head",
+        status: "running",
+        position: "head-of-research",
+        phase: "2",
+        claimed: "a.yaml",
+        dispatch_filename: "a.yaml",
+        wake_reason: "on_demand",
+        started_at: "2026-07-17T10:00:00.000Z",
+        llm_model: "composer-2.5",
+      }),
+    );
+    const marked = reconcileStaleRuns(runsDir, {
+      maxAgeMs: 60_000,
+      now: Date.parse("2026-07-17T12:00:00.000Z"),
+    });
+    expect(marked).toBe(1);
+    const listed = listRuns(runsDir, 10);
+    expect(listed[0].status).toBe("error");
+    expect(listed[0].error).toMatch(/stale/i);
+  });
+
+  it("ignores detached worker payload JSON sidecars", () => {
+    const root = mkdtempSync(join(tmpdir(), "runs-payload-"));
+    const runsDir = join(root, "runs");
+    mkdirSync(runsDir, { recursive: true });
+    writeFileSync(
+      join(runsDir, "1-head-of-research.json"),
+      JSON.stringify({
+        runId: "1-head-of-research",
+        status: "completed",
+        position: "head-of-research",
+        phase: "2",
+        claimed: "a.yaml",
+        dispatch_filename: "a.yaml",
+        wake_reason: "on_demand",
+        started_at: "2026-07-17T12:00:00.000Z",
+        llm_model: "composer-2.5",
+      }),
+    );
+    writeFileSync(
+      join(runsDir, "1-head-of-research.payload.json"),
+      JSON.stringify({
+        runId: "1-head-of-research",
+        repoRoot: "/tmp",
+        packet: { position: "head-of-research" },
+      }),
+    );
+    const listed = listRuns(runsDir, 10);
+    expect(listed).toHaveLength(1);
+    expect(listed[0].status).toBe("completed");
   });
 });

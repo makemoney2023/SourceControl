@@ -1,0 +1,28 @@
+{
+  "runId": "1784314904392-cfo",
+  "status": "completed",
+  "position": "cfo",
+  "phase": "0",
+  "claimed": "0-cfo-20260717T190144Z.yaml",
+  "dispatch_filename": "0-cfo-20260717T190144Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-17T19:01:44.392Z",
+  "llm_model": "grok-4.5",
+  "finished_at": "2026-07-17T19:03:04.059Z",
+  "result": "**CFO Phase 0 peer brief ready** — unit economics and bootstrapped capital assumptions written; phase not marked complete.\n\n### Deliverables\n| Path | Role |\n|------|------|\n| `HANDOFFS/0-manager-cfo.md` | Manager brief (`ready_for_csuite`, **approve**) |\n| `HANDOFFS/0-fpa-analyst.md` | IC detail |\n| `REVIEW/inbox/0-cfo-2026-07-17T1901-deliverable.md` | Operator review (`pending_review`, `runId: 1784314904392-cfo`) |\n\n### Economics (assumptions)\n- Startup: **$535–$2,550** · Season-one: **~$2.4k–$6.7k** (8–12 events)\n- COGS/cup mid **~$1.30** · Mid break-even @ $5: **~61 cups/event**\n- Capital: bootstrapped; **4B stays skipped** unless multi-stand / labor circuit / trailer triggers\n\n### Spawns\n- Spawned: `fpa-analyst` (`strong-general` → `composer-2.5-fast`, fallback recorded)\n- Not spawned: `fundraising-lead`, peer managers\n\n**Next:** orchestrator awaits remaining peers → CEO merge → `0-csuite-review.md`.",
+  "agentId": "agent-430f5c25-dc4b-4872-b245-d184f6663711",
+  "usage": {
+    "inputTokens": 218820,
+    "outputTokens": 6415,
+    "cacheReadTokens": 181312,
+    "cacheWriteTokens": 0,
+    "totalTokens": 406547
+  },
+  "cost_usd": 0.807079,
+  "duration_ms": 78147,
+  "acceptance": {
+    "ok": true,
+    "missing": [],
+    "checkedAt": "2026-07-17T19:03:04.059Z"
+  }
+}

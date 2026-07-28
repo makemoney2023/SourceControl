@@ -1,0 +1,13 @@
+{
+  "runId": "1784308096815-head-of-research",
+  "status": "error",
+  "position": "head-of-research",
+  "phase": "2",
+  "claimed": "2-head-of-research-20260717T170816Z.yaml",
+  "dispatch_filename": "2-head-of-research-20260717T170816Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-17T17:08:16.815Z",
+  "llm_model": "composer-2.5",
+  "finished_at": "2026-07-17T17:11:23.670Z",
+  "error": "OCC process crashed during Cursor SDK spawn (EBADF) before worker isolation fix"
+}

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-label="Cinematic Rottweiler silhouette">
+  <defs>
+    <linearGradient id="void" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050505"/>
+      <stop offset="45%" stop-color="#0C0C0C"/>
+      <stop offset="100%" stop-color="#151210"/>
+    </linearGradient>
+    <radialGradient id="key" cx="62%" cy="38%" r="42%">
+      <stop offset="0%" stop-color="#C4A35A" stop-opacity="0.28"/>
+      <stop offset="55%" stop-color="#A67C52" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#050505" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="floor" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#void)"/>
+  <rect width="1600" height="1000" fill="url(#key)"/>
+  <!-- soft floor -->
+  <ellipse cx="860" cy="780" rx="420" ry="70" fill="#000" opacity="0.55"/>
+  <!-- body silhouette (profile, facing right) -->
+  <path fill="#12100E" d="M520 720
+    C500 620 520 520 610 470
+    C680 430 760 435 820 470
+    C860 420 930 400 1000 420
+    C1100 450 1160 540 1175 640
+    C1185 700 1170 750 1120 780
+    L560 780
+    C530 760 515 740 520 720Z"/>
+  <!-- head -->
+  <path fill="#161411" d="M980 455
+    C1020 400 1100 385 1165 410
+    C1220 430 1255 480 1240 530
+    C1225 575 1170 595 1115 585
+    C1085 575 1060 555 1040 530
+    C1010 500 990 475 980 455Z"/>
+  <!-- muzzle tan mark -->
+  <path fill="#C4A35A" opacity="0.55" d="M1185 500
+    C1210 505 1235 525 1225 550
+    C1215 570 1185 575 1165 560
+    C1150 548 1165 510 1185 500Z"/>
+  <!-- chest tan -->
+  <path fill="#A67C52" opacity="0.4" d="M780 560
+    C820 540 870 545 900 575
+    C910 620 880 660 830 665
+    C780 670 750 620 780 560Z"/>
+  <!-- ear -->
+  <path fill="#0E0C0A" d="M1085 405 L1125 360 L1145 420 Z"/>
+  <!-- undocked tail -->
+  <path fill="#12100E" d="M540 560
+    C480 520 430 500 390 520
+    C370 535 380 570 420 590
+    C470 610 510 600 540 580Z"/>
+  <rect width="1600" height="1000" fill="url(#floor)"/>
+  <!-- letterbox bars baked in -->
+  <rect width="1600" height="70" fill="#000"/>
+  <rect y="930" width="1600" height="70" fill="#000"/>
+</svg>

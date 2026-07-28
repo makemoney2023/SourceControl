@@ -1,0 +1,28 @@
+{
+  "runId": "1784314904396-cmo",
+  "status": "completed",
+  "position": "cmo",
+  "phase": "0",
+  "claimed": "0-cmo-20260717T190144Z.yaml",
+  "dispatch_filename": "0-cmo-20260717T190144Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-17T19:01:44.396Z",
+  "llm_model": "grok-4.5",
+  "finished_at": "2026-07-17T19:03:00.116Z",
+  "result": "Phase 0 CMO peer brief is done. Intake was not rewritten; phase was not marked complete; no peers or ICs spawned.\n\n**Wrote**\n- `docs/projects/lemonade-stand/business-idea/HANDOFFS/0-manager-cmo.md` — customer / channel / positioning assumptions\n- `docs/projects/lemonade-stand/business-idea/REVIEW/inbox/0-cmo-2026-07-17T1901-deliverable.md` — `status: pending_review`, `runId: 1784314904396-cmo`\n\n**Assumptions (for CEO merge)**\n- **Customer:** Event attendees (primary); organizers needing a simple drink vendor (secondary); local/regional until geography is set\n- **Positioning:** Fresh-squeezed + ice-cold + seasonal/event occasion — *Ice-cold lemonade, squeezed fresh at the event.*\n- **Channels:** Booth + organizer listing first; signage/WOM next; light social optional; paid/SEO deferred (aligns with skip Phase 19)\n\n**Routing:** `llm_tier: frontier-reasoning`, `llm_model: grok-4.5`, `fallback_applied: false`  \n**Recommendation:** approve for Wave 2 CEO merge — do not advance Phase 0 from this seat.",
+  "agentId": "agent-9f28a7c5-aa45-4cf3-975d-8e9604414aff",
+  "usage": {
+    "inputTokens": 142809,
+    "outputTokens": 4053,
+    "cacheReadTokens": 111552,
+    "cacheWriteTokens": 0,
+    "totalTokens": 258414
+  },
+  "cost_usd": 0.522688,
+  "duration_ms": 74273,
+  "acceptance": {
+    "ok": true,
+    "missing": [],
+    "checkedAt": "2026-07-17T19:03:00.117Z"
+  }
+}

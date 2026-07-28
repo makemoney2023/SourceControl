@@ -13,12 +13,12 @@ Validates the reporting chain **and model routing** without requiring a live mul
 
 | Seat | llm_tier | llm_model |
 |------|----------|-----------|
-| orchestrator | frontier-reasoning | `grok-4-5` |
-| cmo | frontier-reasoning | `grok-4-5` |
+| orchestrator | frontier-reasoning | `grok-4.5` |
+| cmo | frontier-reasoning | `grok-4.5` |
 | copy-chief | creative-language | `composer-2.5` |
 | content-strategist | strong-general | `composer-2.5` |
 | product-marketing-manager | strong-general | `composer-2.5` |
-| ceo-strategist (review) | frontier-reasoning | `grok-4-5` |
+| ceo-strategist (review) | frontier-reasoning | `grok-4.5` |
 
 All Phase 13 seats: `generation_profile: none`.
 
@@ -27,7 +27,7 @@ All Phase 13 seats: `generation_profile: none`.
 1. **Orchestrator** builds manager packet for `cmo`, phase `13`, including:
    ```yaml
    llm_tier: frontier-reasoning
-   llm_model: grok-4-5
+   llm_model: grok-4.5
    generation_profile: none
    ```
    Does **not** spawn `copy-chief` directly. **Refuse** if `llm_tier` omitted.

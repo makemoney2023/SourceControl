@@ -35,6 +35,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/visual-skills/image/` | Image prompts |
 | `skills/community/inference-sh/ai-image-generation/` | Image render |
 | `skills/community/inference-sh/nano-banana-2/` | Nano Banana |
+| `skills/community/openmontage/.claude/skills/flux-best-practices/` | FLUX prompting (T2I / I2I) |
+| `skills/community/inference-sh/flux-image/` | FLUX render path |
+| `skills/community/openmontage/.claude/skills/bfl-api/` | BFL API parameters |
+| `skills/community/openmontage/.claude/skills/visual-style/` | Visual style direction |
 | `skills/community/awesome-claude-corporate-skills/04-marketing/theme-factory/` | Themes |
 
 ## Inputs

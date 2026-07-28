@@ -1,0 +1,28 @@
+{
+  "runId": "1784562461564-head-of-research",
+  "status": "completed",
+  "position": "head-of-research",
+  "phase": "0",
+  "claimed": "0-head-of-research-20260720T154741Z.yaml",
+  "dispatch_filename": "0-head-of-research-20260720T154741Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-20T15:47:41.564Z",
+  "llm_model": "composer-2.5",
+  "finished_at": "2026-07-20T15:48:19.304Z",
+  "result": "**Head of Research — Phase 0 peer brief complete**\n\nRan the HEARTBEAT checklist: confirmed Phase 0 scope and write lease, read SKILL + MODEL-REGISTRY, did **not** spawn ICs (single-file peer brief; geography/pricing block meaningful market work), wrote manager brief and operator deliverable.\n\n### Artifacts\n\n| Path | Purpose |\n|------|---------|\n| `docs/projects/lemonade-stand/business-idea/HANDOFFS/0-manager-head-of-research.md` | Wave 2 manager brief (run `1784562461564-head-of-research`) |\n| `docs/projects/lemonade-stand/business-idea/REVIEW/inbox/0-head-of-research-2026-07-20T1547-deliverable.md` | Operator review (`status: pending_review`) |\n\n### Verdict (for CEO merge)\n\n- **Evidence:** Zero indexed sources — all market checks are assumption/desk inference with Low confidence.\n- **Market reality:** Category is real and can work, but **event selection and pricing dominate**; “fresh + cold” alone is table stakes.\n- **Blocking gaps (E1–E3):** geography/first events, pricing & pack, permit status.\n- **Recommendation:** `approve` for roundtable merge — **do not** mark Phase 0 ✅.\n- **ICs spawned:** none (`delegate_budget: 3` reserved for Phase 2 after operator clears E1–E3).\n\n### Model audit\n\n`llm_tier: strong-general` · `llm_model: composer-2.5` · `generation_profile: none` · `fallback_applied: false`",
+  "agentId": "agent-1e237d92-0a90-415f-8d8a-9980c1dfd75b",
+  "usage": {
+    "inputTokens": 215566,
+    "outputTokens": 7087,
+    "cacheReadTokens": 168544,
+    "cacheWriteTokens": 0,
+    "totalTokens": 391197
+  },
+  "cost_usd": 0.803566,
+  "duration_ms": 36290,
+  "acceptance": {
+    "ok": true,
+    "missing": [],
+    "checkedAt": "2026-07-20T15:48:19.304Z"
+  }
+}

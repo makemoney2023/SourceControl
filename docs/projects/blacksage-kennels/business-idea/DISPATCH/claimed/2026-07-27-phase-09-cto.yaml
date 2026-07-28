@@ -1,0 +1,30 @@
+phase: "9"
+position: cto
+goal: >-
+  Build Blacksage Kennels MVP Next.js site per approved brand/web/copy/pages.
+  Spawn tech-lead. TDD. App at apps/blacksage-kennels. Update 09-build-log.md.
+  Write manager brief. Do not mark phase complete.
+report_to: ceo-strategist
+parent_position: orchestrator
+llm_tier: coding-agent
+llm_model: composer-2.5
+generation_profile: none
+inputs:
+  - docs/projects/blacksage-kennels/business-idea/12-web-design.md
+  - docs/projects/blacksage-kennels/business-idea/11-brand-system.md
+  - docs/projects/blacksage-kennels/business-idea/13-copy-foundation.md
+  - docs/projects/blacksage-kennels/business-idea/14-pages/homepage.md
+  - docs/projects/blacksage-kennels/business-idea/14-pages/apply.md
+outputs:
+  - docs/projects/blacksage-kennels/business-idea/09-build-log.md
+  - apps/blacksage-kennels/
+write_lease:
+  - docs/projects/blacksage-kennels/business-idea/09-build-log.md
+  - docs/projects/blacksage-kennels/business-idea/HANDOFFS/09-manager-cto.md
+  - apps/blacksage-kennels/
+delegate_budget: 2
+constraints:
+  - Spawn tech-lead only (no hardware-engineer)
+  - TDD required
+  - shadcn/ui, Tailwind, R3F, Framer Motion
+  - Placeholders for photos/contact

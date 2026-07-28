@@ -35,6 +35,13 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/marketingskills/site-architecture/` | Site architecture |
 | `skills/community/awesome-claude-corporate-skills/08-it-engineering/frontend-design/` | Frontend design |
 | `skills/user/figma-implement-design/` | Figma implement |
+| `skills/community/openmontage/.agents/skills/web-design-guidelines/` | Web design QA checklist |
+| `skills/community/openmontage/.agents/skills/tailwind-design-system/` | Tailwind token system |
+| `skills/community/openmontage/.agents/skills/framer-motion/` | Motion specs (non-WebGL) |
+| `skills/community/openmontage/.agents/skills/threejs-fundamentals/` | Hero 3D island constraints (review) |
+| `skills/plugins/vercel/shadcn/` | shadcn component patterns |
+| `skills/plugins/figma/figma-design-to-code/` | Figma → code |
+| `skills/community/visual-skills/image/` | UI imagery prompts |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/11-brand-system.md`

@@ -1,0 +1,28 @@
+{
+  "runId": "1784314991450-ceo-strategist",
+  "status": "completed",
+  "position": "ceo-strategist",
+  "phase": "0",
+  "claimed": "0-ceo-strategist-20260717T190311Z.yaml",
+  "dispatch_filename": "0-ceo-strategist-20260717T190311Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-17T19:03:11.450Z",
+  "llm_model": "grok-4.5",
+  "finished_at": "2026-07-17T19:04:03.301Z",
+  "result": "Phase 0 Wave 1 intake is done for run `1784314991450-ceo-strategist`. Phase stays 🔄.\n\n**Classification:** Service — seasonal event F&B (fresh-squeezed, ice-cold lemonade); explore / light / bootstrapped.\n\n**Written**\n- `HANDOFFS/0-manager-ceo-strategist.md` — manager brief\n- `REVIEW/inbox/0-ceo-strategist-2026-07-17T1903-deliverable.md` — `pending_review` inbox artifact\n- Confirmed `00-intake.md` (status only)\n\n**Constraints honored:** no ICs (`delegate_budget: 0`); no peer managers spawned; phase not marked ✅.\n\n**Next for orchestrator:** Peer briefs are already on disk (CFO/CMO/COO/HoR). Spawn CEO Wave 2 merge with write lease for `HANDOFFS/0-csuite-review.md` — do not re-run the roundtable.",
+  "agentId": "agent-ed7c9feb-09ff-42d3-90cf-278ea14980b8",
+  "usage": {
+    "inputTokens": 201816,
+    "outputTokens": 5717,
+    "cacheReadTokens": 159744,
+    "cacheWriteTokens": 0,
+    "totalTokens": 367277
+  },
+  "cost_usd": 0.739126,
+  "duration_ms": 50490,
+  "acceptance": {
+    "ok": true,
+    "missing": [],
+    "checkedAt": "2026-07-17T19:04:03.303Z"
+  }
+}

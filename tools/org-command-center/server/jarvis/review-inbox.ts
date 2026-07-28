@@ -27,6 +27,43 @@ function parseFrontmatter(raw: string): Record<string, string> {
   return out;
 }
 
+/** Absolute path of the newest inbox deliverable that mentions this runId. */
+export function findInboxDeliverableByRunId(
+  repoRoot: string,
+  runId: string,
+): { abs: string; rel: string; markdown: string } | null {
+  const want = runId.trim();
+  if (!want) return null;
+  const dir = reviewInboxDir(repoRoot);
+  if (!existsSync(dir)) return null;
+  let best: { abs: string; rel: string; markdown: string; mtimeMs: number } | null =
+    null;
+  for (const filename of readdirSync(dir)) {
+    if (!filename.endsWith(".md") || filename.includes("-queued.")) continue;
+    const abs = join(dir, filename);
+    const st = statSync(abs);
+    if (!st.isFile()) continue;
+    const markdown = readFileSync(abs, "utf8");
+    const fm = parseFrontmatter(markdown);
+    const mentions =
+      fm.runId === want ||
+      markdown.includes(`runId: ${want}`) ||
+      markdown.includes(`\`${want}\``);
+    if (!mentions) continue;
+    if (!best || st.mtimeMs > best.mtimeMs) {
+      best = {
+        abs,
+        rel: businessIdeaFile(repoRoot, `REVIEW/inbox/${filename}`),
+        markdown,
+        mtimeMs: st.mtimeMs,
+      };
+    }
+  }
+  return best
+    ? { abs: best.abs, rel: best.rel, markdown: best.markdown }
+    : null;
+}
+
 export function listReviewInbox(repoRoot: string): ReviewInboxItem[] {
   const dir = reviewInboxDir(repoRoot);
   if (!existsSync(dir)) return [];
@@ -50,6 +87,40 @@ export function listReviewInbox(repoRoot: string): ReviewInboxItem[] {
     });
   }
   return items.sort((a, b) => b.mtimeMs - a.mtimeMs);
+}
+
+/** Update frontmatter `status` on inbox files matching optional phase filter. */
+export function setReviewInboxStatus(
+  repoRoot: string,
+  args: { status: string; phase?: string },
+): { updated: string[] } {
+  const dir = reviewInboxDir(repoRoot);
+  if (!existsSync(dir)) return { updated: [] };
+  const wantPhase = args.phase != null ? String(args.phase).trim() : undefined;
+  const updated: string[] = [];
+  for (const filename of readdirSync(dir)) {
+    if (!filename.endsWith(".md")) continue;
+    const abs = join(dir, filename);
+    const st = statSync(abs);
+    if (!st.isFile()) continue;
+    const raw = readFileSync(abs, "utf8");
+    if (!raw.startsWith("---")) continue;
+    const end = raw.indexOf("\n---", 3);
+    if (end < 0) continue;
+    const fm = parseFrontmatter(raw);
+    if (wantPhase != null) {
+      const itemPhase = String(fm.phase ?? "").replace(/^["']|["']$/g, "").trim();
+      if (itemPhase !== wantPhase) continue;
+    }
+    if ((fm.status || "pending_review") === args.status) continue;
+    const block = raw.slice(3, end);
+    const nextBlock = /^status:\s*.+$/m.test(block)
+      ? block.replace(/^status:\s*.+$/m, `status: ${args.status}`)
+      : `status: ${args.status}\n${block.trimStart()}`;
+    writeFileSync(abs, `---${nextBlock}\n---${raw.slice(end + 4)}`, "utf8");
+    updated.push(filename);
+  }
+  return { updated };
 }
 
 export function writeReviewInboxReceipt(

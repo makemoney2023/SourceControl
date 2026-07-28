@@ -1,0 +1,28 @@
+{
+  "runId": "1784315043343-head-of-research",
+  "status": "completed",
+  "position": "head-of-research",
+  "phase": "0",
+  "claimed": "0-head-of-research-20260717T190403Z.yaml",
+  "dispatch_filename": "0-head-of-research-20260717T190403Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-17T19:04:03.343Z",
+  "llm_model": "composer-2.5",
+  "finished_at": "2026-07-17T19:04:43.565Z",
+  "result": "**Phase 0 peer brief complete** — run `1784315043343-head-of-research`. Phase 0 is **not** marked complete.\n\n## Artifacts\n\n| Path | Purpose |\n|------|---------|\n| `docs/projects/lemonade-stand/business-idea/HANDOFFS/0-manager-head-of-research.md` | Manager peer brief (evidence gaps + market reality) |\n| `docs/projects/lemonade-stand/business-idea/REVIEW/inbox/0-head-of-research-2026-07-17T1904-deliverable.md` | C-suite review deliverable (`status: pending_review`) |\n\n## Headline findings\n\n1. **Evidence debt** — `SOURCES/INDEX.md` is empty; all market signals are desk inference until Phase 2.\n2. **Category is real but crowded** — ingredient gross margins ~70–80%, but net ~20–35% of gross after booth fees and labor; **event selection** drives outcomes more than recipe.\n3. **Differentiation gap** — “Fresh-squeezed + ice-cold” is table stakes; a second differentiator (flavors, niche events, speed, spectacle) is needed.\n4. **Blocking gaps (E1–E3)** — geography/first events, pricing pack, permit path must be answered before Phase 2 IC spawns.\n\n## Delegation\n\n- **ICs spawned:** none (Phase 0 scope = single handoff; `delegate_budget: 3` reserved for Phase 2)\n- **Peer managers:** not spawned (orchestrator owns roundtable)\n\n## Recommendation\n\n**approve** for CEO Wave 2 merge into `HANDOFFS/0-csuite-review.md`. Do **not** mark Phase 0 ✅ until C-suite review lands.\n\n**Operator asks (blocking for Phase 2):** name city/region + 3–5 target events; set price/menu; confirm TFE permit path with local health department.",
+  "agentId": "agent-c074e443-9bb2-4e2d-8aac-3daa00985605",
+  "usage": {
+    "inputTokens": 178822,
+    "outputTokens": 6052,
+    "cacheReadTokens": 152480,
+    "cacheWriteTokens": 0,
+    "totalTokens": 337354
+  },
+  "cost_usd": 0.67299,
+  "duration_ms": 38733,
+  "acceptance": {
+    "ok": true,
+    "missing": [],
+    "checkedAt": "2026-07-17T19:04:43.566Z"
+  }
+}

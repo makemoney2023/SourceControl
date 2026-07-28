@@ -12,11 +12,64 @@ import {
   getWorkIntake,
   mergeWorkGoal,
   peekConfirm,
+  peekLatestConfirm,
   setLastSummary,
   setWorkIntake,
 } from "./session";
+import { isPhase0RoundtableRequest, looksLikePhase0Request } from "./phase0-roundtable";
 import { executeIntent as executeIntentProd } from "./tools-exec";
 import { resolveWorkTarget } from "./work-request";
+
+function workConfirmKey(args: Record<string, unknown>): string {
+  const position = String(args.position ?? "").trim();
+  const phase = String(args.phase ?? "").trim();
+  const goal = String(args.goal ?? "").trim();
+  const targetIc = String(args.targetIc ?? "").trim();
+  return JSON.stringify({ position, phase, goal, targetIc });
+}
+
+function sameConfirmArgs(a: unknown, b: Record<string, unknown>): boolean {
+  if (typeof a !== "object" || a === null || Array.isArray(a)) return false;
+  return workConfirmKey(a as Record<string, unknown>) === workConfirmKey(b);
+}
+
+function normalizeWorkRequestConfirmArgs(
+  repoRoot: string,
+  roomId: string,
+  args: Record<string, unknown>,
+): Record<string, unknown> {
+  const intake = getWorkIntake(roomId);
+  const resolved = resolveWorkTarget(repoRoot, {
+    position:
+      args.position != null ? String(args.position) : intake?.intakeSeat,
+    goal: args.goal != null ? String(args.goal) : intake?.goal,
+    phase: args.phase != null ? String(args.phase) : undefined,
+  });
+  const goal = mergeWorkGoal(resolved.goal, intake?.answers);
+  let phase = args.phase != null ? String(args.phase) : undefined;
+  if (
+    looksLikePhase0Request({
+      phase,
+      goal: args.goal != null ? String(args.goal) : resolved.goal,
+    })
+  ) {
+    phase = "0";
+  }
+  const confirmArgs = normalizeQueueForArgs(repoRoot, {
+    position: resolved.intakeSeat,
+    goal,
+    phase,
+    targetIc: resolved.targetIc ?? intake?.targetIc,
+    require_inbox: true,
+  });
+  setWorkIntake(roomId, {
+    intakeSeat: resolved.intakeSeat,
+    targetIc: resolved.targetIc ?? intake?.targetIc,
+    goal: resolved.goal,
+    answers: intake?.answers ?? {},
+  });
+  return confirmArgs;
+}
 
 export type JarvisActResult = {
   status: "ok" | "needs_confirm" | "denied" | "error";
@@ -65,6 +118,15 @@ function confirmSummary(intent: JarvisIntent, args: Record<string, unknown>): st
     return `Queue ${position} for phase ${phase}. Confirm?`;
   }
   if (intent === "work.request") {
+    if (
+      isPhase0RoundtableRequest({
+        phase: args.phase != null ? String(args.phase) : undefined,
+        position: args.position != null ? String(args.position) : undefined,
+        goal: args.goal != null ? String(args.goal) : undefined,
+      })
+    ) {
+      return "Start Phase 0 C-suite roundtable (CEO → peers → CEO merge). Confirm?";
+    }
     const position = String(args.position ?? "manager");
     const ic = args.targetIc ? ` (IC ${args.targetIc})` : "";
     return `Queue ${position}${ic} and start Cursor now. Confirm?`;
@@ -132,11 +194,38 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
     result !== null &&
     "runId" in result
   ) {
-    const r = result as { position?: string; runId?: string; reviewInboxHint?: string };
-    return `${r.position} running as ${r.runId}. Artifact will land in review inbox.`;
+    const r = result as {
+      position?: string;
+      runId?: string;
+      reviewInboxHint?: string;
+      phase0Roundtable?: boolean;
+    };
+    if (r.phase0Roundtable) {
+      return "Phase 0 C-suite roundtable started — CEO intake running.";
+    }
+    // Never speak raw runIds (e.g. 1784308096815-head-of-research) — TTS reads them as huge numbers.
+    const who = (r.position ?? "manager").replace(/-/g, " ");
+    return `${who} started. Artifact will land in the review inbox.`;
   }
   if (intent === "runs.watch" && typeof result === "object" && result !== null && "summary" in result) {
     return String((result as { summary: string }).summary);
+  }
+  if (intent === "runs.get" && typeof result === "object" && result !== null && "run" in result) {
+    const envelope = result as {
+      run?: { position?: string; status?: string; runId?: string; summary?: string; detail?: string };
+      operatorSpoken?: string;
+    };
+    const run = envelope.run;
+    if (!run) return "Run not found.";
+    const who = (run.position ?? "seat").replace(/-/g, " ");
+    const status = run.status ?? "unknown";
+    if (typeof envelope.operatorSpoken === "string" && envelope.operatorSpoken.trim()) {
+      return `${who} ${status}. ${envelope.operatorSpoken}`.replace(/\s+/g, " ").trim();
+    }
+    const detail = run.summary || run.detail;
+    return detail
+      ? `${who} is ${status}: ${detail}`.replace(/\s+/g, " ").trim()
+      : `${who} is ${status}.`;
   }
   if (intent === "blocker.list" && typeof result === "object" && result !== null && "summary" in result) {
     return String((result as { summary: string }).summary);
@@ -146,6 +235,20 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
     if (typeof r.spoken === "string" && r.spoken.trim()) return r.spoken;
     if (typeof r.answer === "string" && r.answer.trim()) return r.answer;
   }
+  if (intent === "brain.route" && typeof result === "object" && result !== null) {
+    const r = result as {
+      spoken?: string;
+      intent?: string;
+      clarifyQuestion?: string;
+      spokenHint?: string;
+    };
+    if (typeof r.spoken === "string" && r.spoken.trim()) return r.spoken;
+    if (typeof r.clarifyQuestion === "string" && r.clarifyQuestion.trim()) {
+      return r.clarifyQuestion;
+    }
+    if (typeof r.spokenHint === "string" && r.spokenHint.trim()) return r.spokenHint;
+    if (typeof r.intent === "string" && r.intent.trim()) return `Routed as ${r.intent}.`;
+  }
   if (
     intent === "blocker.resolve" &&
     typeof result === "object" &&
@@ -153,9 +256,6 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
     "spoken" in result
   ) {
     const r = result as { spoken?: string; runId?: string; action?: string };
-    if (r.runId) {
-      return `${r.spoken ?? "Blocker resolve started."} Run ${r.runId}.`;
-    }
     return String(r.spoken ?? "Blocker resolve started.");
   }
   if (intent === "dispatch.queue_batch" && typeof result === "object" && result !== null) {
@@ -199,9 +299,15 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
 }
 
 function resolveMode(raw: Record<string, unknown>, roomId: string): JarvisMode {
+  const server = getRoomMode(roomId);
+  // Once the room has left briefing, prefer server — voice clients often keep
+  // sending stale "briefing" after set_mode, which blocked spawn and looped set_mode.
+  if (server !== "briefing") return server;
   const mode = raw.mode;
-  if (mode === "briefing" || mode === "ops" || mode === "review" || mode === "architect") return mode;
-  return getRoomMode(roomId);
+  if (mode === "briefing" || mode === "ops" || mode === "review" || mode === "architect") {
+    return mode;
+  }
+  return server;
 }
 
 export async function handleJarvisAct(
@@ -241,101 +347,155 @@ export async function handleJarvisAct(
   let execArgs: Record<string, unknown> = { ...act.args, roomId };
 
   if (policy.needsConfirm) {
-    if (!confirmToken) {
-      let confirmArgs: Record<string, unknown> = act.args;
-      if (act.intent === "dispatch.queue_for") {
-        try {
-          confirmArgs = normalizeQueueForArgs(repoRoot, act.args);
-        } catch (err) {
-          const reason =
-            err instanceof JarvisExecError || err instanceof Error ? err.message : "Invalid request";
-          auditJarvis(
-            { roomId, type: "jarvis_error", intent: act.intent, detail: reason },
-            repoRoot,
-          );
-          return { status: "error", reason };
+    let pending: { intent: JarvisIntent; args: unknown; mode: JarvisMode } | null = null;
+
+    if (confirmToken) {
+      pending = consumeConfirm(roomId, confirmToken);
+      // Voice models invent fake tokens (e.g. token_123) because TTS omits the UUID.
+      // Recover by consuming the latest pending confirm for the same intent.
+      if (!pending || pending.intent !== act.intent) {
+        const latest = peekLatestConfirm(roomId);
+        if (latest && latest.intent === act.intent) {
+          pending = consumeConfirm(roomId, latest.token);
+        } else {
+          pending = null;
         }
       }
-      if (act.intent === "work.request") {
-        try {
-          const intake = getWorkIntake(roomId);
-          const resolved = resolveWorkTarget(repoRoot, {
-            position:
-              act.args.position != null
-                ? String(act.args.position)
-                : intake?.intakeSeat,
-            goal: act.args.goal != null ? String(act.args.goal) : intake?.goal,
-          });
-          const goal = mergeWorkGoal(resolved.goal, intake?.answers);
-          confirmArgs = normalizeQueueForArgs(repoRoot, {
-            position: resolved.intakeSeat,
-            goal,
-            phase: act.args.phase,
-            targetIc: resolved.targetIc ?? intake?.targetIc,
-            require_inbox: true,
-          });
-          setWorkIntake(roomId, {
-            intakeSeat: resolved.intakeSeat,
-            targetIc: resolved.targetIc ?? intake?.targetIc,
-            goal: resolved.goal,
-            answers: intake?.answers ?? {},
-          });
-        } catch (err) {
-          const reason =
-            err instanceof JarvisExecError || err instanceof Error ? err.message : "Invalid request";
-          auditJarvis(
-            { roomId, type: "jarvis_error", intent: act.intent, detail: reason },
-            repoRoot,
-          );
-          return { status: "error", reason };
-        }
+      if (pending && pending.intent === act.intent) {
+        auditJarvis({ roomId, type: "jarvis_confirm", intent: act.intent }, repoRoot);
+        execArgs =
+          typeof pending.args === "object" && pending.args !== null && !Array.isArray(pending.args)
+            ? { ...(pending.args as Record<string, unknown>), roomId }
+            : { roomId };
       }
-      const token = createConfirmToken(roomId, act.intent, confirmArgs, mode);
-      let summaryArgs: Record<string, unknown> = confirmArgs;
-      if (act.intent === "memory.digest" || act.intent === "memory.reindex") {
-        try {
-          const reg = loadRegistry(repoRoot);
-          summaryArgs = {
-            ...confirmArgs,
-            ventureName: reg.projects[reg.active]?.name ?? reg.active,
-          };
-        } catch {
-          /* use default venture label */
-        }
-      }
-      const summary = confirmSummary(act.intent, summaryArgs);
-      auditJarvis(
-        {
-          roomId,
-          type: "jarvis_confirm_pending",
-          intent: act.intent,
-          detail: summary,
-        },
-        repoRoot,
-      );
-      setLastSummary(roomId, summary);
-      return { status: "needs_confirm", token, summary };
     }
 
-    const pending = consumeConfirm(roomId, confirmToken);
     if (!pending || pending.intent !== act.intent) {
-      auditJarvis(
-        {
-          roomId,
-          type: "jarvis_error",
-          intent: act.intent,
-          detail: "Invalid or expired confirm token",
-        },
-        repoRoot,
-      );
-      return { status: "error", reason: "Invalid or expired confirm token" };
-    }
+      // Pre-normalize work.request so repeat-as-yes only fires on matching args.
+      let incomingWorkArgs: Record<string, unknown> | null = null;
+      if (act.intent === "work.request" && !confirmToken) {
+        try {
+          incomingWorkArgs = normalizeWorkRequestConfirmArgs(
+            repoRoot,
+            roomId,
+            act.args,
+          );
+        } catch (err) {
+          const reason =
+            err instanceof JarvisExecError || err instanceof Error
+              ? err.message
+              : "Invalid request";
+          auditJarvis(
+            { roomId, type: "jarvis_error", intent: act.intent, detail: reason },
+            repoRoot,
+          );
+          return { status: "error", reason };
+        }
+      }
 
-    auditJarvis({ roomId, type: "jarvis_confirm", intent: act.intent }, repoRoot);
-    execArgs =
-      typeof pending.args === "object" && pending.args !== null && !Array.isArray(pending.args)
-        ? { ...(pending.args as Record<string, unknown>), roomId }
-        : { roomId };
+      const existing = peekLatestConfirm(roomId);
+      if (existing && existing.intent === act.intent && !confirmToken) {
+        // Voice models often re-call work_request on "yes" instead of jarvis_confirm.
+        // After Confirm? has been out for a moment, treat a *matching* repeat as accept.
+        const ageMs = Date.now() - existing.createdAt;
+        const argsMatch =
+          act.intent !== "work.request" ||
+          (incomingWorkArgs != null &&
+            sameConfirmArgs(existing.args, incomingWorkArgs));
+        if (ageMs >= 2000 && argsMatch) {
+          pending = consumeConfirm(roomId, existing.token);
+          if (pending && pending.intent === act.intent) {
+            auditJarvis({ roomId, type: "jarvis_confirm", intent: act.intent }, repoRoot);
+            execArgs =
+              typeof pending.args === "object" &&
+              pending.args !== null &&
+              !Array.isArray(pending.args)
+                ? { ...(pending.args as Record<string, unknown>), roomId }
+                : { roomId };
+          }
+        } else if (argsMatch) {
+          const summary = confirmSummary(
+            act.intent,
+            typeof existing.args === "object" &&
+              existing.args !== null &&
+              !Array.isArray(existing.args)
+              ? (existing.args as Record<string, unknown>)
+              : act.args,
+          );
+          setLastSummary(roomId, summary);
+          return { status: "needs_confirm", token: existing.token, summary };
+        }
+        // Mismatched args: fall through and replace pending with a new Confirm?
+      }
+
+      // Confirmed via repeat work_request — skip creating another confirm.
+      if (!(pending && pending.intent === act.intent)) {
+        let confirmArgs: Record<string, unknown> = act.args;
+        if (act.intent === "dispatch.queue_for") {
+          try {
+            confirmArgs = normalizeQueueForArgs(repoRoot, act.args);
+          } catch (err) {
+            const reason =
+              err instanceof JarvisExecError || err instanceof Error
+                ? err.message
+                : "Invalid request";
+            auditJarvis(
+              { roomId, type: "jarvis_error", intent: act.intent, detail: reason },
+              repoRoot,
+            );
+            return { status: "error", reason };
+          }
+        }
+        if (act.intent === "work.request") {
+          if (incomingWorkArgs) {
+            confirmArgs = incomingWorkArgs;
+          } else {
+            try {
+              confirmArgs = normalizeWorkRequestConfirmArgs(
+                repoRoot,
+                roomId,
+                act.args,
+              );
+            } catch (err) {
+              const reason =
+                err instanceof JarvisExecError || err instanceof Error
+                  ? err.message
+                  : "Invalid request";
+              auditJarvis(
+                { roomId, type: "jarvis_error", intent: act.intent, detail: reason },
+                repoRoot,
+              );
+              return { status: "error", reason };
+            }
+          }
+        }
+        const token = createConfirmToken(roomId, act.intent, confirmArgs, mode);
+        let summaryArgs: Record<string, unknown> = confirmArgs;
+        if (act.intent === "memory.digest" || act.intent === "memory.reindex") {
+          try {
+            const reg = loadRegistry(repoRoot);
+            summaryArgs = {
+              ...confirmArgs,
+              ventureName: reg.projects[reg.active]?.name ?? reg.active,
+            };
+          } catch {
+            /* use default venture label */
+          }
+        }
+        const summary = confirmSummary(act.intent, summaryArgs);
+        auditJarvis(
+          {
+            roomId,
+            type: "jarvis_confirm_pending",
+            intent: act.intent,
+            detail: summary,
+          },
+          repoRoot,
+        );
+        setLastSummary(roomId, summary);
+        return { status: "needs_confirm", token, summary };
+      }
+    }
   }
 
   try {
@@ -351,18 +511,54 @@ export async function handleJarvisAct(
   }
 }
 
+function looksLikeConfirmToken(token: string): boolean {
+  // Real tokens are UUIDs from createConfirmToken. Spoken phrases / invents are not.
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    token.trim(),
+  );
+}
+
 export async function handleJarvisConfirm(
   repoRoot: string,
   roomId: string,
   token: string,
   accept?: boolean,
 ): Promise<JarvisActResult> {
-  if (!token) {
-    return { status: "error", reason: "token required" };
+  // Token is optional for voice: resolve latest pending when omitted or invented.
+  let resolvedToken = looksLikeConfirmToken(token) ? token.trim() : "";
+  if (!resolvedToken) {
+    const latest = peekLatestConfirm(roomId);
+    if (!latest) {
+      // Voice often confirms twice (work_request redirect + jarvis_confirm). Soft-ok.
+      if (accept === true) {
+        return {
+          status: "ok",
+          summary: "Nothing pending — already confirmed or expired.",
+        };
+      }
+      return { status: "error", reason: "No pending confirmation" };
+    }
+    resolvedToken = latest.token;
+  } else if (!peekConfirm(roomId, resolvedToken)) {
+    const latest = peekLatestConfirm(roomId);
+    if (!latest) {
+      if (accept === true) {
+        return {
+          status: "ok",
+          summary: "Nothing pending — already confirmed or expired.",
+        };
+      }
+      auditJarvis(
+        { roomId, type: "jarvis_error", detail: "Invalid or expired confirm token" },
+        repoRoot,
+      );
+      return { status: "error", reason: "Invalid or expired confirm token" };
+    }
+    resolvedToken = latest.token;
   }
 
   if (accept !== true) {
-    const cancelled = cancelConfirm(roomId, token);
+    const cancelled = cancelConfirm(roomId, resolvedToken);
     if (!cancelled) {
       auditJarvis({ roomId, type: "jarvis_error", detail: "Invalid or expired confirm token" }, repoRoot);
       return { status: "error", reason: "Invalid or expired confirm token" };
@@ -379,16 +575,19 @@ export async function handleJarvisConfirm(
     return { status: "denied", reason: "Confirm declined" };
   }
 
-  const pending = peekConfirm(roomId, token);
+  const pending = peekConfirm(roomId, resolvedToken);
   if (!pending) {
-    auditJarvis({ roomId, type: "jarvis_error", detail: "Invalid or expired confirm token" }, repoRoot);
-    return { status: "error", reason: "Invalid or expired confirm token" };
+    // Race: pending was consumed by parallel work_request auto-confirm.
+    return {
+      status: "ok",
+      summary: "Nothing pending — already confirmed or expired.",
+    };
   }
 
   return handleJarvisAct(repoRoot, roomId, {
     intent: pending.intent,
     args: pending.args,
-    confirmToken: token,
+    confirmToken: resolvedToken,
     mode: pending.mode,
   });
 }

@@ -37,6 +37,11 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/awesome-claude-corporate-skills/04-marketing/brand-guidelines/` | Brand guidelines |
 | `skills/community/ui-ux-pro-max-skill/brand/` | Brand |
 | `skills/community/ui-ux-pro-max-skill/design-system/` | Design system |
+| `skills/community/openmontage/.agents/skills/web-design-guidelines/` | Web design QA review |
+| `skills/community/openmontage/.claude/skills/flux-best-practices/` | Image prompt QA (FLUX) |
+| `skills/community/openmontage/.claude/skills/visual-style/` | Visual style direction |
+| `skills/community/visual-skills/image/` | Image prompt QA |
+| `skills/community/openmontage/.agents/skills/threejs-fundamentals/` | Hero 3D scope review |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/03-strategy.md`

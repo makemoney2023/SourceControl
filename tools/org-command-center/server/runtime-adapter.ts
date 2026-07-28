@@ -1,3 +1,4 @@
+import { normalizeCursorModelId } from "../src/lib/cursor-models";
 import type { TokenUsageLike } from "../src/lib/cost-rates";
 
 export interface RuntimeRunInput {
@@ -57,7 +58,7 @@ export const cursorRuntimeAdapter: RuntimeAdapter = {
       const { Agent } = await import("@cursor/sdk");
       const opts = {
         apiKey: input.apiKey,
-        model: { id: input.model || "composer-2.5" },
+        model: { id: normalizeCursorModelId(input.model) },
         local: { cwd: input.cwd },
       };
 

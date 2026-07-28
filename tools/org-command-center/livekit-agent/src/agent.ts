@@ -22,10 +22,11 @@ import {
   type AnnounceEvent,
 } from "./completion-announce.js";
 import { createConfirmGate } from "./confirm-gate.js";
+import { shouldRecoverEmptySttConfirm } from "./confirm-recovery.js";
 import { createModeState } from "./modes.js";
 import { buildOccTools, defaultOccClient } from "./occ-tools.js";
 import { JARVIS_SYSTEM_PROMPT } from "./jarvis-system-prompt.js";
-import { sanitizeForSpeech } from "./occ-client.js";
+import { sanitizeForSpeech, summarizeJarvisSpeech } from "./occ-client.js";
 import { maybeHandlePhase0VoiceRoute } from "./phase0-voice-route.js";
 import { patchSpeechHandleCancel } from "./patch-speech-handle.js";
 import {
@@ -83,6 +84,8 @@ export default defineAgent({
     let eventsCursor: string | undefined;
     const watchState = { lastActive: false, lastTerminalAtMs: null as number | null };
     let completionTimer: ReturnType<typeof setInterval> | undefined;
+    /** Defer "seat finished" TTS while user is mid conversation. */
+    let holdAnnouncesUntilMs = 0;
 
     const chatCtx = new llm.ChatContext().append({
       role: "system",
@@ -106,18 +109,23 @@ export default defineAgent({
         // Was 30ms / 0 words — residual mic noise cancelled hard-route replies
         // before TTS started (status asked, agent logged say, never spoke).
         interruptSpeechDuration: 400,
-        interruptMinWords: 2,
-        minEndpointingDelay: 400,
+        // 1 so short "yes" / "confirm" can interrupt Confirm? prompts.
+        interruptMinWords: 1,
+        minEndpointingDelay: 300,
         // Default is 1 — kills conversational tool use after the first nested call.
         maxNestedFncCalls: 8,
         preemptiveSynthesis: false,
         beforeLLMCallback: async (vpa, copiedCtx) => {
+          // Hold completion announces while the user is asking a question.
+          holdAnnouncesUntilMs = Date.now() + 12_000;
           const handled = await maybeHandlePhase0VoiceRoute({
             agent: vpa,
             chatCtx: copiedCtx,
             occ,
             modeState,
             roomId,
+            confirmPending: confirmGate.isWaiting(),
+            onConfirmPending: (pending) => confirmGate.setWaiting(pending),
           });
           // false skips the LLM — also clears transcribedText inside the route.
           return handled ? false : undefined;
@@ -125,11 +133,61 @@ export default defineAgent({
       },
     );
 
+    let confirmUtteranceStartedAt: number | null = null;
+    let speechCommittedSinceConfirmStart = false;
+
     agent.on(pipeline.VPAEvent.USER_STARTED_SPEAKING, () => {
       console.info("[jarvis] user started speaking (interruptible)");
+      holdAnnouncesUntilMs = Date.now() + 15_000;
+      if (confirmGate.isWaiting()) {
+        confirmUtteranceStartedAt = Date.now();
+        speechCommittedSinceConfirmStart = false;
+      }
     });
     agent.on(pipeline.VPAEvent.USER_SPEECH_COMMITTED, (msg) => {
       console.info("[jarvis] heard:", msg.content ?? (msg as { text?: string }).text);
+      holdAnnouncesUntilMs = Date.now() + 12_000;
+      speechCommittedSinceConfirmStart = true;
+    });
+    agent.on(pipeline.VPAEvent.USER_STOPPED_SPEAKING, () => {
+      console.info("[jarvis] user stopped speaking");
+      if (!confirmGate.isWaiting() || confirmUtteranceStartedAt == null) return;
+      const durationMs = Date.now() - confirmUtteranceStartedAt;
+      confirmUtteranceStartedAt = null;
+      // Whisper often drops short "yes" — recover after a beat if nothing committed.
+      setTimeout(() => {
+        void (async () => {
+          if (
+            !shouldRecoverEmptySttConfirm({
+              confirmPending: confirmGate.isWaiting(),
+              speechDurationMs: durationMs,
+              committedHeard: speechCommittedSinceConfirmStart,
+            })
+          ) {
+            return;
+          }
+          console.info(
+            "[jarvis] confirm empty-STT recovery — treating short utterance as yes",
+            { durationMs },
+          );
+          try {
+            const res = await occ.jarvisConfirm({
+              roomId,
+              token: "",
+              accept: true,
+            });
+            confirmGate.setWaiting(false);
+            const speech =
+              summarizeJarvisSpeech(res) || "Started.";
+            void agent.say(sanitizeForSpeech(speech), true, false);
+          } catch (err) {
+            console.error(
+              "[jarvis] confirm recovery failed:",
+              err instanceof Error ? err.message : err,
+            );
+          }
+        })();
+      }, 900);
     });
     agent.on(pipeline.VPAEvent.AGENT_SPEECH_INTERRUPTED, () => {
       console.info("[jarvis] agent interrupted — listening");
@@ -162,7 +220,8 @@ export default defineAgent({
       // Prefer a short spoken open; truncate long mission briefs so we stay conversational.
       const brief = (context.spokenBrief || "").trim();
       if (brief) {
-        greeting = pickWakeGreeting(brief, 160);
+        // Allow a short plain-English wrap (verdict + next step), not a jargon dump.
+        greeting = pickWakeGreeting(brief, 280);
       }
       lastSpokenSnapshot = parsePulseSnapshot(context);
     } catch {
@@ -229,10 +288,12 @@ export default defineAgent({
               : `${who} finished with gaps.`;
           return { ...e, cursor, spoken };
         });
+        const deferSpeak =
+          confirmGate.isWaiting() || Date.now() < holdAnnouncesUntilMs;
         const { speak, mark } = selectAnnounceEvents(
           announceEvents,
           announcedKeys,
-          confirmGate.isWaiting(),
+          deferSpeak,
         );
         for (const key of mark) announcedKeys.add(key);
         if (payload.nextCursor) eventsCursor = payload.nextCursor;

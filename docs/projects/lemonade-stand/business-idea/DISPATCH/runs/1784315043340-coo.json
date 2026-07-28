@@ -1,0 +1,28 @@
+{
+  "runId": "1784315043340-coo",
+  "status": "completed",
+  "position": "coo",
+  "phase": "0",
+  "claimed": "0-coo-20260717T190403Z.yaml",
+  "dispatch_filename": "0-coo-20260717T190403Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-17T19:04:03.340Z",
+  "llm_model": "grok-4.5",
+  "finished_at": "2026-07-17T19:05:23.980Z",
+  "result": "COO Phase 0 peer brief complete for run `1784315043340-coo`. Phase not marked complete.\n\n**Deliverables**\n- Manager brief: `docs/projects/lemonade-stand/business-idea/HANDOFFS/0-manager-coo.md`\n- Review inbox: `docs/projects/lemonade-stand/business-idea/REVIEW/inbox/0-coo-2026-07-17T1904-deliverable.md` (`status: pending_review`)\n- IC handoffs: `0-ops-manager.md`, `0-legal-counsel.md`\n\n**ICs (delegate_budget: 2)**\n| IC | Lease | Result |\n|----|-------|--------|\n| `ops-manager` | `HANDOFFS/0-ops-manager.md` | done — `composer-2.5-fast` (fallback) |\n| `legal-counsel` | `HANDOFFS/0-legal-counsel.md` | needs_input / ready_to_merge — `grok-4.5` |\n\n**Verdict:** **approve** for roundtable. Explore planning OK; **do not operate events** until geography + permits + insurance cleared.\n\n**Top blockers for operator:** geography / first events, temp food vendor path, GL/COI, labor model (2-person recommended above ~50 cups).",
+  "agentId": "agent-c2f306c2-4fef-4021-b85e-03924e589756",
+  "usage": {
+    "inputTokens": 223197,
+    "outputTokens": 8216,
+    "cacheReadTokens": 178496,
+    "cacheWriteTokens": 0,
+    "totalTokens": 409909
+  },
+  "cost_usd": 0.84638,
+  "duration_ms": 79151,
+  "acceptance": {
+    "ok": true,
+    "missing": [],
+    "checkedAt": "2026-07-17T19:05:23.981Z"
+  }
+}

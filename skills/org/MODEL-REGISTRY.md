@@ -18,16 +18,16 @@ Designers do **not** “run as Veo.” They use a Plane A LLM and **must** rende
 
 | Tier | Preferred Cursor `model` | Fallback ladder | Typical seats |
 |------|--------------------------|-----------------|---------------|
-| `frontier-reasoning` | `grok-4-5` | → `composer-2.5` → `inherit` | Orchestrator, C-suite, legal, hard gates |
+| `frontier-reasoning` | `grok-4.5` | → `composer-2.5` → `inherit` | Orchestrator, C-suite, legal, hard gates |
 | `strong-general` | `composer-2.5` | → `inherit` | Most managers + research/product/marketing ICs |
 | `creative-language` | `composer-2.5` | → `inherit` | Copy, CD briefs, PR |
 | `coding-agent` | `composer-2.5` | → `inherit` | CTO, eng, analytics, hardware text |
 | `fast-ops` | `composer-2.5` | → `inherit` | SEO checklists, ops, recruiter drafts |
 | `inherit-parent` | `inherit` | — | Rare; only when packet explicitly allows |
 
-**Policy:** Use **Grok 4.5** (`grok-4-5`) for thinking / reasoning seats (`frontier-reasoning`). Use **Composer 2.5** (`composer-2.5`) for all other Plane A work. Both are first-party models ([Cursor models docs](https://cursor.com/docs/models-and-pricing)).
+**Policy:** Use **Grok 4.5** (`grok-4.5`) for thinking / reasoning seats (`frontier-reasoning`). Use **Composer 2.5** (`composer-2.5`) for all other Plane A work. Both are first-party models ([Cursor models docs](https://cursor.com/docs/models-and-pricing)).
 
-**Cost policy:** Prefer `composer-2.5` for ICs and day-to-day manager work. Reserve `frontier-reasoning` / `grok-4-5` for orchestrator decisions, C-suite review, legal, and hard-gate phases (3, 6, 10, 14, 19, 21).
+**Cost policy:** Prefer `composer-2.5` for ICs and day-to-day manager work. Reserve `frontier-reasoning` / `grok-4.5` for orchestrator decisions, C-suite review, legal, and hard-gate phases (3, 6, 10, 14, 19, 21).
 
 If a preferred model is blocked by plan/admin, apply the fallback ladder and set `fallback_applied: true` on the handoff.
 
@@ -52,18 +52,18 @@ Every roster slug appears **once**. Orchestrator included.
 
 | Slug | llm_tier | Preferred `model` | generation_profile |
 |------|----------|-------------------|--------------------|
-| company-orchestrator | frontier-reasoning | `grok-4-5` | none |
-| ceo-strategist | frontier-reasoning | `grok-4-5` | none |
+| company-orchestrator | frontier-reasoning | `grok-4.5` | none |
+| ceo-strategist | frontier-reasoning | `grok-4.5` | none |
 | head-of-research | strong-general | `composer-2.5` | none |
 | market-research-analyst | strong-general | `composer-2.5` | none |
 | competitive-intelligence-analyst | strong-general | `composer-2.5` | none |
-| cfo | frontier-reasoning | `grok-4-5` | none |
+| cfo | frontier-reasoning | `grok-4.5` | none |
 | fpa-analyst | strong-general | `composer-2.5` | none |
 | fundraising-lead | strong-general | `composer-2.5` | none |
 | head-of-product | strong-general | `composer-2.5` | none |
 | product-manager | strong-general | `composer-2.5` | none |
 | business-analyst | strong-general | `composer-2.5` | none |
-| cmo | frontier-reasoning | `grok-4-5` | none |
+| cmo | frontier-reasoning | `grok-4.5` | none |
 | product-marketing-manager | strong-general | `composer-2.5` | none |
 | copy-chief | creative-language | `composer-2.5` | none |
 | content-strategist | strong-general | `composer-2.5` | none |
@@ -79,9 +79,9 @@ Every roster slug appears **once**. Orchestrator included.
 | sales-enablement-lead | strong-general | `composer-2.5` | none |
 | outbound-lead | strong-general | `composer-2.5` | none |
 | customer-success-manager | strong-general | `composer-2.5` | none |
-| coo | frontier-reasoning | `grok-4-5` | none |
+| coo | frontier-reasoning | `grok-4.5` | none |
 | ops-manager | fast-ops | `composer-2.5` | none |
-| legal-counsel | frontier-reasoning | `grok-4-5` | none |
+| legal-counsel | frontier-reasoning | `grok-4.5` | none |
 | head-of-people | strong-general | `composer-2.5` | none |
 | recruiter | fast-ops | `composer-2.5` | none |
 | cto | coding-agent | `composer-2.5` | none |
@@ -117,7 +117,7 @@ Every roster slug appears **once**. Orchestrator included.
 4. For phases **11, 12, 15, 19**, packet must include `generation_profile` (may be `none` only if skip-reason documented).
 5. Handoffs must record: `llm_tier`, `llm_model`, `generation_profile`, `generation_used`, `fallback_applied`.
 6. C-suite may **revise** if wrong tier/profile used on hard-gate or creative/legal work.
-7. C-suite review itself always uses `frontier-reasoning` (`grok-4-5`).
+7. C-suite review itself always uses `frontier-reasoning` (`grok-4.5`).
 
 ### Audit fields (handoffs)
 

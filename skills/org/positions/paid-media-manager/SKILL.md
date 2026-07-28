@@ -39,7 +39,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/advertising-skills/skills/operator-os/performance-diagnosis/` | Diagnosis |
 | `skills/community/advertising-skills/skills/orchestrators/full-funnel-campaign-orchestrator/` | Full funnel |
 | `skills/community/visual-skills/image/` | Image prompts |
-| `skills/community/openmontage/` | Video ads (pipelines) |
+| `skills/community/openmontage/` | OpenMontage entry — video ads |
+| `skills/community/openmontage/.agents/skills/hyperframes/` | HyperFrames video ads |
+| `skills/community/marketingskills/cro/` | Paid conversion path |
+| `skills/community/openmontage/.claude/skills/flux-best-practices/` | Still/ad image prompts (FLUX) |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/13-copy-foundation.md`

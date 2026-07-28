@@ -2,8 +2,10 @@
  * Wire Jarvis LLM (xAI Grok or local Ollama) + local STT/TTS
  * (Whisper / OmniVoice). STT/TTS stay localhost-only.
  */
+import type { tts } from "@livekit/agents";
 import * as openai from "@livekit/agents-plugin-openai";
 import OpenAI from "openai";
+import { sanitizeForSpeech } from "../occ-client.js";
 
 export type JarvisLlmBackend = "xai" | "ollama";
 
@@ -139,16 +141,33 @@ export function defaultKokoroVoice() {
   return process.env.OMNIVOICE_VOICE || "am_adam";
 }
 
+/**
+ * LLM freeform replies bypass tool summarizers — sanitize every TTS input so
+ * Kokoro never speaks markdown asterisks aloud.
+ */
+export function wrapTtsSanitize(inner: tts.TTS): tts.TTS {
+  const synthesize = inner.synthesize.bind(inner);
+  inner.synthesize = (text: string) => {
+    const clean = sanitizeForSpeech(text);
+    if (clean !== text) {
+      console.info("[jarvis] tts sanitized:", JSON.stringify(clean.slice(0, 180)));
+    }
+    return synthesize(clean || "Okay.");
+  };
+  return inner;
+}
+
 export function createOmniVoiceTTS() {
   const baseURL = requireLocalUrl(
     "OMNIVOICE_URL",
     process.env.OMNIVOICE_URL || "http://127.0.0.1:3900",
   );
   // mlx-audio (Kokoro) or say-tts fallback — same OpenAI-compatible path
-  return new openai.TTS({
+  const ttsEngine = new openai.TTS({
     model: defaultKokoroModel(),
     voice: defaultKokoroVoice(),
     baseURL: `${baseURL}/v1`,
     apiKey: process.env.OMNIVOICE_API_KEY || "local",
   });
+  return wrapTtsSanitize(ttsEngine);
 }

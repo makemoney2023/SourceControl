@@ -53,9 +53,20 @@ describe("JARVIS_SYSTEM_PROMPT", () => {
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/NEVER re-speak|Next is/i);
   });
 
+  it("routes findings via brain.route / jarvis_context not invention", () => {
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/brain\.route|jarvis_context/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/Never invent CFO|never invent/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/Never call work_resolve.*findings|next-steps/i);
+  });
+
   it("teaches proactive completion announce without inventing finishes", () => {
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/proactively announce|system may.*announce/i);
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/never invent/i);
+  });
+
+  it("teaches plain-English outcomes and next steps over path dumps", () => {
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/plain-English|Next steps/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/not paths|runIds|table dumps/i);
   });
 
   it("teaches run.instruct and run.rewake for mid-flight operator delta", () => {

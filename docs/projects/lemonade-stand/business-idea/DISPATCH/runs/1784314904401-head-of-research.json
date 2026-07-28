@@ -1,0 +1,28 @@
+{
+  "runId": "1784314904401-head-of-research",
+  "status": "completed",
+  "position": "head-of-research",
+  "phase": "0",
+  "claimed": "0-head-of-research-20260717T190144Z.yaml",
+  "dispatch_filename": "0-head-of-research-20260717T190144Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-17T19:01:44.401Z",
+  "llm_model": "composer-2.5",
+  "finished_at": "2026-07-17T19:02:50.014Z",
+  "result": "**Head of Research — Phase 0 peer brief complete**\n\nRun `1784314904401-head-of-research` is done. Phase 0 is **not** marked complete. No ICs or peer managers were spawned (Phase 0 scope is a single manager handoff; Phase 2 is when market/competitive ICs should run).\n\n## Artifacts\n\n| Path | Purpose |\n|------|---------|\n| [`HANDOFFS/0-manager-head-of-research.md`](docs/projects/lemonade-stand/business-idea/HANDOFFS/0-manager-head-of-research.md) | Manager brief — evidence gaps + early market reality checks |\n| [`REVIEW/inbox/0-head-of-research-2026-07-17T1901-deliverable.md`](docs/projects/lemonade-stand/business-idea/REVIEW/inbox/0-head-of-research-2026-07-17T1901-deliverable.md) | Operator review packet (`status: pending_review`) |\n\n## Research verdict (for CEO merge)\n\n1. **Evidence debt** — `SOURCES/INDEX.md` is empty; intake is operator-note-only. All market signals are flagged **Low confidence** until Phase 2 indexing.\n2. **Category is viable but crowded** — Event lemonade vending can show ~70–80% gross margins in secondary sources, but **event selection and booth-fee math** drive outcomes more than recipe alone.\n3. **Differentiation gap** — “Fresh-squeezed + ice-cold” matches existing festival vendors; a second differentiator (flavors, niche events, speed, partnerships) is needed.\n4. **Blocking gaps (E1–E3)** — Geography/first events, pricing pack, and TFE permit path must be answered before deep research ICs can run.\n\n## Recommendation\n\n**approve** for Wave 2 CEO merge → `HANDOFFS/0-csuite-review.md`. Await peer briefs from CFO, CMO, and COO before advancing Phase 0.\n\n**Model audit:** `strong-general` / `composer-2.5` / `generation_profile: none` / `fallback_applied: false`  \n**Tools:** `firecrawl` and `parallel-research` unavailable; informal desk research only (not indexed to SOURCES).",
+  "agentId": "agent-c3b69504-04bc-4c7c-bd21-3e0bc28fdff4",
+  "usage": {
+    "inputTokens": 232097,
+    "outputTokens": 6516,
+    "cacheReadTokens": 195456,
+    "cacheWriteTokens": 0,
+    "totalTokens": 434069
+  },
+  "cost_usd": 0.852668,
+  "duration_ms": 64185,
+  "acceptance": {
+    "ok": true,
+    "missing": [],
+    "checkedAt": "2026-07-17T19:02:50.015Z"
+  }
+}

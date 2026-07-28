@@ -84,6 +84,72 @@ describe("buildJarvisContext", () => {
     expect(ctx.sourcesCount).toBe(0);
   });
 
+  it("prefers Phase 0 roundtable pulse over stale mission next-action", async () => {
+    repo = tempRepo();
+    writeFileSync(
+      join(repo, BIZ_IDEA, "DISPATCH/phase0-roundtable.json"),
+      JSON.stringify({
+        venture: "passive-grid",
+        status: "done",
+        pulse: "Phase 0 C-suite roundtable done — verdict approve.",
+        ceoIntakeRunId: "run-1",
+        peerRunIds: {},
+        peerBriefs: {},
+        startedAt: "2026-07-17T00:00:00.000Z",
+        updatedAt: "2026-07-17T00:01:00.000Z",
+      }),
+      "utf8",
+    );
+    const ctx = await buildJarvisContext(repo);
+    expect(ctx.spokenBrief).toMatch(/Phase 0 is done|C-suite says approve|roundtable done/i);
+    expect(ctx.spokenBrief).not.toMatch(/^Next is Phase 0 Intake/i);
+  });
+
+  it("when Phase 0 is done, spoken brief is plain English not peer jargon", async () => {
+    repo = tempRepo();
+    mkdirSync(join(repo, BIZ_IDEA, "HANDOFFS"), { recursive: true });
+    writeFileSync(
+      join(repo, BIZ_IDEA, "HANDOFFS/0-csuite-review.md"),
+      [
+        "---",
+        "verdict: approve",
+        "---",
+        "",
+        "## Peer briefs present",
+        "| Seat | Brief | Peer recommendation | Load-bearing stance |",
+        "|------|-------|---------------------|---------------------|",
+        "| cfo | yes | approve | Unit economics mid-case five dollars |",
+        "| cmo | yes | approve | Event booth positioning |",
+        "",
+        "## Comments for manager / company",
+        "- Geography and permits remain open before any sale.",
+        "",
+      ].join("\n"),
+      "utf8",
+    );
+    writeFileSync(
+      join(repo, BIZ_IDEA, "DISPATCH/phase0-roundtable.json"),
+      JSON.stringify({
+        venture: "passive-grid",
+        status: "done",
+        pulse: "Phase 0 C-suite roundtable done — verdict approve.",
+        ceoIntakeRunId: "run-1",
+        peerRunIds: {},
+        peerBriefs: {},
+        startedAt: "2026-07-17T00:00:00.000Z",
+        updatedAt: "2026-07-17T00:01:00.000Z",
+      }),
+      "utf8",
+    );
+    const ctx = await buildJarvisContext(repo);
+    expect(ctx.spokenBrief).toMatch(/C-suite says approve/i);
+    expect(ctx.spokenBrief).toMatch(/Geography and permits|Phase 1/i);
+    expect(ctx.spokenBrief).not.toMatch(/Unit economics mid-case|Event booth positioning/i);
+    expect(ctx.spokenBrief).not.toBe(
+      "Phase 0 C-suite roundtable done — verdict approve.",
+    );
+  });
+
   it("uses memory brief when decisions exist in MEMORY", async () => {
     repo = tempRepo();
     const memoryDir = join(repo, "docs/projects/passive-grid/MEMORY");
@@ -119,8 +185,8 @@ describe("buildJarvisContext", () => {
     const ctx = await buildJarvisContext(repo);
     expect(ctx.contextNote).toBe("Operator guidance for passive grid.");
     expect(ctx.sourcesCount).toBe(2);
-    expect(ctx.spokenBrief).toMatch(/Context note on file/);
     expect(ctx.spokenBrief).toMatch(/2 sources attached/);
+    expect(ctx.spokenBrief).not.toMatch(/Context note on file/);
   });
 
   it("truncates contextNote to 500 characters", async () => {
@@ -134,7 +200,8 @@ describe("buildJarvisContext", () => {
 
     const ctx = await buildJarvisContext(repo);
     expect(ctx.contextNote).toHaveLength(500);
-    expect(ctx.spokenBrief).toMatch(/Context note on file/);
+    // Long filler notes are not appended to spoken wake speech.
+    expect(ctx.spokenBrief).not.toMatch(/Context note on file/);
   });
 
   it("mentions sources when uploads exist without an operator note", async () => {

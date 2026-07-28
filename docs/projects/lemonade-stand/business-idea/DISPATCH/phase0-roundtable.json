@@ -1,0 +1,25 @@
+{
+  "venture": "lemonade-stand",
+  "status": "done",
+  "ceoIntakeRunId": "1784562406799-ceo-strategist",
+  "peerRunIds": {
+    "cfo": "1784562461556-cfo",
+    "cmo": "1784562461559-cmo",
+    "coo": "1784562461561-coo",
+    "head-of-research": "1784562461564-head-of-research"
+  },
+  "peerBriefs": {
+    "cfo": "docs/projects/lemonade-stand/business-idea/HANDOFFS/0-manager-cfo.md",
+    "cmo": "docs/projects/lemonade-stand/business-idea/HANDOFFS/0-manager-cmo.md",
+    "coo": "docs/projects/lemonade-stand/business-idea/HANDOFFS/0-manager-coo.md",
+    "head-of-research": "docs/projects/lemonade-stand/business-idea/HANDOFFS/0-manager-head-of-research.md"
+  },
+  "startedAt": "2026-07-20T15:46:46.804Z",
+  "updatedAt": "2026-07-20T15:48:40.624Z",
+  "pulse": "Phase 0 is done — C-suite says approve. Finance, marketing, ops, and research all reviewed the lemonade-stand intake and agree we should keep exploring it as a seasonal event food service. The story is coherent enough to close Phase 0 intake and move into framing. You still should not sell at any event until you name a city/region and clear temporary food permits plus insurance. Mid-case prices and cup volumes are…",
+  "peersStartedAt": "2026-07-20T15:47:41.525Z",
+  "mergeRunId": "1784562461716-ceo-strategist",
+  "partial": false,
+  "rewakeSeats": [],
+  "closeoutApplied": true
+}

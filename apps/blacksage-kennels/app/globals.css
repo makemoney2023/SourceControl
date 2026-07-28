@@ -1,0 +1,196 @@
+@import "tailwindcss";
+
+:root {
+  --color-ground: #070707;
+  --color-elevated: #121212;
+  --color-lifted: #1a1a1a;
+  --color-proof-band: #101010;
+  --color-hero-fog: #050505;
+  --color-tan: #c4a35a;
+  --color-tan-deep: #a67c52;
+  --color-tan-soft: #d4b87a;
+  --color-sage: #7a8f7e;
+  --color-sage-deep: #5f6f62;
+  --color-sage-muted: #8a968c;
+  --color-text-primary: #f3efe6;
+  --color-text-secondary: #a8a49c;
+  --color-text-muted: #7a7670;
+  --color-cta-text: #070707;
+  --color-border-subtle: #2c2c2c;
+  --color-border-strong: #3a3a3a;
+  --color-focus-ring: var(--color-tan);
+  --color-success: #7a8f7e;
+  --color-error: #c97a7a;
+
+  --color-bg-primary: var(--color-ground);
+  --color-bg-secondary: var(--color-elevated);
+  --color-bg-dark-band: var(--color-proof-band);
+  --color-text-on-dark: var(--color-text-primary);
+  --color-accent-primary: var(--color-tan);
+  --color-accent-secondary: var(--color-sage);
+
+  --background: var(--color-bg-primary);
+  --foreground: var(--color-text-primary);
+  --primary: var(--color-accent-primary);
+  --primary-foreground: var(--color-cta-text);
+  --muted: var(--color-elevated);
+  --muted-foreground: var(--color-text-muted);
+  --border: var(--color-border-subtle);
+  --input: var(--color-lifted);
+  --ring: var(--color-focus-ring);
+  --destructive: var(--color-error);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-manrope);
+  --color-blacksage-ground: #070707;
+  --color-blacksage-elevated: #121212;
+  --color-blacksage-lifted: #1a1a1a;
+  --color-blacksage-proof-band: #101010;
+  --color-blacksage-hero-fog: #050505;
+  --color-blacksage-tan: #c4a35a;
+  --color-blacksage-tan-deep: #a67c52;
+  --color-blacksage-tan-soft: #d4b87a;
+  --color-blacksage-sage: #7a8f7e;
+  --color-blacksage-sage-deep: #5f6f62;
+  --color-blacksage-sage-muted: #8a968c;
+  --color-blacksage-text-primary: #f3efe6;
+  --color-blacksage-text-secondary: #a8a49c;
+  --color-blacksage-text-muted: #7a7670;
+  --color-blacksage-cta-text: #070707;
+  --color-blacksage-border: #2c2c2c;
+  --color-blacksage-paper: var(--color-blacksage-ground);
+  --color-blacksage-paper-warm: var(--color-blacksage-elevated);
+  --color-blacksage-charcoal: var(--color-blacksage-text-primary);
+  --color-blacksage-charcoal-light: var(--color-blacksage-lifted);
+  --color-blacksage-graphite: var(--color-blacksage-text-secondary);
+  --color-blacksage-stone: var(--color-blacksage-text-muted);
+  --color-blacksage-dark-band: var(--color-blacksage-proof-band);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .cinema-grain {
+    display: none;
+  }
+}
+
+body {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-manrope), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
+}
+
+.section-overline {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-tan);
+}
+
+.prose-body {
+  color: var(--color-text-secondary);
+  max-width: 65ch;
+  line-height: 1.55;
+}
+
+.text-link {
+  color: var(--color-tan-soft);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--color-tan);
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+
+.text-link:hover {
+  color: var(--color-tan);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Working-Dog Cinema chrome */
+.cinema-letterbox {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  height: 4.5vh;
+  min-height: 28px;
+  background: #000;
+}
+
+.cinema-letterbox-top {
+  top: 0;
+}
+
+.cinema-letterbox-bottom {
+  bottom: 0;
+}
+
+.cinema-grain {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+.cinema-glass {
+  background: rgba(7, 7, 7, 0.62);
+  border: 1px solid rgba(196, 163, 90, 0.35);
+  backdrop-filter: blur(12px);
+}
+
+.cinema-progress {
+  pointer-events: none;
+  position: absolute;
+  bottom: 7vh;
+  left: 50%;
+  z-index: 21;
+  display: flex;
+  transform: translateX(-50%);
+  gap: 0.4rem;
+}
+
+/* Lift black coat off void so the hero subject reads clearly */
+.hero-subject-lift {
+  filter: brightness(1.45) contrast(1.18) saturate(1.12);
+}

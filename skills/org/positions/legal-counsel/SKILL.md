@@ -29,7 +29,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 | Pack path | Use for |
 |-----------|---------|
-| `skills/community/awesome-claude-corporate-skills/06-legal/` | Legal skills family — pick relevant |
+| `skills/community/awesome-claude-corporate-skills/06-legal-compliance/legal-risk-assessment/` | Risk assessment |
+| `skills/community/awesome-claude-corporate-skills/06-legal-compliance/compliance/` | Compliance checklist |
+| `skills/community/awesome-claude-corporate-skills/06-legal-compliance/contract-review/` | Contract review |
+| `skills/community/awesome-claude-corporate-skills/06-legal-compliance/nda-triage/` | NDA triage |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/08-operations.md`
@@ -58,7 +61,7 @@ Use orchestrator schemas. Managers receive manager packets; ICs receive IC packe
 | Field | Value |
 |-------|-------|
 | `llm_tier` | `frontier-reasoning` |
-| Preferred Cursor `model` | `grok-4-5` |
+| Preferred Cursor `model` | `grok-4.5` |
 | `generation_profile` | `none` |
 | Fallback | See `skills/org/MODEL-REGISTRY.md` |
 

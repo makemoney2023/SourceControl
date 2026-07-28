@@ -1,0 +1,33 @@
+phase: "14"
+position: cmo
+goal: >-
+  Produce Phase 14 page content for Blacksage Kennels: full body copy + meta for
+  every route/section per 12-web-design and 13-copy-foundation. Spawn copy-chief,
+  seo-manager, content-strategist (parallel partial); brand-designer only if needed
+  for placeholder alt copy. Hard C-suite gate. Write manager brief. Do not mark complete.
+report_to: ceo-strategist
+parent_position: orchestrator
+llm_tier: frontier-reasoning
+llm_model: grok-4.5
+generation_profile: none
+inputs:
+  - docs/projects/blacksage-kennels/business-idea/13-copy-foundation.md
+  - docs/projects/blacksage-kennels/business-idea/12-web-design.md
+  - docs/projects/blacksage-kennels/business-idea/11-brand-system.md
+must_read:
+  - skills/org/positions/cmo/SKILL.md
+  - skills/org/COLLABORATION.md
+  - skills/org/MODEL-REGISTRY.md
+outputs:
+  - docs/projects/blacksage-kennels/business-idea/14-pages/
+write_lease:
+  - docs/projects/blacksage-kennels/business-idea/14-pages/
+  - docs/projects/blacksage-kennels/business-idea/HANDOFFS/14-manager-cmo.md
+delegate_budget: 4
+constraints:
+  - Required pages: homepage.md (all landing sections) + apply.md
+  - All pages need body + meta title/description
+  - copy-chief creative-language; seo-manager fast-ops
+  - Use locked ★ H2s and CTA language from copy foundation
+  - Placeholders for contact/pricing/health-test names — do not invent false claims
+  - Do not mark phase complete

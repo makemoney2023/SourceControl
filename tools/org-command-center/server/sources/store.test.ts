@@ -11,7 +11,13 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import type { ProjectRegistry } from "../paths";
 import { MAX_SOURCE_BYTES } from "./extract";
-import { deleteSource, listSources, uploadSource } from "./store";
+import { appendVentureContextReads } from "./context-reads";
+import {
+  deleteSource,
+  listSources,
+  newestExtractRels,
+  uploadSource,
+} from "./store";
 
 function seedActiveVenture(): string {
   const root = mkdtempSync(join(tmpdir(), "occ-sources-"));
@@ -73,5 +79,41 @@ describe("store", () => {
     });
     deleteSource(root, record.id);
     expect(listSources(root).sources).toHaveLength(0);
+  });
+
+  it("newestExtractRels skips citation-only INDEX rows without file paths", () => {
+    root = seedActiveVenture();
+    mkdirSync(join(root, "docs/projects/a/business-idea/SOURCES"), {
+      recursive: true,
+    });
+    // Manual research citations (url/title only) share INDEX.md with file uploads.
+    writeFileSync(
+      join(root, "docs/projects/a/business-idea/SOURCES/INDEX.md"),
+      [
+        "# Sources index",
+        "",
+        "```json",
+        JSON.stringify(
+          [
+            {
+              id: "src-001",
+              title: "Market report",
+              url: "https://example.com/report",
+              type: "market_report",
+            },
+          ],
+          null,
+          2,
+        ),
+        "```",
+        "",
+      ].join("\n"),
+      "utf8",
+    );
+    expect(() => newestExtractRels(root, 3)).not.toThrow();
+    expect(newestExtractRels(root, 3)).toEqual([]);
+    expect(() =>
+      appendVentureContextReads(root, ["skills/org/MODEL-REGISTRY.md"]),
+    ).not.toThrow();
   });
 });

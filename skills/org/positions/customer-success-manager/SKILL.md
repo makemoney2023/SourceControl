@@ -31,6 +31,9 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 |-----------|---------|
 | `skills/community/marketingskills/onboarding/` | Onboarding |
 | `skills/community/marketingskills/churn-prevention/` | Churn |
+| `skills/community/awesome-claude-corporate-skills/11-customer-success/onboarding-playbook/` | CS onboarding playbook |
+| `skills/community/awesome-claude-corporate-skills/11-customer-success/churn-analysis/` | Churn analysis |
+| `skills/community/awesome-claude-corporate-skills/11-customer-success/escalation/` | Escalation paths |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/05-prd.md`

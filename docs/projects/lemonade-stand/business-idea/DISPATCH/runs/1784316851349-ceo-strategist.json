@@ -1,0 +1,28 @@
+{
+  "runId": "1784316851349-ceo-strategist",
+  "status": "completed",
+  "position": "ceo-strategist",
+  "phase": "2",
+  "claimed": "2-ceo-strategist-20260717T193411Z.yaml",
+  "dispatch_filename": "2-ceo-strategist-20260717T193411Z.yaml",
+  "wake_reason": "on_demand",
+  "started_at": "2026-07-17T19:34:11.349Z",
+  "llm_model": "grok-4.5",
+  "finished_at": "2026-07-17T19:34:55.168Z",
+  "result": "Phase 2 CEO run is **blocked / escalate** — not craft-complete.\n\n**Why**\n- ORG-REGISTRY assigns Phase 2 to `head-of-research`, not CEO.\n- Phase 1 is still open (`01-problem-framing.md` missing).\n- Packet had `delegate_budget: 0` and a write lease only for the manager brief — no ICs spawned, no `02-*` files written.\n- Phase 0 C-suite already said deep research waits on geography / first events; `SOURCES` is still empty.\n\n**Written**\n- `HANDOFFS/2-manager-ceo-strategist.md` — blocked brief, recommendation **escalate**\n- `REVIEW/inbox/2-ceo-strategist-2026-07-17T1934-deliverable.md` — `status: pending_review`, `runId: 1784316851349-ceo-strategist`\n\n**Next for orchestrator**\n1. Run Phase 1 under `ceo-strategist`.\n2. Re-dispatch Phase 2 to `head-of-research`.\n3. Leave Phase 2 🔄 — do not mark complete.",
+  "agentId": "agent-53ee6e91-7d58-4f4d-9121-678bfb14f6cc",
+  "usage": {
+    "inputTokens": 164088,
+    "outputTokens": 4948,
+    "cacheReadTokens": 125632,
+    "cacheWriteTokens": 0,
+    "totalTokens": 294668
+  },
+  "cost_usd": 0.604174,
+  "duration_ms": 42340,
+  "acceptance": {
+    "ok": true,
+    "missing": [],
+    "checkedAt": "2026-07-17T19:34:55.170Z"
+  }
+}

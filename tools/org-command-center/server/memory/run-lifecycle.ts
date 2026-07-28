@@ -1,5 +1,6 @@
 import { join } from "node:path";
 import type { RunRecord } from "../../src/lib/runs";
+import { advancePhase0Roundtable } from "../jarvis/phase0-roundtable";
 import { dispatchRoot } from "../paths";
 import { listRuns } from "../runs-fs";
 import { appendLifecycleLine } from "./fs-store";
@@ -25,6 +26,14 @@ export function recordRunLifecycle(repoRoot: string, run: RunRecord): void {
   } catch (err) {
     console.warn(
       "[memory] lifecycle write failed:",
+      err instanceof Error ? err.message : err,
+    );
+  }
+  try {
+    advancePhase0Roundtable(repoRoot);
+  } catch (err) {
+    console.warn(
+      "[phase0-roundtable] advance failed:",
       err instanceof Error ? err.message : err,
     );
   }

@@ -1,0 +1,32 @@
+phase: "2"
+position: head-of-research
+goal: >-
+  Phase 2 evidence base + market research for Blacksage Kennels German Rottweiler
+  kennel / web presence. Deep research first; spawn market-research-analyst and
+  competitive-intelligence-analyst in parallel. Cite sources. Proceed/pivot/stop
+  recommendation. Manager brief. Do not mark phase complete.
+report_to: ceo-strategist
+parent_position: orchestrator
+llm_tier: strong-general
+llm_model: composer-2.5
+generation_profile: none
+inputs:
+  - docs/projects/blacksage-kennels/business-idea/00-intake.md
+  - docs/projects/blacksage-kennels/business-idea/01-problem-framing.md
+  - docs/projects/blacksage-kennels/MEMORY/context.md
+  - docs/projects/blacksage-kennels/business-idea/SOURCES/INDEX.md
+outputs:
+  - docs/projects/blacksage-kennels/business-idea/02-evidence-base.md
+  - docs/projects/blacksage-kennels/business-idea/02-market-research.md
+write_lease:
+  - docs/projects/blacksage-kennels/business-idea/02-evidence-base.md
+  - docs/projects/blacksage-kennels/business-idea/02-market-research.md
+  - docs/projects/blacksage-kennels/business-idea/HANDOFFS/2-manager-head-of-research.md
+  - docs/projects/blacksage-kennels/business-idea/SOURCES/INDEX.md
+delegate_budget: 3
+constraints:
+  - Spawn only market-research-analyst and competitive-intelligence-analyst
+  - Every claim needs a citation URL
+  - Use Firecrawl/web research; expand ADRK breed facts and competitor kennel websites
+  - Do not invent Blacksage-specific litter/price/location facts
+  - Note v1 failed holistically — research should inform what serious buyers expect from premium kennel sites

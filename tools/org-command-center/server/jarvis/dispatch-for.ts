@@ -142,14 +142,22 @@ export function normalizeQueueForArgs(
   const rawPosition = String(args.position ?? "").trim();
   const position = rawPosition ? resolvePositionArg(repoRoot, rawPosition) : rawPosition;
   const goal = String(args.goal ?? "").trim();
-  const explicitPhase = typeof args.phase === "string" ? args.phase.trim() : "";
-  if (explicitPhase) {
-    return { ...args, position, goal, phase: explicitPhase };
-  }
   const snap = loadSnapshot(repoRoot);
-  const phase = String(snap.mission.currentPhase || "").trim();
+  const fallback = String(snap.mission.currentPhase || "").trim();
+  const phase = coercePhaseArg(args.phase, fallback);
   if (!phase) throw new JarvisExecError("phase required", "missing_arg");
   return { ...args, position, goal, phase };
+}
+
+/** Accept "2", "Phase 2 Market", etc. Reject garbage like "queue" / "Resolve". */
+export function coercePhaseArg(raw: unknown, fallback: string): string {
+  const s = String(raw ?? "").trim();
+  if (/^\d+$/.test(s)) return s;
+  const labeled = s.match(/\bphase\s*(\d+)\b/i);
+  if (labeled?.[1]) return labeled[1];
+  const leading = s.match(/^(\d+)\b/);
+  if (leading?.[1]) return leading[1];
+  return fallback;
 }
 
 export function buildQueueForPacket(repoRoot: string, args: QueueForArgs): ManagerPacketInput {
@@ -172,7 +180,7 @@ export function buildQueueForPacket(repoRoot: string, args: QueueForArgs): Manag
   }
 
   const snap = loadSnapshot(repoRoot);
-  const phase = (args.phase?.trim() || String(snap.mission.currentPhase || "")).trim();
+  const phase = coercePhaseArg(args.phase, String(snap.mission.currentPhase || "").trim());
   if (!phase) throw new JarvisExecError("phase required", "missing_arg");
 
   const tracker = parseTracker(readFileSync(trackerPath(repoRoot), "utf8"));

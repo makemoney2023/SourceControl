@@ -26,10 +26,10 @@ describe("selectAnnounceEvents", () => {
     spoken: "cmo finished.",
   };
 
-  it("defers while waiting for confirm", () => {
+  it("defers speak during confirm/Q&A hold but still marks so events do not pile up", () => {
     const out = selectAnnounceEvents([ev], new Set(), true);
     expect(out.speak).toEqual([]);
-    expect(out.mark).toEqual([]);
+    expect(out.mark).toEqual(["c1"]);
   });
 
   it("dedupes by cursor and speaks once", () => {
