@@ -1,7 +1,8 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { indexHandoffs } from "../../src/lib/parse-handoff";
-import type { ManagerPacket } from "../../src/lib/types";
+import { SHIPPABLE_PRODUCTION_PHASES } from "../../src/lib/seat-outputs";
+import type { HandoffRecord, ManagerPacket } from "../../src/lib/types";
 import { handoffsDir, reviewInboxDir } from "../paths";
 import { listReviewInbox } from "./review-inbox";
 
@@ -52,10 +53,10 @@ function hasMatchingInbox(
   );
 }
 
-function hasIcHandoff(repoRoot: string, preferredIc: string): boolean {
+function loadHandoffs(repoRoot: string): HandoffRecord[] {
   const hd = handoffsDir(repoRoot);
-  if (!existsSync(hd)) return false;
-  const handoffs = indexHandoffs(
+  if (!existsSync(hd)) return [];
+  return indexHandoffs(
     readdirSync(hd)
       .filter((n) => n.endsWith(".md") && n !== "README.md")
       .map((name) => ({
@@ -63,7 +64,10 @@ function hasIcHandoff(repoRoot: string, preferredIc: string): boolean {
         content: readFileSync(join(hd, name), "utf8"),
       })),
   );
-  return handoffs.some(
+}
+
+function hasIcHandoff(repoRoot: string, preferredIc: string): boolean {
+  return loadHandoffs(repoRoot).some(
     (h) =>
       h.position === preferredIc &&
       h.kind === "ic" &&
@@ -88,6 +92,88 @@ function resolveRequireIcHandoff(
   return !!packet.preferred_ic;
 }
 
+function resolveRequireProduction(
+  packet: ManagerPacket,
+  requireProduction?: boolean,
+): boolean {
+  if (requireProduction !== undefined) return requireProduction;
+  if (packet.require_production !== undefined) return packet.require_production;
+  if (packet.production_skip_committed) return false;
+  return SHIPPABLE_PRODUCTION_PHASES.has(packet.phase);
+}
+
+function resolveRequireVerifier(
+  packet: ManagerPacket,
+  requireVerifier?: boolean,
+): boolean {
+  if (requireVerifier !== undefined) return requireVerifier;
+  if (packet.require_verifier !== undefined) return packet.require_verifier;
+  return SHIPPABLE_PRODUCTION_PHASES.has(packet.phase);
+}
+
+function pickProductionHandoff(
+  handoffs: HandoffRecord[],
+  packet: ManagerPacket,
+): HandoffRecord | undefined {
+  const phaseMatches = handoffs.filter(
+    (h) => String(h.phase) === String(packet.phase) && h.productionStatus,
+  );
+  return (
+    phaseMatches.find(
+      (h) => h.kind === "manager" && h.position === packet.position,
+    ) ??
+    phaseMatches.find((h) => h.position === packet.preferred_ic) ??
+    phaseMatches.find((h) => h.kind === "manager") ??
+    phaseMatches[0]
+  );
+}
+
+function productionMissing(
+  repoRoot: string,
+  packet: ManagerPacket,
+  handoffs: HandoffRecord[],
+): string | null {
+  const primary = pickProductionHandoff(handoffs, packet);
+  if (!primary) return "production_status";
+
+  const status = primary.productionStatus.toLowerCase();
+  if (status === "skipped") {
+    if (!primary.skipReason) return "production_skip_reason";
+    return null;
+  }
+  if (status === "blocked") {
+    if (!primary.skipReason && primary.blockers.length === 0) {
+      return "production_blocked_reason";
+    }
+    return null;
+  }
+  if (status === "complete") {
+    if (!primary.productionPaths.length) return "production_paths";
+    for (const rel of primary.productionPaths) {
+      const abs = join(repoRoot, rel);
+      if (!existsSync(abs)) return `production_path:${rel}`;
+    }
+    return null;
+  }
+  return "production_status_invalid";
+}
+
+function verifierMissing(
+  handoffs: HandoffRecord[],
+  packet: ManagerPacket,
+): string | null {
+  const verifier = handoffs.find(
+    (h) =>
+      String(h.phase) === String(packet.phase) &&
+      (h.position === "verifier" ||
+        /-verifier\.md$/i.test(h.filename) ||
+        h.filename.toLowerCase().includes("-verifier")),
+  );
+  if (!verifier) return "verifier_handoff";
+  if (verifier.verdict.toLowerCase() !== "pass") return "verifier_pass";
+  return null;
+}
+
 export function evaluateRunAcceptance(
   repoRoot: string,
   args: {
@@ -95,6 +181,8 @@ export function evaluateRunAcceptance(
     packet: ManagerPacket;
     requireInbox?: boolean;
     requireIcHandoff?: boolean;
+    requireProduction?: boolean;
+    requireVerifier?: boolean;
   },
 ): RunAcceptance {
   const missing: string[] = [];
@@ -102,6 +190,14 @@ export function evaluateRunAcceptance(
   const requireIcHandoff = resolveRequireIcHandoff(
     args.packet,
     args.requireIcHandoff,
+  );
+  const requireProduction = resolveRequireProduction(
+    args.packet,
+    args.requireProduction,
+  );
+  const requireVerifier = resolveRequireVerifier(
+    args.packet,
+    args.requireVerifier,
   );
 
   if (requireInbox && !hasMatchingInbox(repoRoot, args.runId, args.packet)) {
@@ -113,6 +209,19 @@ export function evaluateRunAcceptance(
     if (!ic || !hasIcHandoff(repoRoot, ic)) {
       missing.push("ic_handoff");
     }
+  }
+
+  const handoffs =
+    requireProduction || requireVerifier ? loadHandoffs(repoRoot) : [];
+
+  if (requireProduction) {
+    const prod = productionMissing(repoRoot, args.packet, handoffs);
+    if (prod) missing.push(prod);
+  }
+
+  if (requireVerifier) {
+    const ver = verifierMissing(handoffs, args.packet);
+    if (ver) missing.push(ver);
   }
 
   return {

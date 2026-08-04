@@ -177,6 +177,51 @@ describe("validateManagerPacket", () => {
     }
   });
 
+  it("requires budget_usd or production_skip_committed for phases 15/19", () => {
+    const missing = validateManagerPacket(
+      {
+        phase: "15",
+        position: "creative-director",
+        goal: "Hero video",
+        llm_tier: "creative-language",
+        generation_profile: "hero-video",
+      },
+      org,
+      models,
+    );
+    expect(missing.ok).toBe(false);
+    if (!missing.ok) expect(missing.errors.join(" ")).toMatch(/budget_usd/);
+
+    const withBudget = validateManagerPacket(
+      {
+        phase: "19",
+        position: "cmo",
+        goal: "Paid creatives",
+        llm_tier: "frontier-reasoning",
+        generation_profile: "ad-creative",
+        budget_usd: 25,
+      },
+      org,
+      models,
+    );
+    expect(withBudget.ok).toBe(true);
+
+    const skipped = validateManagerPacket(
+      {
+        phase: "15",
+        position: "creative-director",
+        goal: "Skip video",
+        llm_tier: "creative-language",
+        generation_profile: "none",
+        production_skip_committed: true,
+      },
+      org,
+      models,
+    );
+    expect(skipped.ok).toBe(true);
+    if (skipped.ok) expect(skipped.packet.production_skip_committed).toBe(true);
+  });
+
   it("requires generation_profile for creative phases 11/12/15/19", () => {
     const missing = validateManagerPacket(
       {

@@ -75,7 +75,7 @@ Seat `SKILL.md` files are **instructions**, not MCP servers. Do not create an MC
 | pr-manager | parallel-research, firecrawl | — |
 | creative-director | figma, fal-media | elevenlabs |
 | brand-designer | figma, fal-media | — |
-| web-designer | figma, shadcn-ui, vercel, pagespeed-insights | playwright-browser |
+| web-designer | figma, shadcn-ui, vercel, pagespeed-insights | playwright-browser, fal-media |
 | video-producer | fal-media, elevenlabs | — |
 | head-of-sales-cs | — | google-analytics, parallel-research |
 | sales-enablement-lead | — | firecrawl, parallel-research |

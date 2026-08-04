@@ -39,6 +39,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/advertising-skills/skills/copy-chief/objection-crusher/` | Objections |
 | `skills/community/advertising-skills/skills/qa/generic-language-killer/` | QA language |
 | `skills/community/awesome-claude-corporate-skills/04-marketing/content-research-writer/` | Research writing |
+| `skills/community/awesome-claude-corporate-skills/04-marketing/brand-voice-enforcement/` | Brand voice QA |
+| `skills/org/packs/standing-context/buying-psychology/` | Buying psychology standing context |
+| `skills/org/packs/standing-context/content-persuasion/` | Persuasion playbook standing context |
+| `skills/org/packs/standing-context/ai-detection-writing/` | Human-voice / detection-aware writing |
 
 ## Inputs
 - `.agents/product-marketing.md`

@@ -29,6 +29,8 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 | Pack path | Use for |
 |-----------|---------|
+| `skills/org/packs/production-artifacts/` | Craft → Production → Wire; design-system lease |
+| `skills/org/packs/photoreal-stills/` | Photoreal UI/page stills when rendering imagery |
 | `skills/community/ui-ux-pro-max-skill/ui-ux-pro-max/` | Design system CLI |
 | `skills/community/ui-ux-pro-max-skill/design/` | Design |
 | `skills/community/ui-ux-pro-max-skill/ui-styling/` | UI styling |
@@ -42,13 +44,20 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/plugins/vercel/shadcn/` | shadcn component patterns |
 | `skills/plugins/figma/figma-design-to-code/` | Figma → code |
 | `skills/community/visual-skills/image/` | UI imagery prompts |
+| `skills/community/inference-sh/landing-page-design/` | Landing page visual production |
+| `skills/community/marketingskills/popups/` | Popup UX patterns |
+| `skills/community/marketingskills/paywalls/` | Paywall UX patterns |
+| `skills/plugins/figma/figma-use/` | Live Figma editing |
+| `skills/plugins/figma/figma-generate-design/` | Code → Figma screens |
+| `skills/plugins/figma/figma-implement-motion/` | Motion implementation |
+| `skills/org/packs/standing-context/buying-psychology/` | Conversion psychology for UX |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/11-brand-system.md`
 
 ## Outputs
 - `docs/projects/<active>/business-idea/12-web-design.md`
-- `design-system/`
+- `design-system/<venture>/` (repo-root SSOT tokens/components)
 
 ## Collaborates with (peer managers)
 _IC seat — request peers via `ask_manager` only._
@@ -89,15 +98,19 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 | `figma` | primary | `skills/integrations/figma/` |
 | `shadcn-ui` | primary | `skills/integrations/shadcn-ui/` |
 | `vercel` | primary | `skills/integrations/vercel/` |
+| `fal-media` | secondary | `skills/integrations/fal-media/` |
 | `pagespeed-insights` | primary | `skills/integrations/pagespeed-insights/` |
 | `playwright-browser` | secondary | `skills/integrations/playwright-browser/` |
 
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
 ## Done criteria
-- [ ] Craft outputs written (lease-respecting)
-- [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
+- [ ] Craft outputs written (lease-respecting) — IA / `12-web-design.md`
+- [ ] Production: `design-system/<venture>/` files present for eng consume **or** `production_status: skipped` with reason
+- [ ] Figma edits exported into leased paths before claiming production complete
+- [ ] UI stills (if rendered): photoreal checklist / `photoreal_qa` per photoreal-stills pack
+- [ ] Handoff includes `production_status`, `production_paths`, `wire_owner`
+- [ ] Packs followed (including production-artifacts + photoreal-stills when stills rendered)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
 

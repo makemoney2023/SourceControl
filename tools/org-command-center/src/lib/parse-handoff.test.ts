@@ -30,6 +30,29 @@ describe("parseHandoff", () => {
     expect(parseHandoff("2-market-research-analyst.md", sample).kind).toBe("ic");
   });
 
+  it("parses production_status, production_paths, wire_owner, skip_reason", () => {
+    const h = parseHandoff(
+      "17-lifecycle-marketer.md",
+      `---
+phase: "17"
+position: lifecycle-marketer
+production_status: complete
+production_paths:
+  - docs/projects/x/business-idea/17-channels/email/html/welcome-1.html
+wire_owner: operator
+skip_reason: ""
+---
+# Handoff
+`,
+    );
+    expect(h.productionStatus).toBe("complete");
+    expect(h.productionPaths).toEqual([
+      "docs/projects/x/business-idea/17-channels/email/html/welcome-1.html",
+    ]);
+    expect(h.wireOwner).toBe("operator");
+    expect(h.skipReason).toBe("");
+  });
+
   it("extracts asks, blockers, recommendation, escalation tags", () => {
     const h = parseHandoff(
       "2-manager-head-of-research.md",

@@ -38,6 +38,36 @@ Peers do **not** spawn each other. Cross-seat work goes through the **immediate 
 | Budget overage | `paid-media-manager` | `cfo` (escalation) | `cmo` | `ceo-strategist` |
 | Phase merge + brief | `cmo` | `cmo` | `creative-director` | `ceo-strategist` |
 
+## Phase 17 — Channels / email (RACI)
+
+| Artifact | Responsible | Accountable | Consulted | Informed |
+|----------|-------------|-------------|-----------|----------|
+| Email journey craft (MD) | `lifecycle-marketer` | `cmo` | `copy-chief`, `product-marketing-manager` | `ceo-strategist` |
+| **HTML email templates** | `lifecycle-marketer` | `cmo` | `brand-designer` (headers) | `ops-manager` |
+| Email header / brand assets | `brand-designer` | `creative-director` | `lifecycle-marketer` | `cmo` |
+| Social calendar (MD) | `content-strategist` | `cmo` | `lifecycle-marketer` | |
+| Social stills / creatives | `brand-designer` | `creative-director` | `content-strategist` | `cmo` |
+| ESP / automation wiring | operator (Wire) | `cmo` | `lifecycle-marketer` | `coo` |
+| Phase merge + brief | `cmo` | `cmo` | `creative-director` | `ceo-strategist` |
+
+`collaborates_with`: `cmo` ↔ `creative-director` for email headers and social assets. Lifecycle/content **ask_manager** — do not spawn brand.
+
+**Production pack:** All Phase 17 ICs and CMO read [`packs/production-artifacts/SKILL.md`](./packs/production-artifacts/SKILL.md). HTML under `17-channels/email/html/` (or `production_status: skipped` with reason).
+
+**Dual IC lease:** When headers or social stills are in scope, manager packets must lease **both** lifecycle (`email/html/`) and brand (`email/assets/` and/or `social/assets/`). Do not mark Phase 17 production complete with HTML-only if assets were promised without a brand lease or honest skip.
+
+**Verifier:** After CMO manager brief, orchestrator/CTO spawns `verifier`. Phase 17 C-suite approve requires `HANDOFFS/17-verifier.md` with `verdict: pass` (or verified honest skip).
+
+## Production layer (all shippable phases)
+
+See [`packs/production-artifacts/SKILL.md`](./packs/production-artifacts/SKILL.md) for Craft → Production → Wire, path leases, and handoff fields. Shippable: **9, 9B, 11, 12, 14, 15, 17, 18 (when app changes), 19**.
+
+| Artifact | Responsible | Accountable |
+|----------|-------------|-------------|
+| Production verification (skeptical) | `verifier` | `cto` |
+
+Shippable phases: manager brief → **verifier** → C-suite. `verdict: fail` blocks approve.
+
 ## Conflict protocol
 
 1. Manager reads both IC handoffs.  

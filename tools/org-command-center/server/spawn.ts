@@ -295,6 +295,7 @@ async function finishAdapterRun(args: {
       result:
         typeof result.result === "string" ? result.result.slice(0, 4000) : result.result,
       agentId: result.agentId ?? agentId,
+      sdk_request_id: result.requestId,
     };
 
     done = applyUsageToRun(root, done, result, packet.llm_model);

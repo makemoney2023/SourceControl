@@ -47,6 +47,9 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/business-analysis-skills/skills/strategy-analysis/` | Strategy |
 | `skills/community/awesome-claude-corporate-skills/01-executive-leadership/strategic-planning/` | Strategic planning |
 | `skills/community/business-analysis-skills/skills/deliverable-consistency-check/` | Consistency QA |
+| `skills/community/business-analysis-skills/skills/assumption-extractor/` | Surface strategy assumptions |
+| `skills/community/business-analysis-skills/skills/assumptions-constraints-log/` | Strategy assumptions log |
+| `skills/community/business-analysis-skills/skills/problem-statement-refiner/` | Refine problem statements |
 | `skills/org/orchestrator/` | Company dispatch (self) |
 
 ## Inputs

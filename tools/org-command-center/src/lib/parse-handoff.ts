@@ -35,6 +35,19 @@ function parseEscalationTags(raw: unknown): string[] {
   return [];
 }
 
+function parsePathList(raw: unknown): string[] {
+  if (Array.isArray(raw)) {
+    return raw.map(String).map((s) => s.trim().replace(/`/g, "")).filter(Boolean);
+  }
+  if (typeof raw === "string") {
+    return raw
+      .split(/[,\n]/)
+      .map((s) => s.trim().replace(/^[-*]\s*/, "").replace(/`/g, ""))
+      .filter(Boolean);
+  }
+  return [];
+}
+
 export function parseHandoff(filename: string, content: string): HandoffRecord {
   const { data, content: body } = matter(content);
   const artifactRows = tableAsObjects(
@@ -64,6 +77,10 @@ export function parseHandoff(filename: string, content: string): HandoffRecord {
     blockers: sectionBullets(body, /## Risks\s*\/\s*blockers[^\n]*\n/i),
     recommendation: String(data.recommendation ?? data.verdict_for_manager ?? ""),
     escalationTags: parseEscalationTags(data.escalation_tags),
+    productionStatus: String(data.production_status ?? "").trim(),
+    productionPaths: parsePathList(data.production_paths),
+    wireOwner: String(data.wire_owner ?? "").trim(),
+    skipReason: String(data.skip_reason ?? "").trim(),
   };
 }
 

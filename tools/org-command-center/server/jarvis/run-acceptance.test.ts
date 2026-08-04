@@ -194,4 +194,99 @@ status: done
     expect(result.ok).toBe(true);
     expect(result.missing).toEqual([]);
   });
+
+  it("requires production_status on shippable phases", () => {
+    const root = tempRepo();
+    const packet: ManagerPacket = {
+      ...basePacket,
+      phase: "17",
+      require_inbox: false,
+      require_ic_handoff: false,
+      require_verifier: false,
+    };
+
+    const missing = evaluateRunAcceptance(root, { runId: "r1", packet });
+    expect(missing.ok).toBe(false);
+    expect(missing.missing).toContain("production_status");
+
+    writeHandoff(
+      root,
+      "17-manager-cmo.md",
+      `---
+phase: "17"
+position: cmo
+production_status: skipped
+skip_reason: Blacksage HTML deferred to proof run
+---
+`,
+    );
+    const ok = evaluateRunAcceptance(root, { runId: "r1", packet });
+    expect(ok.ok).toBe(true);
+  });
+
+  it("requires production_paths to exist when status is complete", () => {
+    const root = tempRepo();
+    const htmlRel = `${BIZ_IDEA}/17-channels/email/html/welcome-1.html`;
+    const packet: ManagerPacket = {
+      ...basePacket,
+      phase: "17",
+      require_inbox: false,
+      require_ic_handoff: false,
+      require_verifier: false,
+    };
+
+    writeHandoff(
+      root,
+      "17-lifecycle-marketer.md",
+      `---
+phase: "17"
+position: lifecycle-marketer
+production_status: complete
+production_paths:
+  - ${htmlRel}
+wire_owner: operator
+---
+`,
+    );
+
+    const missingPath = evaluateRunAcceptance(root, { runId: "r1", packet });
+    expect(missingPath.ok).toBe(false);
+    expect(missingPath.missing.some((m) => m.startsWith("production_path:"))).toBe(
+      true,
+    );
+
+    mkdirSync(join(root, BIZ_IDEA, "17-channels/email/html"), { recursive: true });
+    writeFileSync(join(root, htmlRel), "<html><body>Hi</body></html>", "utf8");
+
+    const ok = evaluateRunAcceptance(root, { runId: "r1", packet });
+    expect(ok.ok).toBe(true);
+  });
+
+  it("requires verifier pass on shippable phases", () => {
+    const root = tempRepo();
+    const packet: ManagerPacket = {
+      ...basePacket,
+      phase: "17",
+      require_inbox: false,
+      require_ic_handoff: false,
+      require_production: false,
+    };
+
+    const missing = evaluateRunAcceptance(root, { runId: "r1", packet });
+    expect(missing.ok).toBe(false);
+    expect(missing.missing).toContain("verifier_handoff");
+
+    writeHandoff(
+      root,
+      "17-verifier.md",
+      `---
+phase: "17"
+position: verifier
+verdict: pass
+---
+`,
+    );
+    const ok = evaluateRunAcceptance(root, { runId: "r1", packet });
+    expect(ok.ok).toBe(true);
+  });
 });

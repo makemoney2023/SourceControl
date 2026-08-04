@@ -64,12 +64,14 @@ describe("parseRunRecord / listRuns", () => {
       wake_reason: wake,
       started_at: "2026-07-16T14:00:00.000Z",
       llm_model: "composer-2.5",
+      sdk_request_id: "req-uuid-test",
     };
     const rec = parseRunRecord(raw);
     expect(rec.runId).toBe("1-head-of-research");
     expect(rec.wake_reason).toBe("run_next");
     expect(rec.dispatch_filename).toBe(raw.dispatch_filename);
     expect(rec.status).toBe("running");
+    expect(rec.sdk_request_id).toBe("req-uuid-test");
   });
 
   it("lists runs newest-first from directory", () => {

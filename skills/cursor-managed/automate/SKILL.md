@@ -10,6 +10,8 @@ Use this skill when the user explicitly wants to make, build, set up, or create 
 
 **Disambiguation.** "Automation" in a user workspace can mean many things (`.github/workflows`, CI pipelines, scheduled jobs, scripts, dbt, browser automation, shell scripts, workflow engines). Do **not** assume generic phrases like "automate this", "help me automate my deploys", or "make an automation" mean **Cursor Automation**. Route to the named surface when the user mentions one, use normal repo/product exploration when the context points elsewhere, or ask a short clarifying question when the target surface is ambiguous. Start this spine only when the user explicitly asks for Cursor Automations or confirms that Cursor Automations is the intended surface.
 
+**Not the Cursor SDK.** Programmatic agents via `@cursor/sdk` / `cursor-sdk` (`Agent.create`, `Agent.prompt`, scripts, GitHub Actions calling the SDK) are the `sdk` skill — not this Automations editor flow.
+
 ## Execution spine (every run)
 
 1. **Finish-path check.** First, check whether the in-app Automations editor handoff is available (see **Finish availability** below). If neither the Automations editor tool nor the resource opener is available, immediately say "Please use this skill in the Agents Window." and stop.

@@ -15,6 +15,9 @@ export interface RuntimeRunResult {
   status: string;
   result: unknown;
   agentId?: string;
+  runId?: string;
+  /** Platform correlation id — log with agentId for support / dashboards */
+  requestId?: string;
   usage?: TokenUsageLike;
   durationMs?: number;
 }
@@ -52,6 +55,32 @@ export async function withAbortSignal<T>(
   });
 }
 
+type SdkAgentHandle = {
+  agentId?: string;
+  close: () => void | Promise<void>;
+  send: (
+    prompt: string,
+    opts?: { model: { id: string } },
+  ) => Promise<{
+    id?: string;
+    agentId?: string;
+    requestId?: string;
+    wait: () => Promise<{
+      status?: string;
+      result?: unknown;
+      id?: string;
+      requestId?: string;
+      usage?: TokenUsageLike;
+      durationMs?: number;
+    }>;
+  }>;
+};
+
+/**
+ * Local Cursor SDK adapter for OCC worker spawn.
+ * Distinguishes startup failures (thrown CursorAgentError) from run failures
+ * (returned status === "error"). Always disposes the agent handle.
+ */
 export const cursorRuntimeAdapter: RuntimeAdapter = {
   async run(input) {
     return withAbortSignal(input.signal, async () => {
@@ -62,37 +91,35 @@ export const cursorRuntimeAdapter: RuntimeAdapter = {
         local: { cwd: input.cwd },
       };
 
+      let agent: SdkAgentHandle | undefined;
       try {
-        const agent = input.agentId
-          ? await Agent.resume(input.agentId, opts)
-          : await Agent.create(opts);
+        agent = (
+          input.agentId
+            ? await Agent.resume(input.agentId, opts)
+            : await Agent.create(opts)
+        ) as SdkAgentHandle;
+
         const run = await agent.send(input.prompt, {
           model: opts.model,
         });
         const result = await run.wait();
-        try {
-          agent.close();
-        } catch {
-          /* ignore */
+        return {
+          status: result.status ?? "completed",
+          result: result.result,
+          agentId: agent.agentId || run.agentId || result.id,
+          runId: run.id ?? result.id,
+          requestId: run.requestId ?? result.requestId,
+          usage: result.usage,
+          durationMs: result.durationMs,
+        };
+      } finally {
+        if (agent) {
+          try {
+            await agent.close();
+          } catch {
+            /* ignore dispose errors */
+          }
         }
-        return {
-          status: result.status ?? "completed",
-          result: result.result,
-          agentId: run.agentId || agent.agentId || result.id,
-          usage: result.usage,
-          durationMs: result.durationMs,
-        };
-      } catch (e) {
-        // Fallback: one-shot prompt (no session continuity)
-        if (input.agentId) throw e;
-        const result = await Agent.prompt(input.prompt, opts);
-        return {
-          status: result.status ?? "completed",
-          result: result.result,
-          agentId: result.id,
-          usage: result.usage,
-          durationMs: result.durationMs,
-        };
       }
     });
   },

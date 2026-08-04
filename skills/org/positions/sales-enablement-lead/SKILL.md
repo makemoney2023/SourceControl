@@ -32,6 +32,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/marketingskills/sales-enablement/` | Enablement |
 | `skills/community/awesome-claude-corporate-skills/05-sales/call-prep/` | Call prep |
 | `skills/community/awesome-claude-corporate-skills/05-sales/compose-outreach/` | Outreach |
+| `skills/community/awesome-claude-corporate-skills/05-sales/create-an-asset/` | Enablement asset creation |
+| `skills/community/awesome-claude-corporate-skills/05-sales/daily-briefing/` | Daily sales briefing |
+| `skills/community/awesome-claude-corporate-skills/05-sales/weekly-prep-brief/` | Weekly prep brief |
+| `skills/org/packs/standing-context/sales-youtube-frameworks/` | YouTube sales frameworks standing context |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/05-prd.md`

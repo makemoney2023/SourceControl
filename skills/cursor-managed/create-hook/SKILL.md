@@ -8,6 +8,8 @@ description: >-
 
 Create hooks when you want Cursor to run custom logic before or after agent events. Hooks are scripts or prompt-based checks that exchange JSON over stdin/stdout and can observe, block, modify, or follow up on behavior.
 
+**SDK note:** `@cursor/sdk` / `cursor-sdk` agents load **file-based** hooks only (no programmatic callbacks). Local agents use hooks from `local.cwd` / `~/.cursor`; cloud SDK agents load project hooks from the cloned repo. Pair headless SDK runs with sandbox / auto-review (see the `sdk` skill) — hooks alone are not a full security boundary.
+
 When the user asks for a hook, don't stop at describing the format. Gather the missing requirements, then create or update the hook files directly.
 
 ## Gather Requirements

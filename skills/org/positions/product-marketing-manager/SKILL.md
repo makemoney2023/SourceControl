@@ -35,6 +35,12 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/marketingskills/marketing-psychology/` | Psychology |
 | `skills/community/advertising-skills/skills/foundations/offer-extraction/` | Offers |
 | `skills/community/advertising-skills/skills/foundations/avatar-extraction/` | Avatar |
+| `skills/community/inference-sh/competitor-teardown/` | Competitor teardown |
+| `skills/community/inference-sh/customer-persona/` | Persona synthesis |
+| `skills/community/inference-sh/app-store-screenshots/` | ASO screenshot brief |
+| `skills/community/marketingskills/aso/` | ASO positioning |
+| `skills/community/marketingskills/free-tools/` | Free-tool product marketing |
+| `skills/org/packs/standing-context/buying-psychology/` | Buying psychology standing context |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/02-market-research.md`

@@ -37,4 +37,36 @@ describe("buildAssignPayload", () => {
       `${BIZ}/HANDOFFS/2-manager-head-of-research.md`,
     );
   });
+
+  it("unions seatOutputPaths into outputs and write_lease", () => {
+    const payload = buildAssignPayload({
+      phase: "17",
+      position: "cmo",
+      llm_tier: "frontier-reasoning",
+      llm_model: "grok-4.5",
+      goal: "Ship email HTML",
+      inputsText: "",
+      outputsText: "17-channels/",
+      generation_profile: "none",
+      budgetText: "",
+      creativeRequired: false,
+      seatOutputPaths: [
+        `${BIZ}/17-channels/email/html`,
+        "design-system/passive-grid",
+      ],
+    });
+    expect(payload.outputs).toEqual(
+      expect.arrayContaining([
+        `${BIZ}/17-channels`,
+        `${BIZ}/17-channels/email/html`,
+        "design-system/passive-grid",
+      ]),
+    );
+    expect(payload.write_lease).toEqual(
+      expect.arrayContaining([
+        `${BIZ}/17-channels/email/html`,
+        `${BIZ}/HANDOFFS/17-manager-cmo.md`,
+      ]),
+    );
+  });
 });

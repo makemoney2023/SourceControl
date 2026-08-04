@@ -29,6 +29,7 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 | Pack path | Use for |
 |-----------|---------|
+| `skills/org/packs/production-artifacts/` | Craft → Production → Wire; `apps/<venture>/` lease |
 | `skills/plugins/superpowers/test-driven-development/` | TDD |
 | `skills/plugins/superpowers/systematic-debugging/` | Debugging |
 | `skills/plugins/superpowers/verification-before-completion/` | Verified MVP gate |
@@ -51,12 +52,22 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/openmontage/.agents/skills/threejs-interaction/` | Pointer / orbit (no scroll-jack) |
 | `skills/community/openmontage/.agents/skills/threejs-geometry/` | Procedural stand-ins |
 | `skills/community/openmontage/.agents/skills/threejs-postprocessing/` | Optional hero polish |
+| `skills/plugins/vercel/ai-sdk/` | AI SDK patterns |
+| `skills/plugins/vercel/auth/` | Auth integration |
+| `skills/plugins/vercel/env-vars/` | Env var hygiene |
+| `skills/plugins/superpowers/writing-plans/` | Implementation plans |
+| `skills/plugins/superpowers/executing-plans/` | Plan execution |
+| `skills/context-engineering/skills/context-fundamentals/` | Context engineering basics |
+| `skills/context-engineering/skills/tool-design/` | Tool/interface design |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/05-prd.md`
+- `docs/projects/<active>/business-idea/14-pages/` (when implementing page copy)
+- `docs/projects/<active>/business-idea/12-web-design.md`
 
 ## Outputs
 - `docs/projects/<active>/business-idea/09-build-log.md`
+- `apps/<venture>/` (Layer B — Next routes/components for verified MVP)
 
 ## Collaborates with (peer managers)
 _IC seat — request peers via `ask_manager` only._
@@ -105,9 +116,10 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
 ## Done criteria
-- [ ] Craft outputs written (lease-respecting)
-- [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
+- [ ] Craft outputs written (lease-respecting) — build log
+- [ ] Production: verified MVP under `apps/<venture>/` **or** `production_status: skipped` with reason
+- [ ] Handoff includes `production_status`, `production_paths`, `wire_owner`
+- [ ] Packs followed (including production-artifacts)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
 

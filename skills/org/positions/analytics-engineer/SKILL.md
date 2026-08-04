@@ -34,6 +34,11 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/awesome-claude-corporate-skills/10-data-analytics/interactive-dashboard-builder/` | Dashboards |
 | `skills/community/marketingskills/revops/` | RevOps |
 | `skills/plugins/supabase/supabase-postgres-best-practices/` | Event store / DB patterns |
+| `skills/community/awesome-claude-corporate-skills/10-data-analytics/sql-queries/` | SQL query craft |
+| `skills/community/awesome-claude-corporate-skills/10-data-analytics/data-exploration/` | Data exploration |
+| `skills/community/awesome-claude-corporate-skills/10-data-analytics/statistical-analysis/` | Statistical analysis |
+| `skills/community/awesome-claude-corporate-skills/10-data-analytics/data-validation/` | Data validation |
+| `skills/community/awesome-claude-corporate-skills/10-data-analytics/postgres/` | Postgres analytics patterns |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/14-pages/`

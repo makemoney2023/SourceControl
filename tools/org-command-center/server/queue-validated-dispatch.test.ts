@@ -79,4 +79,42 @@ describe("queueValidatedDispatch", () => {
 
     expect(result.packet.must_read.some((p) => p.includes("MEMORY/context.md"))).toBe(true);
   });
+
+  it("fills write_lease from seat Outputs when omitted", () => {
+    repo = tempRepo();
+    mkdirSync(join(repo, "skills/org/positions/head-of-research"), {
+      recursive: true,
+    });
+    writeFileSync(
+      join(repo, "skills/org/positions/head-of-research/SKILL.md"),
+      `# Head of Research
+
+## Outputs
+- \`docs/projects/<active>/business-idea/02-evidence-base.md\`
+- \`docs/projects/<active>/business-idea/02-market-research.md\`
+`,
+    );
+
+    const result = queueValidatedDispatch(repo, {
+      phase: "2",
+      position: "head-of-research",
+      goal: "Run market research",
+      llm_tier: "strong-general",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.packet.outputs).toEqual(
+      expect.arrayContaining([
+        `${BIZ_IDEA}/02-evidence-base.md`,
+        `${BIZ_IDEA}/02-market-research.md`,
+      ]),
+    );
+    expect(result.packet.write_lease).toEqual(
+      expect.arrayContaining([
+        `${BIZ_IDEA}/02-evidence-base.md`,
+        `${BIZ_IDEA}/HANDOFFS/2-manager-head-of-research.md`,
+      ]),
+    );
+  });
 });

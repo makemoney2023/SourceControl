@@ -88,16 +88,19 @@ ceo-strategist
 | cto | CTO / Engineering | ceo-strategist | manager | eng |
 | tech-lead | Tech Lead | cto | ic | eng |
 | hardware-engineer | Hardware Engineer | cto | ic | eng |
+| verifier | Verifier | cto | ic | eng |
 | head-of-data | Head of Data | ceo-strategist | manager | data |
 | analytics-engineer | Analytics Engineer | head-of-data | ic | data |
 
-**Count:** 36 positions.
+**Count:** 37 positions.
 
 ## Phase → owner map
 
 **May delegate** = the **manager** may spawn those ICs. The orchestrator never spawns ICs directly. See `orchestrator/SKILL.md`.
 
-**Collaboration:** Phases 14, 15, 19 → [`COLLABORATION.md`](./COLLABORATION.md). Escalations → [`ESCALATION.md`](./ESCALATION.md).
+**Collaboration:** Phases 14, 15, 17, 19 → [`COLLABORATION.md`](./COLLABORATION.md). Escalations → [`ESCALATION.md`](./ESCALATION.md).  
+**Production (Craft → Production → Wire):** [`packs/production-artifacts/SKILL.md`](./packs/production-artifacts/SKILL.md) — required for shippable phases **9, 9B, 11, 12, 14, 15, 17, 19** (and 18 when app/forms change).  
+**Standing context:** [`packs/standing-context/SKILL.md`](./packs/standing-context/SKILL.md) — psychology / persuasion / humor / sales-YouTube frameworks (venture-agnostic; see seat Skill packs).
 
 | Phase | Manager owner | Manager may spawn | C-suite reviewer | Secondary if tagged | Scorecard (must pass) |
 |-------|---------------|-------------------|------------------|---------------------|------------------------|
@@ -112,18 +115,18 @@ ceo-strategist
 | 7 | head-of-sales-cs | sales-enablement-lead, outbound-lead, customer-success-manager `(parallel: true)` | ceo-strategist | — | Playbook covers close + retain |
 | 8 | coo | ops-manager, legal-counsel `(parallel: true)` | ceo-strategist | legal→coo | Ops + risk checklist |
 | 8B | head-of-people | recruiter | ceo-strategist | — | First hires + JDs |
-| 9 | cto | tech-lead | ceo-strategist | scope→HoP | Build log + verified MVP or skip reason |
-| 9B | cto | hardware-engineer | ceo-strategist | — | CAD artifacts or skip reason |
+| 9 | cto | tech-lead, verifier | ceo-strategist | scope→HoP | Build log + **verified MVP in `apps/<venture>/`** (or skip); production_status set; **Verifier pass?** |
+| 9B | cto | hardware-engineer, verifier | ceo-strategist | — | CAD artifacts under `09b-hardware/` or skip reason; **Verifier pass?** |
 | 10 | ceo-strategist | head-of-research, business-analyst | ceo-strategist | evidence→HoR | Fact-check of load-bearing claims |
-| 11 | creative-director | brand-designer | ceo-strategist | brand→CD | Brand system documented; `generation_profile: brand-stills` (or skip) |
-| 12 | creative-director | web-designer, brand-designer | ceo-strategist | brand→CD | IA + design-system paths; brand-stills when imagery rendered |
+| 11 | creative-director | brand-designer | ceo-strategist | brand→CD | Brand system documented; **stills rendered** via `brand-stills` (or production skip); **Verifier pass?** |
+| 12 | creative-director | web-designer, brand-designer | ceo-strategist | brand→CD | IA + **`design-system/<venture>/` production paths**; brand-stills when imagery rendered; **Verifier pass?** |
 | 13 | cmo | copy-chief, content-strategist, product-marketing-manager `(parallel: true)` | ceo-strategist | — | Voice + awareness + headlines; copy-chief `creative-language` |
-| 14 | cmo | copy-chief, seo-manager, content-strategist, brand-designer `(parallel: partial)` | ceo-strategist | brand→CD | All listed pages have body + meta; correct llm tiers |
-| 15 | creative-director | video-producer | ceo-strategist | brand→CD | OpenMontage or skip; finals path; `hero-video` / Veo 3.1 (or skip reason) |
+| 14 | cmo | copy-chief, seo-manager, content-strategist, brand-designer `(parallel: partial)` | ceo-strategist | brand→CD | All listed pages have body + meta; **imagery assets or skip**; HTML/app via Phase 9 production; **Verifier pass?** |
+| 15 | creative-director | video-producer | ceo-strategist | brand→CD | OpenMontage **finals path** or production skip; `hero-video` / Veo 3.1 (or skip reason); **Verifier pass?** |
 | 16 | cmo | seo-manager | ceo-strategist | — | Technical SEO checklist |
-| 17 | cmo | lifecycle-marketer, content-strategist `(parallel: true)` | ceo-strategist | — | Full email journeys (not outlines) |
-| 18 | cmo | paid-media-manager, product-marketing-manager | ceo-strategist | — | Funnel map + test hypotheses |
-| 19 | cmo | paid-media-manager, video-producer `(parallel: true)` | ceo-strategist | spend→cfo, brand→CD | Channel plan + creatives; budget noted; `ad-creative` / Veo 3.1 when video |
+| 17 | cmo | lifecycle-marketer, content-strategist `(parallel: true)` | ceo-strategist | brand→CD | Full email journeys **+ HTML under `email/html/`** (or production skip); social assets or skip; **Verifier pass?** |
+| 18 | cmo | paid-media-manager, product-marketing-manager | ceo-strategist | — | Funnel map + test hypotheses; app form changes leased to eng when needed |
+| 19 | cmo | paid-media-manager, video-producer `(parallel: true)` | ceo-strategist | spend→cfo, brand→CD | Channel plan + **creatives files** under `19-paid/creatives/` (or skip); video finals when budgeted; **Verifier pass?** |
 | 20 | head-of-data | analytics-engineer | ceo-strategist | — | KPI + event plan |
 | 21 | ceo-strategist | — | ceo-strategist | — | Exec summary + launch checklist |
 | 22 | ceo-strategist | head-of-data, cmo, paid-media-manager (on demand) | ceo-strategist | — | Cadence entry with actions |

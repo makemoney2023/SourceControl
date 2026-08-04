@@ -32,6 +32,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/marketingskills/public-relations/` | PR |
 | `skills/community/marketingskills/referrals/` | Referrals |
 | `skills/community/marketingskills/co-marketing/` | Co-marketing |
+| `skills/community/inference-sh/press-release-writing/` | Press release craft |
+| `skills/community/marketingskills/community-marketing/` | Community marketing |
+| `skills/community/marketingskills/directory-submissions/` | Directory / listing outreach |
+| `skills/org/packs/standing-context/content-persuasion/` | Persuasion playbook standing context |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/06-gtm-plan.md`

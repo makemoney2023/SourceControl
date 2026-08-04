@@ -32,11 +32,17 @@ Also copy the community packs each position needs (or the whole `skills/communit
 4. C-suite review file must `verdict: approve` before phase ✅.
 5. Artifacts in `docs/projects/<active>/business-idea/`; handoffs in `docs/projects/<active>/business-idea/HANDOFFS/`.
 
-**Contracts:** `HANDOFF-TEMPLATE.md` · `MANAGER-BRIEF-TEMPLATE.md` · `CSUITE-REVIEW-TEMPLATE.md` · `COLLABORATION.md` · `ESCALATION.md`
+**Contracts:** `HANDOFF-TEMPLATE.md` · `MANAGER-BRIEF-TEMPLATE.md` · `CSUITE-REVIEW-TEMPLATE.md` · `COLLABORATION.md` · `ESCALATION.md`  
+**Production:** [`packs/production-artifacts/SKILL.md`](./packs/production-artifacts/SKILL.md) — Craft → Production → Wire for shippable phases (HTML email, apps, stills, video, creatives).  
+**Standing context:** [`packs/standing-context/SKILL.md`](./packs/standing-context/SKILL.md) — venture-agnostic psychology, persuasion, humor, and sales-YouTube frameworks bound on relevant seats.
 
 **Handoff merge gate:** Managers/orchestrator reject creative/eng/CRO/brand/web handoffs that lack (1) pack paths and (2) one decision tied to each pack. See `HANDOFF-TEMPLATE.md` § Merge gate.
 
-**Pack path CI:** `scripts/validate-skill-pack-paths.sh` (also runs from `scripts/sync-org-agents.sh`) — fails if position Skill pack tables point at missing paths.
+**Pack path CI:** `scripts/validate-skill-pack-paths.sh` (also runs from `scripts/sync-org-agents.sh`) — fails if position Skill pack tables point at missing paths.  
+**Wave-1 skill bindings:** `scripts/validate-wave1-skill-bindings.test.sh` — inference-sh design/video/content + BA core packs must stay bound to their seats.  
+**Wave-2 skill bindings:** `scripts/validate-wave2-skill-bindings.test.sh` — marketingskills leftovers + legal/CS/sales/data packs must stay bound to their seats.  
+**Wave-3 skill bindings:** `scripts/validate-wave3-skill-bindings.test.sh` — Remotion/CAD/marketing leftovers + selective Figma/Vercel/superpowers/context-engineering; also gates artifact-class language in `packs/production-artifacts/`.  
+**Standing-context pack:** `scripts/validate-standing-context-pack.test.sh` — imported configs/frameworks present, scrubbed of vendor brand locks, bound on marketing/sales seats.
 
 **Degrade path:** Role-play in hierarchy order; still write handoff files; still run C-suite gate.
 

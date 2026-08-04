@@ -29,11 +29,18 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 | Pack path | Use for |
 |-----------|---------|
+| `skills/org/packs/production-artifacts/` | Craft → Production → Wire; `09b-hardware/` lease |
 | `skills/community/text-to-cad/cad/` | CAD |
 | `skills/community/text-to-cad/cad-viewer/` | Viewer |
 | `skills/community/text-to-cad/dxf/` | DXF |
 | `skills/community/text-to-cad/gcode/` | G-code |
 | `skills/community/text-to-cad/step-parts/` | STEP parts |
+| `skills/community/text-to-cad/implicit-cad/` | Implicit CAD |
+| `skills/community/text-to-cad/sdf/` | SDF modelling |
+| `skills/community/text-to-cad/urdf/` | URDF robot models |
+| `skills/community/text-to-cad/bambu-labs/` | Bambu print path |
+| `skills/community/text-to-cad/sendcutsend/` | SendCutSend fab export |
+| `skills/community/text-to-cad/srdf/` | SRDF semantic robot desc |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/05-prd.md`
@@ -85,8 +92,9 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting)
-- [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
+- [ ] Production: CAD/exports under `09b-hardware/` **or** `production_status: skipped` with reason
+- [ ] Handoff includes `production_status`, `production_paths`, `wire_owner`
+- [ ] Packs followed (including production-artifacts)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
 

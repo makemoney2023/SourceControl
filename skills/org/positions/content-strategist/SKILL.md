@@ -32,10 +32,21 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 | Pack path | Use for |
 |-----------|---------|
+| `skills/org/packs/production-artifacts/` | Craft → Production → Wire; social assets via brand ask |
 | `skills/community/marketingskills/content-strategy/` | Content strategy |
 | `skills/community/notfair-seo/content-planner/` | Content planner |
 | `skills/community/notfair-seo/content-writer/` | Content writer |
 | `skills/community/marketingskills/lead-magnets/` | Lead magnets |
+| `skills/community/inference-sh/case-study-writing/` | Case study craft |
+| `skills/community/inference-sh/content-repurposing/` | Repurpose across channels |
+| `skills/community/inference-sh/linkedin-content/` | LinkedIn content craft |
+| `skills/community/inference-sh/twitter-thread-creation/` | X/Twitter threads |
+| `skills/community/inference-sh/ai-content-pipeline/` | Content pipeline ops |
+| `skills/community/inference-sh/technical-blog-writing/` | Technical blog craft |
+| `skills/community/inference-sh/product-hunt-launch/` | Product Hunt launch content |
+| `skills/org/packs/standing-context/content-persuasion/` | Persuasion playbook standing context |
+| `skills/org/packs/standing-context/ai-detection-writing/` | Human-voice / detection-aware writing |
+| `skills/org/packs/standing-context/humor-craft/` | Humor / short-form standing context |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/06-gtm-plan.md`
@@ -45,6 +56,8 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 - `docs/projects/<active>/business-idea/13-copy-foundation.md`
 - `docs/projects/<active>/business-idea/14-pages/blog/`
 - `docs/projects/<active>/business-idea/17-channels/`
+- `docs/projects/<active>/business-idea/17-channels/social/` (craft calendar)
+- Note: Layer B social stills live in `17-channels/social/assets/` via `brand-designer` (`ask_manager`)
 
 ## Collaborates with (peer managers)
 _IC seat — request peers via `ask_manager` only._
@@ -90,8 +103,9 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting)
-- [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
+- [ ] Phase 17: social craft complete; `ask_manager` for brand stills **or** `production_status: skipped` for assets with reason
+- [ ] Handoff includes `production_status` on shippable phases
+- [ ] Packs followed (including production-artifacts)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
 

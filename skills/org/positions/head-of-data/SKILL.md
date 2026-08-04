@@ -33,6 +33,9 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/marketingskills/analytics/` | Marketing analytics |
 | `skills/community/awesome-claude-corporate-skills/01-executive-leadership/kpi-dashboard/` | KPI dashboard |
 | `skills/community/awesome-claude-corporate-skills/10-data-analytics/data-visualization/` | Visualization |
+| `skills/community/awesome-claude-corporate-skills/10-data-analytics/data-exploration/` | Data exploration |
+| `skills/community/awesome-claude-corporate-skills/10-data-analytics/statistical-analysis/` | Statistical analysis |
+| `skills/community/awesome-claude-corporate-skills/10-data-analytics/sql-queries/` | SQL review / standards |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/19-paid.md`

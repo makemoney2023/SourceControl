@@ -33,6 +33,7 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 |-----------|---------|
 | `skills/community/marketingskills/sales-enablement/` | Sales enablement |
 | `skills/community/awesome-claude-corporate-skills/05-sales/call-prep/` | Call prep |
+| `skills/org/packs/standing-context/sales-youtube-frameworks/` | Sales training frameworks standing context |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/06-gtm-plan.md`

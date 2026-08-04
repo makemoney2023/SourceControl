@@ -10,6 +10,19 @@ disable-model-invocation: true
 
 This skill guides you through creating custom subagents for Cursor. Subagents are specialized AI assistants that run in isolated contexts with custom system prompts.
 
+## SDK vs IDE file agents
+
+This skill authors **file-based** agents (`.cursor/agents/*.md` or `~/.cursor/agents/*.md`) for the Cursor IDE and for SDK agents that load project/user settings.
+
+When building with **`@cursor/sdk` / `cursor-sdk`**, you can also pass **inline** subagents on `Agent.create({ agents: { ... } })` (TypeScript) or `AgentDefinition` (Python). Inline definitions override same-named files. Nesting stops at subagent-of-subagent (top-level and its direct children can spawn; deeper cannot). Prefer:
+
+| Goal | Use |
+|------|-----|
+| Share specialists with the IDE + team via git | This skill → `.cursor/agents/*.md` |
+| Script-only / CI specialists without files | Inline `agents` / `AgentDefinition` — see the `sdk` skill |
+
+For MCP, custom tools, sandbox, and Router when those subagents run under the SDK, follow the `sdk` skill.
+
 ## When to Use Subagents
 
 Subagents help you:

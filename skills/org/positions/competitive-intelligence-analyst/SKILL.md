@@ -31,6 +31,7 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 |-----------|---------|
 | `skills/community/marketingskills/competitor-profiling/` | Competitor profiles |
 | `skills/community/awesome-claude-corporate-skills/01-executive-leadership/competitive-analysis/` | Competitive analysis |
+| `skills/community/marketingskills/competitors/` | Competitor monitoring craft |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/02-evidence-base.md`

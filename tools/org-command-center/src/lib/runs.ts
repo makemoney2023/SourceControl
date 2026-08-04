@@ -38,6 +38,8 @@ export interface RunRecord {
   result?: unknown;
   error?: string;
   agentId?: string;
+  /** Cursor SDK platform correlation id from Run.requestId */
+  sdk_request_id?: string;
   usage?: TokenUsageLike;
   cost_usd?: number;
   duration_ms?: number;
@@ -97,6 +99,7 @@ export function parseRunRecord(raw: unknown): RunRecord {
     result: o.result,
     error: o.error ? String(o.error) : undefined,
     agentId: o.agentId ? String(o.agentId) : undefined,
+    sdk_request_id: o.sdk_request_id ? String(o.sdk_request_id) : undefined,
     usage: o.usage as TokenUsageLike | undefined,
     cost_usd: typeof o.cost_usd === "number" ? o.cost_usd : undefined,
     duration_ms: typeof o.duration_ms === "number" ? o.duration_ms : undefined,

@@ -4,7 +4,7 @@ Copy to `docs/projects/<active>/business-idea/HANDOFFS/<phase>-<slug>.md` before
 
 ## Merge gate (managers / orchestrator — hard)
 
-**Reject or send back for revision** if any of the following fail on creative, eng, CRO, brand, or web handoffs:
+**Reject or send back for revision** if any of the following fail on creative, eng, CRO, brand, web, lifecycle, or paid handoffs:
 
 1. YAML frontmatter includes `status` and `verdict_for_manager`.
 2. **Packs used** is a table (or bullets) with **repo-relative pack paths**.
@@ -12,8 +12,28 @@ Copy to `docs/projects/<active>/business-idea/HANDOFFS/<phase>-<slug>.md` before
 4. `write_lease` artifact table is present (paths actually written).
 5. Risks / blockers and Do-not sections present.
 6. Handoff is not a ≤20-line stub when the phase changed user-visible craft.
+7. On shippable phases (**9, 9B, 11, 12, 14, 15, 17, 19**): `production_status` set; if `complete`, `production_paths` lists real Layer B files (see `packs/production-artifacts`).
 
 Exception: pure skip handoffs (e.g. Phase 15 skip) may be short if they only record the skip reason.
+
+### Verifier handoff (shippable — blocking)
+
+Copy to `HANDOFFS/<phase>-verifier.md`. C-suite must not approve until `verdict: pass`.
+
+```yaml
+---
+phase: "<id>"
+position: verifier
+reports_to: cto
+status: done
+verdict: pass | fail
+llm_tier: strong-general
+llm_model: "<used>"
+generation_profile: none
+---
+```
+
+Include sections: **Passed**, **Failed / incomplete**, **Issues** (specific fixes).
 
 ```markdown
 ---
@@ -27,6 +47,17 @@ llm_model: "<Cursor model ID actually used>"
 generation_profile: none | brand-stills | hero-video | ad-creative
 generation_used: none | "<provider/model e.g. fal/veo-3.1>"
 fallback_applied: false
+# Optional — when the seat ran via Cursor SDK (OCC / script), for Agent.resume:
+# sdk_runtime: local | cloud
+# sdk_agent_id: "<agent-… or bc-…>"
+# sdk_run_id: "<run id>"
+# sdk_request_id: "<platform UUID>"
+# Required on shippable phases (9, 9B, 11, 12, 14, 15, 17, 19) — see packs/production-artifacts:
+production_status: complete | skipped | blocked
+production_paths: []
+wire_owner: operator | none | "<seat-slug>"
+wire_notes: ""
+skip_reason: ""
 ---
 
 # Handoff — <Title> → <Manager>
@@ -47,6 +78,25 @@ fallback_applied: false
 | generation_profile | … |
 | generation_used | … |
 | fallback_applied | yes/no — why if yes |
+
+## Production (shippable phases — required)
+| Field | Value |
+|-------|-------|
+| production_status | complete / skipped / blocked |
+| production_paths | repo-relative Layer B paths (or none if skipped) |
+| wire_owner | operator / seat / none |
+| wire_notes | what remains after approve |
+| skip_reason | required if skipped |
+
+Read `skills/org/packs/production-artifacts/SKILL.md` before claiming complete.
+
+## SDK correlation (optional)
+| Field | Value |
+|-------|-------|
+| sdk_runtime | local / cloud / n/a |
+| sdk_agent_id | … |
+| sdk_run_id | … |
+| sdk_request_id | … |
 
 ## Decisions
 - …

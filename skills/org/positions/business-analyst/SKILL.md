@@ -35,6 +35,22 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/business-analysis-skills/skills/acceptance-criteria-writer/` | Acceptance criteria |
 | `skills/community/business-analysis-skills/skills/value-proposition-analysis/` | Value prop |
 | `skills/community/business-analysis-skills/skills/requirements-quality-check/` | Quality check |
+| `skills/community/business-analysis-skills/skills/assumption-extractor/` | Surface hidden assumptions |
+| `skills/community/business-analysis-skills/skills/assumptions-constraints-log/` | Assumptions / constraints log |
+| `skills/community/business-analysis-skills/skills/problem-statement-refiner/` | Problem statement refine |
+| `skills/community/business-analysis-skills/skills/use-case-specification/` | Use-case specs |
+| `skills/community/business-analysis-skills/skills/definition-of-done-drafter/` | Definition of Done |
+| `skills/community/business-analysis-skills/skills/raci-matrix/` | RACI for requirements |
+| `skills/community/business-analysis-skills/skills/ambiguity-hunter/` | Ambiguity detection |
+| `skills/community/business-analysis-skills/skills/requirements-gap-auditor/` | Requirements gap audit |
+| `skills/community/business-analysis-skills/skills/moscow-prioritisation/` | MoSCoW prioritisation |
+| `skills/community/business-analysis-skills/skills/stakeholder-analysis/` | Stakeholder analysis |
+| `skills/community/business-analysis-skills/skills/requirements-traceability-starter/` | Traceability starter |
+| `skills/community/business-analysis-skills/skills/functional-vs-nonfunctional-splitter/` | FR vs NFR split |
+| `skills/community/business-analysis-skills/skills/edge-case-elicitor/` | Edge-case elicitation |
+| `skills/community/business-analysis-skills/skills/business-rule-extractor/` | Business rules |
+| `skills/community/business-analysis-skills/skills/requirements-conflict-checker/` | Conflict check |
+| `skills/community/business-analysis-skills/skills/requirements-prioritizer/` | Prioritisation |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/00-intake.md`

@@ -31,6 +31,13 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 |-----------|---------|
 | `skills/community/marketingskills/prospecting/` | Prospecting |
 | `skills/community/marketingskills/cold-email/` | Cold email |
+| `skills/community/awesome-claude-corporate-skills/05-sales/account-research/` | Account research |
+| `skills/community/awesome-claude-corporate-skills/05-sales/enrich-lead/` | Lead enrichment |
+| `skills/community/awesome-claude-corporate-skills/05-sales/lead-research-assistant/` | Lead research assistant |
+| `skills/community/awesome-claude-corporate-skills/05-sales/sequence-load/` | Sequence load |
+| `skills/community/awesome-claude-corporate-skills/05-sales/contact-research/` | Contact research |
+| `skills/community/awesome-claude-corporate-skills/05-sales/draft-outreach/` | Draft outreach |
+| `skills/org/packs/standing-context/sales-youtube-frameworks/` | Cold call / objection / follow-up frameworks |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/07-sales-playbook.md`

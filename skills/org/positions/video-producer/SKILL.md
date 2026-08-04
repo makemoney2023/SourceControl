@@ -30,6 +30,7 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 | Pack path | Use for |
 |-----------|---------|
+| `skills/org/packs/production-artifacts/` | Craft → Production → Wire; finals path rules |
 | `skills/community/openmontage/` | OpenMontage entry — AGENT_GUIDE + Rule Zero |
 | `skills/community/openmontage/.agents/skills/hyperframes/` | HyperFrames runtime |
 | `skills/community/openmontage/.agents/skills/hyperframes-registry/` | Registry compositions |
@@ -38,6 +39,24 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/marketingskills/video/` | Video channel strategy |
 | `skills/community/remotion/video/remotion-create/` | Remotion helpers |
 | `skills/community/ui-ux-pro-max-skill/slides/` | Slides |
+| `skills/community/inference-sh/google-veo/` | Veo generation path |
+| `skills/community/inference-sh/ai-video-generation/` | General AI video gen |
+| `skills/community/inference-sh/ai-marketing-videos/` | Marketing video craft |
+| `skills/community/inference-sh/image-to-video/` | Still → video |
+| `skills/community/inference-sh/explainer-video-guide/` | Explainer structure |
+| `skills/community/inference-sh/storyboard-creation/` | Storyboards |
+| `skills/community/inference-sh/talking-head-production/` | Talking-head production |
+| `skills/community/inference-sh/video-ad-specs/` | Platform video ad specs |
+| `skills/community/inference-sh/video-prompting-guide/` | Video prompt craft |
+| `skills/community/inference-sh/seedance/` | Seedance motion path |
+| `skills/community/inference-sh/remotion-render/` | Remotion render path |
+| `skills/community/inference-sh/ai-avatar-video/` | Avatar video production |
+| `skills/community/remotion/video/remotion-captions/` | Captions / subtitles |
+| `skills/community/remotion/video/remotion-interactivity/` | Interactive Remotion |
+| `skills/community/remotion/video/remotion-markup/` | Remotion markup |
+| `skills/community/remotion/video/remotion-saas/` | SaaS / product video patterns |
+| `skills/community/remotion/video/mediabunny/` | Media pipeline helpers |
+| `skills/org/packs/standing-context/humor-craft/` | Humor / sketch structure standing context |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/13-copy-foundation.md`
@@ -45,7 +64,8 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 ## Outputs
 - `docs/projects/<active>/business-idea/15-media/`
-- `docs/projects/<active>/business-idea/15-media/openmontage/`
+- `docs/projects/<active>/business-idea/15-media/openmontage/` (Layer B finals)
+- `docs/projects/<active>/business-idea/19-paid/openmontage/` (when Phase 19 video leased)
 
 ## Collaborates with (peer managers)
 _IC seat — request peers via `ask_manager` only._
@@ -89,9 +109,11 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
 ## Done criteria
-- [ ] Craft outputs written (lease-respecting)
-- [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
+- [ ] Craft outputs written (lease-respecting) — scripts/storyboards
+- [ ] Production: OpenMontage finals under leased path **or** `production_status: skipped` with reason
+- [ ] `scripts/doctor-production-runtime.sh` green before claiming render complete (or production skip)
+- [ ] Handoff includes `production_status`, `production_paths`, `wire_owner`
+- [ ] Packs followed (including production-artifacts)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
 

@@ -8,6 +8,7 @@ import type {
 } from "./types";
 
 const GENERATION_REQUIRED_PHASES = new Set(["11", "12", "15", "19"]);
+const BUDGET_REQUIRED_PHASES = new Set(["15", "19"]);
 
 const DEFAULT_CONSTRAINTS = [
   "Spawn only Delegates to from your position SKILL.md",
@@ -53,6 +54,18 @@ export function validateManagerPacket(
     errors.push(
       `generation_profile is required for phase ${input.phase} (11/12/15/19)`,
     );
+  }
+
+  if (BUDGET_REQUIRED_PHASES.has(input.phase)) {
+    const budgetOk =
+      typeof input.budget_usd === "number" &&
+      Number.isFinite(input.budget_usd) &&
+      input.budget_usd > 0;
+    if (!budgetOk && !input.production_skip_committed) {
+      errors.push(
+        `budget_usd > 0 or production_skip_committed required for phase ${input.phase} (15/19)`,
+      );
+    }
   }
 
   if (input.preferred_ic) {
@@ -123,6 +136,15 @@ export function validateManagerPacket(
     ...(input.require_inbox !== undefined ? { require_inbox: input.require_inbox } : {}),
     ...(input.require_ic_handoff !== undefined
       ? { require_ic_handoff: input.require_ic_handoff }
+      : {}),
+    ...(input.production_skip_committed !== undefined
+      ? { production_skip_committed: input.production_skip_committed }
+      : {}),
+    ...(input.require_production !== undefined
+      ? { require_production: input.require_production }
+      : {}),
+    ...(input.require_verifier !== undefined
+      ? { require_verifier: input.require_verifier }
       : {}),
   };
 

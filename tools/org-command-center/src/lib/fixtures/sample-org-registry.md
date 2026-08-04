@@ -23,3 +23,6 @@
 | 2 | head-of-research | market-research-analyst, competitive-intelligence-analyst, seo-manager `(parallel: true)` | ceo-strategist | evidence→HoR | Evidence base cites sources |
 | 11 | creative-director | brand-designer | ceo-strategist | brand→CD | Brand system documented |
 | 13 | cmo | copy-chief, content-strategist, product-marketing-manager `(parallel: true)` | ceo-strategist | — | Voice + awareness |
+| 15 | creative-director | video-producer | ceo-strategist | — | Media production or skip |
+| 17 | cmo | lifecycle-marketer, content-strategist `(parallel: true)` | ceo-strategist | — | HTML email + verifier |
+| 19 | cmo | paid-media-manager | ceo-strategist | spend→cfo | Paid creatives or skip |

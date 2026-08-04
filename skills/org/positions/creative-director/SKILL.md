@@ -33,6 +33,8 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 | Pack path | Use for |
 |-----------|---------|
+| `skills/org/packs/production-artifacts/` | Craft → Production → Wire gates for 11/12/15 |
+| `skills/org/packs/photoreal-stills/` | Photoreal prompt + zoom QA before merge |
 | `skills/community/awesome-claude-corporate-skills/04-marketing/discover-brand/` | Discover brand |
 | `skills/community/awesome-claude-corporate-skills/04-marketing/brand-guidelines/` | Brand guidelines |
 | `skills/community/ui-ux-pro-max-skill/brand/` | Brand |
@@ -42,6 +44,8 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/openmontage/.claude/skills/visual-style/` | Visual style direction |
 | `skills/community/visual-skills/image/` | Image prompt QA |
 | `skills/community/openmontage/.agents/skills/threejs-fundamentals/` | Hero 3D scope review |
+| `skills/community/awesome-claude-corporate-skills/04-marketing/canvas-design/` | Design canvas review |
+| `skills/org/packs/standing-context/humor-craft/` | Humor craft review standing context |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/03-strategy.md`
@@ -61,10 +65,11 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 3. Parallelize only when leases do not collide (see ORG-REGISTRY parallel flags + COLLABORATION.md).
 4. **Await** each IC. Require `docs/projects/<active>/business-idea/HANDOFFS/<phase>-<ic>.md`.
 5. Resolve conflicts (COLLABORATION.md). Merge artifacts.
-6. Write **manager brief**: `HANDOFFS/<phase>-manager-creative-director.md` using MANAGER-BRIEF-TEMPLATE.md.
-7. Return to orchestrator for **C-suite review**. Do **not** mark the phase ✅.
-8. Never spawn peer managers — list them under Collaborates with and ask orchestrator.
-9. Never spawn ICs not in Delegates to.
+6. On shippable phases (11, 12, 15): reject IC handoffs missing `production_status`; stills/finals or skip reasons required.
+7. Write **manager brief**: `HANDOFFS/<phase>-manager-creative-director.md` using MANAGER-BRIEF-TEMPLATE.md (include Production check).
+8. Return to orchestrator for **C-suite review**. Do **not** mark the phase ✅.
+9. Never spawn peer managers — list them under Collaborates with and ask orchestrator.
+10. Never spawn ICs not in Delegates to.
 
 ## Reporting chain
 IC handoffs → you (manager brief) → C-suite review → orchestrator advances phase.
@@ -100,8 +105,10 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting)
+- [ ] Shippable phases: Production check in manager brief (stills/finals/`design-system/` or skip)
+- [ ] Stills phases: photoreal reject checklist reviewed (`photoreal_qa`) before ready_for_csuite
 - [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
+- [ ] Packs followed (including production-artifacts + photoreal-stills)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
 

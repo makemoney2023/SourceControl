@@ -38,3 +38,30 @@ fi
 if [[ -x "$ROOT/scripts/validate-skill-pack-paths.sh" ]] || [[ -f "$ROOT/scripts/validate-skill-pack-paths.sh" ]]; then
   bash "$ROOT/scripts/validate-skill-pack-paths.sh"
 fi
+if [[ -f "$ROOT/scripts/validate-production-artifacts-pack.test.sh" ]]; then
+  bash "$ROOT/scripts/validate-production-artifacts-pack.test.sh"
+fi
+if [[ -f "$ROOT/scripts/validate-verifier-seat.test.sh" ]]; then
+  bash "$ROOT/scripts/validate-verifier-seat.test.sh"
+fi
+if [[ -f "$ROOT/scripts/validate-photoreal-stills-pack.test.sh" ]]; then
+  bash "$ROOT/scripts/validate-photoreal-stills-pack.test.sh"
+fi
+if [[ -f "$ROOT/scripts/validate-doctor-production-runtime.test.sh" ]]; then
+  bash "$ROOT/scripts/validate-doctor-production-runtime.test.sh"
+fi
+if [[ -f "$ROOT/scripts/validate-blacksage-production-proof.test.sh" ]]; then
+  bash "$ROOT/scripts/validate-blacksage-production-proof.test.sh"
+fi
+if [[ -f "$ROOT/scripts/validate-wave1-skill-bindings.test.sh" ]]; then
+  bash "$ROOT/scripts/validate-wave1-skill-bindings.test.sh"
+fi
+if [[ -f "$ROOT/scripts/validate-wave2-skill-bindings.test.sh" ]]; then
+  bash "$ROOT/scripts/validate-wave2-skill-bindings.test.sh"
+fi
+if [[ -f "$ROOT/scripts/validate-wave3-skill-bindings.test.sh" ]]; then
+  bash "$ROOT/scripts/validate-wave3-skill-bindings.test.sh"
+fi
+if [[ -f "$ROOT/scripts/validate-standing-context-pack.test.sh" ]]; then
+  bash "$ROOT/scripts/validate-standing-context-pack.test.sh"
+fi

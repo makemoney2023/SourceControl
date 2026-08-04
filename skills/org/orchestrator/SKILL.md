@@ -56,7 +56,10 @@ You are the **main-session dispatcher**. You spawn **managers only**, enforce th
 3. Build MANAGER context packet (not IC packet) — include model fields
 4. Spawn manager with Cursor model pin from registry
 5. Manager spawns ICs (each with llm_tier) → IC handoffs → manager brief
-6. Spawn/perform C-suite review (always frontier-reasoning)
+5b. Shippable phases (9, 9B, 11, 12, 14, 15, 17, 18, 19): spawn `cto` with preferred_ic `verifier`
+    (or CTO-owned phase: CTO spawns verifier). Require HANDOFFS/<phase>-verifier.md with verdict: pass.
+    verdict: fail → revise loop (do not C-suite approve).
+6. Spawn/perform C-suite review (always frontier-reasoning) — only after verifier pass on shippable
 7. If verdict revise → re-dispatch manager with comments (do not advance)
 8. If verdict approve → update tracker Positions & handoffs → mark phase ✅ → next phase
 ```
@@ -131,9 +134,16 @@ constraints:
 **Also:** Task/generalPurpose with `model=<preferred from MODEL-REGISTRY>` + “Read positions/<slug>/SKILL.md then execute packet.”  
 Parallelize **managers** across tracks only when registry allows and inputs exist — still no direct ICs.
 
+### Verifier step (shippable phases)
+
+1. After manager brief, spawn `cto` with `preferred_ic: verifier` (CTO may spawn verifier directly on phases 9/9B).  
+2. Verifier writes `HANDOFFS/<phase>-verifier.md` with `verdict: pass | fail` — read-only except that handoff.  
+3. `fail` → return to phase manager with Issues list; do **not** open C-suite approve.  
+4. `pass` → proceed to C-suite review. OCC acceptance also requires verifier pass.
+
 ### C-suite review step
 
-1. Read manager brief + scorecard for the phase.  
+1. Read manager brief + scorecard for the phase. Confirm **Verifier pass?** on shippable phases.  
 2. Spawn `ceo-strategist` (or act as CEO) using `CSUITE-REVIEW-TEMPLATE.md` at **frontier-reasoning**.  
 3. Check **Correct model tier used?** — revise if creative/legal/hard-gate used wrong brain.  
 4. If manager brief has escalation tags → spawn secondary reviewers per `ESCALATION.md` first.  
@@ -161,6 +171,7 @@ If subagents unavailable: role-play **in hierarchy order** (manager voice → ea
 | "Over budget but close" | Escalate `spend` to CFO. |
 | "Inherit parent model is fine" | Packet must carry registry `llm_tier`; refuse if missing. |
 | "Designer runs as Veo" | Plane B generation_profile; Plane A stays an LLM. |
+| "Full MD emails count as shipped" | Phase 17 needs `email/html/` or production skip — see production-artifacts pack. |
 
 ## Integrations (orchestrator)
 
@@ -179,6 +190,8 @@ Full seat→tool map: `skills/org/TOOL-REGISTRY.md`.
 - [ ] Tracker Positions & handoffs row filled
 - [ ] Decisions log notes exec verdict
 - [ ] Phase artifact paths non-empty
+- [ ] Shippable phases (9, 9B, 11, 12, 14, 15, 17, 19): Production Layer B complete or skipped with reason (`packs/production-artifacts`)
 - [ ] Live-data phases note tool_status / required env when TOOL-REGISTRY expects APIs
-- [ ] Creative/eng/brand/web/CRO IC handoffs pass merge gate (packs + decision per pack)
+- [ ] Creative/eng/brand/web/CRO/lifecycle/paid IC handoffs pass merge gate (packs + decision per pack + production_status when required)
 - [ ] `scripts/validate-skill-pack-paths.sh` OK after role Skill table edits
+- [ ] `scripts/validate-production-artifacts-pack.test.sh` OK after production pack / seat wiring edits

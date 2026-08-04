@@ -39,6 +39,9 @@ fallback_applied: false
 | … | yes/no | |
 | Correct model tier used? | yes/no | Wrong tier/profile on creative/legal → revise |
 | Generation profile correct (11/12/15/19)? | yes/no/n/a | e.g. hero-video → Veo 3.1 |
+| Production Layer B complete or skipped with reason? | yes/no/n/a | HTML/app/assets/finals — see production-artifacts pack |
+| Verifier pass? | yes/no/n/a | `HANDOFFS/<phase>-verifier.md` with `verdict: pass` (required on shippable) |
+| Wire owner named? | yes/no/n/a | ESP / ads / DNS may stay operator |
 
 ## Verdict
 **approve** — orchestrator may mark phase ✅  

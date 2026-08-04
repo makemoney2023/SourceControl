@@ -34,6 +34,11 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/awesome-claude-corporate-skills/11-customer-success/onboarding-playbook/` | CS onboarding playbook |
 | `skills/community/awesome-claude-corporate-skills/11-customer-success/churn-analysis/` | Churn analysis |
 | `skills/community/awesome-claude-corporate-skills/11-customer-success/escalation/` | Escalation paths |
+| `skills/community/awesome-claude-corporate-skills/11-customer-success/qbr-builder/` | QBR builder |
+| `skills/community/awesome-claude-corporate-skills/11-customer-success/ticket-triage/` | Ticket triage |
+| `skills/community/awesome-claude-corporate-skills/11-customer-success/response-drafting/` | Response drafting |
+| `skills/community/awesome-claude-corporate-skills/11-customer-success/knowledge-management/` | Knowledge management |
+| `skills/org/packs/standing-context/sales-youtube-frameworks/` | Follow-up / rapport frameworks (selective) |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/05-prd.md`

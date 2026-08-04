@@ -93,6 +93,31 @@ describe("buildQueueForPacket", () => {
     expect(input.llm_tier).toBeTruthy();
   });
 
+  it("seeds outputs and write_lease from seat Outputs", () => {
+    repo = tempRepo();
+    mkdirSync(join(repo, "skills/org/positions/cmo"), { recursive: true });
+    writeFileSync(
+      join(repo, "skills/org/positions/cmo/SKILL.md"),
+      `# CMO
+
+## Outputs
+- \`docs/projects/<active>/business-idea/17-channels/email/html/\`
+`,
+    );
+    const input = buildQueueForPacket(repo, {
+      position: "cmo",
+      goal: "Phase 17 production",
+      phase: "17",
+    });
+    expect(input.outputs).toContain(`${BIZ_IDEA}/17-channels/email/html`);
+    expect(input.write_lease).toEqual(
+      expect.arrayContaining([
+        `${BIZ_IDEA}/17-channels/email/html`,
+        `${BIZ_IDEA}/HANDOFFS/17-manager-cmo.md`,
+      ]),
+    );
+  });
+
   it("defaults phase to current mission phase when omitted", () => {
     repo = tempRepo();
     const input = buildQueueForPacket(repo, {

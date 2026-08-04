@@ -3,7 +3,17 @@ import { parseModelRegistry, parseOrgRegistry } from "../../src/lib/parse-regist
 import { parseTracker } from "../../src/lib/parse-tracker";
 import { validateManagerPacket } from "../../src/lib/validate-packet";
 import type { ManagerPacketInput } from "../../src/lib/types";
-import { assertReadable, trackerPath } from "../paths";
+import {
+  loadSeatOutputPaths,
+  mergeUniquePaths,
+} from "../../src/lib/seat-outputs";
+import {
+  activeProjectSlug,
+  assertReadable,
+  businessIdeaFile,
+  businessIdeaRel,
+  trackerPath,
+} from "../paths";
 import { queueValidatedDispatch } from "../queue-validated-dispatch";
 import { loadSnapshot } from "../snapshot";
 import { JarvisExecError } from "./errors";
@@ -195,6 +205,15 @@ export function buildQueueForPacket(repoRoot: string, args: QueueForArgs): Manag
     ? resolveSeatSlug(rawPreferredIc, org.roster) ?? rawPreferredIc
     : undefined;
 
+  const seatOutputs = loadSeatOutputPaths(repoRoot, position, {
+    ventureSlug: activeProjectSlug(repoRoot),
+    businessIdeaRel: businessIdeaRel(repoRoot),
+  });
+  const handoff = businessIdeaFile(
+    repoRoot,
+    `HANDOFFS/${phase}-manager-${position}.md`,
+  );
+
   const input: ManagerPacketInput = {
     phase,
     position,
@@ -204,6 +223,8 @@ export function buildQueueForPacket(repoRoot: string, args: QueueForArgs): Manag
     llm_tier: model?.llmTier,
     llm_model: model?.llmModel,
     generation_profile: model?.generationProfile,
+    outputs: seatOutputs,
+    write_lease: mergeUniquePaths(seatOutputs, [handoff]),
   };
 
   if (preferred_ic) {

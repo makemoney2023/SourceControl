@@ -33,6 +33,8 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/awesome-claude-corporate-skills/06-legal-compliance/compliance/` | Compliance checklist |
 | `skills/community/awesome-claude-corporate-skills/06-legal-compliance/contract-review/` | Contract review |
 | `skills/community/awesome-claude-corporate-skills/06-legal-compliance/nda-triage/` | NDA triage |
+| `skills/community/awesome-claude-corporate-skills/06-legal-compliance/compliance-tracking/` | Compliance tracking |
+| `skills/community/awesome-claude-corporate-skills/06-legal-compliance/canned-responses/` | Legal canned responses |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/08-operations.md`

@@ -4,6 +4,7 @@ import {
   managerHandoffPath,
   resolveArtifactPath,
 } from "../lib/project-paths";
+import { mergeUniquePaths } from "../lib/seat-outputs";
 
 export function buildAssignPayload(args: {
   phase: string;
@@ -17,13 +18,17 @@ export function buildAssignPayload(args: {
   budgetText: string;
   creativeRequired: boolean;
   businessIdeaRel?: string;
+  /** Expanded seat SKILL.md Outputs paths (union with outputsText). */
+  seatOutputPaths?: string[];
 }): ManagerPacketInput {
   const prefix = args.businessIdeaRel ?? DEFAULT_BUSINESS_IDEA_REL;
-  const artifactPaths = args.outputsText
+  const fromText = args.outputsText
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean)
     .map((p) => resolveArtifactPath(p, prefix));
+  const artifactPaths = mergeUniquePaths(fromText, args.seatOutputPaths);
+  const handoff = managerHandoffPath(prefix, args.phase, args.position);
 
   return {
     phase: args.phase,
@@ -39,10 +44,7 @@ export function buildAssignPayload(args: {
       .map((s) => s.trim())
       .filter(Boolean),
     outputs: artifactPaths,
-    write_lease: [
-      ...artifactPaths,
-      managerHandoffPath(prefix, args.phase, args.position),
-    ],
+    write_lease: mergeUniquePaths(artifactPaths, [handoff]),
     budget_usd: args.budgetText ? Number(args.budgetText) : null,
     collaborators: [],
   };

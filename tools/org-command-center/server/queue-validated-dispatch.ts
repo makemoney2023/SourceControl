@@ -5,7 +5,19 @@ import { parseModelRegistry, parseOrgRegistry, resolvePhaseOwner } from "../src/
 import { patchTrackerPhaseStatus, parseTracker, seedPositionsRow } from "../src/lib/parse-tracker";
 import { validateManagerPacket } from "../src/lib/validate-packet";
 import type { ManagerPacket, ManagerPacketInput } from "../src/lib/types";
-import { assertReadable, assertWritable, businessIdeaFile, dispatchRoot, trackerPath } from "./paths";
+import {
+  loadSeatOutputPaths,
+  mergeUniquePaths,
+} from "../src/lib/seat-outputs";
+import {
+  assertReadable,
+  assertWritable,
+  businessIdeaFile,
+  businessIdeaRel,
+  dispatchRoot,
+  trackerPath,
+  activeProjectSlug,
+} from "./paths";
 import { appendVentureContextReads } from "./sources/context-reads";
 
 export type QueueValidatedDispatchResult =
@@ -26,7 +38,20 @@ export function queueValidatedDispatch(
   );
   const owner = resolvePhaseOwner(org, body.phase);
   if (owner && !body.position) body.position = owner.managerOwner;
-  if (owner && !body.write_lease?.length) {
+  if (body.position) {
+    const seatOutputs = loadSeatOutputPaths(repoRoot, body.position, {
+      ventureSlug: activeProjectSlug(repoRoot),
+      businessIdeaRel: businessIdeaRel(repoRoot),
+    });
+    body.outputs = mergeUniquePaths(body.outputs, seatOutputs);
+    const handoff = businessIdeaFile(
+      repoRoot,
+      `HANDOFFS/${body.phase}-manager-${body.position}.md`,
+    );
+    body.write_lease = mergeUniquePaths(body.write_lease, body.outputs, [
+      handoff,
+    ]);
+  } else if (owner && !body.write_lease?.length) {
     body.write_lease = [
       ...(body.outputs ?? []),
       businessIdeaFile(repoRoot, `HANDOFFS/${body.phase}-manager-${body.position}.md`),

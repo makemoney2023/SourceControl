@@ -49,6 +49,16 @@ fallback_applied: false
 |------|-----------------|
 | `docs/projects/<active>/business-idea/…` | |
 
+## Production check (shippable phases)
+| Field | Value |
+|-------|-------|
+| production_status (merged) | complete / skipped / mixed |
+| Layer B paths | … |
+| wire_owner | operator / … |
+| skip_reason | … \| none |
+
+Reject IC handoffs missing `production_status` on phases 9, 9B, 11, 12, 14, 15, 17, 19. See `skills/org/packs/production-artifacts/SKILL.md`.
+
 ## Escalation tags
 - none | legal | brand | spend | scope | evidence
 

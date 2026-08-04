@@ -31,6 +31,9 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 | Pack path | Use for |
 |-----------|---------|
+| `skills/org/packs/production-artifacts/` | Craft → Production → Wire; creatives lease |
+| `skills/org/packs/photoreal-stills/` | Photoreal ad stills + reject checklist |
+| `skills/community/inference-sh/image-upscaling/` | Final creative upscale when needed |
 | `skills/community/marketingskills/ads/` | Paid ads |
 | `skills/community/marketingskills/ad-creative/` | Ad creative |
 | `skills/community/advertising-skills/skills/operator-os/ad-angle-multiplier/` | Ad angles |
@@ -43,6 +46,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/openmontage/.agents/skills/hyperframes/` | HyperFrames video ads |
 | `skills/community/marketingskills/cro/` | Paid conversion path |
 | `skills/community/openmontage/.claude/skills/flux-best-practices/` | Still/ad image prompts (FLUX) |
+| `skills/community/inference-sh/video-ad-specs/` | Platform video ad specs |
+| `skills/community/inference-sh/ai-marketing-videos/` | Paid marketing video craft |
+| `skills/community/inference-sh/ai-product-photography/` | Paid product stills |
+| `skills/community/awesome-claude-corporate-skills/04-marketing/competitive-ads-extractor/` | Competitor ad intel |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/13-copy-foundation.md`
@@ -50,7 +57,8 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 ## Outputs
 - `docs/projects/<active>/business-idea/19-paid.md`
-- `docs/projects/<active>/business-idea/19-paid/openmontage/`
+- `docs/projects/<active>/business-idea/19-paid/creatives/` (Layer B stills / exportables)
+- `docs/projects/<active>/business-idea/19-paid/openmontage/` (video ads via video-producer)
 
 ## Collaborates with (peer managers)
 _IC seat — request peers via `ask_manager` only._
@@ -74,12 +82,12 @@ Use orchestrator schemas. Managers receive manager packets; ICs receive IC packe
 |-------|-------|
 | `llm_tier` | `strong-general` |
 | Preferred Cursor `model` | `composer-2.5` |
-| `generation_profile` | `none` |
+| `generation_profile` | `ad-creative` |
 | Fallback | See `skills/org/MODEL-REGISTRY.md` |
 
 Prefer this tier; fallback ladder in MODEL-REGISTRY if plan/admin blocks.
 
-Plane B: No image/video generation required.
+Plane B: Prefer `ad-creative` / `brand-stills` for Layer B under `19-paid/creatives/`; video ads via video-producer + OpenMontage when budgeted. Skip with reason if no budget.
 
 Resolve IDs from MODEL-REGISTRY / `.env.local` `WORKER_PAID_MEDIA_MANAGER_MODEL`. Record `llm_model`, `generation_used`, `fallback_applied` on handoffs.
 
@@ -96,9 +104,11 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
 ## Done criteria
-- [ ] Craft outputs written (lease-respecting)
-- [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
+- [ ] Craft outputs written (lease-respecting) — angles, funnel, channel plan
+- [ ] Production: files under `19-paid/creatives/` (and video finals when budgeted) **or** `production_status: skipped` with reason
+- [ ] Ad stills: `photoreal_qa: pass` before complete (photoreal-stills pack)
+- [ ] Handoff includes `production_status`, `production_paths`, `wire_owner`, `photoreal_qa` when stills shipped
+- [ ] Packs followed (including production-artifacts + photoreal-stills)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
 

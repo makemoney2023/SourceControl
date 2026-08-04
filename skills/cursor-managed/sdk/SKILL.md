@@ -6,14 +6,16 @@ description: >-
   `cursor_sdk`). Use when the user mentions integrating, installing, or writing
   code against the Cursor SDK; says `Agent.create`, `Agent.prompt`,
   `Agent.resume`, `agent.send`, `run.stream`, `run.messages`,
-  `CursorAgentError`, `@cursor/sdk`, `cursor-sdk`, or `cursor_sdk`; asks to run
-  Cursor agents programmatically from a script, CI/CD pipeline, GitHub Action,
-  backend service, or other code outside the Cursor IDE; wants to pick between
-  local and cloud runtime, configure MCP servers for an SDK agent, or handle
-  streaming, cancellation, or errors; or is wiring Cursor into an automation,
-  bot, or REST `/v1/agents` migration. Use eagerly rather than answering from
-  memory; the SDK surface evolves and this skill is the source of truth for the
-  external packages.
+  `CursorAgentError`, `customTools`, `custom_tools`, `auto-smart`,
+  `optimize_for`, `sandboxOptions`, `autoReview`, `@cursor/sdk`, `cursor-sdk`,
+  or `cursor_sdk`; asks to run Cursor agents programmatically from a script,
+  CI/CD pipeline, GitHub Action, backend service, or other code outside the
+  Cursor IDE; wants local vs cloud runtime, MCP, custom tools, Router, sandbox /
+  auto-review, streaming, cancellation, or errors; or is wiring Cursor into a
+  bot or REST `/v1/agents` migration. Do not use for the Cursor Automations
+  product editor (use the `automate` skill). Use eagerly rather than answering
+  from memory; the SDK surface evolves and this skill is the source of truth
+  for the external packages.
 ---
 # Cursor SDK
 
@@ -287,7 +289,9 @@ if run.supports("conversation"):
 export CURSOR_API_KEY="cursor_..."  # user API key or team service-account key
 ```
 
-Both SDKs read `CURSOR_API_KEY` when no key is passed explicitly. User keys live at [Cursor Dashboard → Integrations](https://cursor.com/dashboard/integrations); team service-account keys live in Team Settings → Service accounts. Team Admin API keys are not yet supported.
+Both SDKs read `CURSOR_API_KEY` when no key is passed explicitly. User keys live at [Cursor Dashboard → API Keys](https://cursor.com/dashboard/api); service account keys live in [Team settings](https://cursor.com/dashboard/team-settings). Team Admin API keys are not yet supported.
+
+**Local means the agent loop and filesystem**, not a local model. Inference is always hosted. Runtime requirements: Node.js **22.13+** for `@cursor/sdk`; Python **3.10+** for `cursor-sdk`.
 
 If you're seeing 401s, the usual suspects are: key pasted with surrounding whitespace, key minted against a different environment, or the key belongs to a user without repo access for a cloud run.
 
@@ -311,9 +315,53 @@ from cursor_sdk import Cursor
 models = Cursor.models.list()  # falls back to CURSOR_API_KEY
 ```
 
-`composer-2.5` is the current default for most integrations. `{ id: "auto" }` (TS) / `model="auto"` (Python) lets the server pick. `Cursor.models.list()` returns valid IDs, per-model parameter definitions (reasoning effort, max mode), and preset variants for the calling account.
+`composer-2.5` is the current default for most integrations. `{ id: "auto" }` (TS) / `model="auto"` (Python) lets the server pick. `Cursor.models.list()` returns valid IDs, per-model parameter definitions (reasoning effort, max mode), and preset variants for the calling account. Legacy `composer-2` / `composer-2-fast` ids are rerouted to Composer 2.5 at auth time.
 
 Model is **required for local** in both SDKs. For cloud, TypeScript falls back to a server-resolved default when omitted; Python documents it as required across both runtimes. Pass one regardless to keep behavior predictable.
+
+### Cursor Router (`auto-smart`)
+
+On Teams/Enterprise (when enabled), Router is model id `auto-smart` with required param `optimize_for`: `cost` | `balanced` | `intelligence`. Always discover via `Cursor.models.list()` before hardcoding — if `auto-smart` is missing, Router is off for that key/team. Do not omit `optimize_for` or send legacy `default`. Prefer a fixed model id when you need reproducible comparisons. Per-run `model` overrides on `send()` are sticky.
+
+```typescript
+model: { id: "auto-smart", params: [{ id: "optimize_for", value: "balanced" }] }
+```
+
+```python
+ModelSelection(id="auto-smart", params=[ModelParameterValue(id="optimize_for", value="balanced")])
+```
+
+## Headless safety (local)
+
+SDK local runs **auto-approve tool calls** (no human-in-the-loop). For unattended hosts:
+
+1. **`local.sandboxOptions: { enabled: true }`** — filesystem/network sandbox (needs host support; pair with `.cursor/sandbox.json` allowlists). Cloud VMs are already isolated — sandbox options do not apply.
+2. **`local.autoReview: true`** — routes Shell/MCP/Fetch through the Auto-review classifier; blocked calls are denied (not escalated) in headless mode.
+3. **Hooks** — file-based only (`.cursor/hooks.json` in `cwd` or `~/.cursor/hooks.json`). No programmatic hook callbacks. Cloud SDK agents load project hooks from the cloned repo; Enterprise may also run team/enterprise hooks. See the `create-hook` skill to author them; this skill does not manage hook files.
+4. **`local.force: true` on `send()`** — expire a stuck local run before starting a new message. Cloud raises `AgentBusyError` (`409`) instead.
+
+## Custom tools (local only)
+
+Expose in-process functions without standing up MCP. Pass `local.customTools` (TS) / `LocalAgentOptions.custom_tools` (Python). Registered as MCP server `custom-user-tools`. Cloud rejects `customTools` (`ConfigurationError`). Inline/`send`-level custom tools **replace** creation-time tools for that run. Custom tools skip interactive approval — combine with sandbox/auto-review for unattended hosts. They reach subagents (including nested).
+
+## SDK subagents vs file agents
+
+Two ways to give an SDK agent named specialists:
+
+| Source | How |
+|--------|-----|
+| Inline | `agents: { "code-reviewer": { description, prompt, model? } }` on `Agent.create` (TS) / `AgentDefinition` in Python |
+| Files | `.cursor/agents/*.md` (same format as the IDE) when `settingSources` loads project/user agents |
+
+Inline definitions override same-named files. Nesting limit: top-level + direct subagents can spawn further; a subagent-of-a-subagent cannot. For authoring `.md` agents used by the IDE **and** picked up by SDK, use the `create-subagent` skill. For script-only specialists, prefer inline `AgentDefinition`.
+
+## Conversation mode, env vars, correlation
+
+- **`mode: "plan" | "agent"`** on create (seeds first run) or per `send()` to switch. Omit on follow-ups to keep current mode.
+- **Cloud `envVars` / `env_vars`** on create (agent lifetime) or `send()` (per-run, overrides then reverts). Names must not start with `CURSOR_`. Not for public repos on per-run. Local agents inherit the process env.
+- **Cloud metadata** (Python: raw `cloud={..., "metadata": {...}}`) — up to 50 string pairs for tenant/ticket correlation; typed options may lag; may `403 feature_unavailable`.
+- **Log `requestId`** from `Run` / `RunResult` alongside `agentId` and `run.id` — same id appears on errors when the server returns one.
+- **Token usage:** `run.usage` / `result.usage` are cumulative token counts (not dollars). Cloud billed usage: `agent.getUsage()` / `agent.get_usage()` (local throws `ConfigurationError`). Spend appears under the SDK tag in the usage dashboard.
 
 ## MCP Servers
 
@@ -338,6 +386,19 @@ Apply these to any integration that runs unattended:
 6. **For cloud agents in CI, set `skipReviewerRequest: true` (TypeScript) / `skip_reviewer_request=True` (Python)** unless a human should be paged - it suppresses the reviewer-request step and keeps PR notifications quiet.
 7. **Always pass `apiKey` / `api_key` explicitly** in shared-infrastructure code instead of relying on the env var. Makes the credential dependency obvious and prevents cross-tenant mistakes.
 8. **Prefer the one-shot `Agent.prompt(...)` for true one-shots** - it disposes for you and is harder to leak.
+9. **Log `requestId` with `agentId` / `run.id`.** Use it for support threads and analytics; it round-trips through local stores and cloud.
+10. **Gate headless local tool use** with sandbox and/or auto-review (or project hooks). Never assume IDE approval UI exists.
+11. **Handle typed errors:** `IntegrationNotConnectedError` (reconnect via `helpUrl`), `AgentBusyError` (wait/cancel — not immediately retryable), `UnsupportedRunOperationError` (check `supports()`). Python: honor `retry_after` on rate limits. Debug with `CURSOR_SDK_LOG=debug` (Python).
+12. **Cloud agents started by the SDK** are filtered out of the default agent list — in Cursor Web / Agents window use **Filter → Source → SDK**.
+
+### Long-lived hosts (brief)
+
+- **Dispatcher:** map key → `SDKAgent`, `Agent.resume(savedId)` after process restart; see docs "Dispatcher pattern".
+- **Prewarm:** `createAgentPlatform().prewarmLocalWorkspace(...)` to pay workspace resolve cost before first `send()` (TypeScript).
+- **Stores:** local persistence defaults to SQLite (JSONL fallback); set `local.store` or `Cursor.configure({ local: { store } })` for JSONL/custom. Cloud state is server-side.
+- **`agent.reload()`** picks up filesystem hooks/MCP/subagent changes without dispose.
+- **Artifacts:** `listArtifacts` / `downloadArtifact` are for cloud workspaces today; local returns empty / throws.
+- Cookbook examples: [cursor/cookbook/sdk](https://github.com/cursor/cookbook/tree/main/sdk).
 
 ## Observing a Run You Didn't Launch
 
@@ -375,6 +436,8 @@ If the user's integration monitors, lists, or visualizes agents - dashboards of 
 ## What This Skill Doesn't Cover
 
 - The [Cloud Agents REST API](https://cursor.com/docs/cloud-agent/api/endpoints) (`/v1/agents/*`). Use it from languages without a first-party SDK, or when you want a minimal HTTP surface.
-- `.cursor/hooks.json` hooks. Both SDKs respect them; neither manages them. See [Hooks](https://cursor.com/docs/hooks).
+- Authoring `.cursor/hooks.json` contents — use the `create-hook` skill. Both SDKs **respect** committed hooks; neither manages them programmatically.
+- The **Cursor Automations** product (trigger → cloud agent editor). That is the `automate` skill, not `@cursor/sdk`.
 - Self-hosted cloud (private workers, self-hosted pools, my-machines). See [Self-hosted pool](https://cursor.com/docs/cloud-agent/self-hosted-pool) and related docs.
 - SDKs in languages other than TypeScript and Python. The REST API is the portable option there.
+- Full stream-event / InteractionUpdate reference — skim the language docs when you need every discriminant.

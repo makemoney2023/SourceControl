@@ -53,6 +53,10 @@ export interface HandoffRecord {
   blockers: string[];
   recommendation: string;
   escalationTags: string[];
+  productionStatus: string;
+  productionPaths: string[];
+  wireOwner: string;
+  skipReason: string;
 }
 
 export interface RosterEntry {
@@ -113,6 +117,15 @@ export interface ManagerPacketInput {
   require_inbox?: boolean;
   /** When true, run acceptance requires an IC handoff for preferred_ic */
   require_ic_handoff?: boolean;
+  /**
+   * When true, phases 15/19 may omit budget_usd (production will be skipped).
+   * Mirrored onto the queued packet for acceptance.
+   */
+  production_skip_committed?: boolean;
+  /** Override production acceptance (default: on for shippable phases). */
+  require_production?: boolean;
+  /** Override verifier acceptance (default: on for shippable phases). */
+  require_verifier?: boolean;
 }
 
 export interface ManagerPacket {
@@ -143,6 +156,9 @@ export interface ManagerPacket {
   require_inbox?: boolean;
   /** When true, run acceptance requires an IC handoff for preferred_ic */
   require_ic_handoff?: boolean;
+  production_skip_committed?: boolean;
+  require_production?: boolean;
+  require_verifier?: boolean;
 }
 
 export type ValidateResult =

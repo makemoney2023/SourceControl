@@ -43,6 +43,9 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/awesome-claude-corporate-skills/04-marketing/seo-content-optimizer/` | SEO content optimizer |
 | `skills/community/marketingskills/schema/` | Schema patterns |
 | `skills/community/notfair-seo/broken-link-checker/` | Broken link QA |
+| `skills/community/inference-sh/seo-content-brief/` | SEO content brief production |
+| `skills/community/marketingskills/aso/` | App-store optimization |
+| `skills/community/marketingskills/directory-submissions/` | Directory / listing SEO |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/12-web-design.md`

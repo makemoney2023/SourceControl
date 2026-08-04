@@ -31,6 +31,10 @@ Designers do **not** “run as Veo.” They use a Plane A LLM and **must** rende
 
 If a preferred model is blocked by plan/admin, apply the fallback ladder and set `fallback_applied: true` on the handoff.
 
+### Optional: Cursor Router (SDK / API hosts)
+
+For **programmatic** `@cursor/sdk` / `cursor-sdk` hosts (e.g. OCC runtime), Teams/Enterprise may expose Router as model id `auto-smart` with required param `optimize_for`: `cost` | `balanced` | `intelligence`. Discover via `Cursor.models.list()` before pinning — do not hardcode if missing from the catalog. Org position packets still prefer explicit `composer-2.5` / `grok-4.5` from this registry unless an operator opts a seed into Router for cost exploration. See the `sdk` skill.
+
 ---
 
 ## Generation profiles (Plane B)
@@ -38,11 +42,13 @@ If a preferred model is blocked by plan/admin, apply the fallback ladder and set
 | Profile | Image | Video | Audio | Env (minimum) | Used by |
 |---------|-------|-------|-------|---------------|---------|
 | `none` | — | — | — | — | Most text roles |
-| `brand-stills` | FLUX or Imagen / inference.sh (`nano-banana-2`, `gpt-image`) | — | — | `FAL_KEY` or `INFSH_API_KEY` / `INFERENCE_API_KEY` | brand-designer, web-designer |
+| `brand-stills` | **FLUX.2 pro/max** (finals) via fal or inference.sh; drafts may use klein / Cursor gen; optional Imagen / `nano-banana-2` / `gpt-image`; **upscale** via `image-upscaling` | — | — | `FAL_KEY` or `INFSH_API_KEY` / `INFERENCE_API_KEY` | brand-designer, web-designer |
 | `hero-video` | FLUX keyframes | **Veo 3.1** via fal (`OPENMONTAGE_DEFAULT_VIDEO_MODEL=veo-3.1`) | ElevenLabs | `FAL_KEY`, `ELEVENLABS_API_KEY` | video-producer Phase 15 |
-| `ad-creative` | FLUX / GPT Image | Veo 3.1 or Kling short | optional ElevenLabs | `FAL_KEY`; optional `KLING_API_KEY`, `OPENAI_API_KEY` | Phase 19 video + paid creatives |
+| `ad-creative` | FLUX.2 pro/max / GPT Image + photoreal-stills QA | Veo 3.1 or Kling short | optional ElevenLabs | `FAL_KEY`; optional `KLING_API_KEY`, `OPENAI_API_KEY` | Phase 19 video + paid creatives |
 
 Provider strings must match OpenMontage / `.env.local`. Optional fallbacks: `HEYGEN_API_KEY`, `RUNWAY_API_KEY`, `GOOGLE_API_KEY`.
+
+**Photoreal stills:** Seats on `brand-stills` / `ad-creative` must follow [`packs/photoreal-stills/SKILL.md`](./packs/photoreal-stills/SKILL.md) (camera/lens prompting, multi-ref identity, reject checklist, `photoreal_qa` on handoff). Cursor built-in image gen is draft-only — not Layer B final.
 
 ---
 
@@ -86,6 +92,7 @@ Every roster slug appears **once**. Orchestrator included.
 | recruiter | fast-ops | `composer-2.5` | none |
 | cto | coding-agent | `composer-2.5` | none |
 | tech-lead | coding-agent | `composer-2.5` | none |
+| verifier | strong-general | `composer-2.5` | none |
 | hardware-engineer | coding-agent | `composer-2.5` | none |
 | head-of-data | strong-general | `composer-2.5` | none |
 | analytics-engineer | coding-agent | `composer-2.5` | none |

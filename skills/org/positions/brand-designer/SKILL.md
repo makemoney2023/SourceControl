@@ -30,6 +30,9 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 | Pack path | Use for |
 |-----------|---------|
+| `skills/org/packs/production-artifacts/` | Craft → Production → Wire; asset path leases |
+| `skills/org/packs/photoreal-stills/` | Ultra-real still pipeline + reject checklist |
+| `skills/community/inference-sh/image-upscaling/` | Final megapixel / retina upscale |
 | `skills/community/ui-ux-pro-max-skill/brand/` | Brand |
 | `skills/community/ui-ux-pro-max-skill/banner-design/` | Banners |
 | `skills/community/visual-skills/image/` | Image prompts |
@@ -40,13 +43,32 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/openmontage/.claude/skills/bfl-api/` | BFL API parameters |
 | `skills/community/openmontage/.claude/skills/visual-style/` | Visual style direction |
 | `skills/community/awesome-claude-corporate-skills/04-marketing/theme-factory/` | Themes |
+| `skills/community/inference-sh/logo-design-guide/` | Logo system production |
+| `skills/community/inference-sh/og-image-design/` | OG / social share stills |
+| `skills/community/inference-sh/product-photography/` | Product stills craft |
+| `skills/community/inference-sh/ai-product-photography/` | AI product photography |
+| `skills/community/inference-sh/pitch-deck-visuals/` | Pitch / fundraising visuals |
+| `skills/community/inference-sh/youtube-thumbnail-design/` | Thumbnail stills |
+| `skills/community/inference-sh/app-store-screenshots/` | ASO screenshot stills |
+| `skills/community/inference-sh/character-design-sheet/` | Character / mascot sheets |
+| `skills/community/inference-sh/book-cover-design/` | Cover / lead-magnet covers |
+| `skills/community/marketingskills/image/` | Marketing image craft |
+| `skills/community/awesome-claude-corporate-skills/04-marketing/canvas-design/` | Design canvas production |
+| `skills/community/awesome-claude-corporate-skills/04-marketing/domain-name-brainstormer/` | Naming / domain ideation |
+| `skills/community/awesome-claude-corporate-skills/04-marketing/guideline-generation/` | Brand guideline generation |
+| `skills/plugins/figma/figma-use/` | Live Figma editing |
+| `skills/plugins/figma/figma-generate-design/` | Code → Figma screens |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/11-brand-system.md`
 
 ## Outputs
 - `docs/projects/<active>/business-idea/11-brand-system.md`
-- `docs/projects/<active>/business-idea/14-pages/`
+- `docs/projects/<active>/business-idea/11-brand/assets/` (brand stills)
+- `docs/projects/<active>/business-idea/14-pages/` (imagery when leased)
+- `docs/projects/<active>/business-idea/14-pages/assets/` (page stills when leased)
+- `docs/projects/<active>/business-idea/17-channels/email/assets/` (email headers when asked)
+- `docs/projects/<active>/business-idea/17-channels/social/assets/` (social stills when asked)
 
 ## Collaborates with (peer managers)
 _IC seat — request peers via `ask_manager` only._
@@ -75,9 +97,9 @@ Use orchestrator schemas. Managers receive manager packets; ICs receive IC packe
 
 **Must not inherit** parent model — always pin this tier (esp. creative/legal/coding).
 
-Plane B: Prompts via visual-skills; render via inference-sh or OpenMontage/fal (FLUX/Imagen). Env: `FAL_KEY` or `INFSH_API_KEY` / `INFERENCE_API_KEY`.
+Plane B: Follow `photoreal-stills` — draft → FLUX.2 pro/max finals via fal or inference.sh → upscale when needed. Env: `FAL_KEY` or `INFSH_API_KEY` / `INFERENCE_API_KEY`. Cursor built-in image gen = draft only.
 
-Resolve IDs from MODEL-REGISTRY / `.env.local` `WORKER_BRAND_DESIGNER_MODEL`. Record `llm_model`, `generation_used`, `fallback_applied` on handoffs.
+Resolve IDs from MODEL-REGISTRY / `.env.local` `WORKER_BRAND_DESIGNER_MODEL`. Record `llm_model`, `generation_used`, `fallback_applied`, `photoreal_qa` on handoffs.
 
 ## Integrations
 Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill before first use.
@@ -91,8 +113,10 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting)
-- [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
+- [ ] Production: rendered stills on leased paths **or** `production_status: skipped` with reason (`generation_profile: brand-stills` when rendering)
+- [ ] Photoreal reject checklist passed (`photoreal_qa: pass`) before claiming complete — see photoreal-stills pack
+- [ ] Handoff includes `production_status`, `production_paths`, `wire_owner`, `photoreal_qa`
+- [ ] Packs followed (including production-artifacts + photoreal-stills)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
 
