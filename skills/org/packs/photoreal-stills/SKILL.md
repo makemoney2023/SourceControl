@@ -24,6 +24,10 @@ Use for brand, page, email, social, and paid **still** production when the claim
 | `skills/community/inference-sh/image-upscaling/` | Final megapixel / print pass |
 | `skills/org/packs/production-artifacts/` | Paths + `production_status` |
 
+## Prerequisite: Design brief
+
+Do **not** call image generation until a Design brief exists (see `production-artifacts` **Design-before-production gate**). The brief must include the exact generation prompt(s), brand hex/lighting locks, crop/aspect, and cited design packs (`visual-skills/image`, brand, email-design for headers, etc.). Production stills are rendered **from the brief**, not freestyled.
+
 ## How “indistinguishable from reality” is achieved
 
 Research + BFL guidance converge on a **pipeline**, not a magic adjective (“8k”, “ultra realistic”):

@@ -107,6 +107,7 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 - [ ] Craft outputs written (lease-respecting)
 - [ ] Shippable phases: Production check in manager brief (stills/finals/`design-system/` or skip)
 - [ ] Stills phases: photoreal reject checklist reviewed (`photoreal_qa`) before ready_for_csuite
+- [ ] Design brief present (look/feel + prompts from design packs) before merging Layer B visuals
 - [ ] Handoff / manager brief on disk as required by role
 - [ ] Packs followed (including production-artifacts + photoreal-stills)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)

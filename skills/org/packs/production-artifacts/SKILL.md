@@ -24,16 +24,59 @@ Markdown under `docs/projects/<active>/business-idea/` is **Layer A craft** (SSO
 7. **Wire is explicit** — handoff lists `wire_owner` (`operator` | seat slug | `none`) and what remains after approve.
 8. **Figma ≠ Layer B.** Editing in Figma alone is not production. Export PNG/SVG/PDF (or tokens/components) into the leased path before `production_status: complete`.
 9. **Verifier gate.** Shippable phases require `HANDOFFS/<phase>-verifier.md` with `verdict: pass` before C-suite may approve (see `positions/verifier/`).
+10. **Design before production.** Never generate Layer B (HTML, stills, video, design-system tokens, app UI) until a **Design brief** exists that (a) cites the required design skill packs, (b) locks look/feel from brand tokens, and (c) includes generation/layout prompts. Jumping from craft MD → pixels is a reject.
 
-## Three layers
+## Four layers
 
 | Layer | Meaning | Typical paths |
 |-------|---------|----------------|
 | **Craft** | Strategy, copy, journeys, specs | `business-idea/**/*.md` |
+| **Design** | Look/feel, layout system, generation prompts | `**/design/*-design-brief.md` (or `## Design brief` in craft) |
 | **Production** | Importable / deployable / renderable files | `.html`, `apps/…`, images, video finals, design tokens |
 | **Wire** | Live systems | ESP automations, ad accounts, DNS, analytics property |
 
-Flow: **Craft → Production → Wire**
+Flow: **Craft → Design → Production → Wire**
+
+## Design-before-production gate (mandatory)
+
+Before any still, HTML email, video final, design-system file, or app UI production:
+
+1. **Read** the phase’s **Required design packs** (table below) — not optional skim.
+2. **Pull brand tokens** from `11-brand-system.md` (color, type, imagery rules). Do not invent a parallel palette.
+3. **Write a Design brief** (file or section) that includes:
+   - **Look & feel** — layout, typography, color roles, spacing, mobile rules from the design pack
+   - **Component plan** — e.g. email inverted pyramid + bulletproof CTA; page sections; ad frame sizes
+   - **Generation prompts** — exact prompts for headers/stills/video keyframes (camera/lens language per `photoreal-stills` when photoreal)
+   - **Packs cited** — repo-relative paths of design skills actually applied
+4. **Only then** render/generate Layer B from that brief (HTML from email-design rules; stills from prompts in the brief).
+5. Handoff sets `design_brief_path` and lists design packs under **Packs used** with one concrete decision each.
+
+### Design brief paths (preferred)
+
+| Asset class | Preferred brief path |
+|-------------|----------------------|
+| Email | `17-channels/email/design/<journey>-design-brief.md` |
+| Brand stills | `11-brand/design/<slug>-design-brief.md` |
+| Page imagery | `14-pages/design/<page>-design-brief.md` |
+| Video | `15-media/design/<slug>-design-brief.md` |
+| Paid creatives | `19-paid/design/<slug>-design-brief.md` |
+| Web / design-system | `12-web-design.md` Design brief section **or** `design-system/<venture>/DESIGN-BRIEF.md` |
+
+Short phases may embed `## Design brief (required before production)` in the craft MD instead of a separate file — same required fields.
+
+### Required design packs by phase
+
+| Phase | Required design packs (read before Layer B) | Then produce with |
+|-------|---------------------------------------------|-------------------|
+| **9** | `design-system/<venture>/` tokens + seat Next/shadcn packs; `landing-page-design` when shipping marketing pages | App routes/components |
+| **11** | `ui-ux-pro-max-skill/brand/`, `visual-style`, `visual-skills/image`, **`photoreal-stills`** | Brand stills via fal/inference |
+| **12** | `ui-ux-pro-max-skill/design-system/`, `ui-styling`, `shadcn`, figma-design-to-code | `design-system/<venture>/` + UI stills |
+| **14** | Page craft + `visual-skills/image` + **`photoreal-stills`** for imagery; `landing-page-design` when HTML/app | `14-pages/assets/`; app via P9 |
+| **15** | OpenMontage visual-style + storyboard craft; **`photoreal-stills`** for keyframes | `15-media/openmontage/` |
+| **17** | **`inference-sh/email-design/`** (layout/CTA/header rules) + craft `emails/` + brand tokens; **`photoreal-stills`** for headers | `email/html/` + `email/assets/` |
+| **19** | `ad-creative` / scroll-stopping packs + **`photoreal-stills`** for stills | `19-paid/creatives/` |
+
+**Email example:** Read `email-design` → write design brief (600px, inverted pyramid, CTA table, header prompt with brand hex) → generate header still from that prompt → build HTML matching the brief. Do **not** invent HTML chrome or header prompts without the brief.
 
 ## Canonical Layer B paths
 
@@ -79,7 +122,7 @@ Flow: **Craft → Production → Wire**
 | **12** | `12-web-design.md` | `web-designer` (+ brand) | `design-system/<venture>/`; UI stills when leased | shadcn, figma-design-to-code, brand-stills | Consumed by Phase 9 — eng |
 | **14** | `14-pages/*.md` | Craft: copy/seo/content; **Imagery:** `brand-designer`; **HTML/app:** `tech-lead` (P9) | `14-pages/assets/`; app via `apps/<venture>/` | copy + visual-skills; eng packs | Deploy — operator/cto |
 | **15** | `15-media/` scripts | `video-producer` | `15-media/openmontage/` (or skip) | OpenMontage + `hero-video`; doctor green or skip | Upload — operator |
-| **17** | `17-channels/email/*.md`, `social/*.md` | Email HTML: `lifecycle-marketer`; Headers/social: `brand-designer` via ask | `17-channels/email/html/*.html`; `email/assets/`; `social/assets/` | emails + **email-design**; brand-stills | ESP — **operator** |
+| **17** | `17-channels/email/*.md`, `social/*.md` | Email HTML: `lifecycle-marketer`; Headers/social: `brand-designer` via ask | `17-channels/email/html/*.html`; `email/assets/`; `social/assets/` | Craft emails → **Design: email-design brief** → HTML + brand-stills | ESP — **operator** |
 | **18** | `18-conversion.md` | Spec; forms → `tech-lead` | `apps/<venture>/` when leased | cro + eng | Analytics — head-of-data / operator |
 | **19** | `19-paid.md` | Stills: `paid-media-manager` (+ brand); Video: `video-producer` | `19-paid/creatives/`; `19-paid/openmontage/` | ads + fal/OpenMontage; budget > $0 or skip | Ad accounts — operator |
 
@@ -120,12 +163,13 @@ Phases **0–8, 10, 13, 16, 20–22** are primarily Craft/SPEC. Production not r
 production_status: complete | skipped | blocked
 production_paths:
   - docs/projects/<active>/business-idea/17-channels/email/html/...
+design_brief_path: docs/projects/<active>/business-idea/17-channels/email/design/...-design-brief.md
 wire_owner: operator | tech-lead | none
 wire_notes: "Import HTML into ESP; set Q7 CONTACT_EMAIL"
 skip_reason: "" # required if production_status=skipped
 ```
 
-Also list production paths in the **Artifacts written** table. `production_paths` is the light asset registry for the phase.
+Also list production paths in the **Artifacts written** table. `production_paths` is the light asset registry for the phase. `design_brief_path` required when `production_status: complete` on design-led assets (email, stills, video, paid, design-system).
 
 ## Manager / C-suite / verifier gates
 
@@ -146,3 +190,5 @@ C-suite scorecards must include **Production** and **Verifier pass?** rows (see 
 | “design-system lives in the app” | SSOT is `design-system/<venture>/` |
 | “No ESP in TOOL-REGISTRY” | Wire = operator; Production HTML still required |
 | “Manager said it’s done” | Verifier must still pass |
+| “I’ll design in the HTML as I go” | Write Design brief from email-design/brand packs first |
+| “Prompt is in my head” | Prompts must be in the Design brief before stills/video |

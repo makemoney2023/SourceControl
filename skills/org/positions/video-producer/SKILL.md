@@ -110,9 +110,10 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting) — scripts/storyboards
+- [ ] **Design brief** (visual-style, shot list, keyframe prompts) **before** any render/OpenMontage run
 - [ ] Production: OpenMontage finals under leased path **or** `production_status: skipped` with reason
 - [ ] `scripts/doctor-production-runtime.sh` green before claiming render complete (or production skip)
-- [ ] Handoff includes `production_status`, `production_paths`, `wire_owner`
+- [ ] Handoff includes `production_status`, `production_paths`, `design_brief_path`, `wire_owner`
 - [ ] Packs followed (including production-artifacts)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)

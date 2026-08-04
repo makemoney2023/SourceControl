@@ -113,9 +113,10 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting)
+- [ ] **Design brief** with look/feel + exact still prompts (from brand / visual-skills / photoreal-stills) **before** any image generation
 - [ ] Production: rendered stills on leased paths **or** `production_status: skipped` with reason (`generation_profile: brand-stills` when rendering)
 - [ ] Photoreal reject checklist passed (`photoreal_qa: pass`) before claiming complete — see photoreal-stills pack
-- [ ] Handoff includes `production_status`, `production_paths`, `wire_owner`, `photoreal_qa`
+- [ ] Handoff includes `production_status`, `production_paths`, `design_brief_path`, `wire_owner`, `photoreal_qa`
 - [ ] Packs followed (including production-artifacts + photoreal-stills)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)

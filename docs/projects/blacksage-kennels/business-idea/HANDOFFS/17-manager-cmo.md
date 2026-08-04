@@ -13,24 +13,27 @@ fallback_applied: false
 production_status: complete
 production_paths:
   - docs/projects/blacksage-kennels/business-idea/17-channels/email/html/inquiry-welcome-1-interest-ack.html
+  - docs/projects/blacksage-kennels/business-idea/17-channels/email/assets/blacksage-email-header-1200x400.png
+design_brief_path: docs/projects/blacksage-kennels/business-idea/17-channels/email/design/inquiry-welcome-design-brief.md
 wire_owner: operator
-wire_notes: "HTML proof only; ESP Wire pending operator. Brand headers deferred. Stills/video skipped."
+wire_notes: "HTML + header from design brief; ESP Wire pending operator."
 skip_reason: ""
 ---
 
 # Manager brief — CMO — Phase 17 (Blacksage HTML proof)
 
 ## Summary
-Lifecycle produced one importable HTML email from `inquiry-welcome.md` Email 1. Dual-lease brand assets not in scope for this proof (text-only HTML with headers deferred). Verifier spawn requested via CTO.
+Lifecycle followed Craft → Design → Production: email-design brief → HTML + header still. Verifier spawn requested via CTO.
 
 ## IC handoffs merged
-- `17-lifecycle-marketer.md` — production_status complete
+- `17-lifecycle-marketer.md` — production_status complete; design_brief_path set
 
 ## Production
 | Field | Value |
 |-------|-------|
 | production_status | complete |
-| production_paths | inquiry-welcome-1-interest-ack.html |
+| design_brief_path | `email/design/inquiry-welcome-design-brief.md` |
+| production_paths | HTML + header PNG |
 | wire_owner | operator |
 
 ## Conflicts resolved

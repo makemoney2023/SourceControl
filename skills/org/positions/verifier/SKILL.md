@@ -48,8 +48,8 @@ _IC seat — request peers via `ask_manager` only._
 ## Delegation protocol (IC)
 1. Identify what was claimed complete (manager brief + IC handoffs + `production_paths`).
 2. Check implementation exists on disk and is functional (open HTML, run listed tests/doctor, smoke app routes when Phase 9).
-3. Run relevant checks (shell gates, `scripts/doctor-production-runtime.sh` when render claimed, email HTML QA for Phase 17, **photoreal reject checklist** when stills claimed complete).
-4. Hunt edge cases / false completes (empty dirs, MD-only “production”, Cursor-draft gens shipped as finals, missing skip reasons).
+3. Run relevant checks (shell gates, `scripts/doctor-production-runtime.sh` when render claimed, email HTML QA for Phase 17, **photoreal reject checklist** when stills claimed complete, **Design brief present** when Layer B visuals/HTML claimed complete).
+4. Hunt edge cases / false completes (empty dirs, MD-only “production”, craft→pixels with no design brief, Cursor-draft gens shipped as finals, missing skip reasons).
 5. Write **only** `HANDOFFS/<phase>-verifier.md` with `verdict: pass | fail`.
 6. Need a peer? Set `ask_manager` — **do not spawn**. Do **not** mark the phase complete.
 

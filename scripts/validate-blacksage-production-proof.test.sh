@@ -6,6 +6,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIZ="$ROOT/docs/projects/blacksage-kennels/business-idea"
 HTML="$BIZ/17-channels/email/html/inquiry-welcome-1-interest-ack.html"
+BRIEF="$BIZ/17-channels/email/design/inquiry-welcome-design-brief.md"
 LIFE="$BIZ/HANDOFFS/17-lifecycle-marketer.md"
 MGR="$BIZ/HANDOFFS/17-manager-cmo.md"
 VER="$BIZ/HANDOFFS/17-verifier.md"
@@ -32,9 +33,14 @@ assert_grep() {
 }
 
 assert_file "$HTML"
+assert_file "$BRIEF"
 assert_file "$LIFE"
 assert_file "$MGR"
 assert_file "$VER"
+
+assert_grep "$BRIEF" "email-design" "design brief cites email-design"
+assert_grep "$BRIEF" "generation prompt|Header still" "design brief locks header prompt"
+assert_grep "$LIFE" "design_brief_path" "lifecycle handoff design_brief_path"
 
 assert_grep "$HTML" "max-width:\\s*600px|width=\"600\"" "HTML 600px width"
 assert_grep "$HTML" "Unsubscribe|unsubscribe" "HTML unsubscribe"

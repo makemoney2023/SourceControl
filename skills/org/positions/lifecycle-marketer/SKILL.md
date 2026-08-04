@@ -95,9 +95,10 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting) — full MD journeys
+- [ ] **Design brief** written under `17-channels/email/design/` (or `## Design brief` in craft) after reading **`email-design`** + brand tokens — look/feel, CTA/layout, header prompts — **before** any HTML or header still
 - [ ] Production: `17-channels/email/html/*.html` for each send-ready email **or** `production_status: skipped` with reason
-- [ ] Handoff includes `production_status`, `production_paths`, `wire_owner` (usually `operator` for ESP)
-- [ ] Packs followed (including production-artifacts + email-design)
+- [ ] Handoff includes `production_status`, `production_paths`, `design_brief_path`, `wire_owner` (usually `operator` for ESP)
+- [ ] Packs followed (including production-artifacts + email-design); email-design cited with concrete layout decisions
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
 

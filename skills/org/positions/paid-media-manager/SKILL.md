@@ -106,8 +106,9 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting) — angles, funnel, channel plan
 - [ ] Production: files under `19-paid/creatives/` (and video finals when budgeted) **or** `production_status: skipped` with reason
+- [ ] **Design brief** (ad frame, copy lock, still prompts from ad-creative + photoreal-stills) **before** generating creatives
 - [ ] Ad stills: `photoreal_qa: pass` before complete (photoreal-stills pack)
-- [ ] Handoff includes `production_status`, `production_paths`, `wire_owner`, `photoreal_qa` when stills shipped
+- [ ] Handoff includes `production_status`, `production_paths`, `design_brief_path`, `wire_owner`, `photoreal_qa` when stills shipped
 - [ ] Packs followed (including production-artifacts + photoreal-stills)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)

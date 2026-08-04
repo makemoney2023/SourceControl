@@ -13,6 +13,7 @@ Copy to `docs/projects/<active>/business-idea/HANDOFFS/<phase>-<slug>.md` before
 5. Risks / blockers and Do-not sections present.
 6. Handoff is not a ≤20-line stub when the phase changed user-visible craft.
 7. On shippable phases (**9, 9B, 11, 12, 14, 15, 17, 19**): `production_status` set; if `complete`, `production_paths` lists real Layer B files (see `packs/production-artifacts`).
+8. When Layer B includes designed visuals/HTML: **Design brief** exists (`design_brief_path`) citing required design packs (e.g. `email-design` before email HTML/headers). Reject “craft → pixels” with no brief.
 
 Exception: pure skip handoffs (e.g. Phase 15 skip) may be short if they only record the skip reason.
 
@@ -55,6 +56,7 @@ fallback_applied: false
 # Required on shippable phases (9, 9B, 11, 12, 14, 15, 17, 19) — see packs/production-artifacts:
 production_status: complete | skipped | blocked
 production_paths: []
+design_brief_path: ""   # required when production_status=complete for email/stills/video/paid/design-system
 wire_owner: operator | none | "<seat-slug>"
 wire_notes: ""
 skip_reason: ""

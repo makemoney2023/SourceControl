@@ -108,8 +108,9 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 - [ ] Craft outputs written (lease-respecting) — IA / `12-web-design.md`
 - [ ] Production: `design-system/<venture>/` files present for eng consume **or** `production_status: skipped` with reason
 - [ ] Figma edits exported into leased paths before claiming production complete
+- [ ] **Design brief** from design-system / ui-styling / shadcn packs before writing `design-system/<venture>/` or UI stills
 - [ ] UI stills (if rendered): photoreal checklist / `photoreal_qa` per photoreal-stills pack
-- [ ] Handoff includes `production_status`, `production_paths`, `wire_owner`
+- [ ] Handoff includes `production_status`, `production_paths`, `design_brief_path`, `wire_owner`
 - [ ] Packs followed (including production-artifacts + photoreal-stills when stills rendered)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
