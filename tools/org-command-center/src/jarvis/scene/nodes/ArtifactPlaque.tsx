@@ -1,4 +1,5 @@
 import { Html } from "@react-three/drei";
+import { SCENE_HTML_Z_INDEX_RANGE } from "../sceneHtml";
 import { useState } from "react";
 import { stripBusinessIdeaPrefix } from "../../../lib/project-paths";
 
@@ -51,7 +52,12 @@ export function ArtifactPlaque({
           opacity={0.9}
         />
       </mesh>
-      <Html distanceFactor={14} position={[0, 0, 0.05]} center>
+      <Html
+        distanceFactor={14}
+        position={[0, 0, 0.05]}
+        center
+        zIndexRange={SCENE_HTML_Z_INDEX_RANGE}
+      >
         <div
           style={{
             width: 120,

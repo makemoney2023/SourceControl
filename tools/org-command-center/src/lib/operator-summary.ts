@@ -232,12 +232,13 @@ export function humanizeBlockers(blockers: string[], max = 4): string[] {
   return out;
 }
 
+/** Headings seats use for the operator-authored narrative (source of truth). */
+const OPERATOR_BRIEF_HEADING =
+  /^##\s+(Operator brief(?:\s*\(plain English\))?|In plain English|Plain English|Operator summary)\b/i;
+
 /** Extract operator-facing sections from a worker deliverable or brief. */
 export function extractOperatorSummary(markdown: string): OperatorSummary {
-  const plainBody = sectionBody(
-    markdown,
-    /^##\s+(In plain English|Plain English|Operator summary)\b/i,
-  );
+  const plainBody = sectionBody(markdown, OPERATOR_BRIEF_HEADING);
   const findingsBody = sectionBody(
     markdown,
     /^##\s+(What we (found|decided)|Findings|Key findings)\b/i,
@@ -249,6 +250,13 @@ export function extractOperatorSummary(markdown: string): OperatorSummary {
     findings: proseLines(findingsBody).slice(0, 6),
     nextSteps: proseLines(nextBody).slice(0, 5),
   };
+}
+
+/**
+ * When the seat already wrote an operator brief at the source, skip post-hoc Grok rewrite.
+ */
+export function shouldSkipGrokBriefRewrite(summary: OperatorSummary): boolean {
+  return summary.plainEnglish.length > 0;
 }
 
 /** Extract ## Decisions bullets from a handoff or deliverable. */
@@ -368,12 +376,14 @@ export function formatOperatorSummarySpoken(
 /** Block injected into Cursor spawn prompts for composer / Grok workers. */
 export const OPERATOR_DELIVERABLE_FORMAT = [
   "## Operator deliverable format (required)",
-  "Your REVIEW/inbox deliverable MUST be understandable to a non-technical operator.",
-  "Put these sections near the top of the deliverable (after the title), before tables or model audit:",
+  "Write the operator brief at the source — do not leave jargon for a later rewrite.",
+  "Your REVIEW/inbox deliverable AND your HANDOFFS/*.md MUST be understandable to a non-technical operator.",
+  "Put these sections near the top (after the title), before tables or model audit:",
   "",
-  "### In plain English",
+  "### Operator brief (plain English)",
   "- 3–5 short sentences. What happened, what it means, and whether work is ready to continue.",
   "- No YAML dumps, no runIds, no raw path laundry lists, no scorecard tables here.",
+  "- Alias headings still accepted: `In plain English`, `Operator summary`.",
   "",
   "### What we found",
   "- Up to 5 bullets of the load-bearing facts or assumptions (numbers ok if labeled).",
@@ -382,5 +392,6 @@ export const OPERATOR_DELIVERABLE_FORMAT = [
   "- 3–5 numbered steps. Each step names who acts (operator, CEO, CFO, research, …) and the concrete ask.",
   "- End with any blocking questions the operator must answer before the next phase.",
   "",
-  "Manager briefs and C-suite reviews must use the same three sections (or equivalent headings).",
+  "IC handoffs, manager briefs, and C-suite reviews must use the same three sections.",
+  "Situation Room reads these sections directly — missing Operator brief means a weak report.",
 ].join("\n");

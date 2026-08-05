@@ -17,8 +17,8 @@ fallback_applied: false
 
 # Manager brief — <Title> — Phase <id>
 
-## In plain English
-3–5 short sentences a non-technical operator can understand: what the team did, what it means, and whether we can continue. No runIds, no scorecard tables here.
+## Operator brief (plain English)
+3–5 short sentences a non-technical operator can understand: what the team did, what it means, and whether we can continue. No runIds, no scorecard tables here. Write this at the source — Jarvis reads it directly. (Alias: `## In plain English`.)
 
 ## What we found
 - Up to 5 load-bearing facts or labeled assumptions

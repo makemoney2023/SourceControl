@@ -153,6 +153,7 @@ async function buildDigestPayload(
   });
   const threats = await enrichBlockedSeatsWithGrok(digest.blockedSeats, {
     cwd: repoRoot,
+    mode: "cached-or-background",
   });
   return { ...digest, blockedSeats: threats.blockedSeats };
 }

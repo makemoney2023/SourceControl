@@ -7,13 +7,14 @@ Copy to `docs/projects/<active>/business-idea/HANDOFFS/<phase>-<slug>.md` before
 **Reject or send back for revision** if any of the following fail on creative, eng, CRO, brand, web, lifecycle, or paid handoffs:
 
 1. YAML frontmatter includes `status` and `verdict_for_manager`.
-2. **Packs used** is a table (or bullets) with **repo-relative pack paths**.
-3. Every listed pack has **one concrete decision** tied to it (not just a name-drop).
-4. `write_lease` artifact table is present (paths actually written).
-5. Risks / blockers and Do-not sections present.
-6. Handoff is not a ≤20-line stub when the phase changed user-visible craft.
-7. On shippable phases (**4B, 9, 9B, 11, 12, 14, 15, 17, 19, 21**): `production_status` set; if `complete`, `production_paths` lists real Layer B files (see `packs/production-artifacts`, including Office `.docx`/`.pptx`/`.xlsx`).
-8. When Layer B includes designed visuals/HTML: **Design brief** exists (`design_brief_path`) citing required design packs (e.g. `email-design` before email HTML/headers). Reject “craft → pixels” with no brief.
+2. **Operator brief** sections present near the top: `Operator brief (plain English)`, `What we found`, `Next steps` (non-technical; no runIds / path laundry lists in the brief).
+3. **Packs used** is a table (or bullets) with **repo-relative pack paths**.
+4. Every listed pack has **one concrete decision** tied to it (not just a name-drop).
+5. `write_lease` artifact table is present (paths actually written).
+6. Risks / blockers and Do-not sections present.
+7. Handoff is not a ≤20-line stub when the phase changed user-visible craft.
+8. On shippable phases (**4B, 9, 9B, 11, 12, 14, 15, 17, 19, 21**): `production_status` set; if `complete`, `production_paths` lists real Layer B files (see `packs/production-artifacts`, including Office `.docx`/`.pptx`/`.xlsx`).
+9. When Layer B includes designed visuals/HTML: **Design brief** exists (`design_brief_path`) citing required design packs (e.g. `email-design` before email HTML/headers). Reject “craft → pixels” with no brief.
 
 Exception: pure skip handoffs (e.g. Phase 15 skip) may be short if they only record the skip reason.
 
@@ -67,6 +68,17 @@ skip_reason: ""
 ---
 
 # Handoff — <Title> → <Manager>
+
+## Operator brief (plain English)
+3–5 short sentences a non-technical operator can understand: what you did, what it means, and whether work can continue. No runIds, no scorecard tables, no path laundry lists here. (Alias: `## In plain English`.)
+
+## What we found
+- Up to 5 load-bearing facts or labeled assumptions
+
+## Next steps
+1. Who acts next (operator / manager / peer) and the concrete ask
+2. …
+3. Blocking questions the operator must answer (if any)
 
 ## Goal (from context packet)
 …

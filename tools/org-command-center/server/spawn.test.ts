@@ -107,10 +107,11 @@ describe("buildSpawnPrompt", () => {
   it("requires plain-English operator sections and next steps", () => {
     const repo = resolveRepoRoot();
     const prompt = buildSpawnPrompt(packet, repo);
-    expect(prompt).toMatch(/In plain English/i);
+    expect(prompt).toMatch(/Operator brief \(plain English\)/i);
     expect(prompt).toMatch(/Next steps/i);
     expect(prompt).toMatch(/Operator deliverable format/i);
     expect(prompt).toMatch(/who acts/i);
+    expect(prompt).toMatch(/at the source/i);
   });
 
   it("states hard acceptance criteria from packet fields", () => {

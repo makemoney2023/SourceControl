@@ -10,6 +10,7 @@ export {
   humanizeBusinessLine,
   humanizeOperatorAsk,
   isActionableAsk,
+  shouldSkipGrokBriefRewrite,
   stripOperatorProse,
   type OperatorSummary,
   type SeatBusinessBrief,

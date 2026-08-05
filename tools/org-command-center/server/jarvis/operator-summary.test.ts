@@ -5,6 +5,7 @@ import {
   extractOperatorSummary,
   formatOperatorSummarySpoken,
   humanizeBlockers,
+  shouldSkipGrokBriefRewrite,
 } from "./operator-summary";
 
 const SAMPLE = `---
@@ -41,10 +42,40 @@ describe("extractOperatorSummary", () => {
     expect(s.nextSteps).toHaveLength(3);
   });
 
+  it("accepts Operator brief (plain English) as the source heading", () => {
+    const md = `# Handoff
+
+## Operator brief (plain English)
+We finished the site IA pass and locked a two-tier launch.
+Operator still needs to pick the first market.
+
+## What we found
+- Brand-first vs active-program launch tiers
+
+## Next steps
+1. Operator confirms first geography.
+`;
+    const s = extractOperatorSummary(md);
+    expect(s.plainEnglish.join(" ")).toMatch(/site IA pass/i);
+    expect(s.findings[0]).toMatch(/launch tiers/i);
+    expect(s.nextSteps[0]).toMatch(/geography/i);
+  });
+
   it("returns empty when sections missing", () => {
     const s = extractOperatorSummary("# No sections\n\nJust prose.");
     expect(s.plainEnglish).toEqual([]);
     expect(s.nextSteps).toEqual([]);
+  });
+});
+
+describe("shouldSkipGrokBriefRewrite", () => {
+  it("skips Grok when the seat already wrote an operator brief", () => {
+    expect(shouldSkipGrokBriefRewrite(extractOperatorSummary(SAMPLE))).toBe(
+      true,
+    );
+    expect(
+      shouldSkipGrokBriefRewrite(extractOperatorSummary("# No sections")),
+    ).toBe(false);
   });
 });
 

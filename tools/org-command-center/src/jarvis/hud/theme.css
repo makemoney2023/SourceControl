@@ -393,7 +393,8 @@
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  z-index: 90;
+  /* Above R3F/drei Html labels (drei default ~16M; we also hide labels while open). */
+  z-index: 20000000;
   display: grid;
   place-items: end stretch;
   animation: j-drawer-in 0.18s ease-out;
@@ -403,7 +404,7 @@
   position: fixed;
   right: 16px;
   bottom: 16px;
-  z-index: 91;
+  z-index: 20000001;
   width: min(720px, calc(100% - 32px));
   max-height: 90vh;
   overflow: auto;

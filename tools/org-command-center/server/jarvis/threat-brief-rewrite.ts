@@ -25,9 +25,13 @@ const MAX_LINE_CHARS = 220;
 /** Bump when rewrite prompt policy changes. */
 const THREAT_PROMPT_VERSION = "v1-threat-rail";
 const cache = new Map<string, GrokThreatLine[]>();
+const inflight = new Map<string, Promise<GrokThreatLine[] | null>>();
+
+export type ThreatBriefEnrichMode = "await" | "cached-or-background";
 
 export function clearThreatBriefRewriteCacheForTests(): void {
   cache.clear();
+  inflight.clear();
 }
 
 export function threatCacheKey(blocked: BlockedSeatDigest[]): string {
@@ -145,9 +149,30 @@ function applyThreatRewrites(
   });
 }
 
+async function runThreatRewrite(
+  blocked: BlockedSeatDigest[],
+  opts: {
+    cwd: string;
+    apiKey: string;
+    model?: string;
+    runtime?: ThreatBriefRewriteRuntime;
+  },
+): Promise<GrokThreatLine[] | null> {
+  const model = normalizeCursorModelId(opts.model || defaultThreatBriefModel());
+  const runtime = opts.runtime ?? (await defaultRuntime());
+  const result = await runtime.prompt(buildThreatRewritePrompt(blocked), {
+    apiKey: opts.apiKey,
+    model: { id: model },
+    local: { cwd: opts.cwd },
+  });
+  const parsed = parseGrokThreatBriefJson(String(result.result ?? ""));
+  return parsed;
+}
+
 /**
  * Batch-rewrite threat rail copy with Cursor Grok (same CURSOR_API_KEY as seat briefs).
  * Caches by digest content hash.
+ * `cached-or-background` returns immediately so the Situation Room never waits on Grok.
  */
 export async function enrichBlockedSeatsWithGrok(
   blocked: BlockedSeatDigest[],
@@ -156,12 +181,14 @@ export async function enrichBlockedSeatsWithGrok(
     apiKey?: string | null;
     model?: string;
     runtime?: ThreatBriefRewriteRuntime;
+    mode?: ThreatBriefEnrichMode;
   },
 ): Promise<{
   blockedSeats: BlockedSeatDigest[];
   source: "grok" | "deterministic";
   model?: string;
   cached?: boolean;
+  enriching?: boolean;
 }> {
   if (blocked.length === 0) {
     return { blockedSeats: blocked, source: "deterministic" };
@@ -175,6 +202,7 @@ export async function enrichBlockedSeatsWithGrok(
       source: "grok",
       cached: true,
       model: defaultThreatBriefModel(),
+      enriching: false,
     };
   }
 
@@ -186,24 +214,47 @@ export async function enrichBlockedSeatsWithGrok(
     return { blockedSeats: blocked, source: "deterministic" };
   }
 
-  try {
-    const model = normalizeCursorModelId(opts.model || defaultThreatBriefModel());
-    const runtime = opts.runtime ?? (await defaultRuntime());
-    const result = await runtime.prompt(buildThreatRewritePrompt(blocked), {
+  const mode = opts.mode ?? "await";
+  let pending = inflight.get(key);
+  if (!pending) {
+    pending = runThreatRewrite(blocked, {
+      cwd: opts.cwd,
       apiKey,
-      model: { id: model },
-      local: { cwd: opts.cwd },
-    });
-    const parsed = parseGrokThreatBriefJson(String(result.result ?? ""));
+      model: opts.model,
+      runtime: opts.runtime,
+    })
+      .then((parsed) => {
+        if (parsed) cache.set(key, parsed);
+        return parsed;
+      })
+      .catch(() => null)
+      .finally(() => {
+        inflight.delete(key);
+      });
+    inflight.set(key, pending);
+  }
+
+  if (mode === "cached-or-background") {
+    void pending;
+    return {
+      blockedSeats: blocked,
+      source: "deterministic",
+      enriching: true,
+      model: defaultThreatBriefModel(),
+    };
+  }
+
+  try {
+    const parsed = await pending;
     if (!parsed) {
-      return { blockedSeats: blocked, source: "deterministic", model };
+      return { blockedSeats: blocked, source: "deterministic" };
     }
-    cache.set(key, parsed);
     return {
       blockedSeats: applyThreatRewrites(blocked, parsed),
       source: "grok",
-      model,
+      model: defaultThreatBriefModel(),
       cached: false,
+      enriching: false,
     };
   } catch {
     return { blockedSeats: blocked, source: "deterministic" };

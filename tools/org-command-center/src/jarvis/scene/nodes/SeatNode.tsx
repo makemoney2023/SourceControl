@@ -9,6 +9,8 @@ import {
   STATUS_COLOR,
   type SeatVisualStatus,
 } from "../../status";
+import { useJarvisStore } from "../../state/useJarvisStore";
+import { SCENE_HTML_Z_INDEX_RANGE } from "../sceneHtml";
 
 export function SeatNode({
   seat,
@@ -38,6 +40,8 @@ export function SeatNode({
   const mesh = useRef<Mesh>(null);
   const ring = useRef<Mesh>(null);
   const [hovered, setHovered] = useState(false);
+  const drawerOpen = useJarvisStore().drawerOpen;
+  const showHtmlLabels = !drawerOpen;
   const color = STATUS_COLOR[status];
   const isMgr = seat.level === "manager";
   const radius = seat.slug === "ceo-strategist" ? 0.38 : isMgr ? 0.28 : 0.18;
@@ -113,8 +117,13 @@ export function SeatNode({
         </mesh>
       )}
 
-      {visual.cue && !dimmed && (
-        <Html distanceFactor={14} position={[0, radius + 0.17, 0]} center>
+      {showHtmlLabels && visual.cue && !dimmed && (
+        <Html
+          distanceFactor={14}
+          position={[0, radius + 0.17, 0]}
+          center
+          zIndexRange={SCENE_HTML_Z_INDEX_RANGE}
+        >
           <div
             className="j-mono"
             style={{
@@ -132,8 +141,13 @@ export function SeatNode({
         </Html>
       )}
 
-      {showPhase && !dimmed && (
-        <Html distanceFactor={14} position={[0, -radius - 0.18, 0]} center>
+      {showHtmlLabels && showPhase && !dimmed && (
+        <Html
+          distanceFactor={14}
+          position={[0, -radius - 0.18, 0]}
+          center
+          zIndexRange={SCENE_HTML_Z_INDEX_RANGE}
+        >
           <div
             className="j-mono"
             style={{
@@ -150,8 +164,13 @@ export function SeatNode({
         </Html>
       )}
 
-      {(hovered || highlighted) && (
-        <Html distanceFactor={12} position={[0, radius + 0.48, 0]} center>
+      {showHtmlLabels && (hovered || highlighted) && (
+        <Html
+          distanceFactor={12}
+          position={[0, radius + 0.48, 0]}
+          center
+          zIndexRange={SCENE_HTML_Z_INDEX_RANGE}
+        >
           <div
             className="j-hud-panel"
             style={{ padding: "6px 10px", minWidth: 150, pointerEvents: "none" }}

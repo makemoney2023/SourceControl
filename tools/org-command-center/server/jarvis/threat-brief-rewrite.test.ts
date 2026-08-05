@@ -87,4 +87,47 @@ describe("threat-brief-rewrite", () => {
     expect(out.source).toBe("deterministic");
     expect(out.blockedSeats[0]?.headline).toBe(sample[0]?.headline);
   });
+
+  it("returns immediately in background mode while Grok continues", async () => {
+    clearThreatBriefRewriteCacheForTests();
+    let resolvePrompt: ((v: { status: string; result: string }) => void) | undefined;
+    const prompt = vi.fn(
+      () =>
+        new Promise<{ status: string; result: string }>((resolve) => {
+          resolvePrompt = resolve;
+        }),
+    );
+    const first = await enrichBlockedSeatsWithGrok(sample, {
+      cwd: process.cwd(),
+      apiKey: "k",
+      mode: "cached-or-background",
+      runtime: { prompt },
+    });
+    expect(first.source).toBe("deterministic");
+    expect(first.enriching).toBe(true);
+    expect(prompt).toHaveBeenCalledTimes(1);
+
+    resolvePrompt?.({
+      status: "ok",
+      result: JSON.stringify({
+        threats: [
+          {
+            slug: "business-analyst",
+            headline: "Decide weekend markets",
+            detail: "Venue shortlist waits on that call.",
+          },
+        ],
+      }),
+    });
+    await vi.waitFor(async () => {
+      const second = await enrichBlockedSeatsWithGrok(sample, {
+        cwd: process.cwd(),
+        apiKey: "k",
+        mode: "cached-or-background",
+        runtime: { prompt },
+      });
+      expect(second.source).toBe("grok");
+      expect(second.blockedSeats[0]?.headline).toMatch(/weekend markets/i);
+    });
+  });
 });

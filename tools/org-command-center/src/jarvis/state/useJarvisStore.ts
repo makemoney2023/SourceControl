@@ -10,6 +10,8 @@ export interface JarvisState {
   beamActive: boolean;
   reducedMotion: boolean;
   bloomEnabled: boolean;
+  /** True while a Situation Room drawer/modal is open — hide scene Html labels. */
+  drawerOpen: boolean;
 }
 
 type Listener = () => void;
@@ -24,6 +26,7 @@ let state: JarvisState = {
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   bloomEnabled: false,
+  drawerOpen: false,
 };
 
 const listeners = new Set<Listener>();
@@ -38,10 +41,16 @@ export function getJarvisState() {
 }
 
 export function setJarvisState(patch: Partial<JarvisState>) {
-  state = { ...state, ...patch };
-  if (state.reducedMotion) {
-    state = { ...state, bloomEnabled: false, beamActive: false };
+  const next = { ...state, ...patch };
+  if (next.reducedMotion) {
+    next.bloomEnabled = false;
+    next.beamActive = false;
   }
+  const changed = (Object.keys(patch) as (keyof JarvisState)[]).some(
+    (key) => state[key] !== next[key],
+  );
+  if (!changed) return;
+  state = next;
   emit();
 }
 
@@ -81,6 +90,7 @@ export function useJarvisStore() {
         setJarvisState({
           bloomEnabled: getJarvisState().reducedMotion ? false : bloomEnabled,
         }),
+      setDrawerOpen: (drawerOpen: boolean) => setJarvisState({ drawerOpen }),
     }),
     [snap],
   );

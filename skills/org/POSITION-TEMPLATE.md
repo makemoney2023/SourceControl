@@ -5,7 +5,8 @@ Copy to `positions/<slug>/SKILL.md`. See also HANDOFF-TEMPLATE, MANAGER-BRIEF-TE
 Required sections: Purpose, Reports to, Delegates to, Collaborates with, Owns phases, Skill packs, Integrations (from TOOL-REGISTRY), Inputs, Outputs, Delegation protocol (manager or IC), Reporting chain, Context packet, Model profile, Done criteria.
 
 Managers must: spawn → await handoffs → merge → manager brief → return for C-suite.  
-ICs must: write lease only → IC handoff → ask_manager for peers → never spawn.
+ICs must: write lease only → IC handoff → ask_manager for peers → never spawn.  
+Every handoff must include **Operator brief (plain English)** + What we found + Next steps (reject if missing).
 
 **Parallel ICs:** Partition `write_lease` before spawn — see [`COLLABORATION.md`](./COLLABORATION.md) § Parallel IC leases.  
 **Phase 22 peers:** Use `HANDOFFS/22-peer-<slug>.md` — see [`HANDOFF-TEMPLATE.md`](./HANDOFF-TEMPLATE.md).  

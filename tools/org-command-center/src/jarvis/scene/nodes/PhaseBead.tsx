@@ -1,4 +1,6 @@
 import { Html } from "@react-three/drei";
+import { useJarvisStore } from "../../state/useJarvisStore";
+import { SCENE_HTML_Z_INDEX_RANGE } from "../sceneHtml";
 import { useState } from "react";
 function statusColor(status: string) {
   if (status === "✅") return "#4ecf8a";
@@ -23,6 +25,7 @@ export function PhaseBead({
   onSelect?: (phase: string) => void;
 }) {
   const [hovered, setHovered] = useState(false);
+  const drawerOpen = useJarvisStore().drawerOpen;
   const t = total <= 1 ? 0 : index / (total - 1);
   const angle = -Math.PI * 0.75 + t * Math.PI * 1.5;
   const r = 2.2;
@@ -55,8 +58,13 @@ export function PhaseBead({
           emissiveIntensity={selected ? 1.4 : 0.5}
         />
       </mesh>
-      {(hovered || selected) && (
-        <Html distanceFactor={10} position={[0, 0.28, 0]} center>
+      {!drawerOpen && (hovered || selected) && (
+        <Html
+          distanceFactor={10}
+          position={[0, 0.28, 0]}
+          center
+          zIndexRange={SCENE_HTML_Z_INDEX_RANGE}
+        >
           <div className="j-glass" style={{ padding: "4px 8px", whiteSpace: "nowrap" }}>
             <span style={{ fontSize: 11 }}>
               {phase.phase} {phase.name} {phase.status}

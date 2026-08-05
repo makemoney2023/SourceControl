@@ -10,6 +10,17 @@ export function classifyHandoffFilename(filename: string): HandoffKind {
   return "ic";
 }
 
+/** Derive seat slug when handoff frontmatter omits `position`. */
+export function seatSlugFromHandoffFilename(filename: string): string {
+  const base = (filename.split("/").pop() || "").replace(/\.md$/i, "");
+  if (!base || base === "_log") return "";
+  const manager = base.match(/^\d+[a-z]*-manager-(.+)$/i);
+  if (manager?.[1]) return manager[1];
+  if (/^\d+[a-z]*-csuite-review$/i.test(base)) return "";
+  const ic = base.match(/^\d+[a-z]*-(.+)$/i);
+  return ic?.[1] || "";
+}
+
 function sectionBullets(body: string, headingRe: RegExp): string[] {
   const m = body.match(headingRe);
   if (!m || m.index === undefined) return [];
@@ -64,7 +75,7 @@ export function parseHandoff(filename: string, content: string): HandoffRecord {
     filename,
     kind: classifyHandoffFilename(filename),
     phase: String(data.phase ?? ""),
-    position: String(data.position ?? ""),
+    position: String(data.position ?? "").trim() || seatSlugFromHandoffFilename(filename),
     reportsTo: String(data.reports_to ?? ""),
     status: String(data.status ?? ""),
     verdictForManager: String(data.verdict_for_manager ?? ""),

@@ -152,6 +152,62 @@ describe("rewriteSeatBusinessBrief", () => {
     expect(out.brief).toEqual(fallback);
   });
 
+  it("skips Grok when the handoff already has an Operator brief", async () => {
+    const prompt = vi.fn(async () => ({
+      status: "finished",
+      result: JSON.stringify({
+        whatHappened: ["Should not be used"],
+        whyItMatters: [],
+        nextSteps: [],
+        needsFromYou: [],
+        whatsStuck: [],
+      }),
+    }));
+    const authored = {
+      ...fallback,
+      whatHappened: [
+        "We finished the site IA pass and locked a two-tier launch.",
+      ],
+    };
+    const { enrichSeatReportWithGrokBrief } = await import("./seat-brief-rewrite");
+    const out = await enrichSeatReportWithGrokBrief(
+      {
+        slug: "web-designer",
+        title: "Web Designer",
+        businessBrief: authored,
+        summary: "done",
+        openQuestions: ["Confirm first market?"],
+        upwardAsks: ["Confirm first market?"],
+        upwardBlockers: [],
+        ownHandoffs: [{ filename: "12-web-designer.md" }],
+      },
+      {
+        cwd: "/repo",
+        apiKey: "k",
+        runtime: { prompt },
+        mode: "cached-or-background",
+        handoffBody: `# Handoff
+
+## Operator brief (plain English)
+We finished the site IA pass and locked a two-tier launch.
+
+## What we found
+- Brand-first vs active-program
+
+## Next steps
+1. Operator confirms first market.
+
+## Asks for manager
+- Confirm first market?
+`,
+      },
+    );
+    expect(prompt).not.toHaveBeenCalled();
+    expect(out.briefEnriching).toBe(false);
+    expect(out.briefSource).toBe("deterministic");
+    expect(out.businessBrief.whatHappened[0]).toMatch(/site IA pass/i);
+  });
+
   it("returns deterministic immediately in background mode while Grok continues", async () => {
     let resolvePrompt: ((v: { status: string; result: string }) => void) | undefined;
     const prompt = vi.fn(

@@ -2,6 +2,16 @@
 
 Peers do **not** spawn each other. Cross-seat work goes through the **immediate manager**, who leases write paths and sequences or parallelizes ICs.
 
+## Operator brief (required on every handoff)
+
+Write plain English **when you author the handoff**, not later. Required sections (see `HANDOFF-TEMPLATE.md` / manager / C-suite templates):
+
+1. `## Operator brief (plain English)`
+2. `## What we found`
+3. `## Next steps` (blocking questions for the operator go here and in Asks)
+
+Situation Room / Jarvis reads these at the source. Managers reject IC handoffs that omit them.
+
 ## Rules
 
 1. IC needs a peer → `ask_manager` in handoff (never spawn peer).

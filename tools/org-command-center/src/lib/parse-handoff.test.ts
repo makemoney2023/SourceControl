@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { indexHandoffs, parseHandoff } from "./parse-handoff";
+import { indexHandoffs, parseHandoff, seatSlugFromHandoffFilename } from "./parse-handoff";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 const sample = readFileSync(join(dir, "fixtures/sample-handoff.md"), "utf8");
@@ -28,6 +28,17 @@ describe("parseHandoff", () => {
       "manager",
     );
     expect(parseHandoff("2-market-research-analyst.md", sample).kind).toBe("ic");
+  });
+
+  it("derives position from filename when frontmatter omits it", () => {
+    expect(seatSlugFromHandoffFilename("0-manager-ceo-strategist.md")).toBe("ceo-strategist");
+    expect(seatSlugFromHandoffFilename("09-manager-cto.md")).toBe("cto");
+    expect(seatSlugFromHandoffFilename("10-business-analyst.md")).toBe("business-analyst");
+    const h = parseHandoff(
+      "0-manager-ceo-strategist.md",
+      "---\nphase: \"0\"\nstatus: needs_input\n---\n## Asks\n- Confirm skip-review?\n",
+    );
+    expect(h.position).toBe("ceo-strategist");
   });
 
   it("parses production_status, production_paths, wire_owner, skip_reason", () => {

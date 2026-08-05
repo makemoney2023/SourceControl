@@ -1,7 +1,11 @@
 import { createHash } from "node:crypto";
 import { normalizeCursorModelId } from "../../src/lib/cursor-models";
 import type { SeatBusinessBrief } from "../../src/lib/operator-summary";
-import { stripOperatorProse } from "../../src/lib/operator-summary";
+import {
+  extractOperatorSummary,
+  shouldSkipGrokBriefRewrite,
+  stripOperatorProse,
+} from "../../src/lib/operator-summary";
 import { defaultBrainModel } from "./brain-ask";
 
 export type SeatBriefRewriteRuntime = {
@@ -308,6 +312,16 @@ export async function enrichSeatReportWithGrokBrief<
     }) ||
     report.summary ||
     report.slug;
+
+  // Prefer seat-authored operator brief at the source over post-hoc Grok rewrite.
+  if (shouldSkipGrokBriefRewrite(extractOperatorSummary(sourceMarkdown))) {
+    return mergeBriefIntoReport(
+      report,
+      { brief: report.businessBrief, source: "deterministic" },
+      { briefEnriching: false },
+    );
+  }
+
   const input: RewriteSeatBriefInput = {
     seatTitle: report.title,
     seatSlug: report.slug,

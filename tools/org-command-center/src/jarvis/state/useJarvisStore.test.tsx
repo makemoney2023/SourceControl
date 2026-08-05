@@ -20,7 +20,7 @@ const { setJarvisState, useJarvisSelection, useJarvisStore } = await import("./u
 
 beforeEach(() => {
   reduced = false;
-  setJarvisState({ selectedSlug: null, reducedMotion: false });
+  setJarvisState({ selectedSlug: null, reducedMotion: false, drawerOpen: false });
 });
 
 afterEach(cleanup);

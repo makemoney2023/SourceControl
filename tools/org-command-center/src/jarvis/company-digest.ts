@@ -1,4 +1,5 @@
 import type { RunRecord } from "../lib/runs";
+import { seatSlugFromHandoffFilename } from "../lib/parse-handoff";
 import {
   collectOpenQuestions,
   humanizeBlockers,
@@ -122,10 +123,13 @@ export function buildCompanyDigest(args: {
         fallback: statusLabel,
       });
       const reason = reasons[0] || statusLabel;
-      const seat = rosterBySlug.get(h.position);
+      const slug =
+        h.position.trim() || seatSlugFromHandoffFilename(h.filename);
+      if (!slug) continue;
+      const seat = rosterBySlug.get(slug);
       blockedSeats.push({
-        slug: h.position,
-        title: seat?.title || h.position,
+        slug,
+        title: seat?.title || slug,
         reason,
         headline: reason,
         phase: h.phase,
@@ -137,8 +141,11 @@ export function buildCompanyDigest(args: {
       });
     }
     if (h.recommendation === "escalate" || h.verdictForManager === "escalate") {
+      const slug =
+        h.position.trim() || seatSlugFromHandoffFilename(h.filename);
+      if (!slug) continue;
       escalateSeats.push({
-        slug: h.position,
+        slug,
         tags: h.escalationTags,
         secondaries: resolveEscalationSecondaries(h.escalationTags),
       });

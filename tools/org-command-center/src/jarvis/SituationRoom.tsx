@@ -48,7 +48,7 @@ import "./hud/theme.css";
 import { OrgTheater } from "./scene/OrgTheater";
 import type { SeatNextAction, SeatReport } from "./seat-report";
 import { seatWorkContext } from "./seat-work-context";
-import { useJarvisStore } from "./state/useJarvisStore";
+import { setJarvisState, useJarvisStore } from "./state/useJarvisStore";
 import { requestTalkConnect, VoiceFab } from "./VoiceFab";
 import { JarvisFocusListener } from "./JarvisFocusListener";
 import type { JarvisFocus } from "./jarvis-focus";
@@ -56,6 +56,10 @@ import { JarvisDrawer } from "./JarvisDrawer";
 import { setOpsVisible, setTheaterVisible } from "./workspace-view-state";
 import { ManualActivityCounter, RequestSequence } from "./request-coordinator";
 import { failedChatDraft, nextChatDraft, retryChatMessage } from "./chat-submission";
+import {
+  mergeReportAnswerDrafts,
+  shouldHardReloadSeatReport,
+} from "./report-answer-drafts";
 
 function resolveRewakeDispatchFilename(
   snap: SituationSnapshot | null,
@@ -194,6 +198,10 @@ export function SituationRoom() {
   const jarvisStore = useJarvisStore();
   const selectedSlug = jarvisStore.selectedSlug;
   const selectStoreSlug = jarvisStore.selectSlug;
+  useEffect(() => {
+    setJarvisState({ drawerOpen: drawer != null });
+    return () => setJarvisState({ drawerOpen: false });
+  }, [drawer]);
   const [voiceOk, setVoiceOk] = useState<boolean | null>(null);
   const [autoSpawn, setAutoSpawn] = useState(
     () => localStorage.getItem("sr-auto-spawn") === "1",
@@ -210,6 +218,8 @@ export function SituationRoom() {
   const [answeringSeat, setAnsweringSeat] = useState(false);
   const [answerStatus, setAnswerStatus] = useState<string | null>(null);
   const questionsSectionRef = useRef<HTMLDivElement | null>(null);
+  const loadedReportSlugRef = useRef<string | null>(null);
+  const previousReportQuestionsRef = useRef<string[]>([]);
   const [digest, setDigest] = useState<CompanyDigest | null>(null);
   const [artifact, setArtifact] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -434,6 +444,9 @@ export function SituationRoom() {
       seatReportSequence.current.begin();
       setSeatReport(null);
       setConsoleLoading(false);
+      loadedReportSlugRef.current = null;
+      previousReportQuestionsRef.current = [];
+      setReportAnswers({});
       return;
     }
     const request = seatReportSequence.current.beginIfMounted();
@@ -442,11 +455,21 @@ export function SituationRoom() {
     let cancelled = false;
     let enrichTimer: ReturnType<typeof setTimeout> | undefined;
     let enrichAttempts = 0;
-    setConsoleLoading(true);
-    setSeatReport(null);
+    // Snapshot polls bump every ~2s. Only hard-reset when switching seats —
+    // otherwise the report flashes Loading and wipes in-progress answers.
+    const hard = shouldHardReloadSeatReport(slug, loadedReportSlugRef.current);
+    if (hard) {
+      setConsoleLoading(true);
+      setSeatReport(null);
+      previousReportQuestionsRef.current = [];
+      setReportAnswers({});
+    }
 
     const load = (opts?: { soft?: boolean }) => {
-      if (!opts?.soft) {
+      const soft =
+        Boolean(opts?.soft) ||
+        !shouldHardReloadSeatReport(slug, loadedReportSlugRef.current);
+      if (!soft) {
         setConsoleLoading(true);
         setSeatReport(null);
       }
@@ -454,6 +477,7 @@ export function SituationRoom() {
         .then((r) => {
           if (cancelled || !seatReportSequence.current.isCurrent(request)) return;
           setSeatReport(r);
+          loadedReportSlugRef.current = r.slug;
           // Grok rewrite runs in the background; soft-poll until it lands or we give up.
           // Grok often needs 30–60s; keep soft-polling until cache fills.
           if (r.briefEnriching && enrichAttempts < 30) {
@@ -463,17 +487,17 @@ export function SituationRoom() {
         })
         .catch((e) => {
           if (cancelled || !seatReportSequence.current.isCurrent(request)) return;
-          if (!opts?.soft) {
+          if (!soft) {
             setActionError(e instanceof Error ? e.message : String(e));
           }
         })
         .finally(() => {
           if (cancelled || !seatReportSequence.current.isCurrent(request)) return;
-          if (!opts?.soft) setConsoleLoading(false);
+          if (!soft) setConsoleLoading(false);
         });
     };
 
-    load();
+    load({ soft: !hard });
     return () => {
       cancelled = true;
       if (enrichTimer) clearTimeout(enrichTimer);
@@ -594,12 +618,12 @@ export function SituationRoom() {
       setBlockerConfirmation(null);
       if (request.intent === "seat.answer") {
         setAnswerStatus(`Continuing ${request.seat}…`);
+        previousReportQuestionsRef.current = [];
         setReportAnswers({});
       }
       setBeam(true);
       await reload();
       await reloadDigest();
-      if (request.intent === "seat.answer") void openReport(request.seat);
     } catch (e) {
       setActionError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -616,13 +640,12 @@ export function SituationRoom() {
   }
 
   useEffect(() => {
-    if (!seatReport) {
-      setReportAnswers({});
-      return;
-    }
-    const next: Record<string, string> = {};
-    for (const q of seatReport.businessBrief.needsFromYou) next[q] = "";
-    setReportAnswers(next);
+    if (!seatReport) return;
+    const questions = seatReport.businessBrief.needsFromYou;
+    setReportAnswers((prev) =>
+      mergeReportAnswerDrafts(prev, previousReportQuestionsRef.current, questions),
+    );
+    previousReportQuestionsRef.current = questions;
   }, [seatReport?.slug, seatReport?.businessBrief.needsFromYou.join("\u0001")]);
 
   useEffect(() => {
@@ -661,9 +684,10 @@ export function SituationRoom() {
         throw new Error(result.reason || result.summary || "Could not continue seat");
       }
       setAnswerStatus(`Continuing ${seatReport.title}…`);
+      previousReportQuestionsRef.current = [];
       setReportAnswers({});
+      // Soft refresh via snap bump — keep the drawer open without a hard Loading flash.
       void reload();
-      void openReport(seatReport.slug);
     } catch (e) {
       setActionError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -1222,7 +1246,10 @@ export function SituationRoom() {
                 resolving={resolvingSlug === selectedSlug}
                 onClose={() => {
                   selectStoreSlug(null);
+                  loadedReportSlugRef.current = null;
+                  previousReportQuestionsRef.current = [];
                   setSeatReport(null);
+                  setReportAnswers({});
                 }}
                 onResolveBlocker={(slug) => void onResolveBlocker(slug)}
                 onAnswerQuestions={(slug) =>

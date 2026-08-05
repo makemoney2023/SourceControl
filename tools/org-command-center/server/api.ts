@@ -175,11 +175,13 @@ export function createApi(repoRoot = resolveRepoRoot()) {
     });
     const threats = await enrichBlockedSeatsWithGrok(digest.blockedSeats, {
       cwd: repoRoot,
+      mode: "cached-or-background",
     });
     return c.json({
       ok: true,
       digest: { ...digest, blockedSeats: threats.blockedSeats },
       threatSource: threats.source,
+      threatEnriching: threats.enriching ?? false,
     });
   });
 
@@ -310,6 +312,7 @@ export function createApi(repoRoot = resolveRepoRoot()) {
       });
       const threats = await enrichBlockedSeatsWithGrok(digest.blockedSeats, {
         cwd: repoRoot,
+        mode: "cached-or-background",
       });
       return c.json({
         text: companyDigestBriefScript({

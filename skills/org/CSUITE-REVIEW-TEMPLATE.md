@@ -18,8 +18,8 @@ fallback_applied: false
 
 # C-suite review — Phase <id>
 
-## In plain English
-3–5 short sentences: the verdict in human terms, what is safe to do next, and what is still blocked. No runIds or dense tables here.
+## Operator brief (plain English)
+3–5 short sentences: the verdict in human terms, what is safe to do next, and what is still blocked. No runIds or dense tables here. Write this at the source — Jarvis reads it directly. (Alias: `## In plain English`.)
 
 ## What we found
 - Up to 5 load-bearing agreements or tensions (plain language)
