@@ -15,11 +15,11 @@ import {
 describe("FS allowlist + multi-venture paths", () => {
   const root = resolveRepoRoot();
 
-  it("loads registry with passive-grid active", () => {
+  it("loads registry with a registered active venture", () => {
     const reg = loadRegistry(root);
-    expect(reg.active).toBe("passive-grid");
-    expect(activeProjectSlug(root)).toBe("passive-grid");
-    expect(businessIdeaRel(root)).toBe("docs/projects/passive-grid/business-idea");
+    expect(reg.projects[reg.active]).toBeTruthy();
+    expect(activeProjectSlug(root)).toBe(reg.active);
+    expect(businessIdeaRel(root)).toBe(reg.projects[reg.active].businessIdea);
   });
 
   it("allows reading org skills and namespaced business-idea docs", () => {
@@ -86,13 +86,10 @@ describe("FS allowlist + multi-venture paths", () => {
   });
 
   it("resolves dispatch and tracker under active venture", () => {
-    expect(dispatchRoot(root)).toContain("docs/projects/passive-grid/business-idea/DISPATCH");
-    expect(trackerPath(root)).toContain(
-      "docs/projects/passive-grid/business-idea/RUNBOOK-TRACKER.md",
-    );
-    expect(businessIdeaFile(root, "HANDOFFS/x.md")).toBe(
-      "docs/projects/passive-grid/business-idea/HANDOFFS/x.md",
-    );
+    const activeBiz = businessIdeaRel(root);
+    expect(dispatchRoot(root)).toContain(`${activeBiz}/DISPATCH`);
+    expect(trackerPath(root)).toContain(`${activeBiz}/RUNBOOK-TRACKER.md`);
+    expect(businessIdeaFile(root, "HANDOFFS/x.md")).toBe(`${activeBiz}/HANDOFFS/x.md`);
   });
 });
 

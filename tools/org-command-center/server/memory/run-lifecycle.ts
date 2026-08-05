@@ -22,7 +22,8 @@ export function formatRunLifecycleLine(run: RunRecord): string {
 export function recordRunLifecycle(repoRoot: string, run: RunRecord): void {
   try {
     const line = formatRunLifecycleLine(run);
-    appendLifecycleLine(repoRoot, line);
+    const dayIso = (run.finished_at ?? run.started_at).slice(0, 10);
+    appendLifecycleLine(repoRoot, line, dayIso);
   } catch (err) {
     console.warn(
       "[memory] lifecycle write failed:",
