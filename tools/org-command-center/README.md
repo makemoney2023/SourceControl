@@ -129,6 +129,7 @@ Example: “Queue phase 2 research” → summary → “Confirm?” → “yes�
 | Theater | Canonical org graph, seat status, command deck, camera focus, threat and seat overlays |
 | Floating Talk | LiveKit mic session (Ollama + Whisper + Kokoro TTS) |
 | Seat Report / Seat console | Same business-conversation layout for every role: What happened → Why it matters → Next steps → What we need from you → What’s stuck. On every seat open / `seat.report`, OCC rewrites the brief with **Cursor SDK Grok** (included with Cursor — same `CURSOR_API_KEY`; model `JARVIS_SEAT_BRIEF_MODEL` / `JARVIS_BRAIN_MODEL`, default `grok-4.5`). Cached by seat + content hash for speed; falls back to deterministic extract if the key is missing. |
+| Threat rail / company digest | Blocked + needs-input seats show roster **title**, plain status (**Needs your input** / **Stuck**), and humanized reasons (process noise like “peer help: none” dropped). On every `/api/company-digest`, `digest.get`, and `blocker.list`, OCC batch-rewrites threat headlines with the same Cursor Grok path (`JARVIS_THREAT_BRIEF_MODEL` → seat/brain model, default `grok-4.5`), cached by threat content hash. |
 | Company digest | Blocked/escalate/awaiting-csuite rollup |
 | Live tasks | Play / Cancel / Rewake |
 | Runs / Routines | Execution + cron |

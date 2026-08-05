@@ -1796,7 +1796,8 @@ export function SituationRoom() {
                         setDrawer(null);
                       }}
                     >
-                      {b.slug} · P{b.phase}: {b.reason}
+                      {b.title || b.slug} · P{b.phase}: {b.headline || b.reason}
+                      {b.statusLabel ? ` · ${b.statusLabel}` : ""}
                     </button>
                     <button
                       type="button"

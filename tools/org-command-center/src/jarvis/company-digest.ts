@@ -1,4 +1,9 @@
 import type { RunRecord } from "../lib/runs";
+import {
+  collectOpenQuestions,
+  humanizeBlockers,
+  stripOperatorProse,
+} from "../lib/operator-summary";
 import type {
   HandoffRecord,
   ModelRegistry,
@@ -14,13 +19,58 @@ import type { TaskSessionRecord } from "./tasks";
 
 export interface BlockedSeatDigest {
   slug: string;
+  /** Human title from org roster */
+  title: string;
   /** Primary reason for compact displays */
   reason: string;
+  /** Plain-English one-liner (humanized or Grok-rewritten) */
+  headline: string;
   phase: string;
   status: string;
+  /** Operator-facing status: Needs your input | Stuck */
+  statusLabel: string;
   reasons: string[];
   handoffFilename: string;
   managerSlug: string;
+}
+
+function threatStatusLabel(status: string): string {
+  return status === "needs_input" ? "Needs your input" : "Stuck";
+}
+
+/** Keep short operational blockers when the seat-console humanizer drops them. */
+function compactThreatBlockers(blockers: string[], max = 4): string[] {
+  const humanized = humanizeBlockers(blockers, max);
+  if (humanized.length > 0) return humanized;
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const raw of blockers) {
+    const line = stripOperatorProse(raw)
+      .replace(/\b([A-Z]\d+)\b/g, "")
+      .replace(/\s{2,}/g, " ")
+      .trim();
+    if (line.length < 4 || /^(none|n\/a|—|-)$/i.test(line)) continue;
+    if (/^\|/.test(line)) continue;
+    const clipped = line.length > 160 ? `${line.slice(0, 157).trimEnd()}…` : line;
+    const key = clipped.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(clipped);
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
+/** Build compact, operator-facing threat lines from handoff asks/blockers. */
+export function buildThreatReasons(args: {
+  asks: string[];
+  blockers: string[];
+  fallback: string;
+}): string[] {
+  const stuck = compactThreatBlockers(args.blockers, 4);
+  const asks = collectOpenQuestions(args.asks, []);
+  const reasons = [...stuck, ...asks];
+  return reasons.length > 0 ? reasons : [args.fallback];
 }
 
 export interface CompanyDigest {
@@ -60,19 +110,28 @@ export function buildCompanyDigest(args: {
   const rosterBySlug = new Map(args.org.roster.map((r) => [r.slug, r]));
   for (const h of args.handoffs) {
     const isBlocked = h.status === "blocked";
+    const actionableAsks = collectOpenQuestions(h.asks, []);
     const needsInput =
-      h.status === "needs_input" || (!isBlocked && h.asks.length > 0);
+      h.status === "needs_input" || (!isBlocked && actionableAsks.length > 0);
     if (isBlocked || needsInput) {
-      const reasons = [...h.blockers, ...h.asks].filter(Boolean);
       const displayStatus = isBlocked ? "blocked" : "needs_input";
-      const reason = reasons[0] || displayStatus;
+      const statusLabel = threatStatusLabel(displayStatus);
+      const reasons = buildThreatReasons({
+        asks: h.asks,
+        blockers: h.blockers,
+        fallback: statusLabel,
+      });
+      const reason = reasons[0] || statusLabel;
       const seat = rosterBySlug.get(h.position);
       blockedSeats.push({
         slug: h.position,
+        title: seat?.title || h.position,
         reason,
+        headline: reason,
         phase: h.phase,
         status: displayStatus,
-        reasons: reasons.length > 0 ? reasons : [displayStatus],
+        statusLabel,
+        reasons,
         handoffFilename: h.filename,
         managerSlug: h.reportsTo || seat?.reportsTo || "",
       });

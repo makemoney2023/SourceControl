@@ -10,8 +10,11 @@ describe("ThreatRail", () => {
   it("sorts deterministic priority and pulses the highest-priority threat", () => {
     const blocked = ["cmo", "cfo", "cto"].map((slug, index) => ({
       slug,
+      title: slug.toUpperCase(),
       phase: index === 2 ? 1 : 2,
       reason: "Blocked",
+      headline: "Blocked",
+      statusLabel: index === 0 ? "Needs your input" : "Stuck",
       reasons: ["Blocked"],
       managerSlug: "ceo-strategist",
       status: index === 0 ? "needs_input" : "blocked",
@@ -28,11 +31,11 @@ describe("ThreatRail", () => {
     );
 
     const pulse = container.querySelector(".j-threat-pulse");
-    expect(pulse?.textContent).toContain("cto");
+    expect(pulse?.textContent).toContain("CTO");
     expect([...container.querySelectorAll(".j-threat-item")].map((node) => node.textContent)).toEqual([
-      expect.stringContaining("cto"),
-      expect.stringContaining("cfo"),
-      expect.stringContaining("cmo"),
+      expect.stringContaining("CTO"),
+      expect.stringContaining("CFO"),
+      expect.stringContaining("CMO"),
     ]);
   });
 
@@ -45,8 +48,11 @@ describe("ThreatRail", () => {
           [
             {
               slug: "cmo",
+              title: "CMO",
               phase: 2,
               reason: "Need brand voice?",
+              headline: "Need brand voice?",
+              statusLabel: "Needs your input",
               reasons: ["Need brand voice?"],
               managerSlug: "ceo-strategist",
               status: "needs_input",
@@ -62,6 +68,8 @@ describe("ThreatRail", () => {
       />,
     );
     expect(getByText("ANSWER")).toBeTruthy();
+    expect(getByText("CMO")).toBeTruthy();
+    expect(getByText(/Needs your input/)).toBeTruthy();
     const answerBtn = [...container.querySelectorAll("button.j-btn")].find((b) =>
       b.textContent?.includes("ANSWER"),
     );

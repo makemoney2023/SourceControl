@@ -33,6 +33,10 @@ export function ThreatRail({
         prioritized.map((b, index) => {
           const selected = selectedSlug === b.slug;
           const resolving = resolvingSlug === b.slug;
+          const headline = b.headline || b.reason;
+          const extra = b.reasons.filter(
+            (r) => r.trim().toLowerCase() !== headline.trim().toLowerCase(),
+          );
           return (
             <div
               key={`${b.slug}-${b.handoffFilename}`}
@@ -52,16 +56,16 @@ export function ThreatRail({
               >
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
                   <span className="j-mono" style={{ fontSize: 11, color: "var(--j-danger)" }}>
-                    {b.slug}
+                    {b.title || b.slug}
                   </span>
                   <span className="j-chip" data-tone="danger">
                     P{b.phase}
                   </span>
                 </div>
                 <p style={{ margin: "6px 0 0", fontSize: 12, lineHeight: 1.35 }}>
-                  {b.reason}
+                  {headline}
                 </p>
-                {b.reasons.length > 1 && (
+                {extra.length > 0 && (
                   <ul
                     style={{
                       margin: "6px 0 0",
@@ -70,13 +74,14 @@ export function ThreatRail({
                       color: "var(--j-muted)",
                     }}
                   >
-                    {b.reasons.slice(1).map((r) => (
+                    {extra.slice(0, 3).map((r) => (
                       <li key={r}>{r}</li>
                     ))}
                   </ul>
                 )}
                 <p className="j-muted" style={{ margin: "6px 0 0", fontSize: 10 }}>
-                  Owner · {b.managerSlug || "—"} · {b.status}
+                  {b.statusLabel || b.status}
+                  {b.managerSlug ? ` · Owner ${b.managerSlug}` : ""}
                 </p>
               </button>
               <button

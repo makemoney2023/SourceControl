@@ -9,6 +9,7 @@ import { renderStandupBriefing } from "../../src/jarvis/briefings";
 import { CSUITE_SLUGS } from "../../src/jarvis/csuite";
 import { buildSeatReport, seatReportBriefScript } from "../../src/jarvis/seat-report";
 import { enrichSeatReportWithGrokBrief } from "./seat-brief-rewrite";
+import { enrichBlockedSeatsWithGrok } from "./threat-brief-rewrite";
 import { resolveSeatSlug } from "./resolve-seat";
 import { appendActivity } from "../activity";
 import { ackHandoffAlert } from "../alerts-fs";
@@ -132,8 +133,11 @@ const SESSION_HELP = [
   "Memory: memory.brief and memory.recall are read-only; memory.note, memory.digest, and memory.reindex need Ops and confirm.",
 ].join(" ");
 
-function buildDigestPayload(snap: ReturnType<typeof loadSnapshot>, repoRoot: string) {
-  return buildCompanyDigest({
+async function buildDigestPayload(
+  snap: ReturnType<typeof loadSnapshot>,
+  repoRoot: string,
+) {
+  const digest = buildCompanyDigest({
     org: snap.org,
     tracker: snap.tracker,
     handoffs: snap.handoffs,
@@ -147,6 +151,10 @@ function buildDigestPayload(snap: ReturnType<typeof loadSnapshot>, repoRoot: str
     repoRoot,
     models: snap.models,
   });
+  const threats = await enrichBlockedSeatsWithGrok(digest.blockedSeats, {
+    cwd: repoRoot,
+  });
+  return { ...digest, blockedSeats: threats.blockedSeats };
 }
 
 function digestSectionKey(section: string): keyof ReturnType<typeof buildCompanyDigest> | null {
@@ -162,7 +170,13 @@ function seatLabel(slug: string): string {
 }
 
 export function summarizeBlockers(
-  blocked: Array<{ slug: string; reason: string; status?: string }>,
+  blocked: Array<{
+    slug: string;
+    reason: string;
+    status?: string;
+    title?: string;
+    headline?: string;
+  }>,
   escalate: Array<{ slug: string; tags: string[]; secondaries: string[] }>,
 ): string {
   if (!blocked.length) {
@@ -170,13 +184,19 @@ export function summarizeBlockers(
     const esc = escalate.map((e) => seatLabel(e.slug)).join(", ");
     return `No blockers. ${escalate.length === 1 ? "1 escalation" : `${escalate.length} escalations`}: ${esc}.`;
   }
+  const label = (b: { slug: string; title?: string }) =>
+    b.title?.trim() || seatLabel(b.slug);
+  const lineFor = (b: {
+    slug: string;
+    reason: string;
+    title?: string;
+    headline?: string;
+  }) => `${label(b)} — ${b.headline || b.reason}`;
   const needsAnswers = blocked.filter((b) => b.status === "needs_input");
   const hard = blocked.filter((b) => b.status !== "needs_input");
   const parts: string[] = [];
   if (needsAnswers.length) {
-    const lines = needsAnswers.map(
-      (b) => `${seatLabel(b.slug)} — ${b.reason}`,
-    );
+    const lines = needsAnswers.map(lineFor);
     parts.push(
       needsAnswers.length === 1
         ? `1 needs answers: ${lines[0]}`
@@ -184,7 +204,7 @@ export function summarizeBlockers(
     );
   }
   if (hard.length) {
-    const lines = hard.map((b) => `${seatLabel(b.slug)} — ${b.reason}`);
+    const lines = hard.map(lineFor);
     parts.push(
       hard.length === 1
         ? `1 blocker: ${lines[0]}`
@@ -233,7 +253,7 @@ export async function executeIntent(
     case "digest.get": {
       emitJarvisFocus(droot, {});
       return {
-        digest: buildDigestPayload(snap, repoRoot),
+        digest: await buildDigestPayload(snap, repoRoot),
       };
     }
 
@@ -912,7 +932,7 @@ export async function executeIntent(
     }
 
     case "digest.focus": {
-      const digest = buildDigestPayload(snap, repoRoot);
+      const digest = await buildDigestPayload(snap, repoRoot);
       const section = args.section != null ? String(args.section) : undefined;
       if (!section) return { digest };
       const key = digestSectionKey(section);
@@ -926,7 +946,7 @@ export async function executeIntent(
     }
 
     case "blocker.list": {
-      const digest = buildDigestPayload(snap, repoRoot);
+      const digest = await buildDigestPayload(snap, repoRoot);
       const blocked = digest.blockedSeats;
       const escalate = digest.escalateSeats;
       return {

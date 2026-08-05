@@ -16,6 +16,7 @@ import { CSUITE_SLUGS } from "../src/jarvis/csuite";
 import { missionBriefScript } from "../src/jarvis/mission";
 import { buildSeatReport, seatReportBriefScript } from "../src/jarvis/seat-report";
 import { enrichSeatReportWithGrokBrief } from "./jarvis/seat-brief-rewrite";
+import { enrichBlockedSeatsWithGrok } from "./jarvis/threat-brief-rewrite";
 import { findLatestInboxDeliverableForSeat } from "./jarvis/review-inbox";
 import { CHAT_TOOLS, runChatLlm } from "./chat";
 import { registerFileRoutes } from "./file-routes";
@@ -154,7 +155,7 @@ export function createApi(repoRoot = resolveRepoRoot()) {
     return c.json({ ok: true, report: enriched });
   });
 
-  app.get("/api/company-digest", (c) => {
+  app.get("/api/company-digest", async (c) => {
     const snap = loadSnapshot(repoRoot);
     const digest = buildCompanyDigest({
       org: snap.org,
@@ -170,7 +171,14 @@ export function createApi(repoRoot = resolveRepoRoot()) {
       repoRoot,
       models: snap.models,
     });
-    return c.json({ ok: true, digest });
+    const threats = await enrichBlockedSeatsWithGrok(digest.blockedSeats, {
+      cwd: repoRoot,
+    });
+    return c.json({
+      ok: true,
+      digest: { ...digest, blockedSeats: threats.blockedSeats },
+      threatSource: threats.source,
+    });
   });
 
   app.get("/api/production-scorecard", (c) => {
@@ -298,7 +306,15 @@ export function createApi(repoRoot = resolveRepoRoot()) {
         repoRoot,
         models: snap.models,
       });
-      return c.json({ text: companyDigestBriefScript(digest) });
+      const threats = await enrichBlockedSeatsWithGrok(digest.blockedSeats, {
+        cwd: repoRoot,
+      });
+      return c.json({
+        text: companyDigestBriefScript({
+          ...digest,
+          blockedSeats: threats.blockedSeats,
+        }),
+      });
     }
     if (mode === "seat") {
       const slug = body.slug || "ceo-strategist";
