@@ -1,0 +1,31 @@
+{
+  "venture": "blacksage-kennels",
+  "updated": "2026-08-04",
+  "assets": [
+    {
+      "id": "email-header",
+      "local": "docs/projects/blacksage-kennels/business-idea/17-channels/email/assets/blacksage-email-header-1200x400.png",
+      "hosted": null,
+      "used_by": ["17-channels/email/html/*"],
+      "photoreal_qa": "draft",
+      "generation_used": "cursor-draft",
+      "notes": "Re-render via scripts/render-blacksage-stills.sh; host via publish-blacksage-assets.sh"
+    },
+    {
+      "id": "brand-hero",
+      "local": "docs/projects/blacksage-kennels/business-idea/11-brand/assets/blacksage-brand-hero-1920x1080.png",
+      "hosted": null,
+      "used_by": ["11-brand"],
+      "photoreal_qa": "draft",
+      "generation_used": "cursor-draft"
+    },
+    {
+      "id": "inquire-hero",
+      "local": "docs/projects/blacksage-kennels/business-idea/14-pages/assets/blacksage-inquire-hero-1920x1080.png",
+      "hosted": null,
+      "used_by": ["apps/blacksage-kennels/public/images/blacksage-inquire-hero-1920x1080.png", "/inquire"],
+      "photoreal_qa": "draft",
+      "generation_used": "cursor-draft"
+    }
+  ]
+}

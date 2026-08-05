@@ -53,6 +53,32 @@ skip_reason: ""
     expect(h.skipReason).toBe("");
   });
 
+  it("parses design_brief_path, photoreal_qa, wire_checklist_path, license_basis, generation_used", () => {
+    const h = parseHandoff(
+      "17-lifecycle-marketer.md",
+      `---
+phase: "17"
+position: lifecycle-marketer
+design_brief_path: docs/projects/x/business-idea/17-channels/email/design/welcome-design-brief.md
+photoreal_qa: pass
+wire_checklist_path: docs/projects/x/business-idea/WIRE/phase-17-email.md
+license_basis: bfl-self-hosted-commercial
+generation_used: local/flux-2-dev
+---
+# Handoff
+`,
+    );
+    expect(h.designBriefPath).toBe(
+      "docs/projects/x/business-idea/17-channels/email/design/welcome-design-brief.md",
+    );
+    expect(h.photorealQa).toBe("pass");
+    expect(h.wireChecklistPath).toBe(
+      "docs/projects/x/business-idea/WIRE/phase-17-email.md",
+    );
+    expect(h.licenseBasis).toBe("bfl-self-hosted-commercial");
+    expect(h.generationUsed).toBe("local/flux-2-dev");
+  });
+
   it("extracts asks, blockers, recommendation, escalation tags", () => {
     const h = parseHandoff(
       "2-manager-head-of-research.md",

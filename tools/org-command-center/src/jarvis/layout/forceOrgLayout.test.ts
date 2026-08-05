@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { parseOrgRegistry } from "../../lib/parse-registry";
-import { forceOrgLayout, type Vec3 } from "./forceOrgLayout";
+import { deriveCameraLookAt, forceOrgLayout, type Vec3 } from "./forceOrgLayout";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 const sampleOrg = readFileSync(
@@ -69,5 +69,45 @@ describe("forceOrgLayout", () => {
     for (const seat of roster) {
       expect(a.get(seat.slug)).toEqual(b.get(seat.slug));
     }
+  });
+});
+
+describe("deriveCameraLookAt", () => {
+  it("targets the selected floor node from the existing layout", () => {
+    const layout = new Map<string, Vec3>([
+      ["head-of-research", { x: 3, y: 0.5, z: -2 }],
+    ]);
+
+    expect(deriveCameraLookAt(layout, "head-of-research", "floor")).toEqual([
+      5.8,
+      3.5,
+      3.5,
+      3,
+      0.5,
+      -2,
+    ]);
+  });
+
+  it("preserves mode camera positions outside the floor view", () => {
+    const layout = new Map<string, Vec3>([
+      ["head-of-research", { x: 3, y: 0.5, z: -2 }],
+    ]);
+
+    expect(deriveCameraLookAt(layout, "head-of-research", "assign")).toEqual([
+      4,
+      5,
+      10,
+      0,
+      0.5,
+      0,
+    ]);
+    expect(deriveCameraLookAt(layout, "head-of-research", "outputs")).toEqual([
+      -2,
+      4,
+      11,
+      0,
+      0.5,
+      0,
+    ]);
   });
 });

@@ -6,9 +6,42 @@ export interface Vec3 {
   z: number;
 }
 
+export type CameraLookAt = [
+  positionX: number,
+  positionY: number,
+  positionZ: number,
+  targetX: number,
+  targetY: number,
+  targetZ: number,
+];
+
 const MANAGER_RING = 3.6;
 const IC_RING = 6.2;
 const DEPT_Y_STEP = 0.35;
+
+const MODE_CAMERA: Record<"floor" | "assign" | "outputs", CameraLookAt> = {
+  floor: [0, 6, 12, 0, 0, 0],
+  assign: [4, 5, 10, 0, 0.5, 0],
+  outputs: [-2, 4, 11, 0, 0.5, 0],
+};
+
+export function deriveCameraLookAt(
+  layout: Map<string, Vec3>,
+  selectedSlug: string | null,
+  mode: "floor" | "assign" | "outputs",
+): CameraLookAt {
+  if (mode !== "floor" || !selectedSlug) return MODE_CAMERA[mode];
+  const target = layout.get(selectedSlug);
+  if (!target) return MODE_CAMERA.floor;
+  return [
+    target.x + 2.8,
+    target.y + 3,
+    target.z + 5.5,
+    target.x,
+    target.y,
+    target.z,
+  ];
+}
 
 /**
  * Pure layout: CEO at origin, managers on inner ring, ICs on outer arcs by dept.

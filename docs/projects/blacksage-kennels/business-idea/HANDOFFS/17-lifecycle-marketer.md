@@ -7,16 +7,22 @@ verdict_for_manager: ready_to_merge
 llm_tier: strong-general
 llm_model: composer-2.5
 generation_profile: none
-generation_used: none
+generation_used: cursor-draft
 fallback_applied: false
 production_status: complete
 production_paths:
   - docs/projects/blacksage-kennels/business-idea/17-channels/email/html/inquiry-welcome-1-interest-ack.html
+  - docs/projects/blacksage-kennels/business-idea/17-channels/email/html/inquiry-welcome-2-waitlist-ack.html
+  - docs/projects/blacksage-kennels/business-idea/17-channels/email/html/inquiry-welcome-3-initial-response.html
+  - docs/projects/blacksage-kennels/business-idea/17-channels/email/html/inquiry-welcome-4-interest-confirm.html
+  - docs/projects/blacksage-kennels/business-idea/17-channels/email/PRODUCTION-INVENTORY.md
   - docs/projects/blacksage-kennels/business-idea/17-channels/email/assets/blacksage-email-header-1200x400.png
 design_brief_path: docs/projects/blacksage-kennels/business-idea/17-channels/email/design/inquiry-welcome-design-brief.md
+photoreal_qa: draft
+skip_reason: "cursor-draft header until HF_TOKEN local FLUX.2-dev or FAL_KEY re-render"
 wire_owner: operator
-wire_notes: "ESP import + merge tags ([DOMAIN], [CONTACT_EMAIL], [RESPONSE_SLA], [OPERATOR_NAME], [First Name]). Host header PNG for ESP."
-skip_reason: ""
+wire_checklist_path: docs/projects/blacksage-kennels/business-idea/WIRE/phase-17-email.md
+wire_notes: "ESP import + merge tags. Host header via publish-blacksage-assets.sh. Full inventory 15 HTML — see PRODUCTION-INVENTORY.md."
 ---
 
 # Handoff — Lifecycle Marketer → CMO

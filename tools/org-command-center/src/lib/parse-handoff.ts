@@ -81,6 +81,11 @@ export function parseHandoff(filename: string, content: string): HandoffRecord {
     productionPaths: parsePathList(data.production_paths),
     wireOwner: String(data.wire_owner ?? "").trim(),
     skipReason: String(data.skip_reason ?? "").trim(),
+    designBriefPath: String(data.design_brief_path ?? "").trim(),
+    photorealQa: String(data.photoreal_qa ?? "").trim(),
+    wireChecklistPath: String(data.wire_checklist_path ?? "").trim(),
+    licenseBasis: String(data.license_basis ?? "").trim(),
+    generationUsed: String(data.generation_used ?? "").trim(),
   };
 }
 

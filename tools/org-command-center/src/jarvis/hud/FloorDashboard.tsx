@@ -1,5 +1,6 @@
 import type { Snapshot } from "../../api/client";
-import { seatStatus, STATUS_COLOR } from "../status";
+import { seatWorkContext } from "../seat-work-context";
+import { STATUS_COLOR } from "../status";
 
 export function FloorDashboard({
   snapshot,
@@ -73,7 +74,14 @@ export function FloorDashboard({
             <tbody>
               {[...byDept.entries()].flatMap(([dept, seats]) =>
                 seats.map((seat) => {
-                  const { status, handoff } = seatStatus(seat.slug, snapshot.handoffs);
+                  const work = seatWorkContext(seat.slug, {
+                    handoffs: snapshot.handoffs,
+                    runs: snapshot.runs,
+                    sessions: snapshot.sessions,
+                    claimedFiles: snapshot.claimed,
+                    queueFiles: snapshot.queue,
+                    agentStates: snapshot.agentStates,
+                  });
                   const selected = selectedSlug === seat.slug;
                   return (
                     <tr
@@ -89,12 +97,16 @@ export function FloorDashboard({
                       <td>
                         <span
                           className="j-chip"
-                          style={{ borderColor: STATUS_COLOR[status] }}
+                          style={{ borderColor: STATUS_COLOR[work.status] }}
                         >
-                          {status}
+                          {work.status}
+                          {work.phase ? ` · P${work.phase}` : ""}
                         </span>
                       </td>
-                      <td className="j-mono">{handoff?.llmTier || "—"}</td>
+                      <td className="j-mono">
+                        {snapshot.handoffs.find((h) => h.position === seat.slug)
+                          ?.llmTier || "—"}
+                      </td>
                     </tr>
                   );
                 }),

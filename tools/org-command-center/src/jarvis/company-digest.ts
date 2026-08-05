@@ -10,9 +10,21 @@ import type { StandupBriefing } from "./csuite";
 import { buildMission } from "./mission";
 import { buildSeatReport, type SeatNextAction } from "./seat-report";
 import { resolveEscalationSecondaries } from "./escalation";
+import type { TaskSessionRecord } from "./tasks";
+
+export interface BlockedSeatDigest {
+  slug: string;
+  /** Primary reason for compact displays */
+  reason: string;
+  phase: string;
+  status: string;
+  reasons: string[];
+  handoffFilename: string;
+  managerSlug: string;
+}
 
 export interface CompanyDigest {
-  blockedSeats: Array<{ slug: string; reason: string }>;
+  blockedSeats: BlockedSeatDigest[];
   escalateSeats: Array<{ slug: string; tags: string[]; secondaries: string[] }>;
   awaitingCsuite: string[];
   queueDepth: number;
@@ -29,6 +41,7 @@ export function buildCompanyDigest(args: {
   queueFiles: string[];
   claimedFiles: string[];
   runs: RunRecord[];
+  sessions?: TaskSessionRecord[];
   briefings: StandupBriefing[];
   alerts?: HandoffAlert[];
   spendBySeat?: Record<string, { tokens: number; cost_usd: number }>;
@@ -44,11 +57,20 @@ export function buildCompanyDigest(args: {
 
   const blockedSeats: CompanyDigest["blockedSeats"] = [];
   const escalateSeats: CompanyDigest["escalateSeats"] = [];
+  const rosterBySlug = new Map(args.org.roster.map((r) => [r.slug, r]));
   for (const h of args.handoffs) {
     if (h.status === "blocked" || h.status === "needs_input") {
+      const reasons = [...h.blockers, ...h.asks].filter(Boolean);
+      const reason = reasons[0] || h.status;
+      const seat = rosterBySlug.get(h.position);
       blockedSeats.push({
         slug: h.position,
-        reason: h.blockers[0] || h.asks[0] || h.status,
+        reason,
+        phase: h.phase,
+        status: h.status,
+        reasons: reasons.length > 0 ? reasons : [h.status],
+        handoffFilename: h.filename,
+        managerSlug: h.reportsTo || seat?.reportsTo || "",
       });
     }
     if (h.recommendation === "escalate" || h.verdictForManager === "escalate") {
@@ -84,6 +106,7 @@ export function buildCompanyDigest(args: {
     queueFiles: args.queueFiles,
     claimedFiles: args.claimedFiles,
     runs: args.runs,
+    sessions: args.sessions,
     briefings: args.briefings,
     spendBySeat: args.spendBySeat,
     repoRoot: args.repoRoot,

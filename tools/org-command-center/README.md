@@ -1,6 +1,22 @@
 # Org Command Center — Situation Room
 
-Glanceable mission status, activity pulse, C-suite board, live tasks, execution controls, seat reports, and **enterprise Jarvis voice** (self-hosted LiveKit + Dialogue Control Plane).
+Theater-first Jarvis HUD: full-bleed 3D org graph with holographic glass overlays — **threat rail** (blockers + RESOLVE via `blocker.resolve`), **seat console** (live runs / artifacts / telemetry from `seatWorkContext`), keyboard-accessible **Command deck**, activity strip, and Outputs archive tiles. Ops tables remain available via **Ops tables**. Voice stack is self-hosted LiveKit + Dialogue Control Plane.
+
+Glanceable mission status, C-suite board, live tasks, execution controls, seat reports, and production artifact browsing all share the same teal glass system (`theme.css` · `.j-hud-panel`). Active, running, blocked, and escalated seats retain persistent text cues in addition to semantic color; reduced-motion preferences disable their perpetual pulse/orbit motion.
+
+Use the compact **Command deck** control in the theater HUD, or its keyboard shortcut from either Theater or Ops-only mode, to search seats and active tasks. Seat results drive the canonical theater highlight and seat-console selection; run-backed tasks resolve their run position when needed and also open the matching Runs detail. Completed, cancelled, and done tasks are excluded.
+
+## Situation Room operation
+
+`SituationRoom` is the canonical Jarvis interface. The organization theater remains its defining workspace; **Ops tables** are an optional supplement. Workspace toggles never permit both views to be hidden.
+
+- **Mission command hierarchy:** **Run next** is primary. Talk / Brief me and Assign / Outputs remain immediately available; lower-frequency intelligence and system actions live in keyboard-accessible **Intelligence** and **System** menus.
+- **Command deck:** open from the theater control or `Cmd+K` on macOS / `Ctrl+K` elsewhere. The controller remains mounted when Theater is hidden, so the shortcut also works in Ops-only mode. Search seats and active tasks, use arrow keys and Enter to select, and Escape to close. Selection writes through the canonical Jarvis store, highlights the seat, focuses the theater camera, and opens run detail for run-backed tasks.
+- **Accessible overlays:** shadcn/Radix Dialog, Command, and Dropdown primitives provide named dialogs and menus, focus trapping, keyboard navigation, backdrop/Escape dismissal, and focus restoration to the opener.
+- **Responsive theater:** wide desktop keeps the full theater and side overlays; short laptop viewports scroll without collapsing the 520px theater; at 390px the document scrolls around a retained 620px theater with compact, scrollable command clusters and docked overlays.
+- **Feedback:** initial skeletons, loading/status announcements, explicit error and empty states, refresh/last-updated status, retryable scorecard/chat/review-inbox failures, and copy-path success/failure are visible and announced where appropriate. “Inbox clear” appears only after a successful empty review-inbox response. Reduced-motion disables cinematic transitions, pulse/orbit effects, bloom, and animated camera travel.
+- **Safety contracts:** dispatch remains manager-only and venture-isolated. A `needs_confirm` response is returned without automatic resubmission; blocker resolution displays the server summary/reason in a Radix confirmation dialog, and only explicit operator confirmation sends the token. Cancel, Escape, and backdrop dismissal explicitly invalidate that exact token with `accept: false`; cancellation failures remain visible in the dialog and cannot fall through to confirmation. Run next and other hard writes retain confirmation requirements unless explicit auto-spawn is enabled.
+- **Live status:** only active runs (`starting`, `running`) or sessions (`active`, `starting`, `running`, `connected`) render a seat as running. Completed historical sessions are ignored. Claimed packets are correlated with run/session lifecycle truth: successful terminal work is done, failed/cancelled work is pending and recoverable when a session can be rewoken, and an orphan claimed packet stays idle/pending rather than appearing live.
 
 ## Quick start
 
@@ -109,7 +125,8 @@ Example: “Queue phase 2 research” → summary → “Confirm?” → “yes�
 
 | Zone | Purpose |
 |------|---------|
-| Mission strip | NOW phase, %, Brief / Talk / Assign / Run next / Digest / Alerts |
+| Mission strip | NOW phase, %, Run next primary, Talk / Brief me, Assign / Outputs, Intelligence / System menus |
+| Theater | Canonical org graph, seat status, command deck, camera focus, threat and seat overlays |
 | Floating Talk | LiveKit mic session (Ollama + Whisper + Kokoro TTS) |
 | Seat Report | Derived status + human/agent next actions for any worker |
 | Company digest | Blocked/escalate/awaiting-csuite rollup |
@@ -223,12 +240,15 @@ Voice cheatsheet:
 ## Tests & eval
 
 ```bash
-npm test                  # unit + golden transcript eval (≥20 cases, no LiveKit)
+npm test -- src/jarvis    # targeted Jarvis UI/domain tests
+npm test                  # full unit + golden transcript eval (≥20 cases, no LiveKit)
 npm run build
 npm run agent:test        # livekit-agent wiring
 npm run jarvis:smoke      # Ollama tool-call smoke (requires ollama pull qwen3)
 npm run jarvis:eval:ollama   # optional live LLM eval against golden.json
 ```
+
+Known baseline (2026-08-05): targeted Jarvis tests are green (**30 files, 118 tests**). The full suite has **3 pre-existing failures**: two `server/paths.test.ts` assertions assume `passive-grid` is active while the registry currently selects another venture, and one `server/memory/run-lifecycle.test.ts` assertion assumes a fixed session date. These are active-venture/date fixture assumptions, not Situation Room UI regressions.
 
 Golden cases live in `server/jarvis/eval/golden.json`; CI runs heuristic intent + policy via `run-golden.test.ts` inside `npm test`.
 

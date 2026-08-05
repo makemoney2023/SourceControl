@@ -11,7 +11,10 @@
 # Python OpenMontage deps: follow skills/community/openmontage README when rendering.
 #
 # Secrets: resolve via Obsidian MCP / skills/integrations/obsidian-secrets → repo .env.local
-#   FAL_KEY or FAL_AI_API_KEY, ELEVENLABS_API_KEY
+#   Local FLUX.2-dev: HF_TOKEN + AI_TOOLKIT_ROOT
+#   fal upgrade: FAL_KEY or FAL_AI_API_KEY
+#   ELEVENLABS_API_KEY, BLOB_READ_WRITE_TOKEN
+# See scripts/bootstrap-production-secrets.md
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -53,13 +56,24 @@ load_dotenv_local
 echo "doctor-production-runtime: secrets (names only)"
 keys_ok=1
 fal_ok=0
+hf_ok=0
 report_key FAL_KEY && fal_ok=1 || true
 report_key FAL_AI_API_KEY && fal_ok=1 || true
-if [[ "$fal_ok" -eq 0 ]]; then
-  echo "  (need FAL_KEY or FAL_AI_API_KEY for fal-media)"
+report_key HF_TOKEN && hf_ok=1 || true
+if [[ "$fal_ok" -eq 0 && "$hf_ok" -eq 0 ]]; then
+  echo "  (need HF_TOKEN for local FLUX.2-dev and/or FAL_KEY for fal)"
   keys_ok=0
 fi
 report_key ELEVENLABS_API_KEY || keys_ok=0
+report_key BLOB_READ_WRITE_TOKEN || true
+
+echo "doctor-production-runtime: local FLUX.2-dev"
+toolkit="${AI_TOOLKIT_ROOT:-/Users/cbsuperpatch/Desktop/ai-toolkit}"
+if [[ -d "$toolkit" && -f "$toolkit/run.py" ]]; then
+  echo "  AI_TOOLKIT_ROOT: present ($toolkit)"
+else
+  echo "  AI_TOOLKIT_ROOT: missing ($toolkit) — informational; fal still viable"
+fi
 
 echo "doctor-production-runtime: tooling"
 remotion_dir="$ROOT/skills/community/openmontage/remotion-composer"

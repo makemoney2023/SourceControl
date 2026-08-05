@@ -122,4 +122,108 @@ describe("buildTasks", () => {
     expect(row?.canCancel).toBe(true);
     expect(row?.runId).toBe("99-head-of-research");
   });
+
+  it("marks a claimed dispatch in flight when its session is active", () => {
+    const filename = "2-head-of-research-active.yaml";
+    const tasks = buildTasks({
+      tracker,
+      handoffs: [],
+      queueFiles: [],
+      claimedFiles: [filename],
+      sessions: [
+        {
+          agentId: "agent-active",
+          position: "head-of-research",
+          phase: "2",
+          dispatch_filename: filename,
+          updated_at: "2026-08-05T12:00:00.000Z",
+          status: "active",
+        },
+      ],
+    });
+
+    expect(tasks.find((task) => task.dispatchFilename === filename)?.status).toBe("in_flight");
+  });
+
+  it("marks successful terminal claimed work done", () => {
+    const sessionFilename = "2-head-of-research-session.yaml";
+    const runFilename = "2-head-of-research-run.yaml";
+    const tasks = buildTasks({
+      tracker,
+      handoffs: [],
+      queueFiles: [],
+      claimedFiles: [sessionFilename, runFilename],
+      sessions: [
+        {
+          agentId: "agent-completed",
+          position: "head-of-research",
+          phase: "2",
+          dispatch_filename: sessionFilename,
+          updated_at: "2026-08-05T12:00:00.000Z",
+          status: "completed",
+        },
+      ],
+      runs: [
+        {
+          runId: "run-completed",
+          status: "completed",
+          position: "head-of-research",
+          phase: "2",
+          claimed: runFilename,
+          dispatch_filename: runFilename,
+          wake_reason: "on_demand",
+          started_at: "2026-08-05T11:00:00.000Z",
+          finished_at: "2026-08-05T12:00:00.000Z",
+          llm_model: "x",
+        },
+      ],
+    });
+
+    expect(tasks.find((task) => task.dispatchFilename === sessionFilename)?.status).toBe("done");
+    expect(tasks.find((task) => task.dispatchFilename === runFilename)?.status).toBe("done");
+  });
+
+  it.each(["error", "cancelled"] as const)(
+    "keeps %s terminal claimed work pending and recoverable",
+    (status) => {
+      const filename = `2-head-of-research-${status}.yaml`;
+      const tasks = buildTasks({
+        tracker,
+        handoffs: [],
+        queueFiles: [],
+        claimedFiles: [filename],
+        sessions: [
+          {
+            agentId: `agent-${status}`,
+            position: "head-of-research",
+            phase: "2",
+            dispatch_filename: filename,
+            updated_at: "2026-08-05T12:00:00.000Z",
+            status,
+          },
+        ],
+      });
+
+      const task = tasks.find((candidate) => candidate.dispatchFilename === filename);
+      expect(task?.status).toBe("pending");
+      expect(task?.canRewake).toBe(true);
+    },
+  );
+
+  it("keeps an orphan claimed dispatch pending but not in flight", () => {
+    const filename = "2-head-of-research-orphan.yaml";
+    const tasks = buildTasks({
+      tracker,
+      handoffs: [],
+      queueFiles: [],
+      claimedFiles: [filename],
+      sessions: [],
+      runs: [],
+    });
+
+    const task = tasks.find((candidate) => candidate.dispatchFilename === filename);
+    expect(task?.status).toBe("pending");
+    expect(task?.canRewake).toBe(false);
+    expect(task?.title).not.toMatch(/in-flight/i);
+  });
 });

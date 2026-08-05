@@ -45,6 +45,7 @@ Seat `SKILL.md` files are **instructions**, not MCP servers. Do not create an MC
 | github | `skills/integrations/github/` | thin | GitHub MCP / `gh` | `GITHUB_TOKEN` | `user-github` | `gh` CLI |
 | stripe | `skills/integrations/stripe/` | thin | Stripe plugin skill | Stripe keys via secrets | stripe plugin | Stripe Dashboard |
 | fal-media | `skills/integrations/fal-media/` | thin | fal API (Veo/FLUX) | `FAL_KEY` / `FAL_AI_API_KEY` | — | inference-sh adapters |
+| ai-toolkit-local | `skills/integrations/ai-toolkit-local/` | thin | Local FLUX.2-dev via Ostris ai-toolkit (Mac MPS) | `HF_TOKEN`; `AI_TOOLKIT_ROOT` | — | fal-media (commercial API upgrade) |
 | elevenlabs | `skills/integrations/elevenlabs/` | thin | ElevenLabs API | `ELEVENLABS_API_KEY` | ElevenLabs MCP if present | OpenMontage local TTS |
 | obsidian-secrets | `skills/integrations/obsidian-secrets/` | thin | Obsidian MCP vault notes | — | Obsidian MCP when configured | `.env.local` only |
 | playwright-browser | `skills/integrations/playwright-browser/` | thin | Playwright MCP | — | `user-playwright`, `cursor-ide-browser` | — |
@@ -73,9 +74,9 @@ Seat `SKILL.md` files are **instructions**, not MCP servers. Do not create an MC
 | paid-media-manager | google-ads, google-analytics | fal-media, elevenlabs |
 | lifecycle-marketer | google-analytics | — |
 | pr-manager | parallel-research, firecrawl | — |
-| creative-director | figma, fal-media | elevenlabs |
-| brand-designer | figma, fal-media | — |
-| web-designer | figma, shadcn-ui, vercel, pagespeed-insights | playwright-browser, fal-media |
+| creative-director | figma, fal-media, ai-toolkit-local | elevenlabs |
+| brand-designer | figma, ai-toolkit-local, fal-media | — |
+| web-designer | figma, shadcn-ui, vercel, pagespeed-insights | playwright-browser, fal-media, ai-toolkit-local |
 | video-producer | fal-media, elevenlabs | — |
 | head-of-sales-cs | — | google-analytics, parallel-research |
 | sales-enablement-lead | — | firecrawl, parallel-research |

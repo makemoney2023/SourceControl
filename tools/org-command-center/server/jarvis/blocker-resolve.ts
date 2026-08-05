@@ -37,6 +37,7 @@ function findBlockedTarget(
     queueFiles: snap.queue,
     claimedFiles: snap.claimed,
     runs: snap.runs,
+    sessions: snap.sessions,
     briefings: snap.briefings,
     alerts: snap.alerts,
     spendBySeat: snap.spend.bySeat,

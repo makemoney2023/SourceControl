@@ -1,7 +1,15 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  isEmailHtmlPath,
+  isImageAssetPath,
+  lintEmailHtmlFile,
+} from "../../src/lib/email-html-lint";
 import { indexHandoffs } from "../../src/lib/parse-handoff";
-import { SHIPPABLE_PRODUCTION_PHASES } from "../../src/lib/seat-outputs";
+import {
+  DESIGN_LED_PRODUCTION_PHASES,
+  SHIPPABLE_PRODUCTION_PHASES,
+} from "../../src/lib/seat-outputs";
 import type { HandoffRecord, ManagerPacket } from "../../src/lib/types";
 import { handoffsDir, reviewInboxDir } from "../paths";
 import { listReviewInbox } from "./review-inbox";
@@ -111,6 +119,17 @@ function resolveRequireVerifier(
   return SHIPPABLE_PRODUCTION_PHASES.has(packet.phase);
 }
 
+function resolveRequireDesignBrief(
+  packet: ManagerPacket,
+  requireDesignBrief?: boolean,
+): boolean {
+  if (requireDesignBrief !== undefined) return requireDesignBrief;
+  if (packet.require_design_brief !== undefined) {
+    return packet.require_design_brief;
+  }
+  return DESIGN_LED_PRODUCTION_PHASES.has(packet.phase);
+}
+
 function pickProductionHandoff(
   handoffs: HandoffRecord[],
   packet: ManagerPacket,
@@ -128,10 +147,76 @@ function pickProductionHandoff(
   );
 }
 
+function draftSkipOk(primary: HandoffRecord): boolean {
+  const reason = primary.skipReason.toLowerCase();
+  return (
+    reason.includes("cursor-draft") ||
+    reason.includes("plane-b-missing") ||
+    reason.includes("lab-only")
+  );
+}
+
+function commercialLocalOk(primary: HandoffRecord): boolean {
+  const gen = primary.generationUsed.toLowerCase();
+  if (!gen.startsWith("local/")) return true;
+  const basis = primary.licenseBasis.toLowerCase();
+  return (
+    basis === "bfl-self-hosted-commercial" ||
+    gen.startsWith("fal/") ||
+    primary.generationUsed.toLowerCase().startsWith("fal/")
+  );
+}
+
+function productionQualityMissing(
+  repoRoot: string,
+  packet: ManagerPacket,
+  primary: HandoffRecord,
+  requireDesignBrief: boolean,
+): string | null {
+  if (!primary.wireOwner) return "wire_owner";
+
+  if (requireDesignBrief) {
+    if (!primary.designBriefPath) return "design_brief_path";
+    if (!existsSync(join(repoRoot, primary.designBriefPath))) {
+      return `design_brief_path:${primary.designBriefPath}`;
+    }
+  }
+
+  if (primary.wireOwner.toLowerCase() !== "none") {
+    if (!primary.wireChecklistPath) return "wire_checklist_path";
+    if (!existsSync(join(repoRoot, primary.wireChecklistPath))) {
+      return `wire_checklist_path:${primary.wireChecklistPath}`;
+    }
+  }
+
+  const imagePaths = primary.productionPaths.filter(isImageAssetPath);
+  if (imagePaths.length) {
+    const qa = primary.photorealQa.toLowerCase();
+    if (qa === "pass") {
+      if (!commercialLocalOk(primary)) return "license_basis";
+    } else if (qa === "draft") {
+      if (!draftSkipOk(primary)) return "photoreal_qa_draft_reason";
+    } else {
+      return "photoreal_qa";
+    }
+  }
+
+  for (const rel of primary.productionPaths) {
+    if (!isEmailHtmlPath(rel)) continue;
+    const abs = join(repoRoot, rel);
+    if (!existsSync(abs)) continue;
+    const lint = lintEmailHtmlFile(abs);
+    if (!lint.ok) return `email_html_lint:${rel}:${lint.errors[0]}`;
+  }
+
+  return null;
+}
+
 function productionMissing(
   repoRoot: string,
   packet: ManagerPacket,
   handoffs: HandoffRecord[],
+  requireDesignBrief: boolean,
 ): string | null {
   const primary = pickProductionHandoff(handoffs, packet);
   if (!primary) return "production_status";
@@ -153,7 +238,12 @@ function productionMissing(
       const abs = join(repoRoot, rel);
       if (!existsSync(abs)) return `production_path:${rel}`;
     }
-    return null;
+    return productionQualityMissing(
+      repoRoot,
+      packet,
+      primary,
+      requireDesignBrief,
+    );
   }
   return "production_status_invalid";
 }
@@ -183,6 +273,7 @@ export function evaluateRunAcceptance(
     requireIcHandoff?: boolean;
     requireProduction?: boolean;
     requireVerifier?: boolean;
+    requireDesignBrief?: boolean;
   },
 ): RunAcceptance {
   const missing: string[] = [];
@@ -198,6 +289,10 @@ export function evaluateRunAcceptance(
   const requireVerifier = resolveRequireVerifier(
     args.packet,
     args.requireVerifier,
+  );
+  const requireDesignBrief = resolveRequireDesignBrief(
+    args.packet,
+    args.requireDesignBrief,
   );
 
   if (requireInbox && !hasMatchingInbox(repoRoot, args.runId, args.packet)) {
@@ -215,7 +310,12 @@ export function evaluateRunAcceptance(
     requireProduction || requireVerifier ? loadHandoffs(repoRoot) : [];
 
   if (requireProduction) {
-    const prod = productionMissing(repoRoot, args.packet, handoffs);
+    const prod = productionMissing(
+      repoRoot,
+      args.packet,
+      handoffs,
+      requireDesignBrief,
+    );
     if (prod) missing.push(prod);
   }
 

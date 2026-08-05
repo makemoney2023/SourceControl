@@ -166,7 +166,42 @@ constraints:
 
 **Branch:** `feature/org-command-center-jarvis-3d`  
 **Status:** Active  
-**Default shell:** Situation Room (mission strip, C-suite board, drill-down, live task rail, voice chat). 3D org map is an optional inset.
+**Default shell:** `SituationRoom` is the canonical Jarvis interface. Its full organization theater is the defining workspace; mission controls, threat rail, C-suite, seat console, activity, and Command deck are glass overlays. Ops tables supplement the theater and may replace it only when explicitly selected; the workspace state cannot hide both.
+
+### Mission command and navigation
+
+- **Run next** is the dominant primary action. **Assign** and **Outputs**, plus **Talk** and **Brief me**, remain directly available.
+- Lower-frequency actions are grouped under accessible **Intelligence** (seat/digest briefs, legacy voice, digest, alerts) and **System** (runs, routines, theater/Ops toggles, refresh) menus.
+- The **Command deck** searches seats and non-completed tasks. It opens from its theater control or `Cmd+K` / `Ctrl+K`; arrow keys navigate, Enter selects, and Escape closes.
+- Seat and task selection use the canonical Jarvis store. A selected seat highlights in the theater and drives `CameraControls`; run-backed tasks resolve a missing seat from the run position and open the matching run detail.
+
+### Interaction and feedback contracts
+
+- Drawers, command search, and menus use shadcn-style wrappers around Radix Dialog/Dropdown and `cmdk`: named roles, visible focus, focus trap, backdrop/Escape close, opener focus restoration, and keyboard-operable checkbox/menu items are required.
+- Initial load uses a Situation Room skeleton. Async surfaces expose loading, error, empty, refresh/last-updated, retry, copy-path success/failure, and chat sending/failure/retry feedback. Status and error messages use live status/alert semantics where actionable.
+- Theater and Ops toggles must never produce a blank workspace. Disabling one view enables the other.
+- `prefers-reduced-motion` removes pulse/orbit and skeleton/modal animation, bloom/beam effects, and animated camera travel while retaining text and color-independent status cues.
+
+### Responsive contracts
+
+- **Wide desktop:** retain the full theater with left/right/bottom overlays and optional Ops tables.
+- **Short laptop (`≤700px` height):** allow document scrolling and preserve a theater at least 520px high.
+- **Mobile (validated at 390px):** retain a 620px theater, use document scrolling, compact horizontally scrollable command clusters, docked threat/seat/activity overlays, and single-column Ops/Outputs/Run drawers.
+
+### Preserved control-plane contracts
+
+This presentation work does not change manager-only dispatch, explicit confirmations, venture-isolated filesystem/API resolution, or LiveKit/DCP voice mode and confirmation-token behavior.
+
+### UI verification baseline
+
+From `tools/org-command-center/`:
+
+```bash
+npm test -- src/jarvis
+npm test
+```
+
+Baseline on 2026-08-05: targeted Jarvis tests pass (30 files, 118 tests). The full suite has three pre-existing failures: two path tests assume `passive-grid` is the active venture, and one memory lifecycle test assumes a fixed session date. Those fixture assumptions are unrelated to Situation Room UI changes.
 
 ### Glanceable mission
 
@@ -182,10 +217,9 @@ Exec seats (managers reporting to `ceo-strategist` + CEO). Cards show dept pulse
 Unified tasks from tracker phases, `DISPATCH/queue`, `DISPATCH/claimed`, handoffs, awaiting C-suite review.  
 Updates: FS watch + SSE `GET /api/events` (2s poll fallback).
 
-### Free-form LLM voice chat
+### Legacy HTTP voice chat (historical v3)
 
-STT (Web Speech) → `POST /api/voice/chat` (Anthropic or OpenAI + tools) → OmniVoice TTS.  
-Tools: `get_mission`, `get_tasks`, `get_seat`, `open_ui`, `file_briefing`, `queue_dispatch`, `spawn_manager`.
+The Web Speech → `POST /api/voice/chat` → OmniVoice path remains only as the **Legacy voice** fallback. Canonical **Talk** behavior is the self-hosted LiveKit + Ollama + DCP contract in v3.5 below; it does not use Anthropic/OpenAI. Historical HTTP tools include `get_mission`, `get_tasks`, `get_seat`, `open_ui`, `file_briefing`, `queue_dispatch`, and `spawn_manager`.
 
 ### Auto-spawn
 

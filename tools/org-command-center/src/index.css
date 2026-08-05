@@ -12,3 +12,17 @@ body {
   background: #070b10;
   color: #e8f4f2;
 }
+
+@media (max-width: 600px) {
+  html,
+  body,
+  #root {
+    height: auto;
+    min-height: 100%;
+  }
+
+  body {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}

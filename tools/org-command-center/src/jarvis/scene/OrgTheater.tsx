@@ -6,14 +6,23 @@ import type { SituationSnapshot } from "../../api/client";
 
 type TheaterSnap = Pick<
   SituationSnapshot,
-  "org" | "handoffs" | "tracker" | "queue" | "businessIdeaRel"
+  | "org"
+  | "handoffs"
+  | "tracker"
+  | "queue"
+  | "claimed"
+  | "businessIdeaRel"
+  | "runs"
+  | "sessions"
+  | "agentStates"
 > & {
   models?: SituationSnapshot["models"];
 };
-import { forceOrgLayout } from "../layout/forceOrgLayout";
+import { deriveCameraLookAt, forceOrgLayout } from "../layout/forceOrgLayout";
 import { indexArtifacts } from "../artifacts";
-import { seatStatus } from "../status";
+import { seatWorkContext } from "../seat-work-context";
 import { useJarvisStore } from "../state/useJarvisStore";
+import { isSeatDimmed } from "../status";
 import { PacketBeam } from "./effects/PacketBeam";
 import { ArtifactPlaque } from "./nodes/ArtifactPlaque";
 import { PhaseBead } from "./nodes/PhaseBead";
@@ -64,16 +73,11 @@ function TheaterScene({ snapshot }: { snapshot: TheaterSnap }) {
     const c = controls.current;
     if (!c) return;
     const run = async () => {
-      if (mode === "floor") {
-        await c.setLookAt(0, 6, 12, 0, 0, 0, !reducedMotion);
-      } else if (mode === "assign") {
-        await c.setLookAt(4, 5, 10, 0, 0.5, 0, !reducedMotion);
-      } else {
-        await c.setLookAt(-2, 4, 11, 0, 0.5, 0, !reducedMotion);
-      }
+      const lookAt = deriveCameraLookAt(layout, selectedSlug, mode);
+      await c.setLookAt(...lookAt, !reducedMotion);
     };
     void run();
-  }, [mode, reducedMotion]);
+  }, [layout, mode, reducedMotion, selectedSlug]);
 
   return (
     <>
@@ -81,7 +85,7 @@ function TheaterScene({ snapshot }: { snapshot: TheaterSnap }) {
       <ambientLight intensity={0.35} />
       <directionalLight position={[6, 10, 4]} intensity={1.1} color="#b8fff0" />
       <pointLight position={[0, 3, 0]} intensity={0.6} color="#3fd4be" />
-      <Stars radius={40} depth={30} count={reducedMotion ? 80 : 220} factor={2} fade speed={0.2} />
+      <Stars radius={40} depth={30} count={reducedMotion ? 80 : 220} factor={2} fade speed={reducedMotion ? 0 : 0.2} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]}>
         <circleGeometry args={[9, 64]} />
         <meshStandardMaterial
@@ -102,26 +106,38 @@ function TheaterScene({ snapshot }: { snapshot: TheaterSnap }) {
       {snapshot.org.roster.map((seat) => {
         const pos = layout.get(seat.slug);
         if (!pos) return null;
-        const { status } = seatStatus(seat.slug, snapshot.handoffs);
+        const work = seatWorkContext(seat.slug, {
+          handoffs: snapshot.handoffs,
+          runs: snapshot.runs,
+          sessions: snapshot.sessions,
+          claimedFiles: snapshot.claimed,
+          queueFiles: snapshot.queue,
+          agentStates: snapshot.agentStates,
+        });
         const isOwner = mode === "assign" && owner?.managerOwner === seat.slug;
         const isGhost =
           mode === "assign" && maySpawn.has(seat.slug) && seat.level === "ic";
-        const dimmed =
-          mode === "assign" &&
-          !isOwner &&
-          !isGhost &&
-          seat.slug !== "ceo-strategist";
+        const selected = selectedSlug === seat.slug;
+        const dimmed = isSeatDimmed({
+          mode,
+          isOwner,
+          isGhost,
+          isCeo: seat.slug === "ceo-strategist",
+          isSelected: selected,
+        });
         return (
           <SeatNode
             key={seat.slug}
             seat={seat}
             position={pos}
-            status={status}
-            highlighted={
-              selectedSlug === seat.slug || isOwner || (mode === "outputs" && false)
-            }
+            status={work.status}
+            phase={work.phase}
+            goal={work.goal ?? work.blockReason}
+            selected={selected}
+            highlighted={selected || isOwner || (mode === "outputs" && false)}
             dimmed={dimmed}
             ghost={isGhost}
+            reducedMotion={reducedMotion}
             onSelect={selectSlug}
           />
         );
@@ -180,15 +196,27 @@ function TheaterScene({ snapshot }: { snapshot: TheaterSnap }) {
 
 export function OrgTheater({ snapshot }: { snapshot: TheaterSnap }) {
   return (
-    <Canvas
+    <div
+      role="region"
+      aria-label="Interactive organization theater"
+      aria-describedby="org-theater-guidance"
       style={{ position: "absolute", inset: 0 }}
-      camera={{ position: [0, 6, 12], fov: 45 }}
-      dpr={[1, 1.75]}
-      gl={{ antialias: true, alpha: false }}
     >
-      <Suspense fallback={null}>
-        <TheaterScene snapshot={snapshot} />
-      </Suspense>
-    </Canvas>
+      <p id="org-theater-guidance" className="j-visually-hidden">
+        A three-dimensional view of organization seats and their live status. Use the Command
+        deck button or its displayed keyboard shortcut to search and focus any seat or active task.
+      </p>
+      <Canvas
+        aria-hidden="true"
+        style={{ position: "absolute", inset: 0 }}
+        camera={{ position: [0, 6, 12], fov: 45 }}
+        dpr={[1, 1.75]}
+        gl={{ antialias: true, alpha: false }}
+      >
+        <Suspense fallback={null}>
+          <TheaterScene snapshot={snapshot} />
+        </Suspense>
+      </Canvas>
+    </div>
   );
 }

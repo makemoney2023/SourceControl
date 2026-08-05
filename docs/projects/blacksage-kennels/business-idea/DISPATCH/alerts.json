@@ -1,0 +1,1021 @@
+{
+  "alerts": [
+    {
+      "id": "new:0-csuite-review.md",
+      "filename": "0-csuite-review.md",
+      "slug": "",
+      "phase": "0",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:0-manager-ceo-strategist.md",
+      "filename": "0-manager-ceo-strategist.md",
+      "slug": "",
+      "phase": "0",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:09-csuite-review.md",
+      "filename": "09-csuite-review.md",
+      "slug": "",
+      "phase": "9",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:09-manager-cto.md",
+      "filename": "09-manager-cto.md",
+      "slug": "",
+      "phase": "9",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:09-tech-lead.md",
+      "filename": "09-tech-lead.md",
+      "slug": "tech-lead",
+      "phase": "9",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:1-business-analyst.md",
+      "filename": "1-business-analyst.md",
+      "slug": "business-analyst",
+      "phase": "1",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:1-csuite-review.md",
+      "filename": "1-csuite-review.md",
+      "slug": "",
+      "phase": "1",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:1-manager-ceo-strategist.md",
+      "filename": "1-manager-ceo-strategist.md",
+      "slug": "",
+      "phase": "1",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:10-business-analyst.md",
+      "filename": "10-business-analyst.md",
+      "slug": "business-analyst",
+      "phase": "10",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:10-csuite-review.md",
+      "filename": "10-csuite-review.md",
+      "slug": "",
+      "phase": "10",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:10-head-of-research.md",
+      "filename": "10-head-of-research.md",
+      "slug": "head-of-research",
+      "phase": "10",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:10-manager-ceo-strategist.md",
+      "filename": "10-manager-ceo-strategist.md",
+      "slug": "",
+      "phase": "10",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:10c-csuite-review.md",
+      "filename": "10c-csuite-review.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:11-brand-designer.md",
+      "filename": "11-brand-designer.md",
+      "slug": "brand-designer",
+      "phase": "11",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:11-csuite-review.md",
+      "filename": "11-csuite-review.md",
+      "slug": "",
+      "phase": "11",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:11-manager-creative-director.md",
+      "filename": "11-manager-creative-director.md",
+      "slug": "",
+      "phase": "11",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:11b-brand-designer.md",
+      "filename": "11b-brand-designer.md",
+      "slug": "brand-designer",
+      "phase": "11-b",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:11b-csuite-review.md",
+      "filename": "11b-csuite-review.md",
+      "slug": "",
+      "phase": "11-b",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:11b-manager-creative-director.md",
+      "filename": "11b-manager-creative-director.md",
+      "slug": "",
+      "phase": "11-b",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:11r-brand-designer.md",
+      "filename": "11r-brand-designer.md",
+      "slug": "brand-designer",
+      "phase": "11r",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:12-csuite-review.md",
+      "filename": "12-csuite-review.md",
+      "slug": "",
+      "phase": "12",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:12-manager-creative-director.md",
+      "filename": "12-manager-creative-director.md",
+      "slug": "",
+      "phase": "12",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:12-web-designer.md",
+      "filename": "12-web-designer.md",
+      "slug": "web-designer",
+      "phase": "12",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:12b-csuite-review.md",
+      "filename": "12b-csuite-review.md",
+      "slug": "",
+      "phase": "12-b",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:12b-manager-creative-director.md",
+      "filename": "12b-manager-creative-director.md",
+      "slug": "",
+      "phase": "12-b",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:12b-web-designer.md",
+      "filename": "12b-web-designer.md",
+      "slug": "web-designer",
+      "phase": "12-b",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:12c-csuite-review.md",
+      "filename": "12c-csuite-review.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:12c-web-designer.md",
+      "filename": "12c-web-designer.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:12r-web-designer.md",
+      "filename": "12r-web-designer.md",
+      "slug": "web-designer",
+      "phase": "12r",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:13-content-strategist-notes.md",
+      "filename": "13-content-strategist-notes.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:13-content-strategist.md",
+      "filename": "13-content-strategist.md",
+      "slug": "content-strategist",
+      "phase": "13",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:13-copy-chief.md",
+      "filename": "13-copy-chief.md",
+      "slug": "copy-chief",
+      "phase": "13",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:13-csuite-review.md",
+      "filename": "13-csuite-review.md",
+      "slug": "",
+      "phase": "13",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:13-manager-cmo.md",
+      "filename": "13-manager-cmo.md",
+      "slug": "",
+      "phase": "13",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:13-pmm-notes.md",
+      "filename": "13-pmm-notes.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:13-product-marketing-manager.md",
+      "filename": "13-product-marketing-manager.md",
+      "slug": "product-marketing-manager",
+      "phase": "13",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:14-content-strategist.md",
+      "filename": "14-content-strategist.md",
+      "slug": "content-strategist",
+      "phase": "14",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:14-copy-chief.md",
+      "filename": "14-copy-chief.md",
+      "slug": "copy-chief",
+      "phase": "14",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:14-csuite-review.md",
+      "filename": "14-csuite-review.md",
+      "slug": "",
+      "phase": "14",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:14-manager-cmo.md",
+      "filename": "14-manager-cmo.md",
+      "slug": "",
+      "phase": "14",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:14-seo-manager.md",
+      "filename": "14-seo-manager.md",
+      "slug": "seo-manager",
+      "phase": "14",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:14r-copy-chief.md",
+      "filename": "14r-copy-chief.md",
+      "slug": "copy-chief",
+      "phase": "14r",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:15-csuite-review.md",
+      "filename": "15-csuite-review.md",
+      "slug": "",
+      "phase": "15",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:15-manager-creative-director.md",
+      "filename": "15-manager-creative-director.md",
+      "slug": "",
+      "phase": "15",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:15-video-producer.md",
+      "filename": "15-video-producer.md",
+      "slug": "video-producer",
+      "phase": "15",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:16-csuite-review.md",
+      "filename": "16-csuite-review.md",
+      "slug": "",
+      "phase": "16",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:16-eng-manager-cto.md",
+      "filename": "16-eng-manager-cto.md",
+      "slug": "",
+      "phase": "16-eng",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:16-manager-cmo.md",
+      "filename": "16-manager-cmo.md",
+      "slug": "",
+      "phase": "16",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:16-seo-manager.md",
+      "filename": "16-seo-manager.md",
+      "slug": "seo-manager",
+      "phase": "16",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:17-content-strategist.md",
+      "filename": "17-content-strategist.md",
+      "slug": "content-strategist",
+      "phase": "17",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:17-csuite-review.md",
+      "filename": "17-csuite-review.md",
+      "slug": "",
+      "phase": "17",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:17-lifecycle-marketer.md",
+      "filename": "17-lifecycle-marketer.md",
+      "slug": "lifecycle-marketer",
+      "phase": "17",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:17-manager-cmo.md",
+      "filename": "17-manager-cmo.md",
+      "slug": "cmo",
+      "phase": "17",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:17-verifier.md",
+      "filename": "17-verifier.md",
+      "slug": "verifier",
+      "phase": "17",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:18-csuite-review.md",
+      "filename": "18-csuite-review.md",
+      "slug": "",
+      "phase": "18",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:18-manager-cmo.md",
+      "filename": "18-manager-cmo.md",
+      "slug": "",
+      "phase": "18",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:18-paid-media-manager.md",
+      "filename": "18-paid-media-manager.md",
+      "slug": "paid-media-manager",
+      "phase": "18",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:18-product-marketing-manager.md",
+      "filename": "18-product-marketing-manager.md",
+      "slug": "product-marketing-manager",
+      "phase": "18",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:2-competitive-intelligence-analyst.md",
+      "filename": "2-competitive-intelligence-analyst.md",
+      "slug": "competitive-intelligence-analyst",
+      "phase": "2",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:2-csuite-review.md",
+      "filename": "2-csuite-review.md",
+      "slug": "",
+      "phase": "2",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:2-manager-head-of-research.md",
+      "filename": "2-manager-head-of-research.md",
+      "slug": "",
+      "phase": "2",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:2-market-research-analyst.md",
+      "filename": "2-market-research-analyst.md",
+      "slug": "market-research-analyst",
+      "phase": "2",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:20-analytics-engineer.md",
+      "filename": "20-analytics-engineer.md",
+      "slug": "analytics-engineer",
+      "phase": "20",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:20-csuite-review.md",
+      "filename": "20-csuite-review.md",
+      "slug": "",
+      "phase": "20",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:20-manager-head-of-data.md",
+      "filename": "20-manager-head-of-data.md",
+      "slug": "",
+      "phase": "20",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:21-analytics-manager-cto.md",
+      "filename": "21-analytics-manager-cto.md",
+      "slug": "",
+      "phase": "21-analytics",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:21-analytics-tech-lead.md",
+      "filename": "21-analytics-tech-lead.md",
+      "slug": "",
+      "phase": "21-analytics",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:21-csuite-review.md",
+      "filename": "21-csuite-review.md",
+      "slug": "",
+      "phase": "21",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:21-manager-ceo-strategist.md",
+      "filename": "21-manager-ceo-strategist.md",
+      "slug": "",
+      "phase": "21",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:22-ceo-operator-feedback-3d-brand.md",
+      "filename": "22-ceo-operator-feedback-3d-brand.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:23-skill-pack-gap-audit.md",
+      "filename": "23-skill-pack-gap-audit.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:24-ceo-option-c-lock.md",
+      "filename": "24-ceo-option-c-lock.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:25-ceo-creative-reboot.md",
+      "filename": "25-ceo-creative-reboot.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:26-creative-director-territory.md",
+      "filename": "26-creative-director-territory.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:3-business-analyst.md",
+      "filename": "3-business-analyst.md",
+      "slug": "business-analyst",
+      "phase": "3",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:3-csuite-review.md",
+      "filename": "3-csuite-review.md",
+      "slug": "",
+      "phase": "3",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:3-manager-ceo-strategist.md",
+      "filename": "3-manager-ceo-strategist.md",
+      "slug": "",
+      "phase": "3",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:3-product-marketing-manager.md",
+      "filename": "3-product-marketing-manager.md",
+      "slug": "product-marketing-manager",
+      "phase": "3",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:3c-csuite-review.md",
+      "filename": "3c-csuite-review.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:4-csuite-review.md",
+      "filename": "4-csuite-review.md",
+      "slug": "",
+      "phase": "4",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:4-fpa-analyst.md",
+      "filename": "4-fpa-analyst.md",
+      "slug": "fpa-analyst",
+      "phase": "4",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:4-manager-cfo.md",
+      "filename": "4-manager-cfo.md",
+      "slug": "",
+      "phase": "4",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:4-product-marketing-manager.md",
+      "filename": "4-product-marketing-manager.md",
+      "slug": "product-marketing-manager",
+      "phase": "4",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:5-business-analyst.md",
+      "filename": "5-business-analyst.md",
+      "slug": "business-analyst",
+      "phase": "5",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:5-csuite-review.md",
+      "filename": "5-csuite-review.md",
+      "slug": "",
+      "phase": "5",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:5-manager-head-of-product.md",
+      "filename": "5-manager-head-of-product.md",
+      "slug": "",
+      "phase": "5",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:5-product-manager.md",
+      "filename": "5-product-manager.md",
+      "slug": "product-manager",
+      "phase": "5",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:6-content-strategist.md",
+      "filename": "6-content-strategist.md",
+      "slug": "content-strategist",
+      "phase": "6",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:6-csuite-review.md",
+      "filename": "6-csuite-review.md",
+      "slug": "",
+      "phase": "6",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:6-manager-cmo.md",
+      "filename": "6-manager-cmo.md",
+      "slug": "",
+      "phase": "6",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:6-pr-manager.md",
+      "filename": "6-pr-manager.md",
+      "slug": "pr-manager",
+      "phase": "6",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:6-product-marketing-manager.md",
+      "filename": "6-product-marketing-manager.md",
+      "slug": "product-marketing-manager",
+      "phase": "6",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:7-csuite-review.md",
+      "filename": "7-csuite-review.md",
+      "slug": "",
+      "phase": "7",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:7-customer-success-manager.md",
+      "filename": "7-customer-success-manager.md",
+      "slug": "customer-success-manager",
+      "phase": "7",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:7-manager-head-of-sales-cs.md",
+      "filename": "7-manager-head-of-sales-cs.md",
+      "slug": "",
+      "phase": "7",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:7-outbound-lead.md",
+      "filename": "7-outbound-lead.md",
+      "slug": "outbound-lead",
+      "phase": "7",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:7-sales-enablement-lead.md",
+      "filename": "7-sales-enablement-lead.md",
+      "slug": "sales-enablement-lead",
+      "phase": "7",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:8-csuite-review.md",
+      "filename": "8-csuite-review.md",
+      "slug": "",
+      "phase": "8",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:8-legal-counsel.md",
+      "filename": "8-legal-counsel.md",
+      "slug": "legal-counsel",
+      "phase": "8",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:8-manager-coo.md",
+      "filename": "8-manager-coo.md",
+      "slug": "",
+      "phase": "8",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:8-ops-manager.md",
+      "filename": "8-ops-manager.md",
+      "slug": "ops-manager",
+      "phase": "8",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:9-csuite-review.md",
+      "filename": "9-csuite-review.md",
+      "slug": "",
+      "phase": "9",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:9-manager-cto.md",
+      "filename": "9-manager-cto.md",
+      "slug": "",
+      "phase": "9",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:9-tech-lead.md",
+      "filename": "9-tech-lead.md",
+      "slug": "tech-lead",
+      "phase": "9",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:9b-csuite-review.md",
+      "filename": "9b-csuite-review.md",
+      "slug": "",
+      "phase": "9-b",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:9b-manager-cto.md",
+      "filename": "9b-manager-cto.md",
+      "slug": "",
+      "phase": "9-b",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:9b-tech-lead.md",
+      "filename": "9b-tech-lead.md",
+      "slug": "tech-lead",
+      "phase": "9-b",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:9c-tech-lead.md",
+      "filename": "9c-tech-lead.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:9d-csuite-review.md",
+      "filename": "9d-csuite-review.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:9d-manager-cto.md",
+      "filename": "9d-manager-cto.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:9d-tech-lead.md",
+      "filename": "9d-tech-lead.md",
+      "slug": "",
+      "phase": "",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:9r-csuite-review.md",
+      "filename": "9r-csuite-review.md",
+      "slug": "ceo-strategist",
+      "phase": "9r",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    },
+    {
+      "id": "new:9r-tech-lead.md",
+      "filename": "9r-tech-lead.md",
+      "slug": "tech-lead",
+      "phase": "9r",
+      "kind": "new_handoff",
+      "createdAt": "2026-08-04T20:16:26.198Z",
+      "acked": true
+    }
+  ]
+}

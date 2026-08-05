@@ -1,0 +1,26 @@
+# Copy into $AI_TOOLKIT_ROOT or pass absolute path to: python run.py <this-file>
+# Model: https://huggingface.co/black-forest-labs/FLUX.2-dev
+job: generate
+config:
+  name: blacksage-flux2-dev
+  process:
+    - type: to_folder
+      output_folder: "output/blacksage-stills"
+      device: mps
+      model:
+        name_or_path: "black-forest-labs/FLUX.2-dev"
+        dtype: bf16
+      generate:
+        width: 1920
+        height: 1080
+        sample_steps: 28
+        guidance_scale: 4
+        # ctrl_img: "/absolute/path/to/11-brand/refs/identity-01.jpg"
+        # ctrl_img_1: "/absolute/path/to/11-brand/refs/pose-01.jpg"
+        prompts:
+          - >-
+            A powerful adult Rottweiler standing in a dark cinematic kennel yard at dusk,
+            black and rich tan markings #C4A35A catching a single warm key light from camera left,
+            void-black #070707 shadows, wet gravel and steel fence soft in background,
+            shot on Hasselblad X2D with 80mm lens at f/2.8, shallow depth of field,
+            photorealistic documentary working-dog photography, natural coat texture

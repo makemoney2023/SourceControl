@@ -18,7 +18,8 @@ Use for brand, page, email, social, and paid **still** production when the claim
 |------|------|
 | `skills/community/openmontage/.claude/skills/flux-best-practices/` | FLUX.2 T2I/I2I, hex, multi-ref, no negatives |
 | `skills/community/visual-skills/image/` | Prompt templates / model pick (prompt craft) |
-| `skills/integrations/fal-media/` | fal FLUX / Imagen render |
+| `skills/integrations/ai-toolkit-local/` | **Mac primary:** local [FLUX.2-dev](https://huggingface.co/black-forest-labs/FLUX.2-dev) via Ostris ai-toolkit |
+| `skills/integrations/fal-media/` | fal FLUX.2 max/pro commercial/API upgrade |
 | `skills/community/inference-sh/flux-image/` | inference.sh FLUX path |
 | `skills/community/inference-sh/ai-image-generation/` | Multi-model still render |
 | `skills/community/inference-sh/image-upscaling/` | Final megapixel / print pass |
@@ -32,7 +33,7 @@ Do **not** call image generation until a Design brief exists (see `production-ar
 
 Research + BFL guidance converge on a **pipeline**, not a magic adjective (“8k”, “ultra realistic”):
 
-1. **Right final model** — Prefer **FLUX.2 [max]** or **[pro]** for hero/finals; use klein/fast only for drafts. Cursor built-in image gen is **draft / concept** — not client-final.
+1. **Right final model** — On Mac: **FLUX.2-dev** local (`generation_used: local/flux-2-dev`) via ai-toolkit when `HF_TOKEN` is set. Commercial API upgrade: **FLUX.2 [max]/[pro]** via fal. Use klein only for speed drafts. Cursor built-in image gen is **draft / concept** — not client-final. Local commercial Layer B requires `license_basis: bfl-self-hosted-commercial` or fal re-render.
 2. **Photographic language** — Prose subject + action + environment, then **camera body, lens, aperture, film/sensor, lighting**. BFL: camera/lens/film references outperform vague “professional photo” ([FLUX.2 prompting guide](https://docs.bfl.ml/guides/prompting_guide_flux2)).
 3. **One job per image** — Do not mix watercolor + cinematic + cyberpunk in one prompt; focus collapses realism ([Artlist FLUX 2 practices](https://artlist.io/blog/best-practices-flux-2/)).
 4. **Positive-only** — FLUX has no negatives; describe sharp focus, natural skin/fur, empty scene instead of “no blur / no CGI”.
@@ -58,11 +59,12 @@ Brand hex example (Blacksage): tan key `#C4A35A` on markings; void `#070707`.
 | Stage | Prefer | Avoid as final |
 |-------|--------|----------------|
 | Ideation / mood | FLUX.2 klein, Cursor GenerateImage | Claiming production complete |
-| Brand / page / email hero | FLUX.2 max or pro via fal or inference.sh | Unspecified “AI art” models |
-| Paid stills | FLUX.2 pro/max or GPT Image per `ad-creative` | Draft-only gens |
+| Brand / page / email hero (Mac) | FLUX.2-dev local via `ai-toolkit-local` + `scripts/render-blacksage-stills.sh` | Unspecified “AI art” models |
+| Brand / page / email hero (API) | FLUX.2 max or pro via fal or inference.sh | Draft-only gens |
+| Paid stills | Local FLUX.2-dev (licensed) or fal pro/max / GPT Image per `ad-creative` | Cursor drafts |
 | Upscale | `image-upscaling` (Topaz / FLUX upscaler / Real-ESRGAN as pack allows) | Stretching draft PNG in CSS |
 
-Record `generation_used` e.g. `fal/flux-2-max` + upscaler id.
+Record `generation_used` e.g. `local/flux-2-dev` or `fal/flux-2-max` + upscaler id + `license_basis` when local.
 
 ### Dog / animal identity (kennel ventures)
 

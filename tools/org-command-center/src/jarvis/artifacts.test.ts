@@ -41,4 +41,36 @@ describe("indexArtifacts", () => {
       `${BIZ}/extra.md`,
     ]);
   });
+
+  it("retains seat, notes, and handoff filename from handoffs", () => {
+    const items = indexArtifacts(
+      [],
+      [
+        {
+          filename: "11-brand-designer.md",
+          kind: "ic",
+          phase: "11",
+          position: "brand-designer",
+          reportsTo: "cmo",
+          status: "done",
+          verdictForManager: "",
+          verdict: "",
+          llmTier: "",
+          generationProfile: "",
+          fallbackApplied: "",
+          artifacts: [
+            { path: `${BIZ}/11-brand/logo.svg`, notes: "primary mark" },
+          ],
+        },
+      ],
+    );
+    expect(items[0]).toMatchObject({
+      path: `${BIZ}/11-brand/logo.svg`,
+      phase: "11",
+      status: "done",
+      seat: "brand-designer",
+      handoffFilename: "11-brand-designer.md",
+      notes: "primary mark",
+    });
+  });
 });

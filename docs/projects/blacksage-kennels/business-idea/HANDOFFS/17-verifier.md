@@ -14,18 +14,16 @@ fallback_applied: false
 # Verifier — Phase 17 (Blacksage)
 
 ## Passed
-- Manager brief + lifecycle handoff claim `production_status: complete` for one HTML path.
-- File exists on disk: `docs/projects/blacksage-kennels/business-idea/17-channels/email/html/inquiry-welcome-1-interest-ack.html`
-- Email HTML QA (spot-check):
-  - max-width 600px table layout present
-  - bulletproof CTA table (`bgcolor` + padded `<a>`)
-  - unsubscribe placeholder in footer
-  - body font 16px (≥14px)
-  - no empty `email/html/` directory false-complete
-- Honest scope: stills/video explicitly skipped; headers deferred noted in wire_notes (allowed for text-only HTML).
+- Manager + lifecycle claim `production_status: complete` with `design_brief_path` and `wire_checklist_path`.
+- Design briefs exist for all four email journeys under `email/design/`.
+- Layer B HTML inventory **15 / 15** (`PRODUCTION-INVENTORY.md`); `validate-email-html.sh` clean.
+- Wire checklist present: `WIRE/phase-17-email.md` (ESP steps unchecked — honest Wire incomplete).
+- Header still marked `photoreal_qa: draft` with cursor-draft reason (not silent final).
+- Root design-system SSOT: `design-system/blacksage-kennels/MASTER.md`.
 
 ## Failed / incomplete
-_None for this proof scope._
+_None blocking pass for Layer B HTML scope._
 
 ## Issues
-_None blocking pass. Operator still must fill `[DOMAIN]` / contact placeholders before ESP Wire._
+- Operator must host header (Blob) + fill ESP merge tags before Wire complete.
+- Photoreal finals require `HF_TOKEN` local FLUX.2-dev (`license_basis`) or fal re-render.

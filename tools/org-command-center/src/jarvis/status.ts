@@ -9,6 +9,57 @@ export type SeatVisualStatus =
   | "error"
   | "paused";
 
+const COMPLETED_TASK_STATUSES = new Set(["done", "completed", "cancelled"]);
+
+const STATUS_CUE: Partial<Record<SeatVisualStatus, string>> = {
+  active: "ACTIVE",
+  running: "RUNNING",
+  blocked: "BLOCKED",
+  escalate: "ESCALATE",
+};
+
+export function isTaskStatusCompleted(status: string): boolean {
+  return COMPLETED_TASK_STATUSES.has(status.trim().toLowerCase());
+}
+
+export function isSeatDimmed({
+  mode,
+  isOwner,
+  isGhost,
+  isCeo,
+  isSelected,
+}: {
+  mode: "floor" | "assign" | "outputs";
+  isOwner: boolean;
+  isGhost: boolean;
+  isCeo: boolean;
+  isSelected: boolean;
+}): boolean {
+  return mode === "assign" && !isOwner && !isGhost && !isCeo && !isSelected;
+}
+
+export function deriveSeatVisualBehavior(
+  status: SeatVisualStatus,
+  reducedMotion: boolean,
+): {
+  orbitSpeed: number;
+  pulses: boolean;
+  cue: string | null;
+} {
+  let orbitSpeed = 0;
+  if (!reducedMotion) {
+    if (status === "running") orbitSpeed = 3;
+    else if (status === "active") orbitSpeed = 1.4;
+    else if (status === "blocked" || status === "escalate") orbitSpeed = 0.8;
+  }
+
+  return {
+    orbitSpeed,
+    pulses: !reducedMotion && status === "running",
+    cue: STATUS_CUE[status] ?? null,
+  };
+}
+
 export function seatStatus(
   slug: string,
   handoffs: {

@@ -26,6 +26,7 @@
   "include": ["src"],
   "exclude": [
     "src/**/*.test.ts",
+    "src/**/*.test.tsx",
     "src/lib/dispatch-queue.ts",
     "src/lib/cost-rates.ts",
     "src/lib/cron.ts",

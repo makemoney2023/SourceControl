@@ -10,7 +10,7 @@ import type { StandupBriefing } from "./csuite";
 import { resolveEscalationSecondaries } from "./escalation";
 import { HARD_GATES } from "./mission";
 import { assessHandoffModelQuality } from "./model-quality";
-import { buildTasks } from "./tasks";
+import { buildTasks, type TaskSessionRecord } from "./tasks";
 
 export type SeatRole = "ceo" | "manager" | "ic";
 export type ActionActor = "human" | "agent";
@@ -428,7 +428,7 @@ export function buildSeatReport(args: {
   claimedFiles: string[];
   runs: RunRecord[];
   briefings: StandupBriefing[];
-  sessionFilenames?: string[];
+  sessions?: TaskSessionRecord[];
   repoRoot?: string;
   spendBySeat?: Record<string, { tokens: number; cost_usd: number }>;
   models?: ModelRegistry;
@@ -447,7 +447,7 @@ export function buildSeatReport(args: {
     queueFiles: args.queueFiles,
     claimedFiles: args.claimedFiles,
     runs: args.runs,
-    sessionFilenames: args.sessionFilenames,
+    sessions: args.sessions,
   }).filter(
     (t) =>
       t.slug === args.slug ||

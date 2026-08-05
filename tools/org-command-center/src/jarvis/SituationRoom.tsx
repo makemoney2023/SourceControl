@@ -9,10 +9,12 @@ import {
   pauseSeat,
   postBriefing,
   postCsuiteDraft,
+  postJarvisConfirm,
   resumeSeat,
   rewakeSession,
   setRoutineEnabled,
   createProject,
+  resolveBlocker,
   setActiveProject,
   spawnManager,
   speakText,
@@ -28,14 +30,31 @@ import { formatActivityLine } from "./activity-ui";
 import { handoffFilePath } from "../lib/project-paths";
 import type { CompanyDigest } from "./company-digest";
 import { Textarea } from "../components/ui/textarea";
+import { Button } from "../components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "../components/ui/dialog";
 import { OutputsDashboard } from "./hud/OutputsDashboard";
 import { QuickAssign } from "./hud/QuickAssign";
+import { SeatConsole } from "./hud/SeatConsole";
+import { ThreatRail } from "./hud/ThreatRail";
+import { CommandDeck } from "./hud/CommandDeck";
+import { MissionCommandControls } from "./hud/MissionCommandControls";
 import "./hud/theme.css";
 import { OrgTheater } from "./scene/OrgTheater";
 import type { SeatNextAction, SeatReport } from "./seat-report";
+import { seatWorkContext } from "./seat-work-context";
+import { useJarvisStore } from "./state/useJarvisStore";
 import { requestTalkConnect, VoiceFab } from "./VoiceFab";
 import { JarvisFocusListener } from "./JarvisFocusListener";
 import type { JarvisFocus } from "./jarvis-focus";
+import { JarvisDrawer } from "./JarvisDrawer";
+import { setOpsVisible, setTheaterVisible } from "./workspace-view-state";
+import { ManualActivityCounter, RequestSequence } from "./request-coordinator";
+import { failedChatDraft, nextChatDraft, retryChatMessage } from "./chat-submission";
 
 function resolveRewakeDispatchFilename(
   snap: SituationSnapshot | null,
@@ -66,12 +85,111 @@ type Drawer =
   | "digest"
   | "alerts";
 
+type BlockerConfirmationRequest = {
+  seat: string;
+  token: string;
+  summary?: string;
+  reason?: string;
+};
+
+export function BlockerConfirmationDialog({
+  request,
+  loading,
+  cancelling = false,
+  cancellationError,
+  onCancel,
+  onConfirm,
+}: {
+  request: BlockerConfirmationRequest | null;
+  loading: boolean;
+  cancelling?: boolean;
+  cancellationError?: string | null;
+  onCancel: (token: string) => void;
+  onConfirm: (token: string) => void;
+}) {
+  const cancellationRequestedFor = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!cancelling) cancellationRequestedFor.current = null;
+  }, [cancelling, request?.token]);
+
+  function requestCancellation() {
+    if (
+      !request ||
+      loading ||
+      cancelling ||
+      cancellationRequestedFor.current === request.token
+    ) {
+      return;
+    }
+    cancellationRequestedFor.current = request.token;
+    onCancel(request.token);
+  }
+
+  return (
+    <Dialog
+      open={request !== null}
+      onOpenChange={(open) => {
+        if (!open) requestCancellation();
+      }}
+    >
+      {request ? (
+        <DialogContent theme="jarvis" aria-busy={loading || cancelling}>
+          <DialogTitle>Confirm blocker resolution</DialogTitle>
+          <DialogDescription className="j-muted">
+            Review the server response before approving this write.
+          </DialogDescription>
+          {request.summary ? <p>{request.summary}</p> : null}
+          {request.reason ? <p className="j-muted">{request.reason}</p> : null}
+          {cancellationError ? (
+            <p className="j-error" role="alert">
+              {cancellationError}
+            </p>
+          ) : null}
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={loading || cancelling}
+              onClick={requestCancellation}
+            >
+              {cancelling ? "Cancelling…" : "Cancel"}
+            </Button>
+            <Button
+              type="button"
+              disabled={loading || cancelling}
+              onClick={() => {
+                if (cancellationRequestedFor.current !== request.token) {
+                  onConfirm(request.token);
+                }
+              }}
+            >
+              {loading ? "Confirming…" : "Confirm"}
+            </Button>
+          </div>
+        </DialogContent>
+      ) : null}
+    </Dialog>
+  );
+}
+
 export function SituationRoom() {
   const [snap, setSnap] = useState<SituationSnapshot | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [drawer, setDrawer] = useState<Drawer>(null);
-  const [showMap, setShowMap] = useState(false);
+  const [showMap, setShowMap] = useState(true);
+  const [resolvingSlug, setResolvingSlug] = useState<string | null>(null);
+  const [blockerConfirmation, setBlockerConfirmation] =
+    useState<BlockerConfirmationRequest | null>(null);
+  const [cancellingConfirmationToken, setCancellingConfirmationToken] =
+    useState<string | null>(null);
+  const [confirmationCancellationError, setConfirmationCancellationError] =
+    useState<string | null>(null);
+  const [consoleLoading, setConsoleLoading] = useState(false);
+  const [opsMode, setOpsMode] = useState(false);
+  const jarvisStore = useJarvisStore();
+  const selectedSlug = jarvisStore.selectedSlug;
+  const selectStoreSlug = jarvisStore.selectSlug;
   const [voiceOk, setVoiceOk] = useState<boolean | null>(null);
   const [autoSpawn, setAutoSpawn] = useState(
     () => localStorage.getItem("sr-auto-spawn") === "1",
@@ -94,12 +212,23 @@ export function SituationRoom() {
   const [newVentureContext, setNewVentureContext] = useState("");
   const [creatingVenture, setCreatingVenture] = useState(false);
   const [jarvisFocus, setJarvisFocus] = useState<JarvisFocus | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [chatSending, setChatSending] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const [failedChatMessage, setFailedChatMessage] = useState<string | null>(null);
+  const reloadSequence = useRef(new RequestSequence());
+  const digestSequence = useRef(new RequestSequence());
+  const seatReportSequence = useRef(new RequestSequence());
+  const manualReloads = useRef(new ManualActivityCounter());
+  const chatSendingRef = useRef(false);
   const seatCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const cancellationRequests = useRef(new Set<string>());
 
   const onJarvisFocus = useCallback((focus: JarvisFocus | null) => {
     setJarvisFocus(focus);
     if (focus?.slug) {
-      setSelectedSlug(focus.slug);
+      selectStoreSlug(focus.slug);
       requestAnimationFrame(() => {
         seatCardRefs.current[focus.slug!]?.scrollIntoView({
           block: "nearest",
@@ -107,9 +236,15 @@ export function SituationRoom() {
         });
       });
     }
-  }, []);
+  }, [selectStoreSlug]);
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (manual = false) => {
+    const request = reloadSequence.current.beginIfMounted();
+    if (request == null) return;
+    if (manual) {
+      manualReloads.current.begin();
+      setRefreshing(true);
+    }
     try {
       const [s, proj] = await Promise.all([
         fetchSnapshot(),
@@ -118,21 +253,46 @@ export function SituationRoom() {
           return r.json() as Promise<{ projects: ProjectListItem[] }>;
         }),
       ]);
-      setSnap(s);
-      if (proj?.projects) setProjects(proj.projects);
-      setError(null);
+      if (reloadSequence.current.isCurrent(request)) {
+        setSnap(s);
+        if (proj?.projects) setProjects(proj.projects);
+        setError(null);
+        setLastUpdated(new Date().toLocaleTimeString());
+      }
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      if (reloadSequence.current.isCurrent(request)) {
+        setError(e instanceof Error ? e.message : String(e));
+      }
+    } finally {
+      if (manual) {
+        if (manualReloads.current.endAndShouldPublish(reloadSequence.current)) {
+          setRefreshing(false);
+        }
+      }
+    }
+  }, []);
+
+  const reloadDigest = useCallback(async () => {
+    const request = digestSequence.current.begin();
+    try {
+      const next = await fetchCompanyDigest();
+      if (digestSequence.current.isCurrent(request)) setDigest(next);
+      return next;
+    } catch (e) {
+      if (digestSequence.current.isCurrent(request)) setDigest(null);
+      throw e;
     }
   }, []);
 
   async function onSwitchProject(slug: string) {
     if (!slug || slug === snap?.activeProject || switchingProject) return;
     setSwitchingProject(true);
+    digestSequence.current.begin();
+    setDigest(null);
     setActionError(null);
     try {
       await setActiveProject(slug);
-      await reload();
+      await reload(true);
     } catch (e) {
       setActionError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -153,6 +313,8 @@ export function SituationRoom() {
     const name = newVentureName.trim();
     if (!name || creatingVenture) return;
     setCreatingVenture(true);
+    digestSequence.current.begin();
+    setDigest(null);
     setActionError(null);
     try {
       const slug = newVentureSlug.trim() || undefined;
@@ -166,7 +328,7 @@ export function SituationRoom() {
       setNewVentureName("");
       setNewVentureSlug("");
       setNewVentureContext("");
-      await reload();
+      await reload(true);
     } catch (e) {
       setActionError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -175,11 +337,20 @@ export function SituationRoom() {
   }
 
   useEffect(() => {
+    const reloadRequests = reloadSequence.current;
+    const digestRequests = digestSequence.current;
+    const seatReportRequests = seatReportSequence.current;
+    reloadRequests.mount();
+    digestRequests.mount();
+    seatReportRequests.mount();
     void reload();
     const unsub = subscribeEvents(() => void reload());
     const poll = setInterval(() => void reload(), 2000);
     void voiceHealth().then((h) => setVoiceOk(h.ok));
     return () => {
+      reloadRequests.unmount();
+      digestRequests.unmount();
+      seatReportRequests.unmount();
       unsub();
       clearInterval(poll);
     };
@@ -208,10 +379,166 @@ export function SituationRoom() {
       org: snap.org,
       handoffs: snap.handoffs,
       queue: snap.queue,
+      claimed: snap.claimed,
+      runs: snap.runs,
+      sessions: snap.sessions,
+      agentStates: snap.agentStates,
       models: snap.models,
       businessIdeaRel: snap.businessIdeaRel,
     };
   }, [snap]);
+
+  const selectedWork = useMemo(() => {
+    if (!snap || !selectedSlug) return undefined;
+    return seatWorkContext(selectedSlug, {
+      handoffs: snap.handoffs,
+      runs: snap.runs,
+      sessions: snap.sessions,
+      claimedFiles: snap.claimed,
+      queueFiles: snap.queue,
+      agentStates: snap.agentStates,
+    });
+  }, [snap, selectedSlug]);
+
+  const setBeam = jarvisStore.setBeam;
+
+  useEffect(() => {
+    if (!selectedSlug) {
+      seatReportSequence.current.begin();
+      setSeatReport(null);
+      setConsoleLoading(false);
+      return;
+    }
+    const request = seatReportSequence.current.beginIfMounted();
+    if (request == null) return;
+    setConsoleLoading(true);
+    setSeatReport(null);
+    void fetchSeatReport(selectedSlug)
+      .then((r) => {
+        if (seatReportSequence.current.isCurrent(request)) setSeatReport(r);
+      })
+      .catch((e) => {
+        if (seatReportSequence.current.isCurrent(request)) {
+          setActionError(e instanceof Error ? e.message : String(e));
+        }
+      })
+      .finally(() => {
+        if (seatReportSequence.current.isCurrent(request)) setConsoleLoading(false);
+      });
+  }, [selectedSlug, snap?.bump]);
+
+  useEffect(() => {
+    if (!snap) return;
+    void reloadDigest().catch(() => undefined);
+  }, [reloadDigest, snap]);
+
+  async function onResolveBlocker(slug: string) {
+    setResolvingSlug(slug);
+    setActionError(null);
+    try {
+      const result = await resolveBlocker(slug);
+      if (result.status === "needs_confirm") {
+        if (!result.token) throw new Error("Resolve confirmation token missing");
+        setConfirmationCancellationError(null);
+        setBlockerConfirmation({
+          seat: slug,
+          token: result.token,
+          summary: result.summary,
+          reason: result.reason,
+        });
+        return;
+      }
+      if (result.status === "denied" || result.status === "error") {
+        throw new Error(result.reason || result.summary || "Resolve failed");
+      }
+      setBeam(true);
+      await reload();
+      await reloadDigest();
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setResolvingSlug(null);
+    }
+  }
+
+  async function onCancelBlockerConfirmation(token: string) {
+    const request = blockerConfirmation;
+    if (
+      !request ||
+      request.token !== token ||
+      cancellationRequests.current.has(token)
+    ) {
+      return;
+    }
+    cancellationRequests.current.add(token);
+    setCancellingConfirmationToken(token);
+    setConfirmationCancellationError(null);
+    try {
+      const result = await postJarvisConfirm({
+        roomId: "default",
+        token,
+        accept: false,
+      });
+      if (result.status !== "denied") {
+        throw new Error(
+          result.reason || result.summary || "Server did not cancel confirmation",
+        );
+      }
+      setBlockerConfirmation((current) =>
+        current?.token === token ? null : current,
+      );
+    } catch (error) {
+      setConfirmationCancellationError(
+        `Unable to cancel confirmation: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    } finally {
+      cancellationRequests.current.delete(token);
+      setCancellingConfirmationToken((current) =>
+        current === token ? null : current,
+      );
+    }
+  }
+
+  async function onConfirmBlocker(token: string) {
+    const request = blockerConfirmation;
+    if (
+      !request ||
+      request.token !== token ||
+      cancellationRequests.current.has(token)
+    ) {
+      return;
+    }
+    setResolvingSlug(request.seat);
+    setActionError(null);
+    setConfirmationCancellationError(null);
+    try {
+      const result = await resolveBlocker(request.seat, token);
+      if (result.status === "needs_confirm") {
+        if (!result.token) throw new Error("Resolve confirmation token missing");
+        setConfirmationCancellationError(null);
+        setBlockerConfirmation({
+          seat: request.seat,
+          token: result.token,
+          summary: result.summary,
+          reason: result.reason,
+        });
+        return;
+      }
+      if (result.status === "denied" || result.status === "error") {
+        throw new Error(result.reason || result.summary || "Resolve failed");
+      }
+      setBlockerConfirmation(null);
+      setBeam(true);
+      await reload();
+      await reloadDigest();
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setResolvingSlug(null);
+    }
+  }
 
   async function onBriefMe(mode: "mission" | "seat" | "digest" = "mission") {
     const text = await fetchBriefScript(
@@ -221,22 +548,16 @@ export function SituationRoom() {
     await speakText(text);
   }
 
-  async function openReport(slug: string) {
-    setSelectedSlug(slug);
+  function openReport(slug: string) {
+    selectStoreSlug(slug);
     setDrawer("report");
-    setSeatReport(null);
-    try {
-      setSeatReport(await fetchSeatReport(slug));
-    } catch (e) {
-      setActionError(e instanceof Error ? e.message : String(e));
-    }
   }
 
   async function openDigest() {
     setDrawer("digest");
     setDigest(null);
     try {
-      setDigest(await fetchCompanyDigest());
+      await reloadDigest();
     } catch (e) {
       setActionError(e instanceof Error ? e.message : String(e));
     }
@@ -347,26 +668,67 @@ export function SituationRoom() {
     void reload();
   }
 
-  async function sendChat(message: string) {
+  function onSetTheater(nextVisible: boolean) {
+    const next = setTheaterVisible({ theater: showMap, opsTables: opsMode }, nextVisible);
+    setShowMap(next.theater);
+    setOpsMode(next.opsTables);
+  }
+
+  function onSetOpsTables(nextVisible: boolean) {
+    const next = setOpsVisible({ theater: showMap, opsTables: opsMode }, nextVisible);
+    setShowMap(next.theater);
+    setOpsMode(next.opsTables);
+  }
+
+  async function sendChat(message: string, origin: "typed" | "speech" = "typed"): Promise<boolean> {
+    if (chatSendingRef.current) return false;
+    chatSendingRef.current = true;
     const history = chatLog.slice(-8);
     setChatLog((l) => [...l, { role: "user", content: message }]);
-    const res = await voiceChat(message, history);
-    setChatLog((l) => [...l, { role: "assistant", content: res.text || "(tool actions)" }]);
-    for (const ev of res.uiEvents) {
-      if (ev.slug) setSelectedSlug(String(ev.slug));
-      if (ev.mode === "assign") setDrawer("assign");
-      if (ev.mode === "outputs") setDrawer("outputs");
-    }
-    for (const tr of res.toolResults) {
-      if (tr.name === "queue_dispatch" && autoSpawn) {
-        void onSpawn({ wakeReason: "auto_queue" });
+    setChatSending(true);
+    setChatError(null);
+    try {
+      const res = await voiceChat(message, history);
+      setChatLog((l) => [...l, { role: "assistant", content: res.text || "(tool actions)" }]);
+      for (const ev of res.uiEvents) {
+        if (ev.slug) selectStoreSlug(String(ev.slug));
+        if (ev.mode === "assign") setDrawer("assign");
+        if (ev.mode === "outputs") setDrawer("outputs");
       }
+      for (const tr of res.toolResults) {
+        if (tr.name === "queue_dispatch" && autoSpawn) void onSpawn({ wakeReason: "auto_queue" });
+      }
+      if (res.text) await speakText(res.text);
+      setFailedChatMessage(null);
+      void reload();
+      return true;
+    } catch (e) {
+      setChatError(e instanceof Error ? e.message : String(e));
+      setFailedChatMessage(message);
+      setChatInput((current) => failedChatDraft(current, message, origin));
+      return false;
+    } finally {
+      chatSendingRef.current = false;
+      setChatSending(false);
     }
-    if (res.text) await speakText(res.text);
-    void reload();
+  }
+
+  async function submitChatDraft() {
+    const message = chatInput.trim();
+    if (!message || chatSendingRef.current) return;
+    const succeeded = await sendChat(message);
+    setChatInput((current) => current === message ? nextChatDraft(current, succeeded) : current);
+  }
+
+  async function retryFailedChat() {
+    const message = retryChatMessage(chatInput, failedChatMessage);
+    if (!message || chatSendingRef.current) return;
+    const succeeded = await sendChat(message, "typed");
+    if (succeeded) setChatInput((current) => current === message ? "" : current);
   }
 
   function startListen() {
+    if (chatSendingRef.current) return;
     const SR = (
       window as unknown as {
         webkitSpeechRecognition?: new () => SpeechRecognition;
@@ -383,7 +745,7 @@ export function SituationRoom() {
     rec.lang = "en-US";
     rec.onresult = (ev: SpeechRecognitionEvent) => {
       const text = ev.results[0]?.[0]?.transcript ?? "";
-      if (text) void sendChat(text);
+      if (text && !chatSendingRef.current) void sendChat(text, "speech");
     };
     rec.onend = () => setListening(false);
     setListening(true);
@@ -392,8 +754,16 @@ export function SituationRoom() {
 
   if (!snap) {
     return (
-      <div data-theme="jarvis" className="j-shell">
-        <p className="j-muted">Loading Situation Room…</p>
+      <div data-theme="jarvis" className="j-shell j-loading-shell" aria-busy={!error}>
+        <div className="j-hud-panel j-loading-header">
+          <span className="j-skeleton j-skeleton-title" />
+          <span className="j-skeleton j-skeleton-line" />
+          <span className="j-skeleton j-skeleton-line" />
+        </div>
+        <div className="j-theater-stage j-loading-stage">
+          <span className="j-skeleton j-skeleton-orb" />
+          <p className="j-muted">Initializing Situation Room</p>
+        </div>
         {error && <p className="j-error">{error}</p>}
       </div>
     );
@@ -402,11 +772,14 @@ export function SituationRoom() {
   const m = snap.mission;
 
   return (
-    <div data-theme="jarvis" className="j-shell" style={{ gridTemplateRows: "auto auto 1fr" }}>
+    <div
+      data-theme="jarvis"
+      className="j-shell j-situation-shell"
+    >
       <JarvisFocusListener onFocus={onJarvisFocus} />
       {/* Mission strip */}
       <header
-        className="j-glass"
+        className="j-hud-panel j-hud-grid j-mission-header"
         data-jarvis-focus={jarvisFocus && !jarvisFocus.slug ? "true" : undefined}
         style={{ padding: 16 }}
       >
@@ -419,7 +792,7 @@ export function SituationRoom() {
               </label>
               <select
                 id="sr-project"
-                className="j-btn"
+                className="j-select"
                 disabled={switchingProject || creatingVenture || projects.length === 0}
                 value={snap.activeProject}
                 onChange={(e) => void onSwitchProject(e.target.value)}
@@ -467,7 +840,7 @@ export function SituationRoom() {
                 </label>
                 <input
                   id="sr-new-name"
-                  className="j-btn"
+                  className="j-input"
                   placeholder="e.g. Solar Lantern"
                   value={newVentureName}
                   onChange={(e) => {
@@ -485,7 +858,7 @@ export function SituationRoom() {
                 </label>
                 <input
                   id="sr-new-slug"
-                  className="j-btn"
+                  className="j-input"
                   placeholder="solar-lantern"
                   value={newVentureSlug}
                   onChange={(e) => setNewVentureSlug(e.target.value)}
@@ -495,7 +868,7 @@ export function SituationRoom() {
                 </label>
                 <Textarea
                   id="sr-new-context"
-                  className="j-btn"
+                  className="j-textarea"
                   placeholder="Operator notes for agents — market, constraints, priorities…"
                   rows={3}
                   value={newVentureContext}
@@ -567,7 +940,7 @@ export function SituationRoom() {
           </div>
           <div style={{ flex: "1 1 220px" }}>
             <p className="j-muted">
-              Blockers {m.blockerCount}
+              Threats {digest?.blockedSeats.length ?? m.blockerCount}
               {m.openQuestions[0] ? ` · ${m.openQuestions[0]}` : ""}
             </p>
             {m.latestDecision && (
@@ -584,56 +957,28 @@ export function SituationRoom() {
                 ))}
               </div>
             )}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
-              <button
-                type="button"
-                className="j-btn"
-                data-active="true"
-                onClick={() => requestTalkConnect()}
-              >
-                Talk
-              </button>
-              <button type="button" className="j-btn" data-active="true" onClick={() => void onBriefMe("mission")}>
-                Brief me
-              </button>
-              <button type="button" className="j-btn" onClick={() => void onBriefMe("seat")}>
-                Brief CEO
-              </button>
-              <button type="button" className="j-btn" onClick={() => void onBriefMe("digest")}>
-                Brief digest
-              </button>
-              <button type="button" className="j-btn" onClick={() => setDrawer("assign")}>
-                Assign
-              </button>
-              <button type="button" className="j-btn" onClick={() => setDrawer("outputs")}>
-                Outputs
-              </button>
-              <button type="button" className="j-btn" onClick={() => setDrawer("chat")}>
-                Legacy voice
-              </button>
-              <button type="button" className="j-btn" data-active="true" onClick={() => void onSpawn({ wakeReason: "run_next" })}>
-                Run next
-              </button>
-              <button type="button" className="j-btn" onClick={() => setDrawer("run")}>
-                Runs
-              </button>
-              <button type="button" className="j-btn" onClick={() => void openDigest()}>
-                Digest
-              </button>
-              <button type="button" className="j-btn" onClick={() => setDrawer("alerts")}>
-                Alerts (
-                {(snap.alerts ?? []).filter((a) => !a.acked).length})
-              </button>
-              <button type="button" className="j-btn" onClick={() => setDrawer("routines")}>
-                Routines
-              </button>
-              <button type="button" className="j-btn" data-active={showMap} onClick={() => setShowMap((v) => !v)}>
-                Map
-              </button>
-              <button type="button" className="j-btn" onClick={() => void reload()}>
-                Refresh
-              </button>
-            </div>
+            <MissionCommandControls
+              showTheater={showMap}
+              opsMode={opsMode}
+              alertCount={(snap.alerts ?? []).filter((a) => !a.acked).length}
+              refreshing={refreshing}
+              lastUpdated={lastUpdated}
+              onTalk={requestTalkConnect}
+              onBriefMission={() => void onBriefMe("mission")}
+              onBriefSeat={() => void onBriefMe("seat")}
+              onBriefDigest={() => void onBriefMe("digest")}
+              onAssign={() => setDrawer("assign")}
+              onOutputs={() => setDrawer("outputs")}
+              onLegacyVoice={() => setDrawer("chat")}
+              onRunNext={() => void onSpawn({ wakeReason: "run_next" })}
+              onRuns={() => setDrawer("run")}
+              onDigest={() => void openDigest()}
+              onAlerts={() => setDrawer("alerts")}
+              onRoutines={() => setDrawer("routines")}
+              onToggleTheater={onSetTheater}
+              onToggleOps={onSetOpsTables}
+              onRefresh={() => void reload(true)}
+            />
             {actionError && (
               <p className="j-error" style={{ marginTop: 8 }}>
                 {actionError}
@@ -652,11 +997,6 @@ export function SituationRoom() {
               </label>
             </p>
           </div>
-          {showMap && legacySnap && (
-            <div className="j-map j-glass" style={{ width: 280, height: 180 }}>
-              <OrgTheater snapshot={legacySnap as never} />
-            </div>
-          )}
         </div>
       </header>
 
@@ -666,252 +1006,286 @@ export function SituationRoom() {
         </p>
       )}
 
-      <section className="j-glass" style={{ padding: "8px 14px", margin: 0 }}>
-        <p className="j-title" style={{ marginBottom: 6 }}>
-          Activity
-        </p>
-        <ul style={{ listStyle: "none", padding: 0, margin: 0, maxHeight: 96, overflow: "auto" }}>
-          {(snap.activity ?? []).slice(0, 12).map((ev, i) => (
-            <li key={`${ev.at}-${ev.type}-${i}`} style={{ fontSize: 11, marginBottom: 2 }}>
-              {ev.runId ? (
-                <button
-                  type="button"
-                  className="j-btn"
-                  style={{ padding: "2px 6px", fontSize: 11 }}
-                  onClick={() => {
-                    setSelectedRunId(ev.runId!);
-                    setDrawer("run");
-                  }}
-                >
-                  {formatActivityLine(ev)}
-                </button>
-              ) : (
-                <span className="j-muted">{formatActivityLine(ev)}</span>
-              )}
-            </li>
-          ))}
-          {(snap.activity ?? []).length === 0 && (
-            <li className="j-muted" style={{ fontSize: 11 }}>
-              No activity yet — Assign and Run next to start.
-            </li>
-          )}
-        </ul>
-      </section>
+      <div className={showMap ? "j-command-launch" : undefined}>
+        <CommandDeck
+          roster={snap.org.roster}
+          tasks={snap.tasks}
+          runs={snap.runs ?? []}
+          showTrigger={showMap}
+          onSelectSeat={(slug) => {
+            selectStoreSlug(slug);
+          }}
+          onSelectRun={(runId) => {
+            setSelectedRunId(runId);
+            setDrawer("run");
+          }}
+          onSelectTaskContext={(task) => {
+            if (task.phase) jarvisStore.selectPhase(task.phase);
+          }}
+        />
+      </div>
 
       <div
+        className="j-workspace-stack"
         style={{
           display: "grid",
-          gridTemplateColumns: "minmax(260px, 1fr) minmax(280px, 1.2fr) minmax(260px, 0.9fr)",
-          gap: 12,
+          gridTemplateRows: opsMode
+            ? showMap
+              ? "minmax(0, 1fr) minmax(200px, 280px)"
+              : "minmax(0, 1fr)"
+            : "minmax(0, 1fr)",
           minHeight: 0,
           height: "100%",
+          gap: 10,
         }}
       >
-        {/* C-suite */}
-        <section className="j-glass j-panel-scroll" style={{ padding: 12 }}>
-          <p className="j-title">C-Suite</p>
-          <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
-            {snap.csuite.map((card) => (
-              <div
-                key={card.slug}
-                ref={(el) => {
-                  seatCardRefs.current[card.slug] = el;
-                }}
-              >
-                <CSuiteCardView
-                  card={card}
-                  selected={selectedSlug === card.slug}
-                  jarvisFocused={jarvisFocus?.slug === card.slug}
-                  paused={Boolean(snap.agentStates?.[card.slug]?.paused)}
-                  onOpen={() => setSelectedSlug(card.slug)}
-                  onReport={() => void openReport(card.slug)}
-                  onTogglePause={() =>
-                    void onTogglePause(
-                      card.slug,
-                      Boolean(snap.agentStates?.[card.slug]?.paused),
-                    )
-                  }
-                />
-              </div>
-            ))}
-          </div>
-        </section>
+        {showMap && legacySnap ? (
+          <div className="j-theater-stage">
+            <div className="j-map" style={{ position: "absolute", inset: 0 }}>
+              <OrgTheater snapshot={legacySnap as never} />
+            </div>
 
-        {/* Drill-down */}
-        <section className="j-glass j-panel-scroll" style={{ padding: 14 }}>
-          <p className="j-title">Drill-down</p>
-          {!selected && (
-            <p className="j-muted" style={{ marginTop: 12 }}>
-              Select a C-suite seat to inspect reports and IC progress.
-            </p>
-          )}
-          {selected?.seat && (
-            <div style={{ marginTop: 10 }}>
-              <h2 className="j-heading" style={{ fontSize: 18 }}>
-                {selected.seat.title}
-              </h2>
-              <p className="j-mono j-muted">
-                {selected.seat.slug} · {selected.seat.level} · tier{" "}
-                {snap.models[selected.seat.slug]?.llmTier || "—"}
-              </p>
-              <button
-                type="button"
-                className="j-btn"
-                data-active="true"
-                style={{ marginTop: 8 }}
-                onClick={() => void openReport(selected.seat!.slug)}
+            <div
+              className="j-overlay-stack j-stage-overlay-left"
+            >
+              <ThreatRail
+                blocked={digest?.blockedSeats ?? []}
+                selectedSlug={selectedSlug}
+                resolvingSlug={resolvingSlug}
+                onSelect={(slug) => {
+                  selectStoreSlug(slug);
+                }}
+                onResolve={(slug) => void onResolveBlocker(slug)}
+              />
+              <aside
+                className="j-hud-panel j-hud-grid"
+                style={{ padding: 10, maxHeight: 220, overflow: "auto" }}
               >
-                Report
-              </button>
-              <p className="j-muted" style={{ marginTop: 8 }}>
-                {selected.card?.briefingSnippet || "No briefing snippet yet."}
-              </p>
-              <h3 className="j-title" style={{ marginTop: 16 }}>
-                Direct reports
-              </h3>
-              <ul style={{ listStyle: "none", padding: 0, margin: "8px 0 0" }}>
-                {selected.reports.map((r) => {
-                  const h = snap.handoffs.find((x) => x.position === r.slug);
-                  return (
-                    <li key={r.slug}>
-                      <button
-                        type="button"
-                        className="j-btn"
-                        style={{ width: "100%", textAlign: "left", marginBottom: 6 }}
-                        onClick={() => setSelectedSlug(r.slug)}
-                      >
-                        {r.title}{" "}
-                        <span className="j-chip">{h?.status || "idle"}</span>
-                      </button>
-                    </li>
-                  );
-                })}
-                {selected.reports.length === 0 && (
-                  <li className="j-muted">No direct reports (IC or leaf).</li>
-                )}
-              </ul>
-              <h3 className="j-title" style={{ marginTop: 16 }}>
-                Handoffs
-              </h3>
-              {selected.handoffs.length === 0 && (
-                <p className="j-muted">No handoff files for this seat.</p>
-              )}
-              {selected.handoffs.map((h) => (
-                <div key={h.filename} className="j-chip" style={{ display: "block", marginTop: 6 }}>
-                  {h.filename} · {h.status || h.verdict || "—"}
-                  {h.artifacts.map((a) => (
-                    <button
-                      key={a.path}
-                      type="button"
-                      className="j-btn"
-                      style={{ marginLeft: 6 }}
-                      onClick={() => {
-                        setArtifact(a.path);
-                        setDrawer("outputs");
+                <p className="j-title">C-Suite</p>
+                <div style={{ display: "grid", gap: 6, marginTop: 8 }}>
+                  {snap.csuite.map((card) => (
+                    <div
+                      key={card.slug}
+                      ref={(el) => {
+                        seatCardRefs.current[card.slug] = el;
                       }}
                     >
-                      open
-                    </button>
+                      <CSuiteCardView
+                        card={card}
+                        selected={selectedSlug === card.slug}
+                        jarvisFocused={jarvisFocus?.slug === card.slug}
+                        paused={Boolean(snap.agentStates?.[card.slug]?.paused)}
+                        onOpen={() => selectStoreSlug(card.slug)}
+                        onReport={() => void openReport(card.slug)}
+                        onTogglePause={() =>
+                          void onTogglePause(
+                            card.slug,
+                            Boolean(snap.agentStates?.[card.slug]?.paused),
+                          )
+                        }
+                      />
+                    </div>
                   ))}
                 </div>
-              ))}
+              </aside>
             </div>
-          )}
-        </section>
 
-        {/* Tasks */}
-        <section className="j-glass j-panel-scroll" style={{ padding: 12 }}>
-          <p className="j-title">Live tasks</p>
-          <ul style={{ listStyle: "none", padding: 0, margin: "10px 0 0" }}>
-            {snap.tasks
-              .filter((t) => t.status !== "done")
-              .slice(0, 40)
-              .map((t) => (
-                <li
-                  key={t.id}
-                  className="j-glass"
-                  style={{ padding: "8px 10px", marginBottom: 6 }}
+            <div
+              className="j-overlay-stack j-stage-overlay-right"
+            >
+              <SeatConsole
+                report={seatReport}
+                work={selectedWork}
+                loading={consoleLoading}
+                resolving={resolvingSlug === selectedSlug}
+                onClose={() => {
+                  selectStoreSlug(null);
+                  setSeatReport(null);
+                }}
+                onResolveBlocker={(slug) => void onResolveBlocker(slug)}
+                onOpenArtifact={(path) => {
+                  setArtifact(path);
+                  setDrawer("outputs");
+                }}
+              />
+            </div>
+
+            <div
+              className="j-overlay-stack j-stage-overlay-bottom"
+              style={{
+                left: 12,
+                right: 12,
+                bottom: 12,
+                maxHeight: 88,
+                width: "auto",
+              }}
+            >
+              <section
+                className="j-hud-panel j-hud-grid"
+                style={{ padding: "8px 12px", margin: 0 }}
+              >
+                <p className="j-title" style={{ marginBottom: 4 }}>
+                  Activity
+                </p>
+                <ul
+                  style={{
+                    listStyle: "none",
+                    padding: 0,
+                    margin: 0,
+                    maxHeight: 52,
+                    overflow: "auto",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 6,
+                  }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-                    <span style={{ fontSize: 12 }}>{t.title}</span>
-                    <span className="j-chip" data-tone={toneFor(t.status)}>
-                      {t.status}
-                    </span>
+                  {(snap.activity ?? []).slice(0, 10).map((ev, i) => (
+                    <li key={`${ev.at}-${ev.type}-${i}`} style={{ fontSize: 11 }}>
+                      {ev.runId ? (
+                        <button
+                          type="button"
+                          className="j-btn"
+                          style={{ padding: "2px 6px", fontSize: 11 }}
+                          onClick={() => {
+                            setSelectedRunId(ev.runId!);
+                            setDrawer("run");
+                          }}
+                        >
+                          {formatActivityLine(ev)}
+                        </button>
+                      ) : (
+                        <span className="j-muted">{formatActivityLine(ev)}</span>
+                      )}
+                    </li>
+                  ))}
+                  {(snap.activity ?? []).length === 0 && (
+                    <li className="j-muted" style={{ fontSize: 11 }}>
+                      No activity yet — Assign and Run next to start.
+                    </li>
+                  )}
+                </ul>
+              </section>
+            </div>
+          </div>
+        ) : null}
+
+        {opsMode && (
+          <div
+            className="j-ops-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(220px, 1fr) minmax(240px, 1.1fr) minmax(220px, 0.9fr)",
+              gap: 12,
+              minHeight: showMap ? 220 : 0,
+              maxHeight: showMap ? 280 : "100%",
+              height: showMap ? undefined : "100%",
+            }}
+          >
+            <section className="j-hud-panel j-panel-scroll" style={{ padding: 12 }}>
+              <p className="j-title">C-Suite</p>
+              <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+                {snap.csuite.map((card) => (
+                  <div key={`ops-${card.slug}`}>
+                    <CSuiteCardView
+                      card={card}
+                      selected={selectedSlug === card.slug}
+                      jarvisFocused={jarvisFocus?.slug === card.slug}
+                      paused={Boolean(snap.agentStates?.[card.slug]?.paused)}
+                      onOpen={() => selectStoreSlug(card.slug)}
+                      onReport={() => void openReport(card.slug)}
+                      onTogglePause={() =>
+                        void onTogglePause(
+                          card.slug,
+                          Boolean(snap.agentStates?.[card.slug]?.paused),
+                        )
+                      }
+                    />
                   </div>
-                  <div style={{ marginTop: 4 }}>
-                    {t.slug && (
-                      <button
-                        type="button"
-                        className="j-btn"
-                        style={{ marginRight: 4 }}
-                        onClick={() => void openReport(t.slug!)}
-                      >
-                        Report
-                      </button>
-                    )}
-                    {t.id.startsWith("phase:") && (
-                      <button
-                        type="button"
-                        className="j-btn"
-                        onClick={() => setDrawer("assign")}
-                      >
-                        Assign
-                      </button>
-                    )}
-                    {t.canPlay && t.dispatchFilename && (
-                      <button
-                        type="button"
-                        className="j-btn"
-                        data-active="true"
-                        style={{ marginLeft: 4 }}
-                        onClick={() =>
-                          void onSpawn({
-                            filename: t.dispatchFilename,
-                            wakeReason: "on_demand",
-                          })
-                        }
-                      >
-                        Play
-                      </button>
-                    )}
-                    {t.canCancel && t.runId && (
-                      <button
-                        type="button"
-                        className="j-btn"
-                        style={{ marginLeft: 4 }}
-                        onClick={() => void onCancel(t.runId!)}
-                      >
-                        Cancel
-                      </button>
-                    )}
-                    {t.canRewake && t.dispatchFilename && (
-                      <button
-                        type="button"
-                        className="j-btn"
-                        style={{ marginLeft: 4 }}
-                        onClick={() => void onRewake(t.dispatchFilename!)}
-                      >
-                        Rewake
-                      </button>
-                    )}
-                    {t.runId && (
-                      <button
-                        type="button"
-                        className="j-btn"
-                        style={{ marginLeft: 4 }}
-                        onClick={() => {
-                          setSelectedRunId(t.runId!);
-                          setDrawer("run");
-                        }}
-                      >
-                        Run
-                      </button>
-                    )}
-                  </div>
-                </li>
-              ))}
-          </ul>
-        </section>
+                ))}
+              </div>
+            </section>
+            <section className="j-hud-panel j-panel-scroll" style={{ padding: 14 }}>
+              <p className="j-title">Drill-down</p>
+              {!selected && (
+                <p className="j-muted" style={{ marginTop: 12 }}>
+                  Select a seat on the theater or C-suite list.
+                </p>
+              )}
+              {selected?.seat && (
+                <div style={{ marginTop: 10 }}>
+                  <h2 className="j-heading" style={{ fontSize: 18 }}>
+                    {selected.seat.title}
+                  </h2>
+                  <p className="j-mono j-muted">
+                    {selected.seat.slug} · {selectedWork?.status || "idle"}
+                    {selectedWork?.phase ? ` · P${selectedWork.phase}` : ""}
+                  </p>
+                  <button
+                    type="button"
+                    className="j-btn"
+                    data-active="true"
+                    style={{ marginTop: 8 }}
+                    onClick={() => void openReport(selected.seat!.slug)}
+                  >
+                    Full report
+                  </button>
+                </div>
+              )}
+            </section>
+            <section className="j-hud-panel j-panel-scroll" style={{ padding: 12 }}>
+              <p className="j-title">Live tasks</p>
+              <ul style={{ listStyle: "none", padding: 0, margin: "10px 0 0" }}>
+                {snap.tasks.filter((t) => t.status !== "done").length === 0 && (
+                  <li className="j-muted">No live tasks — Assign work or Run next.</li>
+                )}
+                {snap.tasks
+                  .filter((t) => t.status !== "done")
+                  .slice(0, 24)
+                  .map((t) => (
+                    <li
+                      key={t.id}
+                      className="j-glass"
+                      style={{ padding: "8px 10px", marginBottom: 6 }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                        <span style={{ fontSize: 12 }}>{t.title}</span>
+                        <span className="j-chip" data-tone={toneFor(t.status)}>
+                          {t.status}
+                        </span>
+                      </div>
+                      <div style={{ marginTop: 4 }}>
+                        {t.slug && (
+                          <button
+                            type="button"
+                            className="j-btn"
+                            style={{ marginRight: 4 }}
+                            onClick={() => selectStoreSlug(t.slug!)}
+                          >
+                            Focus
+                          </button>
+                        )}
+                        {t.canPlay && t.dispatchFilename && (
+                          <button
+                            type="button"
+                            className="j-btn"
+                            data-active="true"
+                            onClick={() =>
+                              void onSpawn({
+                                filename: t.dispatchFilename,
+                                wakeReason: "on_demand",
+                              })
+                            }
+                          >
+                            Play
+                          </button>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+              </ul>
+            </section>
+          </div>
+        )}
       </div>
 
       {/* Drawers */}
@@ -1216,15 +1590,29 @@ export function SituationRoom() {
                 <p className="j-title">Blocked</p>
                 {digest.blockedSeats.length === 0 && <p className="j-muted">None</p>}
                 {digest.blockedSeats.map((b) => (
-                  <button
-                    key={b.slug}
-                    type="button"
-                    className="j-btn"
-                    style={{ display: "block", marginTop: 4 }}
-                    onClick={() => void openReport(b.slug)}
-                  >
-                    {b.slug}: {b.reason}
-                  </button>
+                  <div key={b.slug} style={{ marginTop: 6 }}>
+                    <button
+                      type="button"
+                      className="j-btn"
+                      style={{ display: "block", width: "100%", textAlign: "left" }}
+                      onClick={() => {
+                        selectStoreSlug(b.slug);
+                        setDrawer(null);
+                      }}
+                    >
+                      {b.slug} · P{b.phase}: {b.reason}
+                    </button>
+                    <button
+                      type="button"
+                      className="j-btn"
+                      data-active="true"
+                      style={{ marginTop: 4 }}
+                      disabled={resolvingSlug === b.slug}
+                      onClick={() => void onResolveBlocker(b.slug)}
+                    >
+                      {resolvingSlug === b.slug ? "Resolving…" : "RESOLVE"}
+                    </button>
+                  </div>
                 ))}
               </div>
               <div>
@@ -1301,41 +1689,57 @@ export function SituationRoom() {
             <div style={{ display: "flex", gap: 8 }}>
               <input
                 className="j-input"
+                disabled={chatSending}
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 placeholder="Type or use mic…"
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && chatInput.trim()) {
-                    void sendChat(chatInput.trim());
-                    setChatInput("");
-                  }
+                  if (e.key === "Enter") void submitChatDraft();
                 }}
               />
               <button
                 type="button"
                 className="j-btn"
                 data-active="true"
+                disabled={chatSending}
                 onClick={() => {
-                  if (!chatInput.trim()) return;
-                  void sendChat(chatInput.trim());
-                  setChatInput("");
+                  void submitChatDraft();
                 }}
               >
-                Send
+                {chatSending ? "Sending…" : "Send"}
               </button>
               <button
                 type="button"
                 className="j-btn"
                 data-active={listening}
+                disabled={chatSending}
                 onClick={() => startListen()}
               >
                 Mic
               </button>
             </div>
+            {chatError && (
+              <div className="j-error" role="alert">
+                {chatError}{" "}
+                <button type="button" className="j-btn" disabled={chatSending || !retryChatMessage(chatInput, failedChatMessage)} onClick={() => void retryFailedChat()}>
+                  Retry
+                </button>
+              </div>
+            )}
           </div>
         </Drawer>
       )}
 
+      <BlockerConfirmationDialog
+        request={blockerConfirmation}
+        loading={resolvingSlug === blockerConfirmation?.seat}
+        cancelling={
+          cancellingConfirmationToken === blockerConfirmation?.token
+        }
+        cancellationError={confirmationCancellationError}
+        onCancel={(token) => void onCancelBlockerConfirmation(token)}
+        onConfirm={(token) => void onConfirmBlocker(token)}
+      />
       <VoiceFab />
     </div>
   );
@@ -1426,7 +1830,7 @@ function RunDrawer({
 }) {
   const selected = runs.find((r) => r.runId === selectedRunId) ?? runs[0] ?? null;
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: 12 }}>
+    <div className="j-run-grid" style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: 12 }}>
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
         {runs.length === 0 && <li className="j-muted">No runs yet.</li>}
         {runs.map((r) => (
@@ -1510,38 +1914,15 @@ function Drawer({
   children: ReactNode;
 }) {
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.55)",
-        zIndex: 50,
-        display: "grid",
-        placeItems: "end stretch",
+    <JarvisDrawer
+      open
+      title={title}
+      onOpenChange={(open) => {
+        if (!open) onClose();
       }}
-      onClick={onClose}
     >
-      <div
-        className="j-glass"
-        style={{
-          width: "min(720px, 100%)",
-          maxHeight: "90vh",
-          overflow: "auto",
-          margin: 16,
-          padding: 16,
-          justifySelf: "end",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-          <p className="j-title">{title}</p>
-          <button type="button" className="j-btn" onClick={onClose}>
-            Close
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
+      {children}
+    </JarvisDrawer>
   );
 }
 

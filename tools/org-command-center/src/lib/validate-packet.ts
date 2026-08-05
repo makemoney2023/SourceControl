@@ -146,6 +146,9 @@ export function validateManagerPacket(
     ...(input.require_verifier !== undefined
       ? { require_verifier: input.require_verifier }
       : {}),
+    ...(input.require_design_brief !== undefined
+      ? { require_design_brief: input.require_design_brief }
+      : {}),
   };
 
   return { ok: true, packet };

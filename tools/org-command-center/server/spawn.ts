@@ -11,6 +11,7 @@ import {
   type RunRecord,
   type WakeReason,
 } from "../src/lib/runs";
+import { SHIPPABLE_PRODUCTION_PHASES } from "../src/lib/seat-outputs";
 import type { ManagerPacket } from "../src/lib/types";
 import { appendActivity } from "./activity";
 import { OPERATOR_DELIVERABLE_FORMAT } from "./jarvis/operator-summary";
@@ -62,10 +63,16 @@ export function buildSpawnPrompt(
   ].join(", ");
 
   const acceptanceLines: string[] = [];
+  const shippableProduction =
+    packet.require_production !== false &&
+    !packet.production_skip_committed &&
+    (packet.require_production === true ||
+      SHIPPABLE_PRODUCTION_PHASES.has(packet.phase));
   const hasAcceptance =
     packet.preferred_ic ||
     packet.require_inbox === true ||
-    packet.require_ic_handoff === true;
+    packet.require_ic_handoff === true ||
+    shippableProduction;
 
   if (hasAcceptance) {
     acceptanceLines.push(
@@ -89,6 +96,12 @@ export function buildSpawnPrompt(
     } else if (packet.require_ic_handoff === true) {
       acceptanceLines.push(
         `- require_ic_handoff: write at least one handoff under ${handoffsDir} with a non-empty status.`,
+      );
+    }
+    if (shippableProduction) {
+      acceptanceLines.push(
+        `- production: handoff must set \`production_status\` (\`complete\` | \`skipped\` | \`blocked\`), \`design_brief_path\` (file on disk when complete), \`production_paths\` (files exist), \`wire_owner\`, and \`wire_checklist_path\` when wire_owner is not \`none\`.`,
+        `- verifier: write \`${packet.phase}-verifier.md\` with \`verdict: pass\` before C-suite may approve.`,
       );
     }
   }

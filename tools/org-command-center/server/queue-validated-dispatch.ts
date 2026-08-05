@@ -5,6 +5,7 @@ import { parseModelRegistry, parseOrgRegistry, resolvePhaseOwner } from "../src/
 import { patchTrackerPhaseStatus, parseTracker, seedPositionsRow } from "../src/lib/parse-tracker";
 import { validateManagerPacket } from "../src/lib/validate-packet";
 import type { ManagerPacket, ManagerPacketInput } from "../src/lib/types";
+import { buildPhaseIcLeases } from "../src/lib/phase-ic-leases";
 import {
   loadSeatOutputPaths,
   mergeUniquePaths,
@@ -39,10 +40,11 @@ export function queueValidatedDispatch(
   const owner = resolvePhaseOwner(org, body.phase);
   if (owner && !body.position) body.position = owner.managerOwner;
   if (body.position) {
-    const seatOutputs = loadSeatOutputPaths(repoRoot, body.position, {
+    const ventureCtx = {
       ventureSlug: activeProjectSlug(repoRoot),
       businessIdeaRel: businessIdeaRel(repoRoot),
-    });
+    };
+    const seatOutputs = loadSeatOutputPaths(repoRoot, body.position, ventureCtx);
     body.outputs = mergeUniquePaths(body.outputs, seatOutputs);
     const handoff = businessIdeaFile(
       repoRoot,
@@ -51,6 +53,29 @@ export function queueValidatedDispatch(
     body.write_lease = mergeUniquePaths(body.write_lease, body.outputs, [
       handoff,
     ]);
+    // Phase 17+ dual-lease: ensure maySpawn IC output paths do not collide.
+    if (owner?.maySpawn?.length) {
+      const icLeases = buildPhaseIcLeases(repoRoot, org, body.phase, ventureCtx);
+      if (!icLeases.ok) {
+        return {
+          ok: false,
+          errors: [
+            `${icLeases.error}: ${icLeases.collisions.join("; ")}`,
+          ],
+        };
+      }
+      if (body.preferred_ic) {
+        const preferred = icLeases.leases.find(
+          (l) => l.position === body.preferred_ic,
+        );
+        if (preferred?.write_lease.length) {
+          body.write_lease = mergeUniquePaths(
+            body.write_lease,
+            preferred.write_lease,
+          );
+        }
+      }
+    }
   } else if (owner && !body.write_lease?.length) {
     body.write_lease = [
       ...(body.outputs ?? []),

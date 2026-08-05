@@ -57,6 +57,11 @@ export interface HandoffRecord {
   productionPaths: string[];
   wireOwner: string;
   skipReason: string;
+  designBriefPath: string;
+  photorealQa: string;
+  wireChecklistPath: string;
+  licenseBasis: string;
+  generationUsed: string;
 }
 
 export interface RosterEntry {
@@ -126,6 +131,8 @@ export interface ManagerPacketInput {
   require_production?: boolean;
   /** Override verifier acceptance (default: on for shippable phases). */
   require_verifier?: boolean;
+  /** Override design-brief acceptance (default: on for design-led phases). */
+  require_design_brief?: boolean;
 }
 
 export interface ManagerPacket {
@@ -159,6 +166,7 @@ export interface ManagerPacket {
   production_skip_committed?: boolean;
   require_production?: boolean;
   require_verifier?: boolean;
+  require_design_brief?: boolean;
 }
 
 export type ValidateResult =

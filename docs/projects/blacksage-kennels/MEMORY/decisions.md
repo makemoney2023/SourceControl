@@ -20,3 +20,7 @@
 | 2026-07-27 | **SSOT freeze** — rewrite Phase 21; 12-R active; Phase 14 copy restored on home | End-to-end audit remediation |
 | 2026-07-27 | Operator launch facts remain open | See `OPERATOR-LAUNCH-BLOCKERS.md` — agents must not invent |
 | 2026-07-27 | Handoff merge gate: packs + decision per pack | `skills/org/HANDOFF-TEMPLATE.md` |
+| 2026-08-04 | Enterprise Layer B bar: OCC design_brief + wire_checklist + photoreal_qa gates | Craft → Design → Production → Wire |
+| 2026-08-04 | Mac FLUX.2-dev primary stills via ai-toolkit; fal upgrade; license_basis for commercial local | `skills/integrations/ai-toolkit-local/` |
+| 2026-08-04 | Design-system SSOT = repo-root `design-system/blacksage-kennels/` | App-local mirror is non-canonical |
+| 2026-08-04 | Email Layer B inventory 15/15 + WIRE/phase-17-email.md | ESP Wire remains operator |

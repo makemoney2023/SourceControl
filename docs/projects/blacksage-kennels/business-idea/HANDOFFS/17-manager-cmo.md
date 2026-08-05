@@ -8,16 +8,19 @@ recommendation: ready_for_csuite
 llm_tier: frontier-reasoning
 llm_model: grok-4.5
 generation_profile: none
-generation_used: none
+generation_used: cursor-draft
 fallback_applied: false
 production_status: complete
 production_paths:
-  - docs/projects/blacksage-kennels/business-idea/17-channels/email/html/inquiry-welcome-1-interest-ack.html
+  - docs/projects/blacksage-kennels/business-idea/17-channels/email/PRODUCTION-INVENTORY.md
+  - docs/projects/blacksage-kennels/business-idea/17-channels/email/html/
   - docs/projects/blacksage-kennels/business-idea/17-channels/email/assets/blacksage-email-header-1200x400.png
 design_brief_path: docs/projects/blacksage-kennels/business-idea/17-channels/email/design/inquiry-welcome-design-brief.md
+photoreal_qa: draft
+skip_reason: "cursor-draft header until local FLUX.2-dev or fal re-render"
 wire_owner: operator
-wire_notes: "HTML + header from design brief; ESP Wire pending operator."
-skip_reason: ""
+wire_checklist_path: docs/projects/blacksage-kennels/business-idea/WIRE/phase-17-email.md
+wire_notes: "15 journey HTML + wire checklist; ESP Wire pending operator."
 ---
 
 # Manager brief — CMO — Phase 17 (Blacksage HTML proof)

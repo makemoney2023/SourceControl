@@ -99,9 +99,55 @@ describe("buildCompanyDigest", () => {
       briefings: [],
     });
     expect(d.blockedSeats.length).toBe(1);
+    expect(d.blockedSeats[0]).toMatchObject({
+      slug: "market-research-analyst",
+      phase: "2",
+      status: "blocked",
+      reasons: ["no data"],
+      handoffFilename: "2-market-research-analyst.md",
+      managerSlug: "head-of-research",
+    });
     expect(d.escalateSeats.length).toBe(1);
     expect(d.queueDepth).toBe(1);
     expect(d.awaitingCsuite).toContain("2");
     expect(d.ceoNext.length).toBeGreaterThan(0);
+  });
+
+  it("includes all blockers and asks in reasons", () => {
+    const handoffs: HandoffRecord[] = [
+      {
+        filename: "2-market-research-analyst.md",
+        kind: "ic",
+        phase: "2",
+        position: "market-research-analyst",
+        reportsTo: "head-of-research",
+        status: "needs_input",
+        verdictForManager: "",
+        verdict: "",
+        llmTier: "",
+        generationProfile: "",
+        fallbackApplied: "",
+        artifacts: [],
+        asks: ["budget?"],
+        blockers: ["missing brief", "no refs"],
+        recommendation: "",
+        escalationTags: [],
+      },
+    ];
+    const d = buildCompanyDigest({
+      org,
+      tracker,
+      handoffs,
+      queueFiles: [],
+      claimedFiles: [],
+      runs: [],
+      briefings: [],
+    });
+    expect(d.blockedSeats[0]?.reasons).toEqual([
+      "missing brief",
+      "no refs",
+      "budget?",
+    ]);
+    expect(d.blockedSeats[0]?.reason).toBe("missing brief");
   });
 });

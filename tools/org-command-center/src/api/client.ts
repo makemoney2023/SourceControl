@@ -137,7 +137,14 @@ export interface SituationSnapshot {
     last_run_at: string | null;
     nextRunAt: string | null;
   }[];
-  sessions?: { agentId: string; dispatch_filename: string; position: string }[];
+  sessions?: {
+    agentId: string;
+    dispatch_filename: string;
+    position: string;
+    phase: string;
+    updated_at: string;
+    status: string;
+  }[];
   alerts?: {
     id: string;
     filename: string;
@@ -250,6 +257,81 @@ export async function fetchCompanyDigest() {
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "digest failed");
   return data.digest as import("../jarvis/company-digest").CompanyDigest;
+}
+
+export type JarvisActResult = {
+  status: "ok" | "needs_confirm" | "denied" | "error";
+  token?: string;
+  summary?: string;
+  result?: unknown;
+  reason?: string;
+};
+
+export type JarvisConfirmInput = {
+  roomId: string;
+  token: string;
+  accept: boolean;
+};
+
+export async function postJarvisConfirm(
+  input: JarvisConfirmInput,
+): Promise<JarvisActResult> {
+  const res = await fetch("/api/jarvis/confirm", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const data = (await res.json()) as JarvisActResult;
+  if (!res.ok) {
+    throw new Error(data.reason || data.summary || "jarvis confirmation failed");
+  }
+  return data;
+}
+
+/** Ops-mode Jarvis act. Confirmation tokens are sent only when explicitly supplied. */
+export async function postJarvisAct(input: {
+  intent: string;
+  args?: Record<string, unknown>;
+  mode?: string;
+  roomId?: string;
+  confirmToken?: string;
+}): Promise<JarvisActResult> {
+  const body = {
+    intent: input.intent,
+    args: input.args ?? {},
+    mode: input.mode ?? "ops",
+    roomId: input.roomId ?? "default",
+    confirmToken: input.confirmToken,
+  };
+  const res = await fetch("/api/jarvis/act", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = (await res.json()) as JarvisActResult;
+  if (!res.ok && data.status !== "needs_confirm") {
+    throw new Error(data.reason || data.summary || "jarvis act failed");
+  }
+  return data;
+}
+
+export async function resolveBlocker(
+  seat: string,
+  confirmToken?: string,
+): Promise<JarvisActResult> {
+  return postJarvisAct({
+    intent: "blocker.resolve",
+    mode: "ops",
+    args: { seat },
+    confirmToken,
+  });
+}
+
+export async function fetchProductionScorecard() {
+  const res = await fetch("/api/production-scorecard");
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "scorecard failed");
+  return data.scorecard as import("../lib/venture-production-scorecard").VentureProductionScorecard;
 }
 
 export async function ackAlert(id: string) {

@@ -1,5 +1,5 @@
 import type { Snapshot } from "../../api/client";
-import { seatStatus } from "../status";
+import { seatWorkContext } from "../seat-work-context";
 
 export function KpiStrip({ snapshot }: { snapshot: Snapshot }) {
   const phases = snapshot.tracker.phases;
@@ -7,12 +7,27 @@ export function KpiStrip({ snapshot }: { snapshot: Snapshot }) {
   const pending = phases.filter((p) => p.status === "⬜").length;
   const done = phases.filter((p) => p.status === "✅").length;
   const blocked = snapshot.org.roster.filter((r) => {
-    const s = seatStatus(r.slug, snapshot.handoffs).status;
+    const s = seatWorkContext(r.slug, {
+      handoffs: snapshot.handoffs,
+      runs: snapshot.runs,
+      sessions: snapshot.sessions,
+      claimedFiles: snapshot.claimed,
+      queueFiles: snapshot.queue,
+      agentStates: snapshot.agentStates,
+    }).status;
     return s === "blocked" || s === "escalate";
   }).length;
-  const activeWorkers = snapshot.handoffs.filter(
-    (h) => h.status && h.status !== "done" && h.kind !== "csuite",
-  ).length;
+  const activeWorkers = snapshot.org.roster.filter((r) => {
+    const s = seatWorkContext(r.slug, {
+      handoffs: snapshot.handoffs,
+      runs: snapshot.runs,
+      sessions: snapshot.sessions,
+      claimedFiles: snapshot.claimed,
+      queueFiles: snapshot.queue,
+      agentStates: snapshot.agentStates,
+    }).status;
+    return s === "running" || s === "active";
+  }).length;
 
   const items = [
     { label: "Current phase", value: snapshot.tracker.currentPhase },

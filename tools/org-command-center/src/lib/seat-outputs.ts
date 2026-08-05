@@ -42,6 +42,18 @@ export const SHIPPABLE_PRODUCTION_PHASES = new Set([
   "19",
 ]);
 
+/** Phases that require design_brief_path when production_status is complete. */
+export const DESIGN_LED_PRODUCTION_PHASES = new Set([
+  "9",
+  "11",
+  "12",
+  "14",
+  "15",
+  "17",
+  "18",
+  "19",
+]);
+
 function stripTrailingSlash(p: string): string {
   return p.replace(/\/+$/, "");
 }

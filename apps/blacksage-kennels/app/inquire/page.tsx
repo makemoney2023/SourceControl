@@ -17,6 +17,8 @@ export default function InquirePage() {
       <PageHero
         title={PAGE_META.inquire.h1}
         subhead="We review every inquiry individually. This is the start of a conversation about fit, timing, and our program — not a reservation or checkout."
+        imageSrc="/images/blacksage-inquire-hero-1920x1080.png"
+        imageAlt="Quiet kennel driveway at dusk — Blacksage Kennels inquire"
       />
 
       <div className="mt-12 space-y-10">

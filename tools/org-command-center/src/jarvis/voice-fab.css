@@ -93,3 +93,19 @@
     box-shadow: 0 0 0 8px color-mix(in oklab, var(--j-accent) 12%, transparent);
   }
 }
+
+@media (max-width: 600px) {
+  .j-voice-fab-wrap {
+    right: max(10px, env(safe-area-inset-right));
+    bottom: max(10px, env(safe-area-inset-bottom));
+  }
+  .j-voice-fab { width: 50px; height: 50px; }
+  .j-voice-fab-caption { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .j-voice-fab {
+    animation: none !important;
+    transition: none !important;
+  }
+}

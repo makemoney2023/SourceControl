@@ -8,6 +8,13 @@ export interface ArtifactItem {
   path: string;
   phase: string;
   status: string;
+  seat?: string;
+  handoffFilename?: string;
+  notes?: string;
+  exists?: boolean;
+  reviewStatus?: string;
+  expected?: boolean;
+  matchedExpectation?: boolean;
 }
 
 function normalizeArtifact(artifact: string, businessIdeaRel: string): string[] {
@@ -21,7 +28,10 @@ function normalizeArtifact(artifact: string, businessIdeaRel: string): string[] 
 
 export function indexArtifacts(
   phases: Pick<PhaseRow, "phase" | "artifact" | "status">[],
-  handoffs: Pick<HandoffRecord, "phase" | "status" | "artifacts">[],
+  handoffs: Pick<
+    HandoffRecord,
+    "phase" | "status" | "artifacts" | "position" | "filename"
+  >[],
   businessIdeaRel = DEFAULT_BUSINESS_IDEA_REL,
 ): ArtifactItem[] {
   const map = new Map<string, ArtifactItem>();
@@ -34,8 +44,23 @@ export function indexArtifacts(
   }
   for (const h of handoffs) {
     for (const a of h.artifacts) {
-      if (!map.has(a.path)) {
-        map.set(a.path, { path: a.path, phase: h.phase, status: h.status });
+      const existing = map.get(a.path);
+      if (!existing) {
+        map.set(a.path, {
+          path: a.path,
+          phase: h.phase,
+          status: h.status,
+          seat: h.position,
+          handoffFilename: h.filename,
+          notes: a.notes || undefined,
+        });
+      } else {
+        map.set(a.path, {
+          ...existing,
+          seat: existing.seat ?? h.position,
+          handoffFilename: existing.handoffFilename ?? h.filename,
+          notes: existing.notes || a.notes || undefined,
+        });
       }
     }
   }

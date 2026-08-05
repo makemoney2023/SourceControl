@@ -1,0 +1,27 @@
+{
+  "venture": "blacksage-kennels",
+  "output_folder": "output/blacksage-stills",
+  "stills": [
+    {
+      "id": "brand-hero",
+      "path": "docs/projects/blacksage-kennels/business-idea/11-brand/assets/blacksage-brand-hero-1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "prompt": "A powerful adult Rottweiler standing in a dark cinematic kennel yard at dusk, black and rich tan markings #C4A35A catching a single warm key light from camera left, void-black #070707 shadows, wet gravel and steel fence soft in background, shot on Hasselblad X2D with 80mm lens at f/2.8, shallow depth of field, photorealistic documentary working-dog photography, natural coat texture"
+    },
+    {
+      "id": "inquire-hero",
+      "path": "docs/projects/blacksage-kennels/business-idea/14-pages/assets/blacksage-inquire-hero-1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "prompt": "Wide cinematic photograph of a quiet countryside kennel driveway at blue hour, dark void sky #070707, warm tan #C4A35A practical light in a distant kennel doorway, no people, empty gravel path leading toward the light, shot on Canon 5D with 35mm at f/2.8, photorealistic architectural night photography"
+    },
+    {
+      "id": "email-header",
+      "path": "docs/projects/blacksage-kennels/business-idea/17-channels/email/assets/blacksage-email-header-1200x400.png",
+      "width": 1200,
+      "height": 400,
+      "prompt": "Wide cinematic banner photograph of a Rottweiler silhouette against dark misty fields at dawn, tan #C4A35A rim light on coat edges, void #070707 atmosphere, shot on Hasselblad with 90mm at f/4, photorealistic working-dog cinema still, clean uncluttered composition for email header crop"
+    }
+  ]
+}

@@ -10,6 +10,31 @@
   --j-danger: #e06060;
   --j-ok: #4ecf8a;
   --j-glass: blur(14px);
+  --color-bg: var(--j-bg);
+  --color-surface: var(--j-panel);
+  --color-line: var(--j-panel-border);
+  --color-accent: var(--j-accent);
+  --color-accent-fg: #041210;
+  --color-muted: var(--j-muted);
+  --color-ok: var(--j-ok);
+  --color-warn: var(--j-warn);
+  --color-danger: var(--j-danger);
+  --background: var(--j-bg);
+  --foreground: var(--j-ink);
+  --card: var(--j-panel);
+  --card-foreground: var(--j-ink);
+  --primary: var(--j-accent);
+  --primary-foreground: #041210;
+  --secondary: var(--j-accent-dim);
+  --secondary-foreground: var(--j-ink);
+  --muted: rgba(63, 212, 190, 0.08);
+  --muted-foreground: var(--j-muted);
+  --accent: rgba(63, 212, 190, 0.16);
+  --accent-foreground: var(--j-ink);
+  --destructive: var(--j-danger);
+  --border: var(--j-panel-border);
+  --input: var(--j-panel-border);
+  --ring: var(--j-accent);
   color: var(--j-ink);
   background: var(--j-bg);
   font-family: "IBM Plex Sans", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
@@ -70,6 +95,20 @@
 [data-theme="jarvis"] .j-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+[data-theme="jarvis"] .j-btn:focus-visible,
+[data-theme="jarvis"] .j-holo-tile:focus-visible,
+[data-theme="jarvis"] .j-threat-item:focus-visible,
+[data-theme="jarvis"] .j-input:focus-visible,
+[data-theme="jarvis"] .j-select:focus-visible,
+[data-theme="jarvis"] .j-textarea:focus-visible,
+[data-theme="jarvis"] [role="button"]:focus-visible,
+[data-theme="jarvis"] button:focus-visible,
+[data-theme="jarvis"] input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--j-accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(63, 212, 190, 0.18);
 }
 
 [data-theme="jarvis"] .j-input,
@@ -215,7 +254,534 @@
   [data-theme="jarvis"] .j-main {
     grid-template-columns: 160px minmax(0, 1fr);
   }
-  [data-theme="jarvis"] .j-map {
+}
+
+/* --- Jarvis holographic HUD chrome --- */
+
+[data-theme="jarvis"] .j-hud-panel {
+  position: relative;
+  background: color-mix(in oklab, var(--j-panel) 88%, transparent);
+  border: 1px solid var(--j-panel-border);
+  backdrop-filter: var(--j-glass);
+  -webkit-backdrop-filter: var(--j-glass);
+  border-radius: 2px;
+  box-shadow:
+    0 0 28px rgba(63, 212, 190, 0.1),
+    inset 0 0 0 1px rgba(63, 212, 190, 0.08);
+  overflow: hidden;
+}
+
+[data-theme="jarvis"] .j-hud-panel::before,
+[data-theme="jarvis"] .j-hud-panel::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--j-accent);
+  border-style: solid;
+  pointer-events: none;
+  opacity: 0.75;
+  z-index: 2;
+}
+
+[data-theme="jarvis"] .j-hud-panel::before {
+  top: 4px;
+  left: 4px;
+  border-width: 1.5px 0 0 1.5px;
+}
+
+[data-theme="jarvis"] .j-hud-panel::after {
+  right: 4px;
+  bottom: 4px;
+  border-width: 0 1.5px 1.5px 0;
+}
+
+[data-theme="jarvis"] .j-hud-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image:
+    linear-gradient(rgba(63, 212, 190, 0.9) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63, 212, 190, 0.9) 1px, transparent 1px);
+  background-size: 24px 24px;
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="jarvis"] .j-hud-grid::before {
     display: none;
   }
+  [data-theme="jarvis"] .j-threat-pulse {
+    animation: none !important;
+  }
+}
+
+[data-theme="jarvis"] .j-theater-stage {
+  position: relative;
+  height: 100%;
+  min-height: 320px;
+  overflow: hidden;
+  border-radius: 2px;
+  border: 1px solid rgba(63, 212, 190, 0.28);
+  background: #070b10;
+}
+
+[data-theme="jarvis"] .j-theater-stage .j-map,
+[data-theme="jarvis"] .j-theater-stage canvas {
+  position: absolute !important;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+[data-theme="jarvis"] .j-threat-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 100%;
+  overflow: auto;
+  padding: 12px;
+  pointer-events: auto;
+}
+
+[data-theme="jarvis"] .j-threat-item {
+  text-align: left;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(224, 96, 96, 0.45);
+  background: rgba(40, 12, 14, 0.72);
+  color: var(--j-ink);
+  border-radius: 2px;
+  cursor: pointer;
+  font: inherit;
+}
+
+[data-theme="jarvis"] .j-threat-item:hover {
+  border-color: var(--j-danger);
+  background: rgba(60, 16, 18, 0.85);
+}
+
+[data-theme="jarvis"] .j-threat-pulse {
+  animation: j-threat-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes j-threat-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(224, 96, 96, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 16px 2px rgba(224, 96, 96, 0.35);
+  }
+}
+
+[data-theme="jarvis"] .j-seat-console {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 100%;
+  overflow: auto;
+  padding: 14px;
+  pointer-events: auto;
+}
+
+[data-theme="jarvis"] .j-console-drawer {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 90;
+  display: grid;
+  place-items: end stretch;
+  animation: j-drawer-in 0.18s ease-out;
+}
+
+[data-theme="jarvis"] .j-console-drawer-content {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 91;
+  width: min(720px, calc(100% - 32px));
+  max-height: 90vh;
+  overflow: auto;
+  padding: 16px;
+  border-left: 2px solid var(--j-accent);
+  box-shadow:
+    -8px 0 40px rgba(63, 212, 190, 0.12),
+    0 0 28px rgba(63, 212, 190, 0.1);
+  animation: j-drawer-content-in 0.18s ease-out;
+}
+
+[data-theme="jarvis"] .j-console-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+@keyframes j-drawer-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes j-drawer-content-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+[data-theme="jarvis"] .j-holo-tile {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid rgba(63, 212, 190, 0.28);
+  background: rgba(8, 16, 22, 0.65);
+  border-radius: 2px;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  width: 100%;
+  border-left-width: 3px;
+}
+
+[data-theme="jarvis"] .j-holo-tile[data-tone="ok"] {
+  border-left-color: var(--j-ok);
+}
+
+[data-theme="jarvis"] .j-holo-tile[data-tone="warn"] {
+  border-left-color: var(--j-warn);
+}
+
+[data-theme="jarvis"] .j-holo-tile[data-tone="danger"] {
+  border-left-color: var(--j-danger);
+}
+
+[data-theme="jarvis"] .j-holo-tile[data-selected="true"] {
+  background: rgba(63, 212, 190, 0.14);
+  border-color: var(--j-accent);
+}
+
+[data-theme="jarvis"] .j-overlay-stack {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(100% - 24px);
+}
+
+[data-theme="jarvis"] .j-overlay-stack > * {
+  pointer-events: auto;
+}
+
+[data-theme="jarvis"] .j-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+[data-theme="jarvis"] .j-command-launch {
+  position: absolute;
+  z-index: 5;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+
+[data-theme="jarvis"] .j-command-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 7px 5px 11px;
+  background: rgba(8, 18, 24, 0.88);
+  box-shadow: 0 0 22px rgba(63, 212, 190, 0.12);
+}
+
+[data-theme="jarvis"] .j-command-kbd {
+  border: 1px solid rgba(63, 212, 190, 0.3);
+  border-radius: 3px;
+  padding: 2px 5px;
+  color: var(--j-muted);
+  background: rgba(63, 212, 190, 0.06);
+  font: 10px "IBM Plex Mono", ui-monospace, monospace;
+}
+
+[data-theme="jarvis"] .j-command-dialog {
+  top: 12vh;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translateX(-50%);
+  width: min(640px, calc(100% - 32px));
+  max-height: min(70vh, 620px);
+  padding: 0;
+  border-left: 1px solid var(--j-panel-border);
+  box-shadow:
+    0 0 64px rgba(63, 212, 190, 0.18),
+    inset 0 0 0 1px rgba(63, 212, 190, 0.08);
+  animation: j-command-in 0.16s ease-out;
+}
+
+[data-theme="jarvis"] .j-command {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  background: rgba(7, 14, 20, 0.96);
+  color: var(--j-ink);
+}
+
+[data-theme="jarvis"] .j-command-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--j-panel-border);
+}
+
+[data-theme="jarvis"] .j-command-search-icon {
+  width: 17px;
+  height: 17px;
+  color: var(--j-accent);
+  filter: drop-shadow(0 0 5px rgba(63, 212, 190, 0.45));
+}
+
+[data-theme="jarvis"] .j-command-input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--j-ink);
+  font: 13px "IBM Plex Mono", ui-monospace, monospace;
+}
+
+[data-theme="jarvis"] .j-command-input::placeholder {
+  color: var(--j-muted);
+}
+
+[data-theme="jarvis"] .j-command-list {
+  max-height: min(52vh, 440px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+[data-theme="jarvis"] .j-command-empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--j-muted);
+  font-size: 12px;
+}
+
+[data-theme="jarvis"] .j-command-group {
+  padding: 4px;
+}
+
+[data-theme="jarvis"] .j-command-group [cmdk-group-heading] {
+  padding: 7px 8px 5px;
+  color: var(--j-accent);
+  font: 10px "IBM Plex Mono", ui-monospace, monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+[data-theme="jarvis"] .j-command-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  outline: none;
+  cursor: default;
+  color: var(--j-ink);
+  font-size: 12px;
+}
+
+[data-theme="jarvis"] .j-command-item > span:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+[data-theme="jarvis"] .j-command-item[data-selected="true"] {
+  border-color: var(--j-panel-border);
+  background: rgba(63, 212, 190, 0.14);
+  box-shadow: inset 3px 0 0 var(--j-accent);
+}
+
+[data-theme="jarvis"] .j-command-meta {
+  display: block;
+  color: var(--j-muted);
+  font: 10px "IBM Plex Mono", ui-monospace, monospace;
+}
+
+[data-theme="jarvis"] .j-command-shortcut {
+  margin-left: auto;
+  color: var(--j-muted);
+  font: 10px "IBM Plex Mono", ui-monospace, monospace;
+  letter-spacing: 0.06em;
+}
+
+[data-theme="jarvis"] .j-command-separator {
+  height: 1px;
+  margin: 4px;
+  background: var(--j-panel-border);
+}
+
+@keyframes j-command-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="jarvis"] .j-console-drawer,
+  [data-theme="jarvis"] .j-console-drawer-content,
+  [data-theme="jarvis"] .j-skeleton,
+  [data-theme="jarvis"] .j-command-dialog,
+  [data-theme="jarvis"] .j-voice-fab {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+[data-theme="jarvis"].j-situation-shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100dvh;
+}
+
+[data-theme="jarvis"] .j-mission-header { padding: 16px; }
+[data-theme="jarvis"] .j-mission-controls { display: grid; gap: 8px; margin-top: 12px; }
+[data-theme="jarvis"] .j-primary-actions,
+[data-theme="jarvis"] .j-voice-cluster,
+[data-theme="jarvis"] .j-control-menus { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+[data-theme="jarvis"] .j-btn-primary {
+  min-height: 38px;
+  padding-inline: 20px;
+  background: var(--j-accent);
+  color: #041210;
+  border-color: var(--j-accent);
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(63, 212, 190, 0.2);
+}
+[data-theme="jarvis"] .j-voice-cluster { color: var(--j-accent); }
+[data-theme="jarvis"] .j-update-status { margin: 0; text-align: right; }
+
+[data-theme="jarvis"].j-dropdown-content {
+  z-index: 100;
+  min-width: 190px;
+  padding: 6px;
+  color: var(--j-ink);
+  background: rgba(7, 14, 20, 0.98);
+  border: 1px solid var(--j-panel-border);
+  box-shadow: 0 12px 36px rgba(0,0,0,.5), 0 0 24px rgba(63,212,190,.12);
+}
+[data-theme="jarvis"] .j-dropdown-label { padding: 6px 8px; color: var(--j-accent); font: 10px "IBM Plex Mono", monospace; letter-spacing: .14em; text-transform: uppercase; }
+[data-theme="jarvis"] .j-dropdown-item { padding: 8px; border-radius: 3px; font-size: 12px; outline: none; cursor: default; }
+[data-theme="jarvis"] .j-dropdown-checkbox { display: flex; align-items: center; gap: 7px; }
+[data-theme="jarvis"] .j-dropdown-item[data-highlighted] { background: rgba(63,212,190,.16); box-shadow: inset 2px 0 var(--j-accent); }
+[data-theme="jarvis"] .j-dropdown-item[data-disabled] { opacity: .45; }
+[data-theme="jarvis"] .j-dropdown-separator { height: 1px; margin: 4px; background: var(--j-panel-border); }
+
+[data-theme="jarvis"] .j-stage-overlay-left { top: 12px; left: 12px; width: min(280px, 34%); }
+[data-theme="jarvis"] .j-stage-overlay-right { top: 12px; right: 12px; width: min(320px, 36%); }
+[data-theme="jarvis"] .j-output-grid { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(280px, 1.4fr); gap: 12px; min-height: 0; }
+[data-theme="jarvis"] .j-async-state { padding: 14px; color: var(--j-muted); font-size: 12px; }
+
+[data-theme="jarvis"] .j-loading-shell { grid-template-rows: auto 1fr; height: 100dvh; }
+[data-theme="jarvis"] .j-loading-header { display: grid; gap: 12px; padding: 18px; }
+[data-theme="jarvis"] .j-loading-stage { display: grid; place-items: center; align-content: center; gap: 18px; }
+[data-theme="jarvis"] .j-skeleton { display: inline-block; width: 100%; height: 12px; border-radius: 2px; background: linear-gradient(90deg, rgba(63,212,190,.06), rgba(63,212,190,.2), rgba(63,212,190,.06)); background-size: 200% 100%; animation: j-skeleton 1.5s linear infinite; }
+[data-theme="jarvis"] .j-skeleton-title { width: 180px; height: 18px; }
+[data-theme="jarvis"] .j-skeleton-line { width: min(520px, 90%); }
+[data-theme="jarvis"] .j-skeleton-orb { width: 90px; height: 90px; border-radius: 50%; }
+@keyframes j-skeleton { to { background-position: -200% 0; } }
+
+@media (max-width: 900px) {
+  [data-theme="jarvis"] .j-shell { padding: 10px; gap: 8px; }
+  [data-theme="jarvis"] .j-stage-overlay-left { width: min(240px, 38%); }
+  [data-theme="jarvis"] .j-stage-overlay-right { top: auto; bottom: 104px; width: min(280px, 42%); max-height: 42%; }
+  [data-theme="jarvis"] .j-ops-grid { grid-template-columns: 1fr 1fr !important; max-height: none !important; overflow: auto; }
+  [data-theme="jarvis"] .j-ops-grid > :last-child { grid-column: 1 / -1; }
+}
+
+@media (max-height: 700px) and (min-width: 601px) {
+  [data-theme="jarvis"].j-situation-shell {
+    height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    grid-template-rows: max-content minmax(520px, auto);
+  }
+  [data-theme="jarvis"] .j-workspace-stack {
+    min-height: 520px;
+    height: auto !important;
+  }
+  [data-theme="jarvis"] .j-theater-stage {
+    height: 520px;
+    min-height: 520px;
+  }
+}
+
+@media (max-width: 600px) {
+  [data-theme="jarvis"].j-situation-shell {
+    display: grid;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+    grid-template-rows: auto minmax(620px, auto);
+    padding: max(6px, env(safe-area-inset-top)) 6px calc(82px + env(safe-area-inset-bottom));
+  }
+  [data-theme="jarvis"] .j-workspace-stack {
+    min-height: 620px;
+    height: auto !important;
+    grid-template-rows: minmax(620px, auto) !important;
+  }
+  [data-theme="jarvis"] .j-mission-header { padding: 10px; overflow: visible; }
+  [data-theme="jarvis"] .j-mission-header > div { gap: 9px !important; }
+  [data-theme="jarvis"] .j-mission-header h1 { font-size: 19px; }
+  [data-theme="jarvis"] .j-primary-actions,
+  [data-theme="jarvis"] .j-voice-cluster,
+  [data-theme="jarvis"] .j-control-menus { flex-wrap: nowrap; overflow-x: auto; padding-block: 2px; }
+  [data-theme="jarvis"] .j-primary-actions .j-btn,
+  [data-theme="jarvis"] .j-voice-cluster .j-btn,
+  [data-theme="jarvis"] .j-control-menus .j-btn { flex: 0 0 auto; min-height: 36px; }
+  [data-theme="jarvis"] .j-update-status { text-align: left; }
+  [data-theme="jarvis"] .j-theater-stage { height: 620px; min-height: 620px; overflow: hidden; }
+  [data-theme="jarvis"] .j-stage-overlay-left { top: 54px; left: 6px; width: min(52%, 190px); max-height: 34%; }
+  [data-theme="jarvis"] .j-stage-overlay-left > :last-child { display: none; }
+  [data-theme="jarvis"] .j-stage-overlay-right { top: 54px; right: 6px; bottom: auto; width: min(48%, 180px); max-height: 34%; }
+  [data-theme="jarvis"] .j-stage-overlay-bottom { left: 6px !important; right: 6px !important; bottom: 6px !important; }
+  [data-theme="jarvis"] .j-ops-grid,
+  [data-theme="jarvis"] .j-output-grid,
+  [data-theme="jarvis"] .j-run-grid { grid-template-columns: 1fr !important; max-height: none !important; height: auto !important; }
+  [data-theme="jarvis"] .j-ops-grid > :last-child { grid-column: auto; }
+  [data-theme="jarvis"] .j-console-drawer-content { inset: auto 6px calc(6px + env(safe-area-inset-bottom)); width: auto; max-height: 88dvh; }
 }

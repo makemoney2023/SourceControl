@@ -1,15 +1,95 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   fetchFile,
+  fetchProductionScorecard,
   fetchReviewInbox,
   type ReviewInboxItem,
   type SituationSnapshot,
 } from "../../api/client";
 import { stripBusinessIdeaPrefix } from "../../lib/project-paths";
+import type { VentureProductionScorecard } from "../../lib/venture-production-scorecard";
 import { indexArtifacts } from "../artifacts";
 import { SourcesPanel } from "./SourcesPanel";
 
 type OutputsTab = "artifacts" | "sources";
+
+function ProductionScorecardStrip() {
+  const [card, setCard] = useState<VentureProductionScorecard | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    void fetchProductionScorecard()
+      .then((c) => {
+        if (!cancelled) {
+          setCard(c);
+          setError(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCard(null);
+          setError(true);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [attempt]);
+  if (loading) return <section className="j-glass j-async-state"><span className="j-skeleton" /> Loading production scorecard…</section>;
+  if (error || !card) {
+    return (
+      <section className="j-glass j-async-state j-error" role="alert">
+        Production scorecard unavailable.{" "}
+        <button
+          type="button"
+          className="j-btn"
+          aria-label="Retry scorecard"
+          onClick={() => {
+            setLoading(true);
+            setError(false);
+            setAttempt((value) => value + 1);
+          }}
+        >
+          Retry
+        </button>
+      </section>
+    );
+  }
+  return (
+    <section className="j-glass" style={{ padding: 14 }}>
+      <p className="j-title">Production completeness — {card.venture}</p>
+      <table style={{ width: "100%", marginTop: 8, fontSize: 12, borderCollapse: "collapse" }}>
+        <thead>
+          <tr className="j-muted">
+            <th align="left">Phase</th>
+            <th align="right">Craft</th>
+            <th align="right">Design</th>
+            <th align="right">Layer B</th>
+            <th align="right">Verifier</th>
+            <th align="right">Wire</th>
+          </tr>
+        </thead>
+        <tbody>
+          {card.phases.map((p) => (
+            <tr key={p.phase}>
+              <td>{p.phase}</td>
+              <td align="right">{p.craft}%</td>
+              <td align="right">{p.designBrief}%</td>
+              <td align="right">{p.layerB}%</td>
+              <td align="right">{p.verifierPass}%</td>
+              <td align="right">{p.wireChecklist}%</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
 
 function PreviewColumn({
   selectedPath,
@@ -23,8 +103,15 @@ function PreviewColumn({
     { name: string; path: string; type: string }[] | null
   >(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<string | null>(null);
+  const copySequence = useRef(0);
+  const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    copySequence.current += 1;
+    setCopyStatus(null);
+    if (copyTimer.current) clearTimeout(copyTimer.current);
     if (!selectedPath) {
       setPreview("");
       setEntries(null);
@@ -34,6 +121,7 @@ function PreviewColumn({
     let cancelled = false;
     (async () => {
       setError(null);
+      setLoading(true);
       setPreview("");
       setEntries(null);
       try {
@@ -43,12 +131,19 @@ function PreviewColumn({
         else setPreview(data.content ?? "");
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [selectedPath]);
+
+  useEffect(() => () => {
+    copySequence.current += 1;
+    if (copyTimer.current) clearTimeout(copyTimer.current);
+  }, []);
 
   return (
     <section className="j-glass" style={{ padding: 14, overflow: "auto" }}>
@@ -58,7 +153,20 @@ function PreviewColumn({
           <button
             type="button"
             className="j-btn"
-            onClick={() => navigator.clipboard.writeText(selectedPath)}
+            onClick={async () => {
+              const request = ++copySequence.current;
+              try {
+                await navigator.clipboard.writeText(selectedPath);
+                if (request !== copySequence.current) return;
+                setCopyStatus("Path copied");
+              } catch {
+                if (request !== copySequence.current) return;
+                setCopyStatus("Copy failed");
+              }
+              copyTimer.current = setTimeout(() => {
+                if (request === copySequence.current) setCopyStatus(null);
+              }, 2000);
+            }}
           >
             Copy path
           </button>
@@ -69,7 +177,16 @@ function PreviewColumn({
           Select an item from the list.
         </p>
       )}
-      {error && <p className="j-error" style={{ marginTop: 12 }}>{error}</p>}
+      {copyStatus && (
+        <p
+          className={copyStatus === "Copy failed" ? "j-error" : "j-muted"}
+          role={copyStatus === "Copy failed" ? "alert" : "status"}
+        >
+          {copyStatus}
+        </p>
+      )}
+      {loading && <p className="j-muted" role="status"><span className="j-skeleton" /> Loading preview…</p>}
+      {error && <p className="j-error" role="alert" style={{ marginTop: 12 }}>{error}</p>}
       {entries && (
         <ul style={{ margin: "12px 0 0", padding: 0, listStyle: "none" }}>
           {entries.map((e) => (
@@ -92,6 +209,8 @@ function PreviewColumn({
   );
 }
 
+type ArtifactFilter = "all" | "review" | "with_seat";
+
 export function OutputsDashboard({
   snapshot,
   selectedPath,
@@ -102,30 +221,51 @@ export function OutputsDashboard({
   onSelect: (path: string | null) => void;
 }) {
   const [tab, setTab] = useState<OutputsTab>("artifacts");
+  const [filter, setFilter] = useState<ArtifactFilter>("all");
   const items = indexArtifacts(
     snapshot.tracker.phases,
     snapshot.handoffs,
     snapshot.businessIdeaRel,
   );
   const [inbox, setInbox] = useState<ReviewInboxItem[]>([]);
+  const [inboxLoading, setInboxLoading] = useState(true);
+  const [inboxError, setInboxError] = useState<string | null>(null);
+  const [inboxAttempt, setInboxAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
+    setInboxLoading(true);
+    setInboxError(null);
     void fetchReviewInbox()
       .then((r) => {
-        if (!cancelled) setInbox(r.items);
+        if (!cancelled) {
+          setInbox([...new Map(r.items.map((item) => [item.path, item])).values()]);
+          setInboxError(null);
+        }
       })
-      .catch(() => {
-        if (!cancelled) setInbox([]);
+      .catch((error) => {
+        if (!cancelled) {
+          setInboxError(error instanceof Error ? error.message : String(error));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setInboxLoading(false);
       });
     return () => {
       cancelled = true;
     };
-  }, [snapshot.tracker, snapshot.handoffs]);
+  }, [snapshot.tracker, snapshot.handoffs, inboxAttempt]);
 
   const pendingInbox = inbox.filter(
     (item) => (item.status || "pending_review") === "pending_review",
   );
+  const reviewPaths = new Set(pendingInbox.map((i) => i.path));
+  const visibleItems = items.filter((item) => {
+    if (filter === "review") return reviewPaths.has(item.path);
+    if (filter === "with_seat") return Boolean(item.seat);
+    return true;
+  });
+  const withSeat = items.filter((i) => i.seat).length;
 
   return (
     <div
@@ -136,6 +276,7 @@ export function OutputsDashboard({
         minHeight: 0,
       }}
     >
+      <ProductionScorecardStrip />
       <div
         className="j-glass"
         style={{ display: "inline-flex", gap: 8, padding: 8, alignSelf: "flex-start" }}
@@ -159,6 +300,7 @@ export function OutputsDashboard({
       </div>
 
       <div
+        className="j-output-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "minmax(240px, 1fr) minmax(280px, 1.4fr)",
@@ -167,73 +309,112 @@ export function OutputsDashboard({
         }}
       >
         {tab === "artifacts" ? (
-          <section className="j-glass" style={{ padding: 14, overflow: "auto" }}>
-            <p className="j-title">Needs review</p>
+          <section className="j-hud-panel j-hud-grid" style={{ padding: 14, overflow: "auto" }}>
+            <p className="j-title">Archive</p>
             <p className="j-muted" style={{ marginTop: 4 }}>
-              REVIEW/inbox — pending deliverables only
+              {items.length} indexed · {withSeat} with seat · {pendingInbox.length} pending review
             </p>
-            <ul style={{ listStyle: "none", margin: "12px 0 0", padding: 0 }}>
-              {pendingInbox.length === 0 && (
-                <li className="j-muted">Inbox clear — nothing pending review.</li>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
+              {(
+                [
+                  ["all", "All"],
+                  ["review", "Pending review"],
+                  ["with_seat", "By seat"],
+                ] as const
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  className="j-btn"
+                  data-active={filter === id}
+                  onClick={() => setFilter(id)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <p className="j-title" style={{ marginTop: 16 }}>
+              Needs review
+            </p>
+            <ul style={{ listStyle: "none", margin: "10px 0 0", padding: 0 }}>
+              {inboxLoading && (
+                <li className="j-muted" role="status">
+                  <span className="j-skeleton" /> Loading review inbox…
+                </li>
               )}
-              {pendingInbox.map((item) => (
-                <li key={item.path}>
+              {inboxError && !inboxLoading && (
+                <li
+                  className="j-error"
+                  role="alert"
+                  aria-label="Review inbox error"
+                >
+                  {inboxError}{" "}
                   <button
                     type="button"
                     className="j-btn"
-                    data-active={selectedPath === item.path}
-                    onClick={() => onSelect(item.path)}
-                    style={{
-                      width: "100%",
-                      textAlign: "left",
-                      marginBottom: 6,
-                      display: "block",
-                    }}
+                    aria-label="Retry review inbox"
+                    onClick={() => setInboxAttempt((value) => value + 1)}
                   >
-                    <div className="j-mono" style={{ fontSize: 11 }}>
+                    Retry
+                  </button>
+                </li>
+              )}
+              {!inboxLoading && !inboxError && pendingInbox.length === 0 && (
+                <li className="j-muted">Inbox clear — nothing pending review.</li>
+              )}
+              {pendingInbox.map((item) => (
+                <li key={item.path} style={{ marginBottom: 6 }}>
+                  <button
+                    type="button"
+                    className="j-holo-tile"
+                    data-tone="warn"
+                    data-selected={selectedPath === item.path}
+                    onClick={() => onSelect(item.path)}
+                  >
+                    <span className="j-mono" style={{ fontSize: 11 }}>
                       {stripBusinessIdeaPrefix(item.path, snapshot.businessIdeaRel)}
-                    </div>
-                    <div className="j-muted" style={{ marginTop: 2 }}>
+                    </span>
+                    <span className="j-muted" style={{ fontSize: 10 }}>
                       {item.position ?? "?"} · {item.status}
-                    </div>
+                    </span>
                   </button>
                 </li>
               ))}
             </ul>
 
             <p className="j-title" style={{ marginTop: 20 }}>
-              Artifacts
+              Production artifacts
             </p>
-            <p className="j-muted" style={{ marginTop: 4 }}>
-              From tracker + handoffs
-            </p>
-            <ul style={{ listStyle: "none", margin: "12px 0 0", padding: 0 }}>
-              {items.length === 0 && (
-                <li className="j-muted">No artifacts indexed yet.</li>
+            <ul style={{ listStyle: "none", margin: "10px 0 0", padding: 0 }}>
+              {visibleItems.length === 0 && (
+                <li className="j-muted">No artifacts match this filter.</li>
               )}
-              {items.map((item) => (
-                <li key={item.path}>
-                  <button
-                    type="button"
-                    className="j-btn"
-                    data-active={selectedPath === item.path}
-                    onClick={() => onSelect(item.path)}
-                    style={{
-                      width: "100%",
-                      textAlign: "left",
-                      marginBottom: 6,
-                      display: "block",
-                    }}
-                  >
-                    <div className="j-mono" style={{ fontSize: 11 }}>
-                      {stripBusinessIdeaPrefix(item.path, snapshot.businessIdeaRel)}
-                    </div>
-                    <div className="j-muted" style={{ marginTop: 2 }}>
-                      Phase {item.phase} · {item.status}
-                    </div>
-                  </button>
-                </li>
-              ))}
+              {visibleItems.map((item) => {
+                const pending = reviewPaths.has(item.path);
+                return (
+                  <li key={item.path} style={{ marginBottom: 6 }}>
+                    <button
+                      type="button"
+                      className="j-holo-tile"
+                      data-tone={pending ? "warn" : item.seat ? "ok" : undefined}
+                      data-selected={selectedPath === item.path}
+                      onClick={() => onSelect(item.path)}
+                    >
+                      <span className="j-mono" style={{ fontSize: 11 }}>
+                        {stripBusinessIdeaPrefix(item.path, snapshot.businessIdeaRel)}
+                      </span>
+                      <span className="j-muted" style={{ fontSize: 10 }}>
+                        P{item.phase}
+                        {item.seat ? ` · ${item.seat}` : ""}
+                        {" · "}
+                        {pending ? "pending_review" : item.status}
+                        {item.notes ? ` · ${item.notes}` : ""}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </section>
         ) : (

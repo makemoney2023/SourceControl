@@ -88,7 +88,7 @@ export function loadSnapshot(repoRoot: string) {
     queueFiles: queue,
     claimedFiles: claimed,
     runs,
-    sessionFilenames: sessions.map((s) => s.dispatch_filename),
+    sessions,
   });
   const csuite = buildCSuiteBoard(
     org,

@@ -227,6 +227,8 @@ skip_reason: Blacksage HTML deferred to proof run
   it("requires production_paths to exist when status is complete", () => {
     const root = tempRepo();
     const htmlRel = `${BIZ_IDEA}/17-channels/email/html/welcome-1.html`;
+    const briefRel = `${BIZ_IDEA}/17-channels/email/design/welcome-design-brief.md`;
+    const wireRel = `${BIZ_IDEA}/WIRE/phase-17-email.md`;
     const packet: ManagerPacket = {
       ...basePacket,
       phase: "17",
@@ -245,6 +247,8 @@ production_status: complete
 production_paths:
   - ${htmlRel}
 wire_owner: operator
+design_brief_path: ${briefRel}
+wire_checklist_path: ${wireRel}
 ---
 `,
     );
@@ -256,8 +260,112 @@ wire_owner: operator
     );
 
     mkdirSync(join(root, BIZ_IDEA, "17-channels/email/html"), { recursive: true });
-    writeFileSync(join(root, htmlRel), "<html><body>Hi</body></html>", "utf8");
+    mkdirSync(join(root, BIZ_IDEA, "17-channels/email/design"), { recursive: true });
+    mkdirSync(join(root, BIZ_IDEA, "WIRE"), { recursive: true });
+    writeFileSync(
+      join(root, htmlRel),
+      `<!DOCTYPE html><html><body><table style="max-width:600px"><tr><td><a href="https://example.com">CTA</a></td></tr></table></body></html>`,
+      "utf8",
+    );
+    writeFileSync(join(root, briefRel), "# Design brief\n", "utf8");
+    writeFileSync(join(root, wireRel), "# Wire\n- [ ] ESP\n", "utf8");
 
+    const ok = evaluateRunAcceptance(root, { runId: "r1", packet });
+    expect(ok.ok).toBe(true);
+  });
+
+  it("requires design_brief_path on disk when production complete on design-led phases", () => {
+    const root = tempRepo();
+    const htmlRel = `${BIZ_IDEA}/17-channels/email/html/welcome-1.html`;
+    const wireRel = `${BIZ_IDEA}/WIRE/phase-17-email.md`;
+    const packet: ManagerPacket = {
+      ...basePacket,
+      phase: "17",
+      require_inbox: false,
+      require_ic_handoff: false,
+      require_verifier: false,
+    };
+    mkdirSync(join(root, BIZ_IDEA, "17-channels/email/html"), { recursive: true });
+    mkdirSync(join(root, BIZ_IDEA, "WIRE"), { recursive: true });
+    writeFileSync(
+      join(root, htmlRel),
+      `<!DOCTYPE html><html><body><table style="max-width:600px"><tr><td><a href="https://example.com">CTA</a></td></tr></table></body></html>`,
+      "utf8",
+    );
+    writeFileSync(join(root, wireRel), "# Wire\n", "utf8");
+    writeHandoff(
+      root,
+      "17-lifecycle-marketer.md",
+      `---
+phase: "17"
+position: lifecycle-marketer
+production_status: complete
+production_paths:
+  - ${htmlRel}
+wire_owner: operator
+wire_checklist_path: ${wireRel}
+---
+`,
+    );
+    const missing = evaluateRunAcceptance(root, { runId: "r1", packet });
+    expect(missing.ok).toBe(false);
+    expect(missing.missing).toContain("design_brief_path");
+  });
+
+  it("requires photoreal_qa for image production paths", () => {
+    const root = tempRepo();
+    const imgRel = `${BIZ_IDEA}/11-brand/assets/hero.png`;
+    const briefRel = `${BIZ_IDEA}/11-brand/design/hero-design-brief.md`;
+    const wireRel = `${BIZ_IDEA}/WIRE/phase-11.md`;
+    const packet: ManagerPacket = {
+      ...basePacket,
+      phase: "11",
+      require_inbox: false,
+      require_ic_handoff: false,
+      require_verifier: false,
+    };
+    mkdirSync(join(root, BIZ_IDEA, "11-brand/assets"), { recursive: true });
+    mkdirSync(join(root, BIZ_IDEA, "11-brand/design"), { recursive: true });
+    mkdirSync(join(root, BIZ_IDEA, "WIRE"), { recursive: true });
+    writeFileSync(join(root, imgRel), "fake", "utf8");
+    writeFileSync(join(root, briefRel), "# Brief\n", "utf8");
+    writeFileSync(join(root, wireRel), "# Wire\n", "utf8");
+    writeHandoff(
+      root,
+      "11-brand-designer.md",
+      `---
+phase: "11"
+position: brand-designer
+production_status: complete
+production_paths:
+  - ${imgRel}
+wire_owner: operator
+design_brief_path: ${briefRel}
+wire_checklist_path: ${wireRel}
+---
+`,
+    );
+    const missing = evaluateRunAcceptance(root, { runId: "r1", packet });
+    expect(missing.ok).toBe(false);
+    expect(missing.missing).toContain("photoreal_qa");
+
+    writeHandoff(
+      root,
+      "11-brand-designer.md",
+      `---
+phase: "11"
+position: brand-designer
+production_status: complete
+production_paths:
+  - ${imgRel}
+wire_owner: operator
+design_brief_path: ${briefRel}
+wire_checklist_path: ${wireRel}
+photoreal_qa: pass
+generation_used: fal/flux-2-max
+---
+`,
+    );
     const ok = evaluateRunAcceptance(root, { runId: "r1", packet });
     expect(ok.ok).toBe(true);
   });

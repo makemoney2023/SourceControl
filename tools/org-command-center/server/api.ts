@@ -39,6 +39,7 @@ import { appendActivity, readActivityTail } from "./activity";
 import { listAgentStates, setSeatPaused } from "./agent-state";
 import type { WakeReason } from "../src/lib/runs";
 import { validateManagerPacket } from "../src/lib/validate-packet";
+import { scoreVentureProduction } from "../src/lib/venture-production-scorecard";
 import { parseRoutine, type RoutineDef } from "../src/lib/routines";
 import { listRuns, readRun } from "./runs-fs";
 import { cancelRun as abortRegisteredRun } from "./run-registry";
@@ -136,8 +137,8 @@ export function createApi(repoRoot = resolveRepoRoot()) {
       queueFiles: snap.queue,
       claimedFiles: snap.claimed,
       runs: snap.runs,
+      sessions: snap.sessions,
       briefings: snap.briefings,
-      sessionFilenames: snap.sessions.map((s) => s.dispatch_filename),
       repoRoot,
       spendBySeat: snap.spend.bySeat,
       models: snap.models,
@@ -156,6 +157,7 @@ export function createApi(repoRoot = resolveRepoRoot()) {
       queueFiles: snap.queue,
       claimedFiles: snap.claimed,
       runs: snap.runs,
+      sessions: snap.sessions,
       briefings: snap.briefings,
       alerts: snap.alerts,
       spendBySeat: snap.spend.bySeat,
@@ -163,6 +165,15 @@ export function createApi(repoRoot = resolveRepoRoot()) {
       models: snap.models,
     });
     return c.json({ ok: true, digest });
+  });
+
+  app.get("/api/production-scorecard", (c) => {
+    const venture = activeProjectSlug(repoRoot);
+    const card = scoreVentureProduction(repoRoot, {
+      venture,
+      businessIdeaRel: businessIdeaRel(repoRoot),
+    });
+    return c.json({ ok: true, scorecard: card });
   });
 
   app.post("/api/alerts/:id/ack", async (c) => {
@@ -299,6 +310,7 @@ export function createApi(repoRoot = resolveRepoRoot()) {
         queueFiles: snap.queue,
         claimedFiles: snap.claimed,
         runs: snap.runs,
+        sessions: snap.sessions,
         briefings: snap.briefings,
         alerts: snap.alerts,
         spendBySeat: snap.spend.bySeat,
@@ -318,7 +330,7 @@ export function createApi(repoRoot = resolveRepoRoot()) {
         claimedFiles: snap.claimed,
         runs: snap.runs,
         briefings: snap.briefings,
-        sessionFilenames: snap.sessions.map((s) => s.dispatch_filename),
+        sessions: snap.sessions,
         repoRoot,
         spendBySeat: snap.spend.bySeat,
         models: snap.models,
@@ -386,7 +398,7 @@ export function createApi(repoRoot = resolveRepoRoot()) {
             claimedFiles: snap.claimed,
             runs: snap.runs,
             briefings: snap.briefings,
-            sessionFilenames: snap.sessions.map((s) => s.dispatch_filename),
+            sessions: snap.sessions,
             repoRoot,
             spendBySeat: snap.spend.bySeat,
             models: snap.models,

@@ -27,6 +27,7 @@ let state: JarvisState = {
 };
 
 const listeners = new Set<Listener>();
+let stopMotionListener: (() => void) | null = null;
 
 function emit() {
   for (const l of listeners) l();
@@ -45,8 +46,21 @@ export function setJarvisState(patch: Partial<JarvisState>) {
 }
 
 export function subscribeJarvis(listener: Listener) {
+  if (listeners.size === 0 && typeof window !== "undefined") {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = (event: MediaQueryListEvent) => setJarvisState({ reducedMotion: event.matches });
+    setJarvisState({ reducedMotion: media.matches });
+    media.addEventListener?.("change", onChange);
+    stopMotionListener = () => media.removeEventListener?.("change", onChange);
+  }
   listeners.add(listener);
-  return () => listeners.delete(listener);
+  return () => {
+    listeners.delete(listener);
+    if (listeners.size === 0) {
+      stopMotionListener?.();
+      stopMotionListener = null;
+    }
+  };
 }
 
 export function useJarvisStore() {
@@ -70,4 +84,12 @@ export function useJarvisStore() {
     }),
     [snap],
   );
+}
+
+export function useJarvisSelection() {
+  const store = useJarvisStore();
+  return {
+    selectedSlug: store.selectedSlug,
+    selectSlug: store.selectSlug,
+  };
 }
