@@ -9,6 +9,25 @@ Peers do **not** spawn each other. Cross-seat work goes through the **immediate 
 3. Shared artifact → one write_lease owner at a time; others read-only until merge.
 4. IC disagreement → manager decides; if still blocked → escalate to CEO with tag.
 
+## Parallel IC leases (shared markdown)
+
+When ORG-REGISTRY marks `(parallel: true)` and multiple ICs contribute to **one** phase `.md` (or one directory tree), the **manager** partitions `write_lease` before spawn. Do not give two ICs the same path.
+
+| Pattern | How to partition | Examples |
+|---------|------------------|----------|
+| **Section slices** | Lease named H1/H2 sections of one file | Phase 7: enablement→Close; outbound→prospecting; CSM→Retain. Phase 8: ops→ops sections; legal→risk sections |
+| **Path trees** | Lease disjoint directories | Phase 17: lifecycle→`email/html/`; brand→`email/assets/` (dual lease). Phase 12: web→`design-system/<venture>/`; brand→stills paths |
+| **Artifact roles** | Lease by deliverable type | Phase 14: copy→page bodies; seo→meta; content→blog calendar; brand→imagery |
+| **Sequential merge** | If slices collide, run serial: IC A → manager merge → IC B with updated lease | Prefer when section boundaries are unclear |
+
+**Manager checklist before parallel spawn**
+1. List each IC’s exact paths or section headings in the IC packet `write_lease`.
+2. Confirm no path appears in two leases.
+3. Tell ICs: write only leased slices; leave other headings as stubs or untouched.
+4. You merge into the canonical phase artifact; resolve conflicts in the manager brief.
+
+ICs that need content outside their lease set `ask_manager` — they do not expand the lease themselves.
+
 ## Phase 14 — Pages (RACI)
 
 | Artifact | Responsible | Accountable | Consulted | Informed |

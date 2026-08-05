@@ -1,5 +1,15 @@
 # Changelog — ceo-strategist
 
+## 2026-08-05 — Phase 22 peer handoff paths
+
+**Why:** Peer merge was generic; HoD/CMO/paid used `22-peer-<slug>.md` without CEO playbook listing those paths.
+
+**Changed**
+- Phase playbooks: Phase 22 artifacts table lists `22-peer-head-of-data`, `22-peer-cmo`, `22-peer-paid-media-manager`
+- Handoffs: Pointer to HANDOFF-TEMPLATE Phase 22 peer convention
+
+**Checklist:** Follow-up alignment with HANDOFF-TEMPLATE / orchestrator / CMO
+
 ## 2026-08-05 — Office Layer B (docx / pptx)
 
 **Why:** CEO must ship shareable Word/PowerPoint when operators need production exec artifacts, not MD-only.

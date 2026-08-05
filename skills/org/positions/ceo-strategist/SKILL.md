@@ -435,12 +435,12 @@ Follow the playbook for the active phase. Replace `<active>` with the venture sl
 
 **Spawn**
 - Do **not** self-spawn. Request via orchestrator on demand: `head-of-data`, `cmo`, `paid-media-manager`
-- After they return, merge their bullets into the cadence entry
+- After they return, merge peer briefs into the cadence entry
 
 **Procedure**
 1. Confirm check-in type (weekly / monthly / quarterly).
-2. If data/channel help needed: write collaborator request for orchestrator; await their handoffs/briefs.
-3. Collect one bullet from each C-suite manager when available.
+2. If data/channel/paid help needed: write collaborator request for orchestrator; await peer briefs (paths below).
+3. Collect one bullet from each C-suite manager when available (orchestrator standup).
 4. Prepend a new entry to `22-operating-cadence.md` (newest on top): KPIs actual vs target; top 3 actions; decisions / phases re-opened.
 5. Manager brief with next actions for orchestrator/operator.
 6. Light csuite review / approve as needed.
@@ -451,15 +451,18 @@ Follow the playbook for the active phase. Replace `<active>` with the venture sl
 | Path | Required contents (shape) |
 |------|---------------------------|
 | `…/22-operating-cadence.md` | Living log; newest entry on top with KPIs, top 3 actions, decisions/phases re-opened |
+| `HANDOFFS/22-peer-head-of-data.md` | When HoD dispatched — KPI actual vs target; guardrails; measurement actions |
+| `HANDOFFS/22-peer-cmo.md` | When CMO dispatched — demand/channel bullets for cadence |
+| `HANDOFFS/22-peer-paid-media-manager.md` | When paid dispatched — performance diagnosis + prioritized actions |
 | `HANDOFFS/22-manager-ceo-strategist.md` | Manager brief |
 | `HANDOFFS/22-csuite-review.md` | When required by orchestrator |
 
 **Handoffs**
-- Optional peer outputs (orchestrator-spawned) → manager brief → review
+- Orchestrator-spawned peers write `HANDOFFS/22-peer-<slug>.md` (see HANDOFF-TEMPLATE) → you merge → manager brief → review
 
 **Done checks**
 - [ ] New cadence entry with concrete actions
-- [ ] Peers only via orchestrator
+- [ ] Peers only via orchestrator; peer paths used when those seats were dispatched
 - [ ] Model audit fields; do not mark phase ✅
 
 ---

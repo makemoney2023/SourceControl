@@ -154,7 +154,19 @@ Parallelize **managers** across tracks only when registry allows and inputs exis
 
 ### Phase 22 standup
 
-Weekly: ask each C-suite manager (`cfo`, `cmo`, `creative-director`, `cto`, `head-of-data`, `coo`, `head-of-sales-cs`) for one bullet → CEO synthesizes into `22-operating-cadence.md`.
+**Weekly light:** ask each C-suite manager (`cfo`, `cmo`, `creative-director`, `cto`, `head-of-data`, `coo`, `head-of-sales-cs`) for one bullet → CEO synthesizes into `22-operating-cadence.md`.
+
+**On-demand deep peers** (registry May spawn for Phase 22): when CEO requests data/channel/paid help, spawn **as peers** (not phase owners):
+
+| Seat | Peer handoff path |
+|------|-------------------|
+| `head-of-data` | `HANDOFFS/22-peer-head-of-data.md` |
+| `cmo` | `HANDOFFS/22-peer-cmo.md` |
+| `paid-media-manager` | `HANDOFFS/22-peer-paid-media-manager.md` |
+
+Packet: `phase: "22"`, peer mode, `report_to: ceo-strategist`, no IC fan-out for CMO/HoD unless their playbook says otherwise (default: peer brief only). CEO merges peers → `HANDOFFS/22-manager-ceo-strategist.md` + cadence entry. See `HANDOFF-TEMPLATE.md` § Phase 22 peer briefs.
+
+**Leases:** When managers spawn parallel ICs, require non-colliding `write_lease` per `COLLABORATION.md` § Parallel IC leases.
 
 ## Degrade path
 
@@ -195,5 +207,10 @@ Full seat→tool map: `skills/org/TOOL-REGISTRY.md`.
 - [ ] Shippable phases (4B, 9, 9B, 11, 12, 14, 15, 17, 19, 21): Production Layer B complete or skipped with reason (`packs/production-artifacts`; includes Office Layer B)
 - [ ] Live-data phases note tool_status / required env when TOOL-REGISTRY expects APIs
 - [ ] Creative/eng/brand/web/CRO/lifecycle/paid IC handoffs pass merge gate (packs + decision per pack + production_status when required)
+- [ ] Phase 22 deep peers use `22-peer-<slug>.md` paths when dispatched
+- [ ] Parallel manager spawns use non-colliding leases (COLLABORATION.md)
 - [ ] `scripts/validate-skill-pack-paths.sh` OK after role Skill table edits
 - [ ] `scripts/validate-production-artifacts-pack.test.sh` OK after production pack / seat wiring edits
+- [ ] `scripts/validate-ceo-bar-seats.test.sh` OK after position/orchestrator bar edits
+
+History: see `CHANGELOG.md`

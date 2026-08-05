@@ -126,3 +126,19 @@ Read `skills/org/packs/production-artifacts/SKILL.md` before claiming complete.
 - Inherit parent model when MODEL-REGISTRY pins a different tier (esp. creative/legal)
 - Name-drop packs without a decision row
 ```
+
+## Phase 22 peer briefs (operating loop)
+
+When orchestrator dispatches you as an **on-demand peer** for Phase 22 (CEO owns the phase), do **not** use `<phase>-<slug>.md` as if you were the phase manager.
+
+**Path convention:** `docs/projects/<active>/business-idea/HANDOFFS/22-peer-<slug>.md`
+
+| Seat | Path |
+|------|------|
+| `head-of-data` | `HANDOFFS/22-peer-head-of-data.md` |
+| `cmo` | `HANDOFFS/22-peer-cmo.md` |
+| `paid-media-manager` | `HANDOFFS/22-peer-paid-media-manager.md` |
+
+Frontmatter: `phase: "22"`, `position: "<slug>"`, `reports_to: ceo-strategist` (or packet `report_to`), peer mode — no IC spawn, no manager brief, do not edit `22-operating-cadence.md` unless leased. CEO merges peer bullets into the cadence entry + `HANDOFFS/22-manager-ceo-strategist.md`.
+
+Weekly C-suite one-bullet standup (orchestrator) may be lighter than a full peer brief; still prefer this path when a seat is formally dispatched for Phase 22.

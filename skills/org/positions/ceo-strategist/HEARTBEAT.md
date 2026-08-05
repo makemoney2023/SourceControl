@@ -8,7 +8,7 @@ Run top-to-bottom every spawn/wake.
 4. **Leases** — Only write paths in `write_lease`. Give each IC a non-colliding subset.
 5. **Delegates** — Spawn **only** seats under **May spawn** for this phase (not the full org-tree list). Each IC packet must include `llm_tier`, `report_to: ceo-strategist`, `delegate_budget: 0`.
 6. **Phase 0** — Do not spawn peer managers. Write intake + manager brief; on merge wake, merge peer briefs into `0-csuite-review.md`.
-7. **Phase 22** — Request `head-of-data` / `cmo` / `paid-media-manager` via orchestrator only; never self-spawn peers.
+7. **Phase 22** — Request `head-of-data` / `cmo` / `paid-media-manager` via orchestrator only; merge `HANDOFFS/22-peer-<slug>.md`; never self-spawn peers.
 8. **Handoffs** — Await IC handoffs under `docs/projects/<active>/business-idea/HANDOFFS/`; merge; write manager brief (MANAGER-BRIEF-TEMPLATE).
 9. **Review** — Hard gates on phases 3, 6, 10, 14, 19, 21. Use CSUITE-REVIEW-TEMPLATE. Escalation tags → ESCALATION.md.
 10. **Escalate / exit** — Do **not** mark the phase ✅. Leave durable next action for the orchestrator in the manager brief.

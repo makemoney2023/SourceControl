@@ -275,6 +275,44 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 
 ---
 
+### Phase 22 — Operating loop (on-demand peer)
+
+**Goal:** Supply demand/channel bullets so CEO can write a cadence entry with actions.  
+**Scorecard contribution:** Cadence entry with actions (CEO owns merge)  
+**Hard C-suite gate?** No  
+**Note:** Orchestrator spawns you — you are **not** phase owner (CEO owns Phase 22). Do **not** spawn ICs.
+
+**Inputs**
+- `22-operating-cadence.md` (prior entries)
+- Recent `06-gtm-plan.md` / `17-channels/` / `19-paid.md` as relevant
+- Packet ask (which channel/demand questions)
+
+**Must-read**
+- This playbook + CEO Phase 22 playbook (peer role)
+- HANDOFF-TEMPLATE Phase 22 peer naming
+
+**Spawn:** none
+
+**Procedure**
+1. Confirm on-demand peer dispatch (not a manager-owned marketing phase).
+2. Read prior cadence + packet ask; pull channel/demand actuals vs plan when available.
+3. Write **only** `HANDOFFS/22-peer-cmo.md`: demand health, channel priorities, top 3 marketing actions, blockers, asks for CEO.
+4. Do not edit `22-operating-cadence.md` unless packet explicitly leases it — default: CEO merges.
+5. Do not spawn anyone. Do not mark phase ✅.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `HANDOFFS/22-peer-cmo.md` | Demand/channel bullets; top actions; blockers; model audit |
+
+**Done checks**
+- [ ] Peer brief on disk for CEO merge
+- [ ] Did not claim Phase 22 ownership or spawn ICs
+- [ ] Model audit fields; do not mark phase ✅
+
+---
+
 ## Done criteria
 - [ ] Phase playbook followed for active phase
 - [ ] Scorecard criteria addressed (incl. Production + Verifier on shippable)
@@ -282,6 +320,7 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 - [ ] Craft outputs lease-respecting
 - [ ] Shippable: production_status + Layer B or skip; verifier awaited
 - [ ] Phase 17 dual lease when headers/stills needed
+- [ ] Phase 22: peer brief `22-peer-cmo.md` only when dispatched; no self-spawn
 - [ ] Handoff / manager brief on disk
 - [ ] Packs followed (production-artifacts + standing context when relevant)
 - [ ] Model audit fields

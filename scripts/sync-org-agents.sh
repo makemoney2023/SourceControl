@@ -50,6 +50,10 @@ fi
 if [[ -f "$ROOT/scripts/validate-doctor-production-runtime.test.sh" ]]; then
   bash "$ROOT/scripts/validate-doctor-production-runtime.test.sh"
 fi
+if [[ -f "$ROOT/scripts/validate-email-html.sh" ]]; then
+  bash "$ROOT/scripts/validate-email-html.sh" \
+    "$ROOT/docs/projects/blacksage-kennels/business-idea/17-channels/email/html" || exit 1
+fi
 if [[ -f "$ROOT/scripts/validate-blacksage-production-proof.test.sh" ]]; then
   bash "$ROOT/scripts/validate-blacksage-production-proof.test.sh"
 fi
@@ -64,4 +68,7 @@ if [[ -f "$ROOT/scripts/validate-wave3-skill-bindings.test.sh" ]]; then
 fi
 if [[ -f "$ROOT/scripts/validate-standing-context-pack.test.sh" ]]; then
   bash "$ROOT/scripts/validate-standing-context-pack.test.sh"
+fi
+if [[ -f "$ROOT/scripts/validate-ceo-bar-seats.test.sh" ]]; then
+  bash "$ROOT/scripts/validate-ceo-bar-seats.test.sh"
 fi

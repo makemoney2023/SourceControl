@@ -54,6 +54,20 @@ IC bar: A4 (Delegates `_None_`, never spawn) + Phase craft playbooks + HEARTBEAT
 
 ---
 
+## Wave 3 — Follow-ups (post CEO-bar)
+
+| # | Item | Status | Notes |
+|---|------|--------|-------|
+| 1 | Phase 22 peer handoff SSOT | ✅ | `HANDOFF-TEMPLATE` + CEO/CMO/HoD/paid + orchestrator use `22-peer-<slug>.md` |
+| 2 | `company-orchestrator` routing bar | ✅ | HEARTBEAT + CHANGELOG + Phase 22 peer table + agent |
+| 3 | Parallel IC lease partitioning | ✅ | `COLLABORATION.md` § Parallel IC leases; POSITION-TEMPLATE pointer |
+| 4 | Cold-read / structural QA | ✅ | `scripts/validate-ceo-bar-seats.test.sh` (wired into sync) |
+| 5 | Push to remote | — | Local commits only unless operator asks |
+
+**Wave 3 exit:** follow-ups 1–4 ✅
+
+---
+
 ## Per-seat mini checklist (copy when upgrading)
 
 For each slug:
@@ -76,3 +90,4 @@ For each slug:
 | 2026-08-05 | Tracker created; Wave 1 #1–5 done; #6–11 in this pass |
 | 2026-08-05 | Wave 1 complete — all phase-owning managers at CEO bar; agents synced |
 | 2026-08-05 | Wave 2 complete — all IC seats at CEO-bar IC standard; verifier agent created; MODEL-REGISTRY paid-media `ad-creative` aligned |
+| 2026-08-05 | Wave 3 follow-ups complete — Phase 22 peers, orchestrator bar, lease partitioning, validate-ceo-bar-seats.test.sh |
