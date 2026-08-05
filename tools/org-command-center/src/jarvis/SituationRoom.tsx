@@ -438,20 +438,46 @@ export function SituationRoom() {
     }
     const request = seatReportSequence.current.beginIfMounted();
     if (request == null) return;
+    const slug = selectedSlug;
+    let cancelled = false;
+    let enrichTimer: ReturnType<typeof setTimeout> | undefined;
+    let enrichAttempts = 0;
     setConsoleLoading(true);
     setSeatReport(null);
-    void fetchSeatReport(selectedSlug)
-      .then((r) => {
-        if (seatReportSequence.current.isCurrent(request)) setSeatReport(r);
-      })
-      .catch((e) => {
-        if (seatReportSequence.current.isCurrent(request)) {
-          setActionError(e instanceof Error ? e.message : String(e));
-        }
-      })
-      .finally(() => {
-        if (seatReportSequence.current.isCurrent(request)) setConsoleLoading(false);
-      });
+
+    const load = (opts?: { soft?: boolean }) => {
+      if (!opts?.soft) {
+        setConsoleLoading(true);
+        setSeatReport(null);
+      }
+      void fetchSeatReport(slug)
+        .then((r) => {
+          if (cancelled || !seatReportSequence.current.isCurrent(request)) return;
+          setSeatReport(r);
+          // Grok rewrite runs in the background; soft-poll until it lands or we give up.
+          // Grok often needs 30–60s; keep soft-polling until cache fills.
+          if (r.briefEnriching && enrichAttempts < 30) {
+            enrichAttempts += 1;
+            enrichTimer = setTimeout(() => load({ soft: true }), 2500);
+          }
+        })
+        .catch((e) => {
+          if (cancelled || !seatReportSequence.current.isCurrent(request)) return;
+          if (!opts?.soft) {
+            setActionError(e instanceof Error ? e.message : String(e));
+          }
+        })
+        .finally(() => {
+          if (cancelled || !seatReportSequence.current.isCurrent(request)) return;
+          if (!opts?.soft) setConsoleLoading(false);
+        });
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+      if (enrichTimer) clearTimeout(enrichTimer);
+    };
   }, [selectedSlug, snap?.bump]);
 
   useEffect(() => {
@@ -1492,7 +1518,9 @@ export function SituationRoom() {
                 {seatReport.hardGate ? " · hard gate" : ""}
                 {seatReport.briefSource === "grok"
                   ? " · rewritten for clarity (Grok)"
-                  : ""}
+                  : seatReport.briefEnriching
+                    ? " · clarifying…"
+                    : ""}
               </p>
               {answerStatus ? <p className="j-chip" data-tone="ok">{answerStatus}</p> : null}
 

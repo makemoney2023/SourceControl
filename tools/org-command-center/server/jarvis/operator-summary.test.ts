@@ -97,6 +97,55 @@ describe("collectOpenQuestions filters process noise", () => {
       ]),
     );
   });
+
+  it("rewrites peer-help and clarification asks into plain operator English", () => {
+    const qs = collectOpenQuestions(
+      [
+        "Peer help needed: CTO for GLB optimize pipeline, license diligence sign-off, and HeroIsland perf gate before Phase 9 merge — not a block on design merge",
+        "Clarification needed: Operator commercial 3D asset budget cap + undocked-tail hard yes (CEO assumed yes) before purchase — see HANDOFFS/22-ceo-operator-feedback-3d-brand.md §8",
+        "Peer help needed: copy-chief for chapter body alignment to Phase 14 (done as 14r)",
+      ],
+      [],
+    );
+    expect(qs.every((q) => !/peer help needed|clarification needed|HANDOFFS\//i.test(q))).toBe(
+      true,
+    );
+    expect(qs.some((q) => /budget|3D|purchase/i.test(q))).toBe(true);
+    expect(qs.some((q) => /CTO|engineering|3D|license|performance/i.test(q))).toBe(true);
+    expect(qs.every((q) => !/\(done as/i.test(q))).toBe(true);
+  });
+});
+
+describe("buildSeatBusinessBrief humanizes jargon decisions", () => {
+  it("softens technical decision lines and fills empty whatHappened", async () => {
+    const { buildSeatBusinessBrief } = await import("./operator-summary");
+    const brief = buildSeatBusinessBrief({
+      operatorSummary: { plainEnglish: [], findings: [], nextSteps: [] },
+      decisions: [
+        "Default home = photography documentary chapters (not box-dog WebGL).",
+        "WebGL ScrollControls only when licensed GLB + gate pass.",
+        "No purple/cream; Fraunces/Manrope per 11-R.",
+      ],
+      openQuestions: [
+        "What is your budget cap for commercial 3D assets before we buy anything?",
+      ],
+      blockers: [
+        "Patch risk: Phase 9 engineer may copy v1 apps/blacksage-kennels file tree — §Anti-patterns forbid; new project required.",
+        "Form backend: blocks public launch; UI spec complete for staging.",
+      ],
+    });
+    expect(brief.whatHappened.length).toBeGreaterThan(0);
+    expect(brief.whatHappened.join(" ")).not.toMatch(/No plain-language/i);
+    expect(brief.whyItMatters.every((l) => !/\b11-R\b|ScrollControls|box-dog/i.test(l))).toBe(
+      true,
+    );
+    expect(brief.whyItMatters.some((l) => /photography|documentary|home/i.test(l))).toBe(true);
+    expect(brief.whatsStuck.every((l) => !/apps\/|§Anti-patterns|Phase 9|PlaceholderSlot/i.test(l))).toBe(
+      true,
+    );
+    expect(brief.whatsStuck.some((l) => /form|launch|backend/i.test(l))).toBe(true);
+    expect(brief.whatsStuck.some((l) => /new site project|previous codebase/i.test(l))).toBe(true);
+  });
 });
 
 describe("humanizeBlockers", () => {

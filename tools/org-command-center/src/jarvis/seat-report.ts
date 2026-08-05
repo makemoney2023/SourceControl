@@ -96,6 +96,8 @@ export interface SeatReport {
   businessBrief: SeatBusinessBrief;
   /** Set when server enriches via Cursor Grok rewrite. */
   briefSource?: "grok" | "deterministic";
+  /** True when a Grok rewrite is still running in the background. */
+  briefEnriching?: boolean;
   decisions: string[];
   openQuestions: string[];
   reportRollups: SeatReportRollup[];

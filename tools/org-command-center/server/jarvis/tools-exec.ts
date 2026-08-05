@@ -291,6 +291,9 @@ export async function executeIntent(
         asks: latest?.asks,
         blockers: latest?.blockers,
         apiKey: typeof args.apiKey === "string" ? args.apiKey : undefined,
+        // Voice can wait briefly; fall back so TTS is not stuck for a full Grok turn.
+        mode: "await",
+        timeoutMs: 4000,
       });
       const roomId = args.roomId != null ? String(args.roomId) : "";
       if (roomId) {

@@ -38,9 +38,19 @@ const MAX_LINE_CHARS = 480;
 /** Bump when rewrite prompt/detail policy changes so stale thin caches are ignored. */
 const BRIEF_PROMPT_VERSION = "v2-detailed";
 const cache = new Map<string, SeatBusinessBrief>();
+/** In-flight rewrites so concurrent opens share one Cursor SDK call. */
+const inflight = new Map<string, Promise<RewriteSeatBriefResult>>();
+
+export type SeatBriefEnrichMode = "await" | "cached-or-background";
 
 export function clearSeatBriefRewriteCacheForTests(): void {
   cache.clear();
+  inflight.clear();
+}
+
+export function defaultSeatBriefTimeoutMs(): number {
+  const n = Number(process.env.JARVIS_SEAT_BRIEF_TIMEOUT_MS ?? 4000);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 4000;
 }
 
 export function briefCacheKey(seatSlug: string, sourceMarkdown: string): string {
@@ -197,7 +207,14 @@ export function mergeBriefIntoReport<
     upwardAsks: string[];
     upwardBlockers: string[];
   },
->(report: T, rewrite: RewriteSeatBriefResult): T & { briefSource: "grok" | "deterministic" } {
+>(
+  report: T,
+  rewrite: RewriteSeatBriefResult,
+  extras?: { briefEnriching?: boolean },
+): T & {
+  briefSource: "grok" | "deterministic";
+  briefEnriching: boolean;
+} {
   const applied = rewrite.source === "grok" ? rewrite.brief : report.businessBrief;
   const summary = applied.whatHappened.join(" ").slice(0, 480) || report.summary;
   return {
@@ -211,7 +228,25 @@ export function mergeBriefIntoReport<
     upwardBlockers:
       applied.whatsStuck.length > 0 ? applied.whatsStuck : report.upwardBlockers,
     briefSource: rewrite.source,
+    briefEnriching: Boolean(extras?.briefEnriching),
   };
+}
+
+function startRewriteSeatBusinessBrief(
+  input: RewriteSeatBriefInput,
+): Promise<RewriteSeatBriefResult> {
+  const key = briefCacheKey(input.seatSlug, input.sourceMarkdown);
+  const existing = inflight.get(key);
+  if (existing) return existing;
+  const pending = rewriteSeatBusinessBrief(input).finally(() => {
+    inflight.delete(key);
+  });
+  inflight.set(key, pending);
+  return pending;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function narrativeSourceForRewrite(args: {
@@ -232,6 +267,11 @@ function narrativeSourceForRewrite(args: {
     .join("\n\n");
 }
 
+/**
+ * Enrich a seat report with Grok.
+ * - `cached-or-background` (HTTP UI): return cache or deterministic immediately; rewrite continues in background.
+ * - `await` (voice/tools): wait up to timeoutMs, then fall back while rewrite may still finish for cache.
+ */
 export async function enrichSeatReportWithGrokBrief<
   T extends {
     slug: string;
@@ -253,22 +293,72 @@ export async function enrichSeatReportWithGrokBrief<
     blockers?: string[];
     apiKey?: string | null;
     runtime?: SeatBriefRewriteRuntime;
+    mode?: SeatBriefEnrichMode;
+    timeoutMs?: number;
   },
-): Promise<T & { briefSource: "grok" | "deterministic" }> {
-  const sourceMarkdown = narrativeSourceForRewrite({
-    handoffBody: opts.handoffBody,
-    deliverableMarkdown: opts.deliverableMarkdown,
-    asks: opts.asks ?? report.upwardAsks,
-    blockers: opts.blockers ?? report.upwardBlockers,
-  });
-  const rewrite = await rewriteSeatBusinessBrief({
+): Promise<
+  T & { briefSource: "grok" | "deterministic"; briefEnriching: boolean }
+> {
+  const sourceMarkdown =
+    narrativeSourceForRewrite({
+      handoffBody: opts.handoffBody,
+      deliverableMarkdown: opts.deliverableMarkdown,
+      asks: opts.asks ?? report.upwardAsks,
+      blockers: opts.blockers ?? report.upwardBlockers,
+    }) ||
+    report.summary ||
+    report.slug;
+  const input: RewriteSeatBriefInput = {
     seatTitle: report.title,
     seatSlug: report.slug,
-    sourceMarkdown: sourceMarkdown || report.summary || report.slug,
+    sourceMarkdown,
     fallback: report.businessBrief,
     cwd: opts.cwd,
     apiKey: opts.apiKey,
     runtime: opts.runtime,
-  });
-  return mergeBriefIntoReport(report, rewrite);
+  };
+  const key = briefCacheKey(report.slug, sourceMarkdown);
+  const cached = cache.get(key);
+  if (cached) {
+    return mergeBriefIntoReport(
+      report,
+      { brief: cached, source: "grok", cached: true, model: defaultSeatBriefModel() },
+      { briefEnriching: false },
+    );
+  }
+
+  const mode = opts.mode ?? "await";
+  const pending = startRewriteSeatBusinessBrief(input);
+
+  if (mode === "cached-or-background") {
+    // Do not block the Situation Room drawer on a 30–60s Cursor SDK turn.
+    void pending.catch(() => undefined);
+    return mergeBriefIntoReport(
+      report,
+      { brief: report.businessBrief, source: "deterministic" },
+      { briefEnriching: true },
+    );
+  }
+
+  const timeoutMs =
+    opts.timeoutMs !== undefined ? opts.timeoutMs : defaultSeatBriefTimeoutMs();
+  if (timeoutMs <= 0) {
+    const rewrite = await pending;
+    return mergeBriefIntoReport(report, rewrite, { briefEnriching: false });
+  }
+
+  const timedOut = Symbol("seat-brief-timeout");
+  const winner = await Promise.race([
+    pending.then((rewrite) => ({ kind: "ok" as const, rewrite })),
+    sleep(timeoutMs).then(() => ({ kind: "timeout" as const, token: timedOut })),
+  ]);
+  if (winner.kind === "ok") {
+    return mergeBriefIntoReport(report, winner.rewrite, { briefEnriching: false });
+  }
+  void pending.catch(() => undefined);
+  return mergeBriefIntoReport(
+    report,
+    { brief: report.businessBrief, source: "deterministic" },
+    { briefEnriching: true },
+  );
 }

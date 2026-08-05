@@ -7,6 +7,8 @@ export {
   extractOperatorSummary,
   formatOperatorSummarySpoken,
   humanizeBlockers,
+  humanizeBusinessLine,
+  humanizeOperatorAsk,
   isActionableAsk,
   stripOperatorProse,
   type OperatorSummary,

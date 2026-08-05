@@ -151,6 +151,8 @@ export function createApi(repoRoot = resolveRepoRoot()) {
       deliverableMarkdown: deliverable?.markdown,
       asks: latest?.asks,
       blockers: latest?.blockers,
+      // Never block the Report drawer on a long Cursor SDK rewrite.
+      mode: "cached-or-background",
     });
     return c.json({ ok: true, report: enriched });
   });

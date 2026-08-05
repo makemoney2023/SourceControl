@@ -152,6 +152,94 @@ describe("rewriteSeatBusinessBrief", () => {
     expect(out.brief).toEqual(fallback);
   });
 
+  it("returns deterministic immediately in background mode while Grok continues", async () => {
+    let resolvePrompt: ((v: { status: string; result: string }) => void) | undefined;
+    const prompt = vi.fn(
+      () =>
+        new Promise<{ status: string; result: string }>((resolve) => {
+          resolvePrompt = resolve;
+        }),
+    );
+    const report = {
+      slug: "business-analyst",
+      title: "BA",
+      businessBrief: fallback,
+      summary: "raw",
+      openQuestions: ["Confirm GO?"],
+      upwardAsks: ["Confirm GO?"],
+      upwardBlockers: [],
+      ownHandoffs: [{ filename: "2-ba.md" }],
+    };
+
+    const { enrichSeatReportWithGrokBrief } = await import("./seat-brief-rewrite");
+    const first = await enrichSeatReportWithGrokBrief(report, {
+      cwd: "/repo",
+      apiKey: "k",
+      runtime: { prompt },
+      mode: "cached-or-background",
+      asks: ["Confirm GO?"],
+      blockers: [],
+    });
+    expect(first.briefSource).toBe("deterministic");
+    expect(first.briefEnriching).toBe(true);
+    expect(prompt).toHaveBeenCalledOnce();
+
+    resolvePrompt?.({
+      status: "finished",
+      result: JSON.stringify({
+        whatHappened: ["Rewritten later."],
+        whyItMatters: [],
+        nextSteps: [],
+        needsFromYou: ["Confirm GO on creative?"],
+        whatsStuck: [],
+      }),
+    });
+    await vi.waitFor(async () => {
+      const second = await enrichSeatReportWithGrokBrief(report, {
+        cwd: "/repo",
+        apiKey: "k",
+        runtime: { prompt },
+        mode: "cached-or-background",
+        asks: ["Confirm GO?"],
+        blockers: [],
+      });
+      expect(second.briefSource).toBe("grok");
+      expect(second.briefEnriching).toBe(false);
+      expect(second.businessBrief.whatHappened[0]).toMatch(/Rewritten later/i);
+    });
+    expect(prompt).toHaveBeenCalledOnce();
+  });
+
+  it("awaits Grok but falls back on timeout in await mode", async () => {
+    const { enrichSeatReportWithGrokBrief } = await import("./seat-brief-rewrite");
+    const out = await enrichSeatReportWithGrokBrief(
+      {
+        slug: "business-analyst",
+        title: "BA",
+        businessBrief: fallback,
+        summary: "raw",
+        openQuestions: [],
+        upwardAsks: [],
+        upwardBlockers: [],
+        ownHandoffs: [],
+      },
+      {
+        cwd: "/repo",
+        apiKey: "k",
+        mode: "await",
+        timeoutMs: 30,
+        runtime: {
+          prompt: () =>
+            new Promise(() => {
+              /* never resolves */
+            }),
+        },
+      },
+    );
+    expect(out.briefSource).toBe("deterministic");
+    expect(out.briefEnriching).toBe(true);
+  });
+
   it("briefCacheKey is stable for content and includes prompt version", () => {
     const a = briefCacheKey("business-analyst", "abc");
     const b = briefCacheKey("business-analyst", "abc");
