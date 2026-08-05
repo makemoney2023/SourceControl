@@ -17,6 +17,7 @@ const HARD = new Set<JarvisIntent>([
   "csuite.draft",
   "work.request",
   "blocker.resolve",
+  "seat.answer",
   "spawn.run_ready",
 ]);
 const OPS_ONLY = new Set<JarvisIntent>([
@@ -28,6 +29,7 @@ const OPS_ONLY = new Set<JarvisIntent>([
   "dispatch.list",
   "delegate.plan",
   "work.intake_save",
+  "seat.answer_draft",
 ]);
 const STRUCTURAL = new Set<JarvisIntent>(["venture.create", "venture.switch"]);
 const ARCHITECT_ONLY = new Set<JarvisIntent>([...STRUCTURAL]);
@@ -91,6 +93,7 @@ export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy 
     (intent.startsWith("spawn") ||
       intent === "work.request" ||
       intent === "work.intake_save" ||
+      intent === "seat.answer_draft" ||
       intent === "dispatch.queue" ||
       intent === "dispatch.queue_for" ||
       intent === "dispatch.queue_batch")

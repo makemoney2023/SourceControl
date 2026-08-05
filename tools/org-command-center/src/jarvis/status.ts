@@ -4,6 +4,7 @@ export type SeatVisualStatus =
   | "running"
   | "done"
   | "blocked"
+  | "needs_input"
   | "csuite"
   | "escalate"
   | "error"
@@ -15,6 +16,7 @@ const STATUS_CUE: Partial<Record<SeatVisualStatus, string>> = {
   active: "ACTIVE",
   running: "RUNNING",
   blocked: "BLOCKED",
+  needs_input: "ANSWER",
   escalate: "ESCALATE",
 };
 
@@ -50,7 +52,13 @@ export function deriveSeatVisualBehavior(
   if (!reducedMotion) {
     if (status === "running") orbitSpeed = 3;
     else if (status === "active") orbitSpeed = 1.4;
-    else if (status === "blocked" || status === "escalate") orbitSpeed = 0.8;
+    else if (
+      status === "blocked" ||
+      status === "needs_input" ||
+      status === "escalate"
+    ) {
+      orbitSpeed = 0.8;
+    }
   }
 
   return {
@@ -69,15 +77,20 @@ export function seatStatus(
     status: string;
     verdictForManager: string;
     verdict: string;
+    asks?: string[];
   }[],
 ): { status: SeatVisualStatus; handoff?: (typeof handoffs)[number] } {
+  const matches = handoffs.filter((x) => x.position === slug);
   const h =
-    handoffs.find((x) => x.position === slug) ??
-    handoffs.find((x) => x.filename.includes(slug));
+    matches.at(-1) ??
+    handoffs.filter((x) => x.filename.includes(slug)).at(-1);
   if (!h) return { status: "idle" };
   if (h.kind === "csuite") return { status: "csuite", handoff: h };
-  if (h.status === "blocked" || h.status === "needs_input") {
+  if (h.status === "blocked") {
     return { status: "blocked", handoff: h };
+  }
+  if (h.status === "needs_input" || (h.asks?.length ?? 0) > 0) {
+    return { status: "needs_input", handoff: h };
   }
   if (h.verdictForManager === "escalate") return { status: "escalate", handoff: h };
   if (h.status === "done") return { status: "done", handoff: h };
@@ -91,6 +104,7 @@ export const STATUS_COLOR: Record<SeatVisualStatus, string> = {
   running: "#3fd4be",
   done: "#4ecf8a",
   blocked: "#e06060",
+  needs_input: "#f0c14a",
   csuite: "#7aa0ff",
   escalate: "#e0a04a",
   error: "#ff6b6b",

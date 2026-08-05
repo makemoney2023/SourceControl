@@ -702,6 +702,35 @@ describe("handleJarvisAct", () => {
     expect(confirmed.summary).toMatch(/skipped/i);
   });
 
+  it("returns needs_confirm for seat.answer in ops", async () => {
+    setExecuteIntentForTests(async () => ({ ok: true, spoken: "continued" }));
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "seat.answer",
+      args: {
+        seat: "head-of-research",
+        answers: { "Which geography?": "Outer Banks" },
+      },
+      mode: "ops",
+    });
+    expect(r.status).toBe("needs_confirm");
+    expect(r.summary).toMatch(/answer/i);
+    expect(r.summary).toMatch(/head-of-research|Confirm\?/i);
+  });
+
+  it("seat.answer_draft executes without confirm in ops", async () => {
+    setExecuteIntentForTests(async () => ({
+      ok: true,
+      spoken: "Saved. Next question: Budget?",
+    }));
+    const r = await handleJarvisAct(repo, "room-1", {
+      intent: "seat.answer_draft",
+      args: { seat: "head-of-research", answer: "Outer Banks" },
+      mode: "ops",
+    });
+    expect(r.status).toBe("ok");
+    expect(r.summary).toMatch(/Saved|Next question/i);
+  });
+
   it("returns needs_confirm for memory.note in ops", async () => {
     const r = await handleJarvisAct(repo, "room-1", {
       intent: "memory.note",

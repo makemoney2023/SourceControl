@@ -113,6 +113,44 @@ describe("buildCompanyDigest", () => {
     expect(d.ceoNext.length).toBeGreaterThan(0);
   });
 
+  it("surfaces open asks as needs_input even when status is done", () => {
+    const handoffs: HandoffRecord[] = [
+      {
+        filename: "2-market-research-analyst.md",
+        kind: "ic",
+        phase: "2",
+        position: "market-research-analyst",
+        reportsTo: "head-of-research",
+        status: "done",
+        verdictForManager: "",
+        verdict: "",
+        llmTier: "",
+        generationProfile: "",
+        fallbackApplied: "",
+        artifacts: [],
+        asks: ["Confirm weekend vs weekday events?"],
+        blockers: [],
+        recommendation: "",
+        escalationTags: [],
+      },
+    ];
+    const d = buildCompanyDigest({
+      org,
+      tracker,
+      handoffs,
+      queueFiles: [],
+      claimedFiles: [],
+      runs: [],
+      briefings: [],
+    });
+    expect(d.blockedSeats).toHaveLength(1);
+    expect(d.blockedSeats[0]).toMatchObject({
+      slug: "market-research-analyst",
+      status: "needs_input",
+      reason: "Confirm weekend vs weekday events?",
+    });
+  });
+
   it("includes all blockers and asks in reasons", () => {
     const handoffs: HandoffRecord[] = [
       {

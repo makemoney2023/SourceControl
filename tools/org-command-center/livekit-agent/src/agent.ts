@@ -24,6 +24,7 @@ import {
 import { createConfirmGate } from "./confirm-gate.js";
 import { shouldRecoverEmptySttConfirm } from "./confirm-recovery.js";
 import { createModeState } from "./modes.js";
+import { selectNeedsAnswersAnnounces } from "./needs-answers-announce.js";
 import { buildOccTools, defaultOccClient } from "./occ-tools.js";
 import { JARVIS_SYSTEM_PROMPT } from "./jarvis-system-prompt.js";
 import { sanitizeForSpeech, summarizeJarvisSpeech } from "./occ-client.js";
@@ -81,6 +82,7 @@ export default defineAgent({
     const modeState = createModeState("briefing");
     const confirmGate = createConfirmGate();
     const announcedKeys = new Set<string>();
+    const announcedNeedsAnswers = new Set<string>();
     let eventsCursor: string | undefined;
     const watchState = { lastActive: false, lastTerminalAtMs: null as number | null };
     let completionTimer: ReturnType<typeof setInterval> | undefined;
@@ -224,6 +226,10 @@ export default defineAgent({
         greeting = pickWakeGreeting(brief, 280);
       }
       lastSpokenSnapshot = parsePulseSnapshot(context);
+      // Seed so seats already needing answers are not re-announced on first pulse.
+      for (const seat of context.needsAnswersSeats ?? []) {
+        if (typeof seat === "string" && seat.trim()) announcedNeedsAnswers.add(seat);
+      }
     } catch {
       // OCC unreachable — use fallback greeting
     }
@@ -239,6 +245,22 @@ export default defineAgent({
       }
     };
 
+    const tickNeedsAnswersAnnounce = (context: JarvisContextForPulse) => {
+      const seats = Array.isArray(context.needsAnswersSeats)
+        ? context.needsAnswersSeats.filter((s): s is string => typeof s === "string")
+        : [];
+      const deferSpeak =
+        confirmGate.isWaiting() || Date.now() < holdAnnouncesUntilMs;
+      const { speak } = selectNeedsAnswersAnnounces(
+        seats,
+        announcedNeedsAnswers,
+        deferSpeak,
+      );
+      for (const line of speak) {
+        void agent.say(sanitizeForSpeech(line), true);
+      }
+    };
+
     if (pulseMs > 0) {
       pulseTimer = setInterval(async () => {
         if (!ctx.room.isConnected) return;
@@ -251,6 +273,7 @@ export default defineAgent({
             void agent.say(sanitizeForSpeech(brief), true);
           }
           lastSpokenSnapshot = snapshot;
+          tickNeedsAnswersAnnounce(context);
         } catch {
           // OCC unreachable — skip this pulse tick
         }

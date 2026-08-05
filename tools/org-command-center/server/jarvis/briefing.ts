@@ -6,10 +6,17 @@ import {
   loadPhase0Roundtable,
   spokenPhase0FindingsBrief,
 } from "./phase0-roundtable";
+import { listSeatsAwaitingAnswers } from "./seat-answer";
 
 export type MissionBriefInput = Pick<
   MissionState,
-  "idea" | "currentPhase" | "currentPhaseName" | "progressPct" | "blockerCount" | "nextAction"
+  | "idea"
+  | "currentPhase"
+  | "currentPhaseName"
+  | "progressPct"
+  | "blockerCount"
+  | "needsInputCount"
+  | "nextAction"
 >;
 
 export function spokenMissionBrief(mission: MissionBriefInput): string {
@@ -19,10 +26,18 @@ export function spokenMissionBrief(mission: MissionBriefInput): string {
     : `Phase ${mission.currentPhase}`;
 
   const opener = `${name} on ${phaseLabel}, ${mission.progressPct}% complete.`;
+  const needs = mission.needsInputCount ?? 0;
+  const friction = mission.blockerCount;
 
-  if (mission.blockerCount > 0) {
+  if (needs > 0) {
+    const needText =
+      needs === 1 ? "One seat needs answers" : `${needs} seats need answers`;
+    return `${opener} ${needText}; next is ${mission.nextAction}.`;
+  }
+
+  if (friction > 0) {
     const blockerText =
-      mission.blockerCount === 1 ? "One blocker" : `${mission.blockerCount} blockers`;
+      friction === 1 ? "One blocker" : `${friction} blockers`;
     return `${opener} ${blockerText} open; next is ${mission.nextAction}.`;
   }
 
@@ -66,5 +81,6 @@ export async function buildJarvisContext(repoRoot: string) {
     spokenBrief,
     contextNote: truncated,
     sourcesCount: sources.length,
+    needsAnswersSeats: listSeatsAwaitingAnswers(repoRoot),
   };
 }

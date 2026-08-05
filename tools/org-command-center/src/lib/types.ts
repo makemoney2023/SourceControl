@@ -62,6 +62,8 @@ export interface HandoffRecord {
   wireChecklistPath: string;
   licenseBasis: string;
   generationUsed: string;
+  /** Markdown body after frontmatter — used for operator narrative extraction. */
+  body: string;
 }
 
 export interface RosterEntry {

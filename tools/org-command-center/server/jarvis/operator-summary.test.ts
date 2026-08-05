@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  collectOpenQuestions,
+  extractDecisions,
   extractOperatorSummary,
   formatOperatorSummarySpoken,
+  humanizeBlockers,
 } from "./operator-summary";
 
 const SAMPLE = `---
@@ -45,6 +48,20 @@ describe("extractOperatorSummary", () => {
   });
 });
 
+describe("extractDecisions and collectOpenQuestions", () => {
+  it("extracts decisions and merges blocking asks", () => {
+    const md = `## Decisions\n- Ship cash-only\n\n## Next steps\n1. Operator picks geo.\n2. Blocking question: weekend or weekday?\n`;
+    expect(extractDecisions(md)).toContain("Ship cash-only");
+    const next = extractOperatorSummary(md).nextSteps;
+    expect(collectOpenQuestions(["Which geography?"], next)).toEqual(
+      expect.arrayContaining([
+        "Which geography?",
+        expect.stringMatching(/weekend or weekday/i),
+      ]),
+    );
+  });
+});
+
 describe("formatOperatorSummarySpoken", () => {
   it("speaks plain English then next step without markdown", () => {
     const spoken = formatOperatorSummarySpoken(extractOperatorSummary(SAMPLE));
@@ -56,5 +73,45 @@ describe("formatOperatorSummarySpoken", () => {
 
   it("returns null when nothing useful", () => {
     expect(formatOperatorSummarySpoken(extractOperatorSummary("# x"))).toBeNull();
+  });
+});
+
+describe("collectOpenQuestions filters process noise", () => {
+  it("drops none-asks and strips markdown; keeps real operator questions", () => {
+    const qs = collectOpenQuestions(
+      [
+        "Peer help needed: **none**",
+        "Clarification needed: **none** for merge — operator answers on Q1 remain valuable",
+        "**C-suite ask:** Confirm GO on creative redo",
+        "Which geography should we prioritize?",
+      ],
+      [],
+    );
+    expect(qs.every((q) => !/\*\*/.test(q))).toBe(true);
+    expect(qs.some((q) => /Peer help needed/i.test(q))).toBe(false);
+    expect(qs.some((q) => /Clarification needed:\s*\**none/i.test(q))).toBe(false);
+    expect(qs).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/Confirm GO on creative redo/i),
+        expect.stringMatching(/Which geography/i),
+      ]),
+    );
+  });
+});
+
+describe("humanizeBlockers", () => {
+  it("strips tables and codes into short plain lines", () => {
+    const lines = humanizeBlockers([
+      "**12-month success criteria** remain assumption-only until operator answers Q4 — may shift strategy.",
+      "| Risk | Severity | Mitigation |",
+      "|------|----------|------------|",
+      "| Creative team patches v1 | High | SD7 |",
+      "W1 (no program evidence) remains binding — D2 succeeds only with operator content",
+    ]);
+    expect(lines.every((l) => !/^\|/.test(l))).toBe(true);
+    expect(lines.every((l) => !/\*\*/.test(l))).toBe(true);
+    expect(lines[0]).toMatch(/success criteria|assumption/i);
+    expect(lines.length).toBeGreaterThan(0);
+    expect(lines.length).toBeLessThanOrEqual(4);
   });
 });

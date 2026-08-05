@@ -58,11 +58,26 @@ describe("spokenMissionBrief", () => {
       currentPhaseName: "Market",
       progressPct: 14,
       blockerCount: 1,
+      needsInputCount: 0,
       nextAction: "Phase 2 Market",
     });
     expect(s).toMatch(/Phase 2/);
     expect(s).toMatch(/blocker/i);
     expect(s.split(/[.!?]+/).filter(Boolean).length).toBeLessThanOrEqual(2);
+  });
+
+  it("prefers needs answers wording when seats await input", () => {
+    const s = spokenMissionBrief({
+      idea: "AWG",
+      currentPhase: "2",
+      currentPhaseName: "Market",
+      progressPct: 14,
+      blockerCount: 2,
+      needsInputCount: 1,
+      nextAction: "Phase 2 Market",
+    });
+    expect(s).toMatch(/needs answers/i);
+    expect(s).not.toMatch(/blocker/i);
   });
 });
 

@@ -30,6 +30,18 @@ describe("parseJarvisFocusEvent", () => {
   it("returns empty object for mission-only focus", () => {
     expect(parseJarvisFocusEvent({ at: "t", type: "jarvis.focus" })).toEqual({});
   });
+
+  it("parses openReport and focusQuestions flags", () => {
+    expect(
+      parseJarvisFocusEvent({
+        at: "t",
+        type: "jarvis.focus",
+        slug: "cmo",
+        openReport: true,
+        focusQuestions: true,
+      }),
+    ).toEqual({ slug: "cmo", openReport: true, focusQuestions: true });
+  });
 });
 
 describe("latestJarvisFocus", () => {

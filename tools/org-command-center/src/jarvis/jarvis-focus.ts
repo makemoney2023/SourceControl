@@ -1,6 +1,8 @@
 export type JarvisFocus = {
   phase?: string;
   slug?: string;
+  openReport?: boolean;
+  focusQuestions?: boolean;
 };
 
 export type ActivityFocusInput = {
@@ -9,14 +11,21 @@ export type ActivityFocusInput = {
   phase?: string;
   slug?: string;
   position?: string;
+  openReport?: boolean;
+  focusQuestions?: boolean;
 };
 
 export function parseJarvisFocusEvent(ev: ActivityFocusInput): JarvisFocus | null {
   if (ev.type !== "jarvis.focus") return null;
   const slug = ev.slug ?? ev.position;
   const phase = ev.phase;
-  if (!slug && !phase) return {};
-  return { ...(phase ? { phase } : {}), ...(slug ? { slug } : {}) };
+  if (!slug && !phase && !ev.openReport && !ev.focusQuestions) return {};
+  return {
+    ...(phase ? { phase } : {}),
+    ...(slug ? { slug } : {}),
+    ...(ev.openReport ? { openReport: true } : {}),
+    ...(ev.focusQuestions ? { focusQuestions: true } : {}),
+  };
 }
 
 /** Newest jarvis.focus wins (activity tail is newest-first in snapshot). */

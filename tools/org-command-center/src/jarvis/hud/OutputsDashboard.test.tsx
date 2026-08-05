@@ -8,8 +8,19 @@ const api = vi.hoisted(() => ({
   fetchProductionScorecard: vi.fn(),
   fetchReviewInbox: vi.fn(),
 }));
-vi.mock("../../api/client", () => api);
-vi.mock("../artifacts", () => ({ indexArtifacts: () => [] }));
+vi.mock("../artifacts", () => ({
+  indexArtifacts: () => [],
+  indexProductionArtifacts: () => [],
+}));
+vi.mock("../../api/client", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../api/client")>();
+  return {
+    ...actual,
+    fetchFile: api.fetchFile,
+    fetchProductionScorecard: api.fetchProductionScorecard,
+    fetchReviewInbox: api.fetchReviewInbox,
+  };
+});
 
 import { OutputsDashboard } from "./OutputsDashboard";
 

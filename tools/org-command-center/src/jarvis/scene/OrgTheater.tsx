@@ -19,7 +19,7 @@ type TheaterSnap = Pick<
   models?: SituationSnapshot["models"];
 };
 import { deriveCameraLookAt, forceOrgLayout } from "../layout/forceOrgLayout";
-import { indexArtifacts } from "../artifacts";
+import { indexProductionArtifacts } from "../artifacts";
 import { seatWorkContext } from "../seat-work-context";
 import { useJarvisStore } from "../state/useJarvisStore";
 import { isSeatDimmed } from "../status";
@@ -57,7 +57,7 @@ function TheaterScene({ snapshot }: { snapshot: TheaterSnap }) {
 
   const artifacts = useMemo(
     () =>
-      indexArtifacts(
+      indexProductionArtifacts(
         snapshot.tracker.phases,
         snapshot.handoffs,
         snapshot.businessIdeaRel,

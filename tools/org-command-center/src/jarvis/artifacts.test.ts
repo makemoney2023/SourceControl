@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_BUSINESS_IDEA_REL } from "../lib/project-paths";
-import { indexArtifacts } from "./artifacts";
+import { indexArtifacts, indexProductionArtifacts } from "./artifacts";
 
 const BIZ = DEFAULT_BUSINESS_IDEA_REL;
 
@@ -72,5 +72,35 @@ describe("indexArtifacts", () => {
       handoffFilename: "11-brand-designer.md",
       notes: "primary mark",
     });
+  });
+
+  it("indexProductionArtifacts drops craft markdown and keeps media", () => {
+    const items = indexProductionArtifacts(
+      [
+        {
+          phase: "1",
+          name: "Frame",
+          status: "✅",
+          artifact: "01-problem-framing.md",
+          notes: "",
+        },
+      ],
+      [
+        {
+          filename: "11-brand-designer.md",
+          phase: "11",
+          position: "brand-designer",
+          status: "done",
+          artifacts: [
+            { path: `${BIZ}/01-problem-framing.md`, notes: "" },
+            { path: `${BIZ}/images/hero.png`, notes: "hero" },
+          ],
+          productionPaths: [`${BIZ}/html/landing.html`],
+        },
+      ],
+    );
+    expect(items.map((i) => i.path).sort()).toEqual(
+      [`${BIZ}/html/landing.html`, `${BIZ}/images/hero.png`].sort(),
+    );
   });
 });

@@ -115,6 +115,54 @@ export function buildOccTools(occ: OccClient, ctx: OccToolsContext): FunctionCon
           return act("work.intake_save", { answers: usable, goal, position });
         }),
     },
+    seat_answer_draft: {
+      description:
+        "Save one or more operator answers for a seat's open questions (multi-turn). Call after seat.report. Ops mode. Does not continue the seat until seat_answer + Confirm?.",
+      parameters: z.object({
+        seat: z.string().optional(),
+        answer: z.string().optional(),
+        question: z.string().optional(),
+        answers: z.record(z.string(), z.string()).optional(),
+      }),
+      execute: async ({ seat, answer, question, answers }) =>
+        logTool("seat_answer_draft", { seat, answer, question, answers }, async () => {
+          const usable = Object.fromEntries(
+            Object.entries(answers ?? {}).filter(
+              ([, v]) => typeof v === "string" && v.trim().length > 0,
+            ),
+          );
+          return act("seat.answer_draft", {
+            seat,
+            answer,
+            question,
+            answers: Object.keys(usable).length ? usable : undefined,
+          });
+        }),
+    },
+    seat_answer: {
+      description:
+        "Persist answers and continue a needs_input seat (HARD Confirm?). Prefer after seat_answer_draft, or pass answer/answers for a one-shot. Uses last reported seat when seat omitted.",
+      parameters: z.object({
+        seat: z.string().optional(),
+        answer: z.string().optional(),
+        question: z.string().optional(),
+        answers: z.record(z.string(), z.string()).optional(),
+      }),
+      execute: async ({ seat, answer, question, answers }) =>
+        logTool("seat_answer", { seat, answer, question, answers }, async () => {
+          const usable = Object.fromEntries(
+            Object.entries(answers ?? {}).filter(
+              ([, v]) => typeof v === "string" && v.trim().length > 0,
+            ),
+          );
+          return act("seat.answer", {
+            seat,
+            answer,
+            question,
+            answers: Object.keys(usable).length ? usable : undefined,
+          });
+        }),
+    },
     work_request: {
       description:
         "Queue the intake manager and start Cursor. Call once; after Confirm?, STOP and ask the user. On yes call jarvis_confirm({ accept: true }) — never invent tokens. Prefer phase as a digit like \"2\". For Phase 0 / intake / new idea: always position ceo-strategist and phase \"0\".",

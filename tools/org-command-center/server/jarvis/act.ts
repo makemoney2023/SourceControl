@@ -9,6 +9,7 @@ import {
   consumeConfirm,
   createConfirmToken,
   getRoomMode,
+  getSeatAnswerDraft,
   getWorkIntake,
   mergeWorkGoal,
   peekConfirm,
@@ -135,6 +136,20 @@ function confirmSummary(intent: JarvisIntent, args: Record<string, unknown>): st
     const seat = String(args.seat ?? "blocked seat");
     return `Resolve blocker for ${seat} (queue or rewake owner). Confirm?`;
   }
+  if (intent === "seat.answer") {
+    const seat = String(args.seat ?? "seat");
+    let n =
+      args.answers && typeof args.answers === "object"
+        ? Object.keys(args.answers as Record<string, unknown>).length
+        : 0;
+    if (n === 0 && typeof args.roomId === "string") {
+      const draft = getSeatAnswerDraft(args.roomId);
+      if (draft && (!args.seat || draft.seat === seat)) {
+        n = Object.keys(draft.answers).length;
+      }
+    }
+    return `Save ${n || "your"} answer${n === 1 ? "" : "s"} for ${seat} and continue that seat's work. Confirm?`;
+  }
   if (intent === "dispatch.queue_batch") {
     const items = Array.isArray(args.items) ? args.items : [];
     const count = items.length || "?";
@@ -250,13 +265,22 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
     if (typeof r.intent === "string" && r.intent.trim()) return `Routed as ${r.intent}.`;
   }
   if (
-    intent === "blocker.resolve" &&
+    (intent === "blocker.resolve" ||
+      intent === "seat.answer" ||
+      intent === "seat.answer_draft") &&
     typeof result === "object" &&
     result !== null &&
     "spoken" in result
   ) {
     const r = result as { spoken?: string; runId?: string; action?: string };
-    return String(r.spoken ?? "Blocker resolve started.");
+    return String(
+      r.spoken ??
+        (intent === "seat.answer"
+          ? "Seat continued with answers."
+          : intent === "seat.answer_draft"
+            ? "Answer saved."
+            : "Blocker resolve started."),
+    );
   }
   if (intent === "dispatch.queue_batch" && typeof result === "object" && result !== null) {
     const r = result as { spoken?: string; filenames?: string[] };
@@ -468,6 +492,9 @@ export async function handleJarvisAct(
               return { status: "error", reason };
             }
           }
+        }
+        if (act.intent === "seat.answer") {
+          confirmArgs = { ...confirmArgs, roomId };
         }
         const token = createConfirmToken(roomId, act.intent, confirmArgs, mode);
         let summaryArgs: Record<string, unknown> = confirmArgs;

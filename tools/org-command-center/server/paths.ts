@@ -18,6 +18,8 @@ const READ_PREFIXES = [
   "docs/projects/",
   "templates/business-idea/",
   "projects/",
+  "apps/",
+  "design-system/",
 ];
 
 export function resolveRepoRoot(from = fileURLToPath(import.meta.url)): string {

@@ -66,6 +66,7 @@ function handoff(
     blockers: [],
     recommendation: "",
     escalationTags: [],
+    body: "",
     ...partial,
   };
 }
@@ -204,5 +205,137 @@ describe("buildSeatReport", () => {
         briefings: [],
       }),
     ).toBeNull();
+  });
+
+  it("surfaces operator narrative, decisions, and open questions from handoff body", () => {
+    const report = buildSeatReport({
+      slug: "market-research-analyst",
+      org,
+      tracker,
+      handoffs: [
+        handoff({
+          filename: "2-market-research-analyst.md",
+          kind: "ic",
+          position: "market-research-analyst",
+          status: "needs_input",
+          asks: ["Which geography should we prioritize?"],
+          body: [
+            "## In plain English",
+            "We mapped three beach markets and need a geography call.",
+            "",
+            "## What we found",
+            "- Mid COGS about $1.30 per cup",
+            "",
+            "## Decisions",
+            "- Use cash-only POS for season one",
+            "",
+            "## Next steps",
+            "1. Operator picks geography.",
+            "2. Blocking question: confirm weekend vs weekday events?",
+          ].join("\n"),
+        }),
+      ],
+      queueFiles: [],
+      claimedFiles: [],
+      runs: [],
+      briefings: [],
+    });
+    expect(report?.operatorSummary.plainEnglish.join(" ")).toMatch(/beach markets/i);
+    expect(report?.operatorSummary.findings[0]).toMatch(/COGS/i);
+    expect(report?.operatorSummary.nextSteps[0]).toMatch(/geography/i);
+    expect(report?.decisions).toContain("Use cash-only POS for season one");
+    expect(report?.openQuestions).toEqual(
+      expect.arrayContaining([
+        "Which geography should we prioritize?",
+        expect.stringMatching(/weekend vs weekday/i),
+      ]),
+    );
+    expect(report?.summary).toMatch(/beach markets/i);
+    expect(report?.businessBrief.whatHappened.join(" ")).toMatch(/beach markets/i);
+    expect(report?.businessBrief.needsFromYou[0]).toMatch(/geography/i);
+  });
+
+  it("filters process noise asks and humanizes blockers into a business brief", () => {
+    const report = buildSeatReport({
+      slug: "market-research-analyst",
+      org,
+      tracker,
+      handoffs: [
+        handoff({
+          filename: "2-market-research-analyst.md",
+          kind: "ic",
+          position: "market-research-analyst",
+          status: "needs_input",
+          asks: [
+            "Peer help needed: **none**",
+            "Clarification needed: **none** for merge",
+            "**C-suite ask:** Confirm GO on creative redo",
+          ],
+          blockers: [
+            "**12-month success criteria** remain assumption-only until operator answers Q4.",
+            "| Risk | Severity | Mitigation |",
+            "| Creative team patches v1 | High | SD7 |",
+          ],
+          body: [
+            "## In plain English",
+            "Strategy framing is done; launch still waits on a few operator calls.",
+            "",
+            "## What we found",
+            "- Program evidence is still missing for Tier 2 content.",
+            "",
+            "## Next steps",
+            "1. Operator confirms creative redo GO.",
+          ].join("\n"),
+        }),
+      ],
+      queueFiles: [],
+      claimedFiles: [],
+      runs: [],
+      briefings: [],
+    });
+    expect(report?.openQuestions.some((q) => /Peer help/i.test(q))).toBe(false);
+    expect(report?.openQuestions.join(" ")).toMatch(/Confirm GO/i);
+    expect(report?.openQuestions.every((q) => !/\*\*/.test(q))).toBe(true);
+    expect(report?.upwardBlockers.every((b) => !/^\|/.test(b) && !/\*\*/.test(b))).toBe(
+      true,
+    );
+    expect(report?.businessBrief.whatsStuck[0]).toMatch(/success criteria/i);
+    expect(report?.businessBrief.whatHappened[0]).toMatch(/Strategy framing/i);
+  });
+
+  it("CEO rollup includes plain English for each direct report", () => {
+    const report = buildSeatReport({
+      slug: "ceo-strategist",
+      org,
+      tracker,
+      handoffs: [
+        handoff({
+          filename: "2-manager-head-of-research.md",
+          kind: "manager",
+          position: "head-of-research",
+          status: "ready_for_csuite",
+          body: [
+            "## In plain English",
+            "Research recommends a beach pilot before mall kiosks.",
+            "",
+            "## Next steps",
+            "1. CEO approves pilot geography.",
+          ].join("\n"),
+        }),
+      ],
+      queueFiles: [],
+      claimedFiles: [],
+      runs: [],
+      briefings: [],
+    });
+    expect(report?.reportRollups).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          slug: "head-of-research",
+          status: "ready_for_csuite",
+          plainEnglish: expect.stringMatching(/beach pilot/i),
+        }),
+      ]),
+    );
   });
 });

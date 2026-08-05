@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import {
   fetchFile,
+  fileRawUrl,
   fetchProductionScorecard,
   fetchReviewInbox,
   type ReviewInboxItem,
   type SituationSnapshot,
 } from "../../api/client";
+import { previewKindForPath } from "../../lib/file-preview";
 import { stripBusinessIdeaPrefix } from "../../lib/project-paths";
 import type { VentureProductionScorecard } from "../../lib/venture-production-scorecard";
-import { indexArtifacts } from "../artifacts";
+import { indexProductionArtifacts } from "../artifacts";
 import { SourcesPanel } from "./SourcesPanel";
 
 type OutputsTab = "artifacts" | "sources";
@@ -99,6 +101,8 @@ function PreviewColumn({
   onSelect: (path: string | null) => void;
 }) {
   const [preview, setPreview] = useState("");
+  const [previewKind, setPreviewKind] = useState<string>("text");
+  const [rawUrl, setRawUrl] = useState<string | null>(null);
   const [entries, setEntries] = useState<
     { name: string; path: string; type: string }[] | null
   >(null);
@@ -114,6 +118,8 @@ function PreviewColumn({
     if (copyTimer.current) clearTimeout(copyTimer.current);
     if (!selectedPath) {
       setPreview("");
+      setPreviewKind("text");
+      setRawUrl(null);
       setEntries(null);
       setError(null);
       return;
@@ -124,11 +130,19 @@ function PreviewColumn({
       setLoading(true);
       setPreview("");
       setEntries(null);
+      setRawUrl(null);
+      setPreviewKind(previewKindForPath(selectedPath));
       try {
         const data = await fetchFile(selectedPath);
         if (cancelled) return;
-        if (data.type === "dir") setEntries(data.entries ?? []);
-        else setPreview(data.content ?? "");
+        if (data.type === "dir") {
+          setEntries(data.entries ?? []);
+          setPreviewKind("dir");
+        } else {
+          setPreviewKind(data.previewKind ?? previewKindForPath(selectedPath));
+          setRawUrl(data.rawUrl ?? (data.binary ? fileRawUrl(selectedPath) : null));
+          setPreview(data.content ?? "");
+        }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));
       } finally {
@@ -147,34 +161,41 @@ function PreviewColumn({
 
   return (
     <section className="j-glass" style={{ padding: 14, overflow: "auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
         <p className="j-title">Preview</p>
-        {selectedPath && (
-          <button
-            type="button"
-            className="j-btn"
-            onClick={async () => {
-              const request = ++copySequence.current;
-              try {
-                await navigator.clipboard.writeText(selectedPath);
-                if (request !== copySequence.current) return;
-                setCopyStatus("Path copied");
-              } catch {
-                if (request !== copySequence.current) return;
-                setCopyStatus("Copy failed");
-              }
-              copyTimer.current = setTimeout(() => {
-                if (request === copySequence.current) setCopyStatus(null);
-              }, 2000);
-            }}
-          >
-            Copy path
-          </button>
-        )}
+        <div style={{ display: "flex", gap: 6 }}>
+          {selectedPath && rawUrl ? (
+            <a className="j-btn" href={rawUrl} download target="_blank" rel="noreferrer">
+              Download
+            </a>
+          ) : null}
+          {selectedPath && (
+            <button
+              type="button"
+              className="j-btn"
+              onClick={async () => {
+                const request = ++copySequence.current;
+                try {
+                  await navigator.clipboard.writeText(selectedPath);
+                  if (request !== copySequence.current) return;
+                  setCopyStatus("Path copied");
+                } catch {
+                  if (request !== copySequence.current) return;
+                  setCopyStatus("Copy failed");
+                }
+                copyTimer.current = setTimeout(() => {
+                  if (request === copySequence.current) setCopyStatus(null);
+                }, 2000);
+              }}
+            >
+              Copy path
+            </button>
+          )}
+        </div>
       </div>
       {!selectedPath && (
         <p className="j-muted" style={{ marginTop: 12 }}>
-          Select an item from the list.
+          Select a production asset from the list.
         </p>
       )}
       {copyStatus && (
@@ -204,7 +225,58 @@ function PreviewColumn({
           ))}
         </ul>
       )}
-      {preview && <pre className="j-pre" style={{ marginTop: 12 }}>{preview}</pre>}
+      {!loading && !error && selectedPath && previewKind === "image" && rawUrl ? (
+        <img
+          src={rawUrl}
+          alt={selectedPath}
+          style={{ marginTop: 12, maxWidth: "100%", height: "auto", borderRadius: 4 }}
+        />
+      ) : null}
+      {!loading && !error && selectedPath && previewKind === "video" && rawUrl ? (
+        <video
+          src={rawUrl}
+          controls
+          style={{ marginTop: 12, maxWidth: "100%", borderRadius: 4 }}
+        />
+      ) : null}
+      {!loading && !error && selectedPath && previewKind === "pdf" && rawUrl ? (
+        <iframe
+          title={selectedPath}
+          src={rawUrl}
+          style={{
+            marginTop: 12,
+            width: "100%",
+            minHeight: 480,
+            border: "1px solid var(--j-border, #333)",
+            borderRadius: 4,
+          }}
+        />
+      ) : null}
+      {!loading &&
+        !error &&
+        selectedPath &&
+        (previewKind === "docx" || previewKind === "xlsx" || previewKind === "download") && (
+          <div style={{ marginTop: 12 }}>
+            <p className="j-muted">
+              {previewKind === "docx"
+                ? "Word document"
+                : previewKind === "xlsx"
+                  ? "Spreadsheet"
+                  : "Binary asset"}
+              {rawUrl ? " — use Download to open externally." : ""}
+            </p>
+            {preview ? (
+              <pre className="j-pre" style={{ marginTop: 8 }}>
+                {preview}
+              </pre>
+            ) : null}
+          </div>
+        )}
+      {!loading && !error && preview && previewKind === "text" ? (
+        <pre className="j-pre" style={{ marginTop: 12 }}>
+          {preview}
+        </pre>
+      ) : null}
     </section>
   );
 }
@@ -222,7 +294,7 @@ export function OutputsDashboard({
 }) {
   const [tab, setTab] = useState<OutputsTab>("artifacts");
   const [filter, setFilter] = useState<ArtifactFilter>("all");
-  const items = indexArtifacts(
+  const items = indexProductionArtifacts(
     snapshot.tracker.phases,
     snapshot.handoffs,
     snapshot.businessIdeaRel,
@@ -310,9 +382,10 @@ export function OutputsDashboard({
       >
         {tab === "artifacts" ? (
           <section className="j-hud-panel j-hud-grid" style={{ padding: 14, overflow: "auto" }}>
-            <p className="j-title">Archive</p>
+            <p className="j-title">Production assets</p>
             <p className="j-muted" style={{ marginTop: 4 }}>
-              {items.length} indexed · {withSeat} with seat · {pendingInbox.length} pending review
+              {items.length} shippable · {withSeat} with seat · {pendingInbox.length} pending review
+              (briefs stay in Report)
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
               {(

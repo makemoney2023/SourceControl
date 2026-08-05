@@ -19,6 +19,16 @@ const base: HandoffRecord = {
   blockers: [],
   recommendation: "",
   escalationTags: [],
+  productionStatus: "",
+  productionPaths: [],
+  wireOwner: "",
+  skipReason: "",
+  designBriefPath: "",
+  photorealQa: "",
+  wireChecklistPath: "",
+  licenseBasis: "",
+  generationUsed: "",
+  body: "",
 };
 
 describe("diffHandoffAlerts", () => {

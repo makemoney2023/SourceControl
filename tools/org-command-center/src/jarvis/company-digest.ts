@@ -59,16 +59,20 @@ export function buildCompanyDigest(args: {
   const escalateSeats: CompanyDigest["escalateSeats"] = [];
   const rosterBySlug = new Map(args.org.roster.map((r) => [r.slug, r]));
   for (const h of args.handoffs) {
-    if (h.status === "blocked" || h.status === "needs_input") {
+    const isBlocked = h.status === "blocked";
+    const needsInput =
+      h.status === "needs_input" || (!isBlocked && h.asks.length > 0);
+    if (isBlocked || needsInput) {
       const reasons = [...h.blockers, ...h.asks].filter(Boolean);
-      const reason = reasons[0] || h.status;
+      const displayStatus = isBlocked ? "blocked" : "needs_input";
+      const reason = reasons[0] || displayStatus;
       const seat = rosterBySlug.get(h.position);
       blockedSeats.push({
         slug: h.position,
         reason,
         phase: h.phase,
-        status: h.status,
-        reasons: reasons.length > 0 ? reasons : [h.status],
+        status: displayStatus,
+        reasons: reasons.length > 0 ? reasons : [displayStatus],
         handoffFilename: h.filename,
         managerSlug: h.reportsTo || seat?.reportsTo || "",
       });

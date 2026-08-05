@@ -8,6 +8,7 @@ import {
 import { renderStandupBriefing } from "../../src/jarvis/briefings";
 import { CSUITE_SLUGS } from "../../src/jarvis/csuite";
 import { buildSeatReport, seatReportBriefScript } from "../../src/jarvis/seat-report";
+import { enrichSeatReportWithGrokBrief } from "./seat-brief-rewrite";
 import { resolveSeatSlug } from "./resolve-seat";
 import { appendActivity } from "../activity";
 import { ackHandoffAlert } from "../alerts-fs";
@@ -48,20 +49,32 @@ import {
   extractOperatorSummary,
   formatOperatorSummarySpoken,
 } from "./operator-summary";
+import { findLatestInboxDeliverableForSeat } from "./review-inbox";
 import {
   findInboxDeliverableByRunId,
   listReviewInbox,
   writeReviewInboxReceipt,
 } from "./review-inbox";
 import {
+  openAsksForSeat,
+  planSeatAnswer,
+  resolveAnswersForSeat,
+  resolveSeatForAnswer,
+} from "./seat-answer";
+import {
   cancelConfirm,
+  clearSeatAnswerDraft,
   clearWorkIntake,
   getLastSummary,
   getRoomMode,
+  getSeatAnswerDraft,
   getWorkIntake,
   mergeWorkGoal,
+  patchSeatAnswerDraft,
   patchWorkIntakeAnswers,
   peekLatestConfirm,
+  seedSeatAnswerDraft,
+  setLastReportedSeat,
   setRoomMode,
   setWorkIntake,
 } from "./session";
@@ -91,9 +104,20 @@ function assertExecOk<T extends { ok: boolean }>(
 
 function emitJarvisFocus(
   droot: string,
-  focus: { phase?: string; slug?: string },
+  focus: {
+    phase?: string;
+    slug?: string;
+    openReport?: boolean;
+    focusQuestions?: boolean;
+  },
 ) {
-  appendActivity(droot, { type: "jarvis.focus", phase: focus.phase, slug: focus.slug });
+  appendActivity(droot, {
+    type: "jarvis.focus",
+    phase: focus.phase,
+    slug: focus.slug,
+    openReport: focus.openReport,
+    focusQuestions: focus.focusQuestions,
+  });
 }
 
 /** Plain text only — voice TTS reads markdown asterisks aloud. */
@@ -101,9 +125,10 @@ const SESSION_HELP = [
   "Modes: Briefing for mission, digest, seat report, tasks, runs, activity, alerts, spend.",
   "Ops adds assign, run next, cancel, rewake, pause, resume, cancel pending, and memory writes.",
   "Review adds file read and csuite draft. Architect adds venture create or switch.",
-  "Top intents: mission.get for status; memory.brief for where we are; digest.get or digest.focus; blocker.list; blocker.resolve; dispatch.queue_batch; spawn.run_ready; seat.report; phase.list_open;",
+  "Top intents: mission.get for status; memory.brief for where we are; digest.get or digest.focus; blocker.list; blocker.resolve; seat.answer; seat.answer_draft; dispatch.queue_batch; spawn.run_ready; seat.report; phase.list_open;",
   "activity.tail; session.help; session.repeat; jarvis.ping; brain.ask for Cursor Grok deep think; brain.route for voice intent; mode.set;",
   "work.resolve or work.request for intake and Cursor spawn; review.inbox_list for artifacts.",
+  "Answer open seat questions with seat.answer after seat.report; draft multi-turn answers with seat.answer_draft; resolve hard blockers with blocker.resolve after blocker.list.",
   "Memory: memory.brief and memory.recall are read-only; memory.note, memory.digest, and memory.reindex need Ops and confirm.",
 ].join(" ");
 
@@ -136,8 +161,8 @@ function seatLabel(slug: string): string {
   return slug.replace(/-/g, " ");
 }
 
-function summarizeBlockers(
-  blocked: Array<{ slug: string; reason: string }>,
+export function summarizeBlockers(
+  blocked: Array<{ slug: string; reason: string; status?: string }>,
   escalate: Array<{ slug: string; tags: string[]; secondaries: string[] }>,
 ): string {
   if (!blocked.length) {
@@ -145,11 +170,32 @@ function summarizeBlockers(
     const esc = escalate.map((e) => seatLabel(e.slug)).join(", ");
     return `No blockers. ${escalate.length === 1 ? "1 escalation" : `${escalate.length} escalations`}: ${esc}.`;
   }
-  const parts = blocked.map((b) => `${seatLabel(b.slug)} — ${b.reason}`);
-  const head =
-    blocked.length === 1
-      ? `1 blocker: ${parts[0]}.`
-      : `${blocked.length} blockers: ${parts.join("; ")}.`;
+  const needsAnswers = blocked.filter((b) => b.status === "needs_input");
+  const hard = blocked.filter((b) => b.status !== "needs_input");
+  const parts: string[] = [];
+  if (needsAnswers.length) {
+    const lines = needsAnswers.map(
+      (b) => `${seatLabel(b.slug)} — ${b.reason}`,
+    );
+    parts.push(
+      needsAnswers.length === 1
+        ? `1 needs answers: ${lines[0]}`
+        : `${needsAnswers.length} need answers: ${lines.join("; ")}`,
+    );
+  }
+  if (hard.length) {
+    const lines = hard.map((b) => `${seatLabel(b.slug)} — ${b.reason}`);
+    parts.push(
+      hard.length === 1
+        ? `1 blocker: ${lines[0]}`
+        : `${hard.length} blockers: ${lines.join("; ")}`,
+    );
+  }
+  let head = `${parts.join(". ")}.`;
+  if (needsAnswers.length) {
+    head +=
+      " Answer with seat.answer; use blocker.resolve only for hard blockers.";
+  }
   if (!escalate.length) return head;
   const esc = escalate.map((e) => seatLabel(e.slug)).join(", ");
   const escPhrase =
@@ -194,6 +240,7 @@ export async function executeIntent(
     case "seat.report": {
       const raw = String(args.slug ?? args.seat ?? args.position ?? "ceo-strategist");
       const slug = resolveSeatSlug(raw, snap.org.roster) ?? raw;
+      const deliverable = findLatestInboxDeliverableForSeat(repoRoot, slug);
       const report = buildSeatReport({
         slug,
         org: snap.org,
@@ -208,6 +255,7 @@ export async function executeIntent(
         spendBySeat: snap.spend.bySeat,
         models: snap.models,
         exists: existsSync,
+        deliverableMarkdown: deliverable?.markdown,
       });
       if (!report) {
         throw new JarvisExecError(
@@ -215,8 +263,31 @@ export async function executeIntent(
           "unknown_seat",
         );
       }
-      emitJarvisFocus(droot, { slug: report.slug });
-      return { report, spoken: seatReportBriefScript(report) };
+      const latest = snap.handoffs.filter((h) => h.position === report.slug).at(-1);
+      const enriched = await enrichSeatReportWithGrokBrief(report, {
+        cwd: repoRoot,
+        handoffBody: latest?.body,
+        deliverableMarkdown: deliverable?.markdown,
+        asks: latest?.asks,
+        blockers: latest?.blockers,
+        apiKey: typeof args.apiKey === "string" ? args.apiKey : undefined,
+      });
+      const roomId = args.roomId != null ? String(args.roomId) : "";
+      if (roomId) {
+        setLastReportedSeat(roomId, enriched.slug);
+        seedSeatAnswerDraft(roomId, enriched.slug, enriched.openQuestions);
+      }
+      emitJarvisFocus(droot, {
+        slug: enriched.slug,
+        openReport: true,
+        focusQuestions: enriched.openQuestions.length > 0,
+      });
+      return {
+        report: enriched,
+        spoken: seatReportBriefScript(enriched),
+        spokenQuestions: enriched.openQuestions,
+        briefSource: enriched.briefSource,
+      };
     }
 
     case "tasks.list":
@@ -800,6 +871,7 @@ export async function executeIntent(
       if (!CSUITE_SLUGS.includes(slug as (typeof CSUITE_SLUGS)[number])) {
         throw new JarvisExecError(`invalid seat for briefing: ${raw}`, "invalid_arg");
       }
+      const deliverable = findLatestInboxDeliverableForSeat(repoRoot, slug);
       const report = buildSeatReport({
         slug,
         org: snap.org,
@@ -814,6 +886,7 @@ export async function executeIntent(
         spendBySeat: snap.spend.bySeat,
         models: snap.models,
         exists: existsSync,
+        deliverableMarkdown: deliverable?.markdown,
       });
       if (!report) throw new JarvisExecError(`unknown seat: ${slug}`, "unknown_seat");
       const status =
@@ -863,12 +936,85 @@ export async function executeIntent(
       };
     }
 
-    case "blocker.resolve": {
-      const plan = planBlockerResolve(repoRoot, {
+    case "seat.answer_draft": {
+      const roomId = args.roomId != null ? String(args.roomId) : "";
+      if (!roomId) {
+        throw new JarvisExecError("roomId required", "missing_arg");
+      }
+      const seat = resolveSeatForAnswer(repoRoot, {
         seat: args.seat != null ? String(args.seat) : undefined,
-        phase: args.phase != null ? String(args.phase) : undefined,
-        goal: args.goal != null ? String(args.goal) : undefined,
+        roomId,
       });
+      const openAsks = openAsksForSeat(repoRoot, seat);
+      const answersRaw = args.answers;
+      const answersMap: Record<string, string> = {};
+      if (answersRaw && typeof answersRaw === "object" && !Array.isArray(answersRaw)) {
+        for (const [k, v] of Object.entries(answersRaw as Record<string, unknown>)) {
+          if (typeof v === "string" || typeof v === "number") {
+            answersMap[k] = String(v);
+          }
+        }
+      }
+      const answered = resolveAnswersForSeat(repoRoot, {
+        seat,
+        answers: answersMap,
+        answer: args.answer != null ? String(args.answer) : undefined,
+        question: args.question != null ? String(args.question) : undefined,
+        roomId,
+        useDraft: false,
+      });
+      const draft = patchSeatAnswerDraft(roomId, {
+        seat,
+        answers: answered,
+        openQuestions: openAsks,
+      });
+      setLastReportedSeat(roomId, seat);
+      const remaining = openAsks.filter((q) => !draft.answers[q]?.trim());
+      const spoken = remaining[0]
+        ? `Saved. Next question: ${remaining[0]}`
+        : `All questions drafted for ${seat.replace(/-/g, " ")}. Say confirm to continue that seat.`;
+      emitJarvisFocus(droot, {
+        slug: seat,
+        openReport: true,
+        focusQuestions: true,
+      });
+      return {
+        ok: true,
+        seat,
+        answers: draft.answers,
+        remaining,
+        spoken,
+      };
+    }
+
+    case "blocker.resolve":
+    case "seat.answer": {
+      const roomId = args.roomId != null ? String(args.roomId) : undefined;
+      const plan =
+        intent === "seat.answer"
+          ? (() => {
+              const answersRaw = args.answers;
+              const answers: Record<string, string> = {};
+              if (answersRaw && typeof answersRaw === "object" && !Array.isArray(answersRaw)) {
+                for (const [k, v] of Object.entries(answersRaw as Record<string, unknown>)) {
+                  if (typeof v === "string" || typeof v === "number") {
+                    answers[k] = String(v);
+                  }
+                }
+              }
+              return planSeatAnswer(repoRoot, {
+                seat: args.seat != null ? String(args.seat) : undefined,
+                answers,
+                answer: args.answer != null ? String(args.answer) : undefined,
+                question: args.question != null ? String(args.question) : undefined,
+                roomId,
+              });
+            })()
+          : planBlockerResolve(repoRoot, {
+              seat: args.seat != null ? String(args.seat) : undefined,
+              phase: args.phase != null ? String(args.phase) : undefined,
+              goal: args.goal != null ? String(args.goal) : undefined,
+            });
 
       if (plan.action === "rewake") {
         const result = rewakeSessionDetached(repoRoot, {
@@ -886,7 +1032,13 @@ export async function executeIntent(
         if (!result.ok) {
           throw new JarvisExecError(result.error || "rewake failed", "spawn_failed");
         }
-        emitJarvisFocus(droot, { phase: plan.phase, slug: plan.position });
+        if (intent === "seat.answer" && roomId) clearSeatAnswerDraft(roomId);
+        emitJarvisFocus(droot, {
+          phase: plan.phase,
+          slug: plan.position,
+          openReport: intent === "seat.answer",
+          focusQuestions: intent === "seat.answer",
+        });
         return {
           ok: true,
           action: "rewake",
@@ -895,6 +1047,7 @@ export async function executeIntent(
           blockedSeat: plan.blockedSeat,
           dispatchFilename: plan.dispatchFilename,
           spoken: plan.spoken,
+          handoffRel: "handoffRel" in plan ? plan.handoffRel : undefined,
         };
       }
 
@@ -922,7 +1075,13 @@ export async function executeIntent(
       if (!spawned.ok) {
         throw new JarvisExecError(spawned.error || "spawn failed", "spawn_failed");
       }
-      emitJarvisFocus(droot, { phase: queued.packet.phase, slug: queued.packet.position });
+      if (intent === "seat.answer" && roomId) clearSeatAnswerDraft(roomId);
+      emitJarvisFocus(droot, {
+        phase: queued.packet.phase,
+        slug: queued.packet.position,
+        openReport: intent === "seat.answer",
+        focusQuestions: intent === "seat.answer",
+      });
       return {
         ok: true,
         action: "queue",
@@ -932,6 +1091,7 @@ export async function executeIntent(
         filename,
         queuePath: queued.path,
         spoken: plan.spoken,
+        handoffRel: "handoffRel" in plan ? plan.handoffRel : undefined,
       };
     }
 

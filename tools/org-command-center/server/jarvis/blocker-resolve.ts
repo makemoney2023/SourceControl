@@ -62,10 +62,23 @@ function findBlockedTarget(
   if (args.seat?.trim()) {
     const seat = resolveSeatSlug(args.seat.trim(), snap.org.roster) ?? args.seat.trim();
     const match = candidates.find((c) => c.slug === seat);
-    if (!match) {
-      throw new JarvisExecError(`No blocked seat matching ${args.seat}`, "not_found");
+    if (match) return match;
+    // Allow continue when handoff has asks (or blocked/needs_input) even if
+    // digest candidacy raced / status text differs.
+    const latest = snap.handoffs.filter((h) => h.position === seat).at(-1);
+    if (
+      latest &&
+      (latest.status === "blocked" ||
+        latest.status === "needs_input" ||
+        latest.asks.length > 0)
+    ) {
+      return {
+        slug: seat,
+        reason: latest.asks[0] || latest.blockers[0] || latest.status || "needs input",
+        phase: latest.phase || String(snap.mission.currentPhase ?? ""),
+      };
     }
-    return match;
+    throw new JarvisExecError(`No blocked seat matching ${args.seat}`, "not_found");
   }
 
   if (!candidates.length) {

@@ -24,6 +24,7 @@ export function deriveAgentRuntimeStatus(args: {
     status: string;
     verdictForManager: string;
     verdict: string;
+    asks?: string[];
   }[];
 }): AgentRuntimeStatus {
   if (args.paused) return "paused";
@@ -55,6 +56,7 @@ export function buildAgentRuntimeMap(args: {
     status: string;
     verdictForManager: string;
     verdict: string;
+    asks?: string[];
   }[];
 }): Record<string, AgentRuntimeStatus> {
   const byPos = latestRunByPosition(args.runs);

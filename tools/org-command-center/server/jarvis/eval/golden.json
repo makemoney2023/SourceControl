@@ -302,6 +302,29 @@
     "expectNeedsConfirm": true
   },
   {
+    "utterance": "answer questions for research",
+    "expectIntent": "seat.answer",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "continue that seat",
+    "expectIntent": "seat.answer",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "the answer is Outer Banks",
+    "expectIntent": "seat.answer",
+    "mode": "ops",
+    "expectNeedsConfirm": true
+  },
+  {
+    "utterance": "save that answer",
+    "expectIntent": "seat.answer_draft",
+    "mode": "ops"
+  },
+  {
     "utterance": "spin up research and finance",
     "expectIntent": "dispatch.queue_batch",
     "mode": "ops",

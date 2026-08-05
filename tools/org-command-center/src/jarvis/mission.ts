@@ -16,6 +16,8 @@ export interface MissionState {
   ownerSlug: string;
   queueDepth: number;
   blockerCount: number;
+  /** Handoffs with status needs_input or open asks (subset of operational friction). */
+  needsInputCount: number;
   openQuestions: string[];
   latestDecision: string;
   hardGate: boolean;
@@ -81,6 +83,9 @@ export function buildMission(
       h.status === "needs_input" ||
       h.verdictForManager === "escalate",
   ).length;
+  const needsInputCount = handoffs.filter(
+    (h) => h.status === "needs_input" || h.asks.length > 0,
+  ).length;
 
   const openQuestions = extractOpenQuestions(tracker.raw);
   const hardGate = HARD_GATES.has(current?.phase ?? tracker.currentPhase);
@@ -108,6 +113,7 @@ export function buildMission(
     ownerSlug: owner,
     queueDepth,
     blockerCount: blockers + openQuestions.length,
+    needsInputCount,
     openQuestions,
     latestDecision: extractLatestDecision(tracker.raw),
     hardGate,

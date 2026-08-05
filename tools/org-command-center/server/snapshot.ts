@@ -25,6 +25,7 @@ import { listRuns, reconcileStaleRuns } from "./runs-fs";
 import { listSessions } from "./sessions";
 import { loadSpend, totalSpendUsd } from "./spend";
 import { syncHandoffAlerts } from "./alerts-fs";
+import { enrichHandoffsWithSeatOutputs } from "./discover-production";
 
 export function loadSnapshot(repoRoot: string) {
   const org = parseOrgRegistry(
@@ -38,13 +39,16 @@ export function loadSnapshot(repoRoot: string) {
   const hd = handoffsDir(repoRoot);
   let handoffs: ReturnType<typeof indexHandoffs> = [];
   if (existsSync(hd)) {
-    handoffs = indexHandoffs(
-      readdirSync(hd)
-        .filter((n) => n.endsWith(".md") && n !== "README.md")
-        .map((name) => ({
-          name,
-          content: readFileSync(join(hd, name), "utf8"),
-        })),
+    handoffs = enrichHandoffsWithSeatOutputs(
+      repoRoot,
+      indexHandoffs(
+        readdirSync(hd)
+          .filter((n) => n.endsWith(".md") && n !== "README.md")
+          .map((name) => ({
+            name,
+            content: readFileSync(join(hd, name), "utf8"),
+          })),
+      ),
     );
   }
 

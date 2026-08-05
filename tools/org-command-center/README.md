@@ -1,8 +1,8 @@
 # Org Command Center — Situation Room
 
-Theater-first Jarvis HUD: full-bleed 3D org graph with holographic glass overlays — **threat rail** (blockers + RESOLVE via `blocker.resolve`), **seat console** (live runs / artifacts / telemetry from `seatWorkContext`), keyboard-accessible **Command deck**, activity strip, and Outputs archive tiles. Ops tables remain available via **Ops tables**. Voice stack is self-hosted LiveKit + Dialogue Control Plane.
+Theater-first Jarvis HUD: full-bleed 3D org graph with holographic glass overlays — **threat rail** (blockers + RESOLVE via `blocker.resolve`; **ANSWER** for `needs_input` / open asks opens the Report Q&A form), **seat console** (live runs / telemetry from `seatWorkContext`, ANSWER CTA when questions are open), keyboard-accessible **Command deck**, activity strip, and **Outputs** production-asset viewer. Ops tables remain available via **Ops tables**. Voice stack is self-hosted LiveKit + Dialogue Control Plane.
 
-Glanceable mission status, C-suite board, live tasks, execution controls, seat reports, and production artifact browsing all share the same teal glass system (`theme.css` · `.j-hud-panel`). Active, running, blocked, and escalated seats retain persistent text cues in addition to semantic color; reduced-motion preferences disable their perpetual pulse/orbit motion.
+Glanceable mission status, C-suite board, live tasks, execution controls, narrative seat reports, and production artifact browsing all share the same teal glass system (`theme.css` · `.j-hud-panel`). Active, running, blocked, needs-input (**ANSWER** cue), and escalated seats retain persistent text cues in addition to semantic color; reduced-motion preferences disable their perpetual pulse/orbit motion.
 
 Use the compact **Command deck** control in the theater HUD, or its keyboard shortcut from either Theater or Ops-only mode, to search seats and active tasks. Seat results drive the canonical theater highlight and seat-console selection; run-backed tasks resolve their run position when needed and also open the matching Runs detail. Completed, cancelled, and done tasks are excluded.
 
@@ -128,10 +128,11 @@ Example: “Queue phase 2 research” → summary → “Confirm?” → “yes�
 | Mission strip | NOW phase, %, Run next primary, Talk / Brief me, Assign / Outputs, Intelligence / System menus |
 | Theater | Canonical org graph, seat status, command deck, camera focus, threat and seat overlays |
 | Floating Talk | LiveKit mic session (Ollama + Whisper + Kokoro TTS) |
-| Seat Report | Derived status + human/agent next actions for any worker |
+| Seat Report / Seat console | Same business-conversation layout for every role: What happened → Why it matters → Next steps → What we need from you → What’s stuck. On every seat open / `seat.report`, OCC rewrites the brief with **Cursor SDK Grok** (included with Cursor — same `CURSOR_API_KEY`; model `JARVIS_SEAT_BRIEF_MODEL` / `JARVIS_BRAIN_MODEL`, default `grok-4.5`). Cached by seat + content hash for speed; falls back to deterministic extract if the key is missing. |
 | Company digest | Blocked/escalate/awaiting-csuite rollup |
 | Live tasks | Play / Cancel / Rewake |
 | Runs / Routines | Execution + cron |
+| Outputs | **Production assets only** (HTML, apps, images, video, Office, design-system) with typed preview (`/api/file/raw` for binary). Snapshot also discovers files under each seat’s `## Outputs` leases. Needs-review inbox stays a separate strip; narrative briefs live in Report. |
 
 **Sources / context:** Outputs drawer → **Sources** — upload docs (text extracted for agents), edit the venture context note. New idea can set the note at create time. Assign/queue auto-adds `MEMORY/context.md` + source index to `must_read`.
 
@@ -142,7 +143,7 @@ Example: “Queue phase 2 research” → summary → “Confirm?” → “yes�
 | Assign | Queue manager packet |
 | Run next / Play | Claim + Cursor SDK spawn (workers) |
 | Talk FAB | Self-hosted LiveKit voice ↔ DCP ↔ OCC tools |
-| Report | Derived seat brief |
+| Report | Narrative seat brief + questions form; submit answers → `seat.answer` (confirm) persists answers and rewakes/queues the owning manager |
 | Pin snapshot | Optional BRIEFINGS standup |
 | Draft csuite | Prefill review (no auto-approve) |
 
@@ -156,7 +157,9 @@ Jarvis maps natural speech to **intents** via `jarvis_act`. Use **Ops** before q
 | Company digest / rollup / blockers | `digest.get` | No |
 | What's blocked / any blockers / list blockers | `blocker.list` | No |
 | Resolve that blocker / unblock research (after listing) | `blocker.resolve` | Yes |
-| Report on CEO / seat report for … | `seat.report` | No |
+| Report on research / what are they asking | `seat.report` | No |
+| Save that answer / next question (after report) | `seat.answer_draft` | No (Ops) |
+| Answer questions for research / continue that seat / the answer is … | `seat.answer` | Yes |
 | What tasks / live tasks | `tasks.list` | No |
 | List runs / what’s running | `runs.list` | No |
 | Is it done / run status / watch runs | `runs.watch` | No |
@@ -193,6 +196,14 @@ Review mode adds `file.read`, `csuite.draft`, and handoffs; spawn intents stay d
 **MCP posture:** Seat skills stay markdown; do not wrap Cursor as MCP for voice. Jarvis uses OCC HTTP. Optional `occ-control` MCP is for non-Jarvis clients only. Design: [`docs/superpowers/specs/2026-07-20-mcp-posture-and-control-plane-design.md`](../../docs/superpowers/specs/2026-07-20-mcp-posture-and-control-plane-design.md). Example client config: [`docs/mcp.json`](./docs/mcp.json).
 
 **Proactive completion:** While runs are active (and briefly after), the LiveKit agent polls `GET /api/jarvis/events/since` and may announce finish/gap lines without the user asking. Announces defer while waiting on Confirm?. Pull path (`runs.watch`) remains.
+
+**Voice seat answers (report → draft → confirm):**
+
+1. “Report on research” → `seat.report` (opens Report drawer, speaks brief + first open question; seeds last-reported seat).
+2. Answer on mic → `seat_answer_draft` / `seat.answer_draft` (multi-turn; Ops; no Confirm?).
+3. When questions are drafted (or one-shot) → `seat_answer` / `seat.answer` → speak Confirm? → `jarvis_confirm`.
+4. Use `blocker.resolve` only for hard blockers; if `blocker.list` says “needs answers”, use the answer path.
+5. Pulse/context may announce “{seat} needs answers” when a seat newly flips to `needs_input` (deferred during Confirm? / mid-turn).
 
 ## Manual soak
 

@@ -24,6 +24,8 @@ describe("FS allowlist + multi-venture paths", () => {
 
   it("allows reading org skills and namespaced business-idea docs", () => {
     expect(() => assertReadable(root, "skills/org/ORG-REGISTRY.md")).not.toThrow();
+    expect(() => assertReadable(root, "apps/demo/page.tsx")).not.toThrow();
+    expect(() => assertReadable(root, "design-system/demo/tokens.css")).not.toThrow();
     expect(() =>
       assertReadable(root, "docs/projects/passive-grid/business-idea/RUNBOOK-TRACKER.md"),
     ).not.toThrow();

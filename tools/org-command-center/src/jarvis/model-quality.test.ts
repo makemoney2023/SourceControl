@@ -20,6 +20,16 @@ function h(partial: Partial<HandoffRecord>): HandoffRecord {
     blockers: [],
     recommendation: "",
     escalationTags: [],
+    productionStatus: "",
+    productionPaths: [],
+    wireOwner: "",
+    skipReason: "",
+    designBriefPath: "",
+    photorealQa: "",
+    wireChecklistPath: "",
+    licenseBasis: "",
+    generationUsed: "",
+    body: "",
     ...partial,
   };
 }

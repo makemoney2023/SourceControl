@@ -313,6 +313,72 @@ fallback_applied: ""
       );
     },
   },
+  {
+    intent: "seat.answer_draft",
+    args: {
+      roomId: "coverage-room",
+      seat: "market-research-analyst",
+      answer: "Outer Banks",
+    },
+    seed(repoRoot) {
+      writeFileSync(
+        join(repoRoot, BIZ_IDEA, "HANDOFFS", "2-market-research-analyst.md"),
+        `---
+kind: ic
+phase: "2"
+position: market-research-analyst
+reports_to: head-of-research
+status: needs_input
+verdict_for_manager: ""
+verdict: ""
+llm_tier: strong-general
+generation_profile: none
+fallback_applied: ""
+---
+
+# Handoff
+
+## Asks for manager
+
+- Which geography should we prioritize?
+`,
+      );
+    },
+  },
+  {
+    intent: "seat.answer",
+    args: {
+      roomId: "coverage-room",
+      seat: "market-research-analyst",
+      answers: { "Which geography should we prioritize?": "Outer Banks" },
+      apiKey: "test-key",
+      adapter: okAdapter,
+    },
+    seed(repoRoot) {
+      writeFileSync(
+        join(repoRoot, BIZ_IDEA, "HANDOFFS", "2-market-research-analyst.md"),
+        `---
+kind: ic
+phase: "2"
+position: market-research-analyst
+reports_to: head-of-research
+status: needs_input
+verdict_for_manager: ""
+verdict: ""
+llm_tier: strong-general
+generation_profile: none
+fallback_applied: ""
+---
+
+# Handoff
+
+## Asks for manager
+
+- Which geography should we prioritize?
+`,
+      );
+    },
+  },
   { intent: "activity.tail", args: { n: 5 } },
   {
     intent: "work.resolve",
@@ -860,6 +926,8 @@ describe("executeIntent", () => {
     expect(result.help).toMatch(/mission\.get/i);
     expect(result.help).toMatch(/memory\.brief/i);
     expect(result.help).toMatch(/memory\.note/i);
+    expect(result.help).toMatch(/seat\.answer/);
+    expect(result.help).toMatch(/seat\.answer_draft/);
     expect(result.help).not.toMatch(/\*\*/);
   });
 

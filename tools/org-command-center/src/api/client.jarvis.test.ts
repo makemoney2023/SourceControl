@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as client from "./client";
 
-const { postJarvisAct, resolveBlocker } = client;
+const { answerSeatQuestions, postJarvisAct, resolveBlocker } = client;
 
 function response(body: unknown, ok = true) {
   return {
@@ -49,6 +49,25 @@ describe("Jarvis act client confirmation", () => {
       intent: "blocker.resolve",
       args: { seat: "cto" },
       confirmToken: "confirm-123",
+    });
+  });
+
+  it("posts seat.answer with answers and optional confirm token", async () => {
+    vi.mocked(fetch).mockResolvedValue(response({ status: "ok", summary: "Continued" }));
+
+    await answerSeatQuestions(
+      "market-research-analyst",
+      { "Which geography?": "Outer Banks" },
+      "confirm-answer",
+    );
+
+    expect(JSON.parse(String(vi.mocked(fetch).mock.calls[0][1]?.body))).toMatchObject({
+      intent: "seat.answer",
+      args: {
+        seat: "market-research-analyst",
+        answers: { "Which geography?": "Outer Banks" },
+      },
+      confirmToken: "confirm-answer",
     });
   });
 

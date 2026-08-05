@@ -51,6 +51,8 @@ export const JARVIS_INTENTS = [
   "digest.focus",
   "blocker.list",
   "blocker.resolve",
+  "seat.answer",
+  "seat.answer_draft",
   "activity.tail",
   "work.resolve",
   "work.intake_save",

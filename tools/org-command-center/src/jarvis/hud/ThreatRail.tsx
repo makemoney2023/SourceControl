@@ -6,12 +6,15 @@ export function ThreatRail({
   resolvingSlug,
   onSelect,
   onResolve,
+  onAnswer,
 }: {
   blocked: BlockedSeatDigest[];
   selectedSlug: string | null;
   resolvingSlug: string | null;
   onSelect: (slug: string) => void;
   onResolve: (slug: string) => void;
+  /** Opens the narrative report questions form for needs_input seats. */
+  onAnswer?: (slug: string) => void;
 }) {
   const prioritized = blocked.toSorted((a, b) => {
     const rank = (status: string) => (status === "blocked" ? 0 : status === "needs_input" ? 1 : 2);
@@ -82,9 +85,17 @@ export function ThreatRail({
                 data-active="true"
                 disabled={resolving}
                 style={{ marginTop: 8, width: "100%" }}
-                onClick={() => onResolve(b.slug)}
+                onClick={() =>
+                  b.status === "needs_input" && onAnswer
+                    ? onAnswer(b.slug)
+                    : onResolve(b.slug)
+                }
               >
-                {resolving ? "Resolving…" : "RESOLVE"}
+                {resolving
+                  ? "Resolving…"
+                  : b.status === "needs_input"
+                    ? "ANSWER"
+                    : "RESOLVE"}
               </button>
             </div>
           );

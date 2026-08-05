@@ -81,6 +81,16 @@ describe("JARVIS_SYSTEM_PROMPT", () => {
     expect(JARVIS_SYSTEM_PROMPT).toMatch(/what'?s blocked|blockers?/i);
   });
 
+  it("teaches seat report → draft → answer playbook", () => {
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/seat\.report|report on/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/seat_answer_draft|seat\.answer_draft/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/seat_answer|seat\.answer/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(/needs answers/i);
+    expect(JARVIS_SYSTEM_PROMPT).toMatch(
+      /never call work_request.*seat\.answer|seat\.answer.*while waiting/i,
+    );
+  });
+
   it("teaches batch queue and run_ready for multi-manager kickoff", () => {
     expect(JARVIS_SYSTEM_PROMPT).toContain("dispatch.queue_batch");
     expect(JARVIS_SYSTEM_PROMPT).toContain("spawn.run_ready");

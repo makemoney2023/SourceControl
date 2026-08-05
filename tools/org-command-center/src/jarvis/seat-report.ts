@@ -5,6 +5,15 @@ import type {
   OrgRegistry,
   Tracker,
 } from "../lib/types";
+import {
+  buildSeatBusinessBrief,
+  collectOpenQuestions,
+  extractDecisions,
+  extractOperatorSummary,
+  humanizeBlockers,
+  type OperatorSummary,
+  type SeatBusinessBrief,
+} from "../lib/operator-summary";
 import { checkArtifacts } from "./artifact-check";
 import type { StandupBriefing } from "./csuite";
 import { resolveEscalationSecondaries } from "./escalation";
@@ -60,6 +69,14 @@ export interface SeatArtifactCheck {
   fromHandoff: string;
 }
 
+export interface SeatReportRollup {
+  slug: string;
+  title: string;
+  status: string;
+  plainEnglish: string;
+  openQuestionCount: number;
+}
+
 export interface SeatReport {
   slug: string;
   title: string;
@@ -74,6 +91,14 @@ export interface SeatReport {
   scorecard: string;
   heartbeatPath: string | null;
   spend: { tokens: number; cost_usd: number } | null;
+  operatorSummary: OperatorSummary;
+  /** Same narrative layout for every role — business conversation, not raw markdown. */
+  businessBrief: SeatBusinessBrief;
+  /** Set when server enriches via Cursor Grok rewrite. */
+  briefSource?: "grok" | "deterministic";
+  decisions: string[];
+  openQuestions: string[];
+  reportRollups: SeatReportRollup[];
   ownHandoffs: Array<{
     filename: string;
     phase: string;
@@ -419,6 +444,16 @@ function buildNextActions(args: {
   return actions.sort((a, b) => a.priority - b.priority || a.id.localeCompare(b.id));
 }
 
+function narrativeSourceMarkdown(
+  ownLatest: HandoffRecord | undefined,
+  deliverableMarkdown?: string,
+): string {
+  const parts = [deliverableMarkdown?.trim() ?? "", ownLatest?.body?.trim() ?? ""].filter(
+    Boolean,
+  );
+  return parts.join("\n\n");
+}
+
 export function buildSeatReport(args: {
   slug: string;
   org: OrgRegistry;
@@ -433,6 +468,8 @@ export function buildSeatReport(args: {
   spendBySeat?: Record<string, { tokens: number; cost_usd: number }>;
   models?: ModelRegistry;
   exists?: (abs: string) => boolean;
+  /** Latest REVIEW/inbox deliverable markdown for this seat (optional). */
+  deliverableMarkdown?: string;
 }): SeatReport | null {
   const seat = args.org.roster.find((r) => r.slug === args.slug);
   if (!seat) return null;
@@ -461,8 +498,8 @@ export function buildSeatReport(args: {
       slug: r.slug,
       title: r.title,
       latestStatus: latest?.status || latest?.verdict || "idle",
-      asks: latest?.asks ?? [],
-      blockers: latest?.blockers ?? [],
+      asks: collectOpenQuestions(latest?.asks ?? [], []),
+      blockers: humanizeBlockers(latest?.blockers ?? [], 2),
     };
   });
 
@@ -551,9 +588,49 @@ export function buildSeatReport(args: {
     pinned?.updatedAt,
   ]);
 
+  const ownLatest = ownHandoffs.at(-1);
+  const narrativeMd = narrativeSourceMarkdown(ownLatest, args.deliverableMarkdown);
+  const operatorSummary = extractOperatorSummary(narrativeMd);
+  const decisions = extractDecisions(narrativeMd);
+  const openQuestions = collectOpenQuestions(
+    ownHandoffs.flatMap((h) => h.asks),
+    operatorSummary.nextSteps,
+  );
+  const rawBlockers = ownHandoffs.flatMap((h) => h.blockers);
+  const businessBrief = buildSeatBusinessBrief({
+    operatorSummary,
+    decisions,
+    openQuestions,
+    blockers: rawBlockers,
+    fallbackSummary:
+      pinned?.progress ||
+      ownLatest?.status ||
+      "",
+  });
+
+  const reportRollups: SeatReportRollup[] =
+    role === "ceo" || role === "manager"
+      ? reports.map((r) => {
+          const latest = args.handoffs.filter((h) => h.position === r.slug).at(-1);
+          const summaryFor = extractOperatorSummary(latest?.body ?? "");
+          return {
+            slug: r.slug,
+            title: r.title,
+            status: latest?.status || latest?.verdict || "idle",
+            plainEnglish: summaryFor.plainEnglish.join(" ") || "",
+            openQuestionCount: collectOpenQuestions(
+              latest?.asks ?? [],
+              summaryFor.nextSteps,
+            ).length,
+          };
+        })
+      : [];
+
   const summary =
+    businessBrief.whatHappened.join(" ").slice(0, 220) ||
+    operatorSummary.plainEnglish.join(" ").slice(0, 200) ||
     pinned?.progress?.slice(0, 200) ||
-    ownHandoffs.at(-1)?.status ||
+    ownLatest?.status ||
     downward.map((d) => `${d.slug}:${d.latestStatus}`).join(", ") ||
     "No handoffs yet";
 
@@ -580,7 +657,7 @@ export function buildSeatReport(args: {
     role,
     dept: seat.dept,
     reportsTo: seat.reportsTo,
-    pulse: ownHandoffs.at(-1)?.status || liveRuns[0]?.status || "idle",
+    pulse: ownLatest?.status || liveRuns[0]?.status || "idle",
     summary,
     lastActivityAt,
     relevantPhases: [
@@ -596,6 +673,11 @@ export function buildSeatReport(args: {
     spend: spend
       ? { tokens: spend.tokens, cost_usd: spend.cost_usd }
       : null,
+    operatorSummary,
+    businessBrief,
+    decisions,
+    openQuestions,
+    reportRollups,
     ownHandoffs: ownHandoffs.map((h) => ({
       filename: h.filename,
       phase: h.phase,
@@ -604,8 +686,8 @@ export function buildSeatReport(args: {
     })),
     downward,
     escalations,
-    upwardAsks: ownHandoffs.flatMap((h) => h.asks),
-    upwardBlockers: ownHandoffs.flatMap((h) => h.blockers),
+    upwardAsks: openQuestions,
+    upwardBlockers: humanizeBlockers(rawBlockers, 6),
     liveRuns,
     liveTasks: tasks.map((t) => ({ id: t.id, title: t.title, status: t.status })),
     artifacts,
@@ -627,18 +709,30 @@ export function buildSeatReport(args: {
 }
 
 export function seatReportBriefScript(report: SeatReport): string {
-  const human = report.nextActions.filter((a) => a.actor === "human").slice(0, 3);
-  const agent = report.nextActions.filter((a) => a.actor === "agent").slice(0, 2);
-  const parts = [
-    `${report.title} (${report.role}).`,
-    report.summary.slice(0, 160),
-  ];
-  if (human[0]) parts.push(`You should: ${human.map((a) => a.label).join("; ")}.`);
-  if (agent[0]) parts.push(`Agents: ${agent.map((a) => a.label).join("; ")}.`);
-  if (report.upwardBlockers[0] || report.escalations[0]) {
-    parts.push(
-      `Blockers or escalations: ${report.escalations.length + report.upwardBlockers.length}.`,
-    );
+  const brief = report.businessBrief;
+  const parts = [`${report.title}.`];
+  if (brief.whatHappened[0]) {
+    parts.push(brief.whatHappened.slice(0, 2).join(" "));
+  } else {
+    parts.push(report.summary.slice(0, 160));
   }
-  return parts.join(" ");
+  if (brief.nextSteps[0]) {
+    parts.push(`Next: ${brief.nextSteps[0]}`);
+  }
+  const qs = brief.needsFromYou.filter(Boolean).slice(0, 2);
+  if (qs.length) {
+    const more =
+      brief.needsFromYou.length > qs.length
+        ? ` (${brief.needsFromYou.length} total)`
+        : "";
+    parts.push(`I need your input${more}: ${qs.join(" ")}`);
+  }
+  if (brief.whatsStuck[0]) {
+    parts.push(`What's stuck: ${brief.whatsStuck[0]}`);
+  } else if (report.escalations[0]) {
+    parts.push("There is an escalation on this seat.");
+  }
+  let out = parts.join(" ");
+  if (out.length > 400) out = `${out.slice(0, 397).trimEnd()}…`;
+  return out;
 }

@@ -137,4 +137,17 @@ describe("executeBrainRouteIntent", () => {
     });
     expect(handled).toBe(false);
   });
+
+  it("answer falls through to LLM seat.answer playbook", async () => {
+    const jarvisAct = vi.fn();
+    const handled = await executeBrainRouteIntent({
+      agent: mockAgent() as never,
+      occ: { jarvisAct, jarvisContext: vi.fn() } as unknown as OccClient,
+      modeState: mockMode(),
+      roomId: "r1",
+      route: { intent: "answer", confidence: 0.9 },
+    });
+    expect(handled).toBe(false);
+    expect(jarvisAct).not.toHaveBeenCalled();
+  });
 });

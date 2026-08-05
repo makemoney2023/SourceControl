@@ -14,6 +14,7 @@ import {
   rewakeSession,
   setRoutineEnabled,
   createProject,
+  answerSeatQuestions,
   resolveBlocker,
   setActiveProject,
   spawnManager,
@@ -90,6 +91,9 @@ type BlockerConfirmationRequest = {
   token: string;
   summary?: string;
   reason?: string;
+  /** Which confirmable intent produced this token. */
+  intent?: "blocker.resolve" | "seat.answer";
+  answers?: Record<string, string>;
 };
 
 export function BlockerConfirmationDialog({
@@ -200,6 +204,12 @@ export function SituationRoom() {
   const [chatInput, setChatInput] = useState("");
   const [listening, setListening] = useState(false);
   const [seatReport, setSeatReport] = useState<SeatReport | null>(null);
+  const [reportAnswers, setReportAnswers] = useState<Record<string, string>>({});
+  const [reportOpsOpen, setReportOpsOpen] = useState(false);
+  const [reportFocusQuestions, setReportFocusQuestions] = useState(false);
+  const [answeringSeat, setAnsweringSeat] = useState(false);
+  const [answerStatus, setAnswerStatus] = useState<string | null>(null);
+  const questionsSectionRef = useRef<HTMLDivElement | null>(null);
   const [digest, setDigest] = useState<CompanyDigest | null>(null);
   const [artifact, setArtifact] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -225,18 +235,35 @@ export function SituationRoom() {
   const seatCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const cancellationRequests = useRef(new Set<string>());
 
-  const onJarvisFocus = useCallback((focus: JarvisFocus | null) => {
-    setJarvisFocus(focus);
-    if (focus?.slug) {
-      selectStoreSlug(focus.slug);
-      requestAnimationFrame(() => {
-        seatCardRefs.current[focus.slug!]?.scrollIntoView({
-          block: "nearest",
-          behavior: "smooth",
+  const openReport = useCallback(
+    (slug: string, opts?: { focusQuestions?: boolean }) => {
+      selectStoreSlug(slug);
+      setReportFocusQuestions(Boolean(opts?.focusQuestions));
+      setReportOpsOpen(false);
+      setAnswerStatus(null);
+      setDrawer("report");
+    },
+    [selectStoreSlug],
+  );
+
+  const onJarvisFocus = useCallback(
+    (focus: JarvisFocus | null) => {
+      setJarvisFocus(focus);
+      if (focus?.slug) {
+        selectStoreSlug(focus.slug);
+        requestAnimationFrame(() => {
+          seatCardRefs.current[focus.slug!]?.scrollIntoView({
+            block: "nearest",
+            behavior: "smooth",
+          });
         });
-      });
-    }
-  }, [selectStoreSlug]);
+        if (focus.openReport) {
+          openReport(focus.slug, { focusQuestions: Boolean(focus.focusQuestions) });
+        }
+      }
+    },
+    [openReport, selectStoreSlug],
+  );
 
   const reload = useCallback(async (manual = false) => {
     const request = reloadSequence.current.beginIfMounted();
@@ -514,7 +541,14 @@ export function SituationRoom() {
     setActionError(null);
     setConfirmationCancellationError(null);
     try {
-      const result = await resolveBlocker(request.seat, token);
+      const result =
+        request.intent === "seat.answer"
+          ? await answerSeatQuestions(
+              request.seat,
+              request.answers ?? {},
+              token,
+            )
+          : await resolveBlocker(request.seat, token);
       if (result.status === "needs_confirm") {
         if (!result.token) throw new Error("Resolve confirmation token missing");
         setConfirmationCancellationError(null);
@@ -523,6 +557,8 @@ export function SituationRoom() {
           token: result.token,
           summary: result.summary,
           reason: result.reason,
+          intent: request.intent,
+          answers: request.answers,
         });
         return;
       }
@@ -530,9 +566,14 @@ export function SituationRoom() {
         throw new Error(result.reason || result.summary || "Resolve failed");
       }
       setBlockerConfirmation(null);
+      if (request.intent === "seat.answer") {
+        setAnswerStatus(`Continuing ${request.seat}…`);
+        setReportAnswers({});
+      }
       setBeam(true);
       await reload();
       await reloadDigest();
+      if (request.intent === "seat.answer") void openReport(request.seat);
     } catch (e) {
       setActionError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -548,9 +589,60 @@ export function SituationRoom() {
     await speakText(text);
   }
 
-  function openReport(slug: string) {
-    selectStoreSlug(slug);
-    setDrawer("report");
+  useEffect(() => {
+    if (!seatReport) {
+      setReportAnswers({});
+      return;
+    }
+    const next: Record<string, string> = {};
+    for (const q of seatReport.businessBrief.needsFromYou) next[q] = "";
+    setReportAnswers(next);
+  }, [seatReport?.slug, seatReport?.businessBrief.needsFromYou.join("\u0001")]);
+
+  useEffect(() => {
+    if (drawer !== "report" || !reportFocusQuestions) return;
+    questionsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [drawer, reportFocusQuestions, seatReport?.slug]);
+
+  async function submitSeatAnswers(confirmToken?: string) {
+    if (!seatReport) return;
+    const answers = Object.fromEntries(
+      Object.entries(reportAnswers).filter(([, v]) => v.trim().length > 0),
+    );
+    if (Object.keys(answers).length === 0) {
+      setActionError("Answer at least one open question before continuing.");
+      return;
+    }
+    setAnsweringSeat(true);
+    setActionError(null);
+    setAnswerStatus(null);
+    try {
+      const result = await answerSeatQuestions(seatReport.slug, answers, confirmToken);
+      if (result.status === "needs_confirm") {
+        if (!result.token) throw new Error("Answer confirmation token missing");
+        setConfirmationCancellationError(null);
+        setBlockerConfirmation({
+          seat: seatReport.slug,
+          token: result.token,
+          summary: result.summary,
+          reason: result.reason,
+          intent: "seat.answer",
+          answers,
+        });
+        return;
+      }
+      if (result.status !== "ok") {
+        throw new Error(result.reason || result.summary || "Could not continue seat");
+      }
+      setAnswerStatus(`Continuing ${seatReport.title}…`);
+      setReportAnswers({});
+      void reload();
+      void openReport(seatReport.slug);
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setAnsweringSeat(false);
+    }
   }
 
   async function openDigest() {
@@ -1056,6 +1148,7 @@ export function SituationRoom() {
                   selectStoreSlug(slug);
                 }}
                 onResolve={(slug) => void onResolveBlocker(slug)}
+                onAnswer={(slug) => void openReport(slug, { focusQuestions: true })}
               />
               <aside
                 className="j-hud-panel j-hud-grid"
@@ -1077,6 +1170,9 @@ export function SituationRoom() {
                         paused={Boolean(snap.agentStates?.[card.slug]?.paused)}
                         onOpen={() => selectStoreSlug(card.slug)}
                         onReport={() => void openReport(card.slug)}
+                        onAnswer={() =>
+                          void openReport(card.slug, { focusQuestions: true })
+                        }
                         onTogglePause={() =>
                           void onTogglePause(
                             card.slug,
@@ -1103,6 +1199,9 @@ export function SituationRoom() {
                   setSeatReport(null);
                 }}
                 onResolveBlocker={(slug) => void onResolveBlocker(slug)}
+                onAnswerQuestions={(slug) =>
+                  void openReport(slug, { focusQuestions: true })
+                }
                 onOpenArtifact={(path) => {
                   setArtifact(path);
                   setDrawer("outputs");
@@ -1193,6 +1292,9 @@ export function SituationRoom() {
                       paused={Boolean(snap.agentStates?.[card.slug]?.paused)}
                       onOpen={() => selectStoreSlug(card.slug)}
                       onReport={() => void openReport(card.slug)}
+                      onAnswer={() =>
+                        void openReport(card.slug, { focusQuestions: true })
+                      }
                       onTogglePause={() =>
                         void onTogglePause(
                           card.slug,
@@ -1382,172 +1484,266 @@ export function SituationRoom() {
         >
           {!seatReport && <p className="j-muted">Loading…</p>}
           {seatReport && (
-            <div style={{ display: "grid", gap: 12, maxWidth: 560 }}>
-              <p className="j-muted">{seatReport.summary}</p>
+            <div style={{ display: "grid", gap: 14, maxWidth: 560 }}>
               <p className="j-muted" style={{ fontSize: 11 }}>
+                {seatReport.pulse}
+                {" · "}
                 Last activity: {seatReport.lastActivityAt || "—"}
                 {seatReport.hardGate ? " · hard gate" : ""}
-                {seatReport.heartbeatPath ? ` · HEARTBEAT` : ""}
-                {seatReport.spend
-                  ? ` · spend $${seatReport.spend.cost_usd.toFixed(4)}`
+                {seatReport.briefSource === "grok"
+                  ? " · rewritten for clarity (Grok)"
                   : ""}
               </p>
-              {seatReport.pinnedBriefing?.stale && (
-                <p className="j-error">Pinned standup is stale vs latest activity.</p>
+              {answerStatus ? <p className="j-chip" data-tone="ok">{answerStatus}</p> : null}
+
+              <section>
+                <p className="j-title">What happened</p>
+                {seatReport.businessBrief.whatHappened.length === 0 ? (
+                  <p className="j-muted">
+                    No plain-language brief yet. Re-run this seat or wait for its next
+                    deliverable.
+                  </p>
+                ) : (
+                  <ul style={{ margin: "6px 0 0", paddingLeft: 18, lineHeight: 1.45 }}>
+                    {seatReport.businessBrief.whatHappened.map((line) => (
+                      <li key={line} style={{ marginBottom: 4 }}>
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+
+              <section>
+                <p className="j-title">Why it matters</p>
+                {seatReport.businessBrief.whyItMatters.length === 0 ? (
+                  <p className="j-muted">No separate findings yet.</p>
+                ) : (
+                  <ul style={{ margin: "6px 0 0", paddingLeft: 18, lineHeight: 1.45 }}>
+                    {seatReport.businessBrief.whyItMatters.map((line) => (
+                      <li key={line} style={{ marginBottom: 4 }}>
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+
+              <section>
+                <p className="j-title">Next steps</p>
+                {seatReport.businessBrief.nextSteps.length === 0 ? (
+                  <p className="j-muted">No next steps in the latest brief.</p>
+                ) : (
+                  <ol style={{ margin: "6px 0 0", paddingLeft: 18, lineHeight: 1.45 }}>
+                    {seatReport.businessBrief.nextSteps.map((line) => (
+                      <li key={line} style={{ marginBottom: 4 }}>
+                        {line}
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </section>
+
+              <section ref={questionsSectionRef}>
+                <p className="j-title">What we need from you</p>
+                {seatReport.businessBrief.needsFromYou.length === 0 ? (
+                  <p className="j-muted">Nothing blocking — work can continue without input.</p>
+                ) : (
+                  <form
+                    style={{ display: "grid", gap: 10, marginTop: 8 }}
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      void submitSeatAnswers();
+                    }}
+                  >
+                    {seatReport.businessBrief.needsFromYou.map((q) => (
+                      <label key={q} style={{ display: "grid", gap: 4 }}>
+                        <span style={{ fontSize: 13 }}>{q}</span>
+                        <Textarea
+                          rows={2}
+                          value={reportAnswers[q] ?? ""}
+                          onChange={(ev) =>
+                            setReportAnswers((prev) => ({ ...prev, [q]: ev.target.value }))
+                          }
+                          placeholder="Your answer…"
+                        />
+                      </label>
+                    ))}
+                    <Button type="submit" disabled={answeringSeat || resolvingSlug === seatReport.slug}>
+                      {answeringSeat || resolvingSlug === seatReport.slug
+                        ? "Continuing…"
+                        : "Submit answers & continue"}
+                    </Button>
+                  </form>
+                )}
+              </section>
+
+              {seatReport.businessBrief.whatsStuck.length > 0 && (
+                <section>
+                  <p className="j-title">What&apos;s stuck</p>
+                  <ul style={{ margin: "6px 0 0", paddingLeft: 18, lineHeight: 1.45 }}>
+                    {seatReport.businessBrief.whatsStuck.map((line) => (
+                      <li key={line} style={{ marginBottom: 4 }}>
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
               )}
-              <div>
-                <p className="j-title">You (human)</p>
-                <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0" }}>
-                  {seatReport.nextActions
-                    .filter((a) => a.actor === "human")
-                    .map((a) => (
-                      <li key={a.id} style={{ marginBottom: 6 }}>
+
+              {seatReport.reportRollups.length > 0 && (
+                <section>
+                  <p className="j-title">Reports</p>
+                  <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0" }}>
+                    {seatReport.reportRollups.map((r) => (
+                      <li key={r.slug} style={{ marginBottom: 8 }}>
                         <button
                           type="button"
                           className="j-btn"
-                          data-active="true"
-                          onClick={() => void runCta(a)}
+                          style={{ width: "100%", textAlign: "left" }}
+                          onClick={() =>
+                            void openReport(r.slug, {
+                              focusQuestions: r.openQuestionCount > 0,
+                            })
+                          }
                         >
-                          {a.label}
-                        </button>
-                      </li>
-                    ))}
-                </ul>
-              </div>
-              <div>
-                <p className="j-title">Agents</p>
-                <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0" }}>
-                  {seatReport.nextActions
-                    .filter((a) => a.actor === "agent")
-                    .map((a) => (
-                      <li key={a.id} className="j-chip" style={{ display: "block", marginTop: 4 }}>
-                        {a.label}
-                      </li>
-                    ))}
-                </ul>
-              </div>
-              {seatReport.escalations.length > 0 && (
-                <div>
-                  <p className="j-title">Escalations</p>
-                  {seatReport.escalations.map((e, i) => (
-                    <div key={`${e.phase}-${i}`} className="j-chip" style={{ display: "block", marginTop: 4 }}>
-                      phase {e.phase} · {e.fromSlug} · {e.tags.join(", ") || "untagged"} →{" "}
-                      {e.secondaries.join(", ") || "CEO"}
-                    </div>
-                  ))}
-                </div>
-              )}
-              {seatReport.liveRuns.length > 0 && (
-                <div>
-                  <p className="j-title">Live runs</p>
-                  {seatReport.liveRuns.map((r) => (
-                    <button
-                      key={r.runId}
-                      type="button"
-                      className="j-btn"
-                      style={{ display: "block", marginTop: 4, width: "100%", textAlign: "left" }}
-                      onClick={() => {
-                        setSelectedRunId(r.runId);
-                        setDrawer("run");
-                      }}
-                    >
-                      {r.status} · {r.runId}
-                      {r.error ? ` · ${r.error}` : ""}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {seatReport.downward.length > 0 && (
-                <div>
-                  <p className="j-title">Reports back</p>
-                  <ul>
-                    {seatReport.downward.map((d) => (
-                      <li key={d.slug}>
-                        <button type="button" className="j-btn" onClick={() => void openReport(d.slug)}>
-                          {d.title}: {d.latestStatus}
-                          {d.asks[0] ? ` · ask: ${d.asks[0]}` : ""}
-                          {d.blockers[0] ? ` · blocker: ${d.blockers[0]}` : ""}
+                          <strong>{r.title}</strong> · {r.status}
+                          {r.openQuestionCount > 0
+                            ? ` · ${r.openQuestionCount} question${r.openQuestionCount === 1 ? "" : "s"}`
+                            : ""}
+                          <div className="j-muted" style={{ marginTop: 4, fontSize: 12 }}>
+                            {r.plainEnglish || "No plain-English brief yet."}
+                          </div>
                         </button>
                       </li>
                     ))}
                   </ul>
-                </div>
+                </section>
               )}
-              <div>
-                <p className="j-title">Own handoffs</p>
-                {seatReport.ownHandoffs.length === 0 ? (
-                  <p className="j-muted">None on disk</p>
-                ) : (
-                  seatReport.ownHandoffs.map((h) => (
-                    <div key={h.filename} className="j-chip" style={{ display: "block", marginTop: 6 }}>
-                      {h.filename} · {h.status || "—"}
+
+              <details
+                open={reportOpsOpen}
+                onToggle={(e) => setReportOpsOpen((e.target as HTMLDetailsElement).open)}
+              >
+                <summary className="j-title" style={{ cursor: "pointer" }}>
+                  Ops
+                </summary>
+                <div style={{ display: "grid", gap: 12, marginTop: 10 }}>
+                  <div>
+                    <p className="j-title">You (human)</p>
+                    <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0" }}>
+                      {seatReport.nextActions
+                        .filter((a) => a.actor === "human")
+                        .map((a) => (
+                          <li key={a.id} style={{ marginBottom: 6 }}>
+                            <button
+                              type="button"
+                              className="j-btn"
+                              data-active="true"
+                              onClick={() => void runCta(a)}
+                            >
+                              {a.label}
+                            </button>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="j-title">Agents</p>
+                    <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0" }}>
+                      {seatReport.nextActions
+                        .filter((a) => a.actor === "agent")
+                        .map((a) => (
+                          <li
+                            key={a.id}
+                            className="j-chip"
+                            style={{ display: "block", marginTop: 4 }}
+                          >
+                            {a.label}
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                  {seatReport.escalations.length > 0 && (
+                    <div>
+                      <p className="j-title">Escalations</p>
+                      {seatReport.escalations.map((e, i) => (
+                        <div
+                          key={`${e.phase}-${i}`}
+                          className="j-chip"
+                          style={{ display: "block", marginTop: 4 }}
+                        >
+                          phase {e.phase} · {e.fromSlug} · {e.tags.join(", ") || "untagged"} →{" "}
+                          {e.secondaries.join(", ") || "CEO"}
+                        </div>
+                      ))}
                     </div>
-                  ))
-                )}
-              </div>
-              {seatReport.artifacts.length > 0 && (
-                <div>
-                  <p className="j-title">Artifacts</p>
-                  {seatReport.artifacts.map((a) => (
-                    <div
-                      key={`${a.fromHandoff}:${a.path}`}
-                      className="j-chip"
-                      data-tone={a.exists ? "ok" : "warn"}
-                      style={{ display: "block", marginTop: 4 }}
+                  )}
+                  {seatReport.liveRuns.length > 0 && (
+                    <div>
+                      <p className="j-title">Live runs</p>
+                      {seatReport.liveRuns.map((r) => (
+                        <button
+                          key={r.runId}
+                          type="button"
+                          className="j-btn"
+                          style={{
+                            display: "block",
+                            marginTop: 4,
+                            width: "100%",
+                            textAlign: "left",
+                          }}
+                          onClick={() => {
+                            setSelectedRunId(r.runId);
+                            setDrawer("run");
+                          }}
+                        >
+                          {r.status} · {r.runId}
+                          {r.error ? ` · ${r.error}` : ""}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {(seatReport.role === "ceo" || seatReport.role === "manager") && (
+                    <button
+                      type="button"
+                      className="j-btn"
+                      onClick={async () => {
+                        if (
+                          seatReport.pinnedBriefing &&
+                          !window.confirm("Overwrite pinned standup on disk?")
+                        ) {
+                          return;
+                        }
+                        await postBriefing({
+                          position: seatReport.slug,
+                          phase_focus: seatReport.relevantPhases[0] ?? "",
+                          status: seatReport.upwardBlockers.length ? "blocked" : "on_track",
+                          progress: [
+                            seatReport.summary,
+                            "",
+                            "Next actions:",
+                            ...seatReport.nextActions.map(
+                              (a) => `- [${a.actor}] ${a.label}`,
+                            ),
+                          ].join("\n"),
+                          asks:
+                            seatReport.upwardAsks.join("\n") ||
+                            seatReport.downward.flatMap((d) => d.asks).join("\n"),
+                          blockers:
+                            seatReport.upwardBlockers.join("\n") ||
+                            seatReport.downward.flatMap((d) => d.blockers).join("\n"),
+                          escalation_tags: seatReport.escalations.flatMap((e) => e.tags),
+                        });
+                        void reload();
+                        void openReport(seatReport.slug);
+                      }}
                     >
-                      {a.exists ? "ok" : "missing"} · {a.path}
-                    </div>
-                  ))}
+                      Pin snapshot
+                    </button>
+                  )}
                 </div>
-              )}
-              {seatReport.modelQuality.some((q) => !q.ok) && (
-                <div>
-                  <p className="j-title">Model routing</p>
-                  {seatReport.modelQuality
-                    .filter((q) => !q.ok)
-                    .map((q) => (
-                      <div key={q.filename} className="j-error" style={{ fontSize: 12, marginTop: 4 }}>
-                        {q.filename}: {q.detail}
-                      </div>
-                    ))}
-                </div>
-              )}
-              {(seatReport.role === "ceo" || seatReport.role === "manager") && (
-                <button
-                  type="button"
-                  className="j-btn"
-                  onClick={async () => {
-                    if (
-                      seatReport.pinnedBriefing &&
-                      !window.confirm("Overwrite pinned standup on disk?")
-                    ) {
-                      return;
-                    }
-                    await postBriefing({
-                      position: seatReport.slug,
-                      phase_focus: seatReport.relevantPhases[0] ?? "",
-                      status: seatReport.upwardBlockers.length ? "blocked" : "on_track",
-                      progress: [
-                        seatReport.summary,
-                        "",
-                        "Next actions:",
-                        ...seatReport.nextActions.map((a) => `- [${a.actor}] ${a.label}`),
-                      ].join("\n"),
-                      asks:
-                        seatReport.upwardAsks.join("\n") ||
-                        seatReport.downward.flatMap((d) => d.asks).join("\n"),
-                      blockers:
-                        seatReport.upwardBlockers.join("\n") ||
-                        seatReport.downward.flatMap((d) => d.blockers).join("\n"),
-                      escalation_tags: seatReport.escalations.flatMap((e) => e.tags),
-                    });
-                    void reload();
-                    void openReport(seatReport.slug);
-                  }}
-                >
-                  Pin snapshot
-                </button>
-              )}
+              </details>
             </div>
           )}
         </Drawer>
@@ -1608,9 +1804,17 @@ export function SituationRoom() {
                       data-active="true"
                       style={{ marginTop: 4 }}
                       disabled={resolvingSlug === b.slug}
-                      onClick={() => void onResolveBlocker(b.slug)}
+                      onClick={() =>
+                        b.status === "needs_input"
+                          ? void openReport(b.slug, { focusQuestions: true })
+                          : void onResolveBlocker(b.slug)
+                      }
                     >
-                      {resolvingSlug === b.slug ? "Resolving…" : "RESOLVE"}
+                      {resolvingSlug === b.slug
+                        ? "Resolving…"
+                        : b.status === "needs_input"
+                          ? "ANSWER"
+                          : "RESOLVE"}
                     </button>
                   </div>
                 ))}
@@ -1753,7 +1957,8 @@ function toneFor(status: string): "ok" | "warn" | "danger" | undefined {
     status === "queued" ||
     status === "in_flight" ||
     status === "paused" ||
-    status === "running"
+    status === "running" ||
+    status === "needs_input"
   )
     return "warn";
   if (status === "done" || status === "active" || status === "completed") return "ok";
@@ -1767,6 +1972,7 @@ function CSuiteCardView({
   paused,
   onOpen,
   onReport,
+  onAnswer,
   onTogglePause,
 }: {
   card: CSuiteCard;
@@ -1775,8 +1981,10 @@ function CSuiteCardView({
   paused: boolean;
   onOpen: () => void;
   onReport: () => void;
+  onAnswer?: () => void;
   onTogglePause: () => void;
 }) {
+  const needsAnswers = Boolean(card.needsAnswers) || card.pulse === "needs_input";
   return (
     <div
       className="j-glass"
@@ -1792,9 +2000,22 @@ function CSuiteCardView({
           <div style={{ fontWeight: 600, fontSize: 13 }}>{card.title}</div>
           <div className="j-mono j-muted">{card.slug}</div>
         </div>
-        <span className="j-chip" data-tone={toneFor(card.pulse)}>
-          {card.pulse}
-        </span>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+          <span className="j-chip" data-tone={toneFor(card.pulse)}>
+            {card.pulse}
+          </span>
+          {needsAnswers ? (
+            <button
+              type="button"
+              className="j-chip"
+              data-tone="warn"
+              onClick={onAnswer ?? onReport}
+              style={{ cursor: "pointer", border: "none" }}
+            >
+              Needs answers
+            </button>
+          ) : null}
+        </div>
       </div>
       <p className="j-muted" style={{ marginTop: 6, fontSize: 11 }}>
         {card.hasBriefing ? card.briefingSnippet || "Briefing on file" : "No brief yet"}

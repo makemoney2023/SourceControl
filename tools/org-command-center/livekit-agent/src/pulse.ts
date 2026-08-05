@@ -5,9 +5,11 @@ export type PulseSnapshot = {
 
 export type JarvisContextForPulse = {
   spokenBrief?: string;
+  needsAnswersSeats?: string[];
   mission?: {
     blockerCount?: number;
     currentPhase?: string;
+    needsInputCount?: number;
   };
 };
 

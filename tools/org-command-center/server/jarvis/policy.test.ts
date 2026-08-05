@@ -227,6 +227,28 @@ describe("policyFor", () => {
       needsConfirm: true,
     });
   });
+  it("seat.answer requires ops and hard confirm", () => {
+    expect(policyFor("seat.answer", "briefing")).toEqual({
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    });
+    expect(policyFor("seat.answer", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
+  it("seat.answer_draft requires ops without hard confirm", () => {
+    expect(policyFor("seat.answer_draft", "briefing")).toEqual({
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    });
+    expect(policyFor("seat.answer_draft", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+  });
   it("dispatch.queue_batch requires ops and confirm", () => {
     expect(policyFor("dispatch.queue_batch", "briefing")).toEqual({
       allowed: false,

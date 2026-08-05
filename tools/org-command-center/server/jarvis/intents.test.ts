@@ -62,6 +62,22 @@ describe("parseJarvisAct", () => {
       "blocker.resolve",
     );
   });
+  it("accepts seat.answer", () => {
+    expect(
+      parseJarvisAct({
+        intent: "seat.answer",
+        args: { seat: "head-of-research", answer: "Outer Banks" },
+      }).intent,
+    ).toBe("seat.answer");
+  });
+  it("accepts seat.answer_draft", () => {
+    expect(
+      parseJarvisAct({
+        intent: "seat.answer_draft",
+        args: { answer: "weekends only" },
+      }).intent,
+    ).toBe("seat.answer_draft");
+  });
   it("accepts dispatch.queue_batch", () => {
     expect(
       parseJarvisAct({

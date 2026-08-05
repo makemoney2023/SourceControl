@@ -196,6 +196,23 @@ export function heuristicIntent(utterance: string): JarvisIntent {
   }
 
   if (
+    /\b(save that answer|save this answer|draft that answer|next question)\b/.test(s)
+  ) {
+    return "seat.answer_draft";
+  }
+
+  if (
+    /\b(answer questions?( for)?|answer that seat|continue that seat|the answer is|tell them the answer)\b/.test(
+      s,
+    ) ||
+    (/\b(answer|answers)\b/.test(s) &&
+      /\b(seat|research|questions?|geography|budget)\b/.test(s) &&
+      !/\b(write|blog|spawn|spin up|queue)\b/.test(s))
+  ) {
+    return "seat.answer";
+  }
+
+  if (
     /\b(resolve that blocker|resolve the blocker|resolve blockers?|unblock)\b/.test(s) ||
     (/\bunblock\b/.test(s) &&
       /\b(research|legal|product|marketing|finance|ceo|cfo|cmo|copy|brand)\b/.test(s))

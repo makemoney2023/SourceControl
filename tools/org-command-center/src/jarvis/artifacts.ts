@@ -1,3 +1,4 @@
+import { isProductionAssetPath } from "../lib/file-preview";
 import type { HandoffRecord, PhaseRow } from "../lib/types";
 import {
   DEFAULT_BUSINESS_IDEA_REL,
@@ -28,10 +29,11 @@ function normalizeArtifact(artifact: string, businessIdeaRel: string): string[] 
 
 export function indexArtifacts(
   phases: Pick<PhaseRow, "phase" | "artifact" | "status">[],
-  handoffs: Pick<
+  handoffs: (Pick<
     HandoffRecord,
     "phase" | "status" | "artifacts" | "position" | "filename"
-  >[],
+  > &
+    Partial<Pick<HandoffRecord, "productionPaths">>)[],
   businessIdeaRel = DEFAULT_BUSINESS_IDEA_REL,
 ): ArtifactItem[] {
   const map = new Map<string, ArtifactItem>();
@@ -63,6 +65,35 @@ export function indexArtifacts(
         });
       }
     }
+    for (const raw of h.productionPaths ?? []) {
+      const path = resolveArtifactPath(raw, businessIdeaRel);
+      const existing = map.get(path);
+      if (!existing) {
+        map.set(path, {
+          path,
+          phase: h.phase,
+          status: h.status,
+          seat: h.position,
+          handoffFilename: h.filename,
+          notes: "production",
+        });
+      }
+    }
   }
   return [...map.values()].sort((a, b) => a.path.localeCompare(b.path));
+}
+
+/** Production / Layer B assets only — excludes craft handoffs and MEMORY. */
+export function indexProductionArtifacts(
+  phases: Pick<PhaseRow, "phase" | "artifact" | "status">[],
+  handoffs: (Pick<
+    HandoffRecord,
+    "phase" | "status" | "artifacts" | "position" | "filename"
+  > &
+    Partial<Pick<HandoffRecord, "productionPaths">>)[],
+  businessIdeaRel = DEFAULT_BUSINESS_IDEA_REL,
+): ArtifactItem[] {
+  return indexArtifacts(phases, handoffs, businessIdeaRel).filter((item) =>
+    isProductionAssetPath(item.path),
+  );
 }

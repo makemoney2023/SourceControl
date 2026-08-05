@@ -199,6 +199,11 @@ export async function executeBrainRouteIntent(opts: {
     return true;
   }
 
+  // Freeform answers need the LLM playbook (seat.answer_draft / seat.answer).
+  if (intent === "answer") {
+    return false;
+  }
+
   if (intent === "proceed") {
     const modeRes = await opts.occ.jarvisAct({
       intent: "mode.set",

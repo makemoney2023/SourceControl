@@ -28,6 +28,8 @@ export interface ActivityEvent {
   detail?: string;
   phase?: string;
   slug?: string;
+  openReport?: boolean;
+  focusQuestions?: boolean;
 }
 
 export function activityPath(dispatchRoot: string) {
@@ -45,6 +47,8 @@ export function appendActivity(dispatchRoot: string, event: Omit<ActivityEvent, 
     detail: event.detail,
     phase: event.phase,
     slug: event.slug,
+    openReport: event.openReport,
+    focusQuestions: event.focusQuestions,
   };
   appendFileSync(path, `${JSON.stringify(row)}\n`, "utf8");
 }

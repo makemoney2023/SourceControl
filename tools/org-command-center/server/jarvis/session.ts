@@ -18,10 +18,18 @@ export type WorkIntakeState = {
   answers: Record<string, string>;
 };
 
+export type SeatAnswerDraftState = {
+  seat: string;
+  answers: Record<string, string>;
+  openQuestions: string[];
+};
+
 const pending = new Map<string, Pending>();
 const roomModes = new Map<string, JarvisMode>();
 const lastSummaries = new Map<string, string>();
 const workIntake = new Map<string, WorkIntakeState>();
+const lastReportedSeats = new Map<string, string>();
+const seatAnswerDrafts = new Map<string, SeatAnswerDraftState>();
 
 function key(roomId: string, token: string) {
   return `${roomId}:${token}`;
@@ -202,9 +210,76 @@ export function mergeWorkGoal(
   return `${base}\n\nRequirements:\n${lines.map((l) => `- ${l}`).join("\n")}`;
 }
 
+export function setLastReportedSeat(roomId: string, seat: string): void {
+  const s = seat.trim();
+  if (!roomId || !s) return;
+  lastReportedSeats.set(roomId, s);
+}
+
+export function getLastReportedSeat(roomId: string): string | undefined {
+  return lastReportedSeats.get(roomId);
+}
+
+export function clearLastReportedSeat(roomId: string): void {
+  lastReportedSeats.delete(roomId);
+}
+
+export function getSeatAnswerDraft(roomId: string): SeatAnswerDraftState | undefined {
+  return seatAnswerDrafts.get(roomId);
+}
+
+export function clearSeatAnswerDraft(roomId: string): void {
+  seatAnswerDrafts.delete(roomId);
+}
+
+/** Seed or replace draft for a seat; clears answers when seat changes. */
+export function seedSeatAnswerDraft(
+  roomId: string,
+  seat: string,
+  openQuestions: string[],
+): SeatAnswerDraftState {
+  const existing = seatAnswerDrafts.get(roomId);
+  const next: SeatAnswerDraftState = {
+    seat,
+    openQuestions: [...openQuestions],
+    answers:
+      existing?.seat === seat ? { ...existing.answers } : {},
+  };
+  seatAnswerDrafts.set(roomId, next);
+  return next;
+}
+
+export function patchSeatAnswerDraft(
+  roomId: string,
+  patch: {
+    seat: string;
+    answers: Record<string, string>;
+    openQuestions?: string[];
+  },
+): SeatAnswerDraftState {
+  const existing = seatAnswerDrafts.get(roomId);
+  const sameSeat = existing?.seat === patch.seat;
+  const next: SeatAnswerDraftState = {
+    seat: patch.seat,
+    openQuestions: patch.openQuestions
+      ? [...patch.openQuestions]
+      : sameSeat
+        ? [...(existing?.openQuestions ?? [])]
+        : [],
+    answers: {
+      ...(sameSeat ? existing?.answers ?? {} : {}),
+      ...patch.answers,
+    },
+  };
+  seatAnswerDrafts.set(roomId, next);
+  return next;
+}
+
 export function resetSessionForTests() {
   pending.clear();
   roomModes.clear();
   lastSummaries.clear();
   workIntake.clear();
+  lastReportedSeats.clear();
+  seatAnswerDrafts.clear();
 }

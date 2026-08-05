@@ -1,11 +1,4 @@
-import {
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  statSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
@@ -22,11 +15,13 @@ import {
 import { CSUITE_SLUGS } from "../src/jarvis/csuite";
 import { missionBriefScript } from "../src/jarvis/mission";
 import { buildSeatReport, seatReportBriefScript } from "../src/jarvis/seat-report";
+import { enrichSeatReportWithGrokBrief } from "./jarvis/seat-brief-rewrite";
+import { findLatestInboxDeliverableForSeat } from "./jarvis/review-inbox";
 import { CHAT_TOOLS, runChatLlm } from "./chat";
+import { registerFileRoutes } from "./file-routes";
 
 import {
   activeProjectSlug,
-  assertReadable,
   assertWritable,
   briefingsDir,
   businessIdeaFile,
@@ -87,6 +82,7 @@ export function createApi(repoRoot = resolveRepoRoot()) {
 
   registerProjectRoutes(app, repoRoot);
   registerSourcesRoutes(app, repoRoot);
+  registerFileRoutes(app, repoRoot);
 
   app.get("/api/health", (c) =>
     c.json({
@@ -126,9 +122,10 @@ export function createApi(repoRoot = resolveRepoRoot()) {
 
   app.get("/api/snapshot", (c) => c.json({ ...loadSnapshot(repoRoot), bump }));
 
-  app.get("/api/seat-report/:slug", (c) => {
+  app.get("/api/seat-report/:slug", async (c) => {
     const slug = c.req.param("slug");
     const snap = loadSnapshot(repoRoot);
+    const deliverable = findLatestInboxDeliverableForSeat(repoRoot, slug);
     const report = buildSeatReport({
       slug,
       org: snap.org,
@@ -143,9 +140,18 @@ export function createApi(repoRoot = resolveRepoRoot()) {
       spendBySeat: snap.spend.bySeat,
       models: snap.models,
       exists: existsSync,
+      deliverableMarkdown: deliverable?.markdown,
     });
     if (!report) return c.json({ ok: false, error: "unknown seat" }, 404);
-    return c.json({ ok: true, report });
+    const latest = snap.handoffs.filter((h) => h.position === report.slug).at(-1);
+    const enriched = await enrichSeatReportWithGrokBrief(report, {
+      cwd: repoRoot,
+      handoffBody: latest?.body,
+      deliverableMarkdown: deliverable?.markdown,
+      asks: latest?.asks,
+      blockers: latest?.blockers,
+    });
+    return c.json({ ok: true, report: enriched });
   });
 
   app.get("/api/company-digest", (c) => {
@@ -209,31 +215,6 @@ export function createApi(repoRoot = resolveRepoRoot()) {
         await stream.sleep(400);
       }
     });
-  });
-
-  app.get("/api/file", (c) => {
-    const rel = c.req.query("path");
-    if (!rel) return c.json({ error: "path required" }, 400);
-    try {
-      const abs = assertReadable(repoRoot, rel);
-      if (!existsSync(abs)) return c.json({ error: "not found" }, 404);
-      const st = statSync(abs);
-      if (st.isDirectory()) {
-        const entries = readdirSync(abs).map((name) => {
-          const child = join(abs, name);
-          const cst = statSync(child);
-          return {
-            name,
-            path: relative(repoRoot, child).split("\\").join("/"),
-            type: cst.isDirectory() ? "dir" : "file",
-          };
-        });
-        return c.json({ type: "dir", path: rel, entries });
-      }
-      return c.json({ type: "file", path: rel, content: readFileSync(abs, "utf8") });
-    } catch (e) {
-      return c.json({ error: e instanceof Error ? e.message : String(e) }, 403);
-    }
   });
 
   app.post("/api/assign", async (c) => {
@@ -321,6 +302,7 @@ export function createApi(repoRoot = resolveRepoRoot()) {
     }
     if (mode === "seat") {
       const slug = body.slug || "ceo-strategist";
+      const deliverable = findLatestInboxDeliverableForSeat(repoRoot, slug);
       const report = buildSeatReport({
         slug,
         org: snap.org,
@@ -335,6 +317,7 @@ export function createApi(repoRoot = resolveRepoRoot()) {
         spendBySeat: snap.spend.bySeat,
         models: snap.models,
         exists: existsSync,
+        deliverableMarkdown: deliverable?.markdown,
       });
       if (!report) return c.json({ error: "unknown seat" }, 404);
       return c.json({ text: seatReportBriefScript(report) });
@@ -387,6 +370,7 @@ export function createApi(repoRoot = resolveRepoRoot()) {
         });
       } else if (call.name === "get_seat_report") {
         const slug = String(call.input.slug ?? "");
+        const deliverable = findLatestInboxDeliverableForSeat(repoRoot, slug);
         toolResults.push({
           name: call.name,
           result: buildSeatReport({
@@ -403,6 +387,7 @@ export function createApi(repoRoot = resolveRepoRoot()) {
             spendBySeat: snap.spend.bySeat,
             models: snap.models,
             exists: existsSync,
+            deliverableMarkdown: deliverable?.markdown,
           }),
         });
       } else if (call.name === "open_ui") {

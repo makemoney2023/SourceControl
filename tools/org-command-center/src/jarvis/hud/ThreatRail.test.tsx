@@ -35,4 +35,38 @@ describe("ThreatRail", () => {
       expect.stringContaining("cmo"),
     ]);
   });
+
+  it("routes needs_input seats through ANSWER instead of RESOLVE", () => {
+    const onAnswer = vi.fn();
+    const onResolve = vi.fn();
+    const { container, getByText } = render(
+      <ThreatRail
+        blocked={
+          [
+            {
+              slug: "cmo",
+              phase: 2,
+              reason: "Need brand voice?",
+              reasons: ["Need brand voice?"],
+              managerSlug: "ceo-strategist",
+              status: "needs_input",
+              handoffFilename: "cmo.md",
+            },
+          ] as never
+        }
+        selectedSlug={null}
+        resolvingSlug={null}
+        onSelect={vi.fn()}
+        onResolve={onResolve}
+        onAnswer={onAnswer}
+      />,
+    );
+    expect(getByText("ANSWER")).toBeTruthy();
+    const answerBtn = [...container.querySelectorAll("button.j-btn")].find((b) =>
+      b.textContent?.includes("ANSWER"),
+    );
+    answerBtn?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(onAnswer).toHaveBeenCalledWith("cmo");
+    expect(onResolve).not.toHaveBeenCalled();
+  });
 });

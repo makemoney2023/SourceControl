@@ -2,10 +2,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   consumeConfirm,
   createConfirmToken,
+  getLastReportedSeat,
   getLastSummary,
   getRoomMode,
+  getSeatAnswerDraft,
+  patchSeatAnswerDraft,
   peekLatestConfirm,
   resetSessionForTests,
+  seedSeatAnswerDraft,
+  setLastReportedSeat,
   setLastSummary,
   setRoomMode,
 } from "./session";
@@ -93,5 +98,31 @@ describe("peekLatestConfirm", () => {
 
   it("returns null when no pending", () => {
     expect(peekLatestConfirm("room-1")).toBeNull();
+  });
+});
+
+describe("last reported seat + answer draft", () => {
+  beforeEach(() => resetSessionForTests());
+  afterEach(() => resetSessionForTests());
+
+  it("remembers last reported seat per room", () => {
+    setLastReportedSeat("r1", "market-research-analyst");
+    expect(getLastReportedSeat("r1")).toBe("market-research-analyst");
+    expect(getLastReportedSeat("r2")).toBeUndefined();
+  });
+
+  it("seeds draft and clears answers when seat changes", () => {
+    seedSeatAnswerDraft("r1", "market-research-analyst", ["Q1?"]);
+    patchSeatAnswerDraft("r1", {
+      seat: "market-research-analyst",
+      answers: { "Q1?": "A" },
+    });
+    expect(getSeatAnswerDraft("r1")?.answers["Q1?"]).toBe("A");
+    seedSeatAnswerDraft("r1", "cfo", ["Budget?"]);
+    expect(getSeatAnswerDraft("r1")).toEqual({
+      seat: "cfo",
+      openQuestions: ["Budget?"],
+      answers: {},
+    });
   });
 });

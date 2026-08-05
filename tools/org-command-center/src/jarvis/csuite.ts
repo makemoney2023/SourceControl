@@ -30,6 +30,8 @@ export interface CSuiteCard {
   briefingSnippet: string;
   llmTier: string;
   hasBriefing: boolean;
+  /** True when this seat's latest handoff needs operator answers. */
+  needsAnswers: boolean;
 }
 
 export interface StandupBriefing {
@@ -74,6 +76,9 @@ export function buildCSuiteBoard(
     const mgrHandoff = handoffs
       .filter((h) => h.kind === "manager" && h.position === slug)
       .at(-1);
+    const latestHandoff = handoffs.filter((h) => h.position === slug).at(-1);
+    const needsAnswers =
+      status === "needs_input" || (latestHandoff?.asks.length ?? 0) > 0;
     const snippet =
       briefing?.progress?.slice(0, 160) ||
       (mgrHandoff
@@ -88,6 +93,7 @@ export function buildCSuiteBoard(
       briefingSnippet: snippet,
       llmTier: models[slug]?.llmTier ?? "",
       hasBriefing: Boolean(briefing),
+      needsAnswers,
     };
   });
 }

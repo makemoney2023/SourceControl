@@ -27,6 +27,39 @@ function parseFrontmatter(raw: string): Record<string, string> {
   return out;
 }
 
+/** Newest REVIEW/inbox markdown for a seat position (by mtime). */
+export function findLatestInboxDeliverableForSeat(
+  repoRoot: string,
+  seatSlug: string,
+): { abs: string; rel: string; markdown: string } | null {
+  const want = seatSlug.trim();
+  if (!want) return null;
+  const dir = reviewInboxDir(repoRoot);
+  if (!existsSync(dir)) return null;
+  let best: { abs: string; rel: string; markdown: string; mtimeMs: number } | null =
+    null;
+  for (const filename of readdirSync(dir)) {
+    if (!filename.endsWith(".md") || filename.includes("-queued.")) continue;
+    const abs = join(dir, filename);
+    const st = statSync(abs);
+    if (!st.isFile()) continue;
+    const markdown = readFileSync(abs, "utf8");
+    const fm = parseFrontmatter(markdown);
+    if ((fm.position || "").trim() !== want) continue;
+    if (!best || st.mtimeMs > best.mtimeMs) {
+      best = {
+        abs,
+        rel: businessIdeaFile(repoRoot, `REVIEW/inbox/${filename}`),
+        markdown,
+        mtimeMs: st.mtimeMs,
+      };
+    }
+  }
+  return best
+    ? { abs: best.abs, rel: best.rel, markdown: best.markdown }
+    : null;
+}
+
 /** Absolute path of the newest inbox deliverable that mentions this runId. */
 export function findInboxDeliverableByRunId(
   repoRoot: string,

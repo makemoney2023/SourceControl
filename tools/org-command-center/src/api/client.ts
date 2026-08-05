@@ -12,6 +12,8 @@ export interface MissionState {
   ownerSlug: string;
   queueDepth: number;
   blockerCount: number;
+  /** Handoffs with status needs_input or open asks. */
+  needsInputCount: number;
   openQuestions: string[];
   latestDecision: string;
   hardGate: boolean;
@@ -66,6 +68,7 @@ export interface CSuiteCard {
   briefingSnippet: string;
   llmTier: string;
   hasBriefing: boolean;
+  needsAnswers?: boolean;
 }
 
 export interface SituationSnapshot {
@@ -327,6 +330,20 @@ export async function resolveBlocker(
   });
 }
 
+/** Persist operator answers for a seat and auto-continue its work. */
+export async function answerSeatQuestions(
+  seat: string,
+  answers: Record<string, string>,
+  confirmToken?: string,
+): Promise<JarvisActResult> {
+  return postJarvisAct({
+    intent: "seat.answer",
+    mode: "ops",
+    args: { seat, answers },
+    confirmToken,
+  });
+}
+
 export async function fetchProductionScorecard() {
   const res = await fetch("/api/production-scorecard");
   const data = await res.json();
@@ -361,8 +378,16 @@ export async function fetchFile(path: string) {
     type: "file" | "dir";
     path: string;
     content?: string;
+    binary?: boolean;
+    previewKind?: string;
+    mime?: string;
+    rawUrl?: string;
     entries?: { name: string; path: string; type: string }[];
   }>;
+}
+
+export function fileRawUrl(path: string): string {
+  return `/api/file/raw?path=${encodeURIComponent(path)}`;
 }
 
 export async function voiceHealth() {
