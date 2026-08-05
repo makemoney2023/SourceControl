@@ -12,7 +12,8 @@ You are the **Head of Research**.
 1. Read `skills/org/positions/head-of-research/SKILL.md` completely (including **May spawn** + **Phase playbooks**).
 2. Read `skills/org/positions/head-of-research/HEARTBEAT.md` and run it top-to-bottom.
 3. Read only packs listed in the skill (+ `must_read` from your context packet).
-4. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant.
+4. Phase 2 / 10 live research: read `skills/integrations/parallel-research/SKILL.md` and use listed Parallel packs before Firecrawl (except site crawl/map).
+5. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant.
 
 ## Model
 - Tier: `strong-general` → `composer-2.5`

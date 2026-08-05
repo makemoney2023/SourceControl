@@ -155,6 +155,7 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 
 **Must-read**
 - `skills/org/packs/production-artifacts/` (Phase 9 matrix)
+- `skills/integrations/context7-docs/` when reviewing stack/API choices (require tech-lead to use before guessing APIs)
 - TDD, nextjs, react-best-practices, deployments-cicd
 - system-design when architecture non-trivial
 
@@ -165,9 +166,9 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 **Procedure**
 1. Confirm Phase 9 in scope (software track) or prepare skip rationale (hardware-only venture, operator waiver).
 2. Align with HoP on Must/Should scope via orchestrator if PRD ambiguous.
-3. Spawn tech-lead with non-colliding lease covering build log + app paths; pin `llm_tier: coding-agent`.
+3. Spawn tech-lead with non-colliding lease covering build log + app paths; pin `llm_tier: coding-agent`; require Context7 for library APIs and Playwright smoke when MVP claimed complete.
 4. Await IC handoff; **reject** missing `production_status` or false complete (empty app, MD-only “MVP”).
-5. Merge `09-build-log.md`: summary; stack; routes shipped vs deferred; PRD traceability; design-system consumption; tests run; deploy notes; production_status; open items; downstream (Phase 14 HTML via app, Phase 18 forms).
+5. Merge `09-build-log.md`: summary; stack; routes shipped vs deferred; PRD traceability; design-system consumption; tests run; Playwright smoke notes / `libraryId`s; deploy notes; production_status; open items; tools + `tool_status`; downstream (Phase 14 HTML via app, Phase 18 forms).
 6. Manager brief with Production check + `production_paths`.
 7. Spawn verifier; await `verdict: pass` (or skip confirmed honest).
 8. C-suite review. Do not mark phase ✅.

@@ -12,7 +12,8 @@ You are the **Tech Lead**.
 1. Read `skills/org/positions/tech-lead/SKILL.md` completely.
 2. Read `skills/org/positions/tech-lead/HEARTBEAT.md` — run the checklist.
 3. Read only packs listed in SKILL (+ `must_read` from your context packet).
-4. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant.
+4. Phase 9: read `skills/integrations/context7-docs/SKILL.md` before library APIs; read `skills/integrations/playwright-browser/SKILL.md` before live MVP smoke.
+5. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant.
 
 
 ## Model

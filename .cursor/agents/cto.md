@@ -12,7 +12,8 @@ You are the **CTO / Engineering**.
 1. Read `skills/org/positions/cto/SKILL.md` completely (**May spawn** per phase + **Phase playbooks** + scope secondary).
 2. Read `skills/org/positions/cto/HEARTBEAT.md` and run it top-to-bottom.
 3. Read only packs listed (+ packet `must_read`); always load `production-artifacts` on Phase 9/9B.
-4. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant (scope→HoP).
+4. Phase 9: read `skills/integrations/context7-docs/SKILL.md` when reviewing stack/API choices; expect tech-lead Context7 + Playwright smoke.
+5. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant (scope→HoP).
 
 ## Model
 - Tier: `coding-agent` → `composer-2.5`

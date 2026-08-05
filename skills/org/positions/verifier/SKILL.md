@@ -76,7 +76,13 @@ Plane B: No image/video generation required.
 Resolve IDs from MODEL-REGISTRY / `.env.local` `WORKER_VERIFIER_MODEL`. Record `llm_model`, `generation_used`, `fallback_applied` on handoffs.
 
 ## Integrations
-None required. May run local doctor/shell gates.
+Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill before first use.
+
+| tool_id | Access | Skill |
+|---------|--------|-------|
+| `playwright-browser` | secondary | `skills/integrations/playwright-browser/` |
+
+May also run local doctor/shell gates. If Playwright unavailable → `tool_status: unavailable` and fall back to doctor/shell.
 
 ## Phase craft playbooks
 
@@ -89,15 +95,16 @@ Replace `<active>` with the venture slug. Verification only — **never author p
 
 **Inputs:** Manager brief, `HANDOFFS/<phase>-tech-lead.md` or `…-hardware-engineer.md`, claimed `production_paths`.
 
-**Must-read packs:** production-artifacts, verification-before-completion
+**Must-read packs:** production-artifacts, verification-before-completion; `skills/integrations/playwright-browser/` when Phase 9 claims runnable MVP
 
 **Procedure**
 1. Read manager brief + IC handoff `production_status` / `production_paths`.
 2. Phase 9: confirm `09-build-log.md`; smoke `apps/<venture>/` routes/tests listed; reject empty app or MD-only MVP.
-3. Phase 9B: list `09b-hardware/` — files exist, size > 0, extensions match claims.
-4. Run `scripts/doctor-production-runtime.sh` when render/deploy claimed.
-5. Record **Passed**, **Failed/incomplete**, **Issues** with specific paths.
-6. Write `HANDOFFS/<phase>-verifier.md` with `verdict: pass | fail`.
+3. Phase 9 runnable MVP: spot-check 1–2 critical routes via Playwright MCP; record URLs + date. If MCP down → `tool_status: unavailable` and fall back to local doctor/shell.
+4. Phase 9B: list `09b-hardware/` — files exist, size > 0, extensions match claims.
+5. Run `scripts/doctor-production-runtime.sh` when render/deploy claimed.
+6. Record **Passed**, **Failed/incomplete**, **Issues** with specific paths.
+7. Write `HANDOFFS/<phase>-verifier.md` with `verdict: pass | fail` + `tool_status` when tools used.
 
 **Done checks:** Verdict set; falsifiable evidence cited; do not mark phase ✅.
 

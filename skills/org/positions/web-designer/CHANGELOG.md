@@ -1,5 +1,12 @@
 # Changelog — web-designer
 
+## 2026-08-05 — Figma MCP operational wiring
+
+**Why:** HEARTBEAT/agent did not force-load figma adapter before MCP calls.
+
+**Changed**
+- HEARTBEAT / agents / templates: Load `skills/integrations/figma/` when Figma in scope; Playwright secondary noted for live page checks
+
 ## 2026-08-05 — CEO-bar IC upgrade
 
 **Why:** IC seat lacked phase craft playbooks, HEARTBEAT, and durable upgrade history.

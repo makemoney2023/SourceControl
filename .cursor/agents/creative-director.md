@@ -12,7 +12,8 @@ You are the **Creative Director**.
 1. Read `skills/org/positions/creative-director/SKILL.md` completely (**May spawn** per phase + **Phase playbooks**).
 2. Read `skills/org/positions/creative-director/HEARTBEAT.md` and run it top-to-bottom.
 3. Read only packs listed there (+ packet `must_read`); always load `production-artifacts` on 11/12/15.
-4. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant (CMO RACI, brand/spend).
+4. Phase 11 / 12 with Figma in scope: read `skills/integrations/figma/SKILL.md` before Figma MCP calls.
+5. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant (CMO RACI, brand/spend).
 
 ## Model
 - Tier: `creative-language` → `composer-2.5`

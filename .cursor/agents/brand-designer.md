@@ -12,7 +12,8 @@ You are the **Brand Designer**.
 1. Read `skills/org/positions/brand-designer/SKILL.md` completely.
 2. Read `skills/org/positions/brand-designer/HEARTBEAT.md` — run the checklist.
 3. Read only packs listed in SKILL (+ `must_read` from your context packet).
-4. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant.
+4. When Figma URLs / frames are in scope: read `skills/integrations/figma/SKILL.md` before Figma MCP calls.
+5. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant.
 
 
 ## Model

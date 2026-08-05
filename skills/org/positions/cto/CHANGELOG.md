@@ -1,5 +1,13 @@
 # Changelog — cto
 
+## 2026-08-05 — Context7 operational wiring (Phase 9)
+
+**Why:** Context7 was primary but Phase 9 playbook/HEARTBEAT did not require docs lookup or tech-lead smoke expectations.
+
+**Changed**
+- Phase 9: Must-read Context7; require tech-lead Context7 + Playwright smoke when MVP claimed complete
+- HEARTBEAT / agents / templates: Tool expectations for Phase 9
+
 ## 2026-08-05 — May-spawn per phase + playbooks + verifier gate
 
 **Why:** Seat had org-tree Delegates only; no per-phase May spawn; no Phase 9/9B playbooks; verifier spawn/await not proceduralized; production reject gate thin.

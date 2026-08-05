@@ -1,5 +1,14 @@
 # Changelog — verifier
 
+## 2026-08-05 — Playwright MCP operational wiring
+
+**Why:** Verifier had no Integrations; Phase 9 live smoke was doctor/shell only.
+
+**Changed**
+- Integrations: Added `playwright-browser` secondary
+- Phase 9 procedure / HEARTBEAT / agents: Spot-check 1–2 routes via Playwright when runnable MVP claimed; `tool_status` fallback
+- TOOL-REGISTRY: verifier seat row added
+
 ## 2026-08-05 — CEO-bar IC upgrade
 
 **Why:** Strong delegation protocol but missing HEARTBEAT, phase craft playbooks grouping, agent template, and changelog.

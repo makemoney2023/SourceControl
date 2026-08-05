@@ -1,5 +1,14 @@
 # Changelog — creative-director
 
+## 2026-08-05 — Figma MCP operational wiring
+
+**Why:** Figma was primary in Integrations but Skill packs / HEARTBEAT / agent did not force-load the adapter or plugin skills.
+
+**Changed**
+- Skill packs: Added `figma-use`, `figma-generate-design`, `figma-design-to-code`, `figma-generate-library`
+- Phase 11/12: Must-read + procedure load `skills/integrations/figma/` when Figma in scope
+- HEARTBEAT / agents / templates: Tool gate before Figma MCP
+
 ## 2026-08-05 — May-spawn per phase + playbooks
 
 **Why:** Skill used full org-tree Delegates for every phase; no per-phase May-spawn; no playbooks for shippable 11/12/15; integrations drift vs TOOL-REGISTRY.

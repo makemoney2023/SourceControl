@@ -37,7 +37,7 @@ Seat `SKILL.md` files are **instructions**, not MCP servers. Do not create an MC
 | pagespeed-insights | `skills/integrations/pagespeed-insights/` | thin | PageSpeed Insights API | `GOOGLE_API_KEY` (optional) | — | Public PSI endpoint / Lighthouse CLI |
 | google-ads | `skills/integrations/google-ads/` | thin | Google Ads API | `GOOGLE_ADS_*` + google-auth | Google Ads MCP if present | Ads UI exports |
 | firecrawl | `skills/integrations/firecrawl/` | thin | Firecrawl MCP | `FIRECRAWL_API_KEY` | `user-firecrawl-mcp` | — |
-| parallel-research | `skills/integrations/parallel-research/` | thin | Parallel MCP / plugin | `PARALLEL_API_KEY` | `plugin-parallel-*` | firecrawl + context7 |
+| parallel-research | `skills/integrations/parallel-research/` | thin | Parallel Cursor plugin + `parallel-cli` | `PARALLEL_API_KEY` or OAuth (`parallel-cli login`) | — (CLI skills) | firecrawl + context7 |
 | context7-docs | `skills/integrations/context7-docs/` | thin | Context7 MCP | — | `plugin-context7-plugin-context7`, `user-context7-mcp` | Vendor docs URLs |
 | figma | `skills/integrations/figma/` | thin | Figma MCP + plugin skills | Figma auth via MCP | `plugin-figma-figma`, `user-Figma` | — |
 | supabase | `skills/integrations/supabase/` | thin | Supabase MCP + plugin skill | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL` | `plugin-supabase-supabase`, `user-supabase` | Supabase CLI |
@@ -88,7 +88,8 @@ Seat `SKILL.md` files are **instructions**, not MCP servers. Do not create an MC
 | head-of-people | — | parallel-research |
 | recruiter | parallel-research | firecrawl |
 | cto | github, vercel, supabase, context7-docs | playwright-browser |
-| tech-lead | github, vercel, supabase, context7-docs, shadcn-ui | playwright-browser, stripe |
+| tech-lead | github, vercel, supabase, context7-docs, shadcn-ui, playwright-browser | stripe |
+| verifier | playwright-browser | — |
 | hardware-engineer | context7-docs | github |
 | head-of-data | google-analytics, google-search-console, context7-docs | supabase |
 | analytics-engineer | google-analytics, google-auth, context7-docs | google-search-console, supabase |
@@ -100,7 +101,7 @@ Seat `SKILL.md` files are **instructions**, not MCP servers. Do not create an MC
 | Phase | Live tools expected | Notes |
 |-------|---------------------|-------|
 | 2 | parallel-research, firecrawl | Evidence with sources |
-| 9 / 9B | github; vercel/supabase if stack uses them | Build log |
+| 9 / 9B | github; vercel/supabase if stack uses them; context7-docs; playwright-browser (MVP smoke) | Build log |
 | 11–12 | figma, fal-media; pagespeed optional | Brand / web |
 | 14–16 | GSC, GA4 (if property exists), pagespeed, firecrawl | Organic |
 | 18–19 | google-ads, GA4, fal-media, elevenlabs | Paid / creative |
@@ -132,7 +133,7 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 | `GSC_SITE_URL` | google-search-console (`https://…/` or `sc-domain:…`) |
 | `GOOGLE_API_KEY` | pagespeed-insights (optional) |
 | `FIRECRAWL_API_KEY` | firecrawl |
-| `PARALLEL_API_KEY` | parallel-research |
+| `PARALLEL_API_KEY` (or `parallel-cli login` OAuth) | parallel-research |
 | `FAL_KEY` / `FAL_AI_API_KEY` | fal-media |
 | `ELEVENLABS_API_KEY` | elevenlabs |
 | `SUPABASE_*` / `DATABASE_URL` | supabase |

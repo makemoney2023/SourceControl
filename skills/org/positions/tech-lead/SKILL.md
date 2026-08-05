@@ -110,7 +110,7 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 | `supabase` | primary | `skills/integrations/supabase/` |
 | `context7-docs` | primary | `skills/integrations/context7-docs/` |
 | `shadcn-ui` | primary | `skills/integrations/shadcn-ui/` |
-| `playwright-browser` | secondary | `skills/integrations/playwright-browser/` |
+| `playwright-browser` | primary | `skills/integrations/playwright-browser/` |
 | `stripe` | secondary | `skills/integrations/stripe/` |
 
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
@@ -132,16 +132,20 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 
 **Must-read packs**
 - `production-artifacts` (Phase 9 matrix)
+- `skills/integrations/context7-docs/` before integrating library/SDK APIs
+- `skills/integrations/playwright-browser/` before live MVP smoke
 - test-driven-development, nextjs, react-best-practices, verification-before-completion
 
 **Procedure**
 1. Confirm phase `9`; lease covers `09-build-log.md` + `apps/<venture>/`.
 2. Read PRD Must/Should; flag scope drift via `ask_manager` (`scope→HoP`) — do not expand unleased.
-3. TDD: failing test → minimal implementation → refactor; consume design-system tokens/components.
-4. Implement routes, forms, and integrations per PRD; log decisions in build log.
-5. Verify: run tests, smoke key routes, note deploy/Vercel status when applicable.
-6. Set `production_status: complete | skipped`, `production_paths`, `wire_owner` on handoff.
-7. Write `HANDOFFS/9-tech-lead.md` with model audit. Do **not** mark phase ✅ or spawn verifier.
+3. Before coding stack APIs (Next, Supabase, Vercel, shadcn): load Context7; `resolve-library-id` → `query-docs`; record `libraryId` on build log when material. If MCP down → `tool_status: unavailable` + official docs fallback.
+4. TDD: failing test → minimal implementation → refactor; consume design-system tokens/components.
+5. Implement routes, forms, and integrations per PRD; log decisions in build log.
+6. After MVP routes exist: smoke critical paths via Playwright MCP (`user-playwright`); record URLs checked + date; login walls → note blocker (do not bypass). If MCP down → `tool_status: unavailable` and fall back per adapter.
+7. Verify: run tests, note deploy/Vercel status when applicable.
+8. Set `production_status: complete | skipped`, `production_paths`, `wire_owner` on handoff.
+9. Write `HANDOFFS/9-tech-lead.md` with model audit + packs/tools + `tool_status`. Do **not** mark phase ✅ or spawn verifier.
 
 **Artifacts**
 

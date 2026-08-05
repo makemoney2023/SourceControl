@@ -53,6 +53,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 |-----------|---------|
 | `skills/org/packs/production-artifacts/` | Craft → Production → Wire gates for 11/12/15 |
 | `skills/org/packs/photoreal-stills/` | Photoreal prompt + zoom QA before merge (`photoreal_qa`) |
+| `skills/plugins/figma/figma-use/` | Live Figma editing / review |
+| `skills/plugins/figma/figma-generate-design/` | Code → Figma screens |
+| `skills/plugins/figma/figma-design-to-code/` | Figma → code reference |
+| `skills/plugins/figma/figma-generate-library/` | Design-system library push (Phase 12) |
 | `skills/community/awesome-claude-corporate-skills/04-marketing/discover-brand/` | Discover brand |
 | `skills/community/awesome-claude-corporate-skills/04-marketing/brand-guidelines/` | Brand guidelines |
 | `skills/community/ui-ux-pro-max-skill/brand/` | Brand |
@@ -152,6 +156,7 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 
 **Must-read**
 - production-artifacts (Phase 11 matrix)
+- `skills/integrations/figma/` when Figma URLs / Code Connect / DS sync are in scope
 - photoreal-stills, ui-ux-pro-max-skill/brand, visual-style, flux-best-practices
 - brand-guidelines, discover-brand
 
@@ -161,13 +166,14 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 **Procedure**
 1. Confirm packet phase is `11` and you are manager owner.
 2. Read strategy + PMM agent; note positioning, audience, anti-patterns from prior ventures if MEMORY present.
-3. Spawn `brand-designer` with non-colliding lease covering craft MD + asset paths + design brief dir.
-4. Require design brief (`11-brand/design/<slug>-design-brief.md` or embedded §) **before** any render — look/feel, hex tokens, typography, hero prompt prose (FLUX-positive).
-5. Await IC handoff; **reject** if `production_status` missing, or `complete` without assets (size > 0) unless honest `skipped` with reason.
-6. Review `photoreal_qa` checklist from photoreal-stills pack before merge.
-7. Merge into `11-brand-system.md`: essence; color/type; imagery rules; voice tie-in; component motifs; FLUX prompt bank; anti-patterns; production paths; F/I/A; downstream handoff to Phase 12.
-8. Manager brief with Production check + paths → request verifier via orchestrator/CTO.
-9. C-suite review. Do not mark phase ✅.
+3. When Figma files are in scope: load figma adapter; ICs own frame work; you review via Figma MCP; if auth fails → `tool_status: unavailable`.
+4. Spawn `brand-designer` with non-colliding lease covering craft MD + asset paths + design brief dir.
+5. Require design brief (`11-brand/design/<slug>-design-brief.md` or embedded §) **before** any render — look/feel, hex tokens, typography, hero prompt prose (FLUX-positive).
+6. Await IC handoff; **reject** if `production_status` missing, or `complete` without assets (size > 0) unless honest `skipped` with reason.
+7. Review `photoreal_qa` checklist from photoreal-stills pack before merge.
+8. Merge into `11-brand-system.md`: essence; color/type; imagery rules; voice tie-in; component motifs; FLUX prompt bank; anti-patterns; production paths; F/I/A; downstream handoff to Phase 12.
+9. Manager brief with Production check + paths → request verifier via orchestrator/CTO.
+10. C-suite review. Do not mark phase ✅.
 
 **Artifacts**
 
@@ -207,6 +213,7 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 
 **Must-read**
 - production-artifacts (Phase 12 matrix)
+- `skills/integrations/figma/` when Figma / Code Connect / DS sync are in scope
 - ui-ux-pro-max-skill/design-system, web-design-guidelines, design-system pack at repo root
 - photoreal-stills when UI stills leased
 
@@ -216,13 +223,14 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 
 **Procedure**
 1. Confirm phase `12`; read `11-brand-system.md` — reject proceed if brand SSOT missing or contradictory without labeled operator decision.
-2. Spawn `web-designer` for IA + `design-system/<venture>/` (MASTER/tokens/components/README per venture pattern).
-3. When imagery promised: spawn `brand-designer` with separate asset lease **or** sequence after IA locked — never colliding writes on same path.
-4. Ensure `12-web-design.md` includes: route map; page templates; proof/hero band model; CTA hierarchy; shadcn/Tailwind token mapping; a11y notes; anti-patterns; link to DS paths; eng handoff for Phase 9.
-5. Await IC handoffs; reject missing `production_status` on claimed Layer B (DS folder non-empty, stills exist, or skip).
-6. Merge DS + web spec; verify `design-system/<venture>/` is repo-root SSOT (not only under `apps/`).
-7. Review photoreal/stills QA when brand-designer contributed imagery.
-8. Manager brief → verifier → C-suite. Do not mark phase ✅.
+2. When Figma files are in scope: load figma adapter; review frames / DS sync via MCP; never invent tokens.
+3. Spawn `web-designer` for IA + `design-system/<venture>/` (MASTER/tokens/components/README per venture pattern).
+4. When imagery promised: spawn `brand-designer` with separate asset lease **or** sequence after IA locked — never colliding writes on same path.
+5. Ensure `12-web-design.md` includes: route map; page templates; proof/hero band model; CTA hierarchy; shadcn/Tailwind token mapping; a11y notes; anti-patterns; link to DS paths; eng handoff for Phase 9.
+6. Await IC handoffs; reject missing `production_status` on claimed Layer B (DS folder non-empty, stills exist, or skip).
+7. Merge DS + web spec; verify `design-system/<venture>/` is repo-root SSOT (not only under `apps/`).
+8. Review photoreal/stills QA when brand-designer contributed imagery.
+9. Manager brief → verifier → C-suite. Do not mark phase ✅.
 
 **Artifacts**
 

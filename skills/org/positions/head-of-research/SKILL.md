@@ -52,9 +52,11 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/academic-research-skills/deep-research/` | Evidence report structure |
 | `skills/community/business-analysis-skills/skills/evidence-gap-review/` | Gap review |
 | `skills/community/awesome-claude-corporate-skills/01-executive-leadership/competitive-analysis/` | Competitive analysis |
-| `skills/plugins/parallel/parallel-deep-research/` | Exhaustive research runs |
-| `skills/plugins/parallel/parallel-web-search/` | Web search craft |
-| `skills/plugins/firecrawl/firecrawl/` | Site crawl / extract |
+| `skills/plugins/parallel/parallel-deep-research/` | Exhaustive multi-source research runs |
+| `skills/plugins/parallel/parallel-web-search/` | Default web search craft |
+| `skills/plugins/parallel/parallel-web-extract/` | URL / PDF / JS page extract |
+| `skills/plugins/parallel/parallel-data-enrichment/` | Bulk company/people enrichment |
+| `skills/plugins/firecrawl/firecrawl/` | Site crawl / map |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/00-intake.md`
@@ -174,10 +176,11 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 - MEMORY / SOURCES when present
 
 **Must-read**
+- `skills/integrations/parallel-research/` (choose-table) before any live research
 - `skills/community/academic-research-skills/deep-research/`
 - `skills/community/business-analysis-skills/skills/evidence-gap-review/`
 - `skills/community/awesome-claude-corporate-skills/01-executive-leadership/competitive-analysis/`
-- Parallel / firecrawl packs before live research runs
+- Parallel packs (search → extract → deep / enrich) + firecrawl for crawl/map
 
 **Spawn** (parallel OK)
 - `market-research-analyst` — lease `02-market-research.md` (or sections)
@@ -188,12 +191,14 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 **Procedure**
 1. Confirm packet phase is `2` and you are manager owner.
 2. Frame research questions from framing/intake (label assumptions).
-3. Run or oversee deep-research / web / crawl via integrations; cite sources (URLs, dates).
-4. Spawn MRA + CIA + seo-manager with non-colliding leases + `llm_tier`; await handoffs.
-5. Merge: executive summary; RQ findings; market opportunity; proceed/pivot/stop; evidence gaps; fact/inference/assumption; sources index; IC merge notes; Phase 3 inputs.
-6. Ensure `02-market-research.md` is non-empty (segments, JTBD, evaluation criteria, journey, implications).
-7. Run evidence-gap-review; do not invent operator facts.
-8. Manager brief → return for C-suite. Do not mark phase ✅.
+3. Load `skills/integrations/parallel-research/`. Verify `parallel-cli` auth; else `tool_status: unavailable` and fall back per adapter.
+4. Default path: **search** for RQs → **extract** cited URLs → **deep-research** for multi-source synthesis when evidence base needs depth → **enrich** for competitor/entity tables. Use Firecrawl for site crawl/map only.
+5. Cite every load-bearing claim (URL + date). Never invent sources.
+6. Spawn MRA + CIA + seo-manager with non-colliding leases + `llm_tier`; await handoffs.
+7. Merge: executive summary; RQ findings; market opportunity; proceed/pivot/stop; evidence gaps; fact/inference/assumption; sources index; IC merge notes; Phase 3 inputs; packs/tools + `tool_status`.
+8. Ensure `02-market-research.md` is non-empty (segments, JTBD, evaluation criteria, journey, implications).
+9. Run evidence-gap-review; do not invent operator facts.
+10. Manager brief → return for C-suite. Do not mark phase ✅.
 
 **Artifacts**
 
@@ -228,7 +233,8 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 - `03-strategy.md`, `02-evidence-base.md`, packet lease paths
 
 **Must-read**
-- evidence-gap-review, deep-research / parallel search as needed
+- `skills/integrations/parallel-research/` when fresh sources needed
+- evidence-gap-review; parallel **search/extract** for claim verification (deep only if CEO packet demands exhaustive re-check)
 - ESCALATION.md when claims are unsupported
 
 **Spawn**
@@ -237,8 +243,8 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 **Procedure**
 1. Confirm `report_to: ceo-strategist` and Phase 10 IC packet.
 2. Extract load-bearing claims from strategy (+ leased docs).
-3. Verify against Phase 2 evidence and fresh sources where needed; label supported / minor / unsupported.
-4. Write findings only on leased paths (if any) + `HANDOFFS/10-head-of-research.md` with clear verdict_for_manager.
+3. Verify against Phase 2 evidence; refresh with Parallel search/extract where needed; label supported / minor / unsupported.
+4. Write findings only on leased paths (if any) + `HANDOFFS/10-head-of-research.md` with clear verdict_for_manager; record packs/tools + `tool_status`.
 5. Escalate unsupported creative locks via tags if needed. Do not mark phase ✅.
 
 **Artifacts**
