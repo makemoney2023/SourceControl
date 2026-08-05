@@ -1,5 +1,17 @@
 # Changelog — ceo-strategist
 
+## 2026-08-05 — Office Layer B (docx / pptx)
+
+**Why:** CEO must ship shareable Word/PowerPoint when operators need production exec artifacts, not MD-only.
+
+**Changed**
+- Spawn / May spawn: unchanged
+- Phase playbooks: Phase 21 requires `exec/21-executive-summary.docx` (or skip) + verifier; Phase 3/10 optional Office
+- Scorecards / done criteria: production_status + Office existence; binds `production-artifacts`, `docx`, `pptx`
+- HEARTBEAT / packs / integrations: packs added for Office Layer B
+
+**Checklist:** Role Upgrade Checklist A–G for office deltas; see `docs/superpowers/specs/2026-08-05-office-layer-b-production-design.md`
+
 ## 2026-08-05 — Phase playbooks + May-spawn alignment
 
 **Why:** CEO could not legally spawn registry ICs (BA/PMM/HoR), and owned phases lacked executable playbooks.

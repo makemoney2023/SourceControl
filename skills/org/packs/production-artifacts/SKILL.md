@@ -3,15 +3,16 @@ name: production-artifacts
 description: >-
   Craft → Production → Wire contract for shippable org phases. Use when producing
   or reviewing HTML email, app routes, brand stills, video finals, social assets,
-  paid creatives, design-system files, or any Layer B artifact beyond business-idea
-  markdown. Required reading for lifecycle-marketer, tech-lead, brand-designer,
-  web-designer, video-producer, paid-media-manager, content-strategist,
-  hardware-engineer, verifier, and their managers (cmo, creative-director, cto).
+  paid creatives, design-system files, Office docs (docx/pptx/xlsx), or any Layer B
+  artifact beyond business-idea markdown. Required reading for lifecycle-marketer,
+  tech-lead, brand-designer, web-designer, video-producer, paid-media-manager,
+  content-strategist, hardware-engineer, ceo-strategist, fundraising-lead, cfo,
+  verifier, and their managers (cmo, creative-director, cto).
 ---
 
 # Production Artifacts
 
-Markdown under `docs/projects/<active>/business-idea/` is **Layer A craft** (SSOT for strategy and copy). Shippable phases also need **Layer B production** files (HTML, code, images, video) before C-suite may treat the work as ready to launch. **Wire** (ESP, ad accounts, DNS) may stay with the operator but must be named — never silently assumed.
+Markdown under `docs/projects/<active>/business-idea/` is **Layer A craft** (SSOT for strategy and copy). Shippable phases also need **Layer B production** files (HTML, code, images, video, **Office**) before C-suite may treat the work as ready to launch. **Wire** (ESP, ad accounts, DNS, operator share) may stay with the operator but must be named — never silently assumed.
 
 ## Hard rules
 
@@ -95,13 +96,43 @@ Short phases may embed `## Design brief (required before production)` in the cra
 | Paid creatives | `19-paid/creatives/` | `<platform>-<size>-<slug>.{png,jpg}` |
 | Paid video | `19-paid/openmontage/` | `<slug>-ad-final.{mp4,webm}` |
 | Hardware / CAD | `09b-hardware/` | export formats per CAD pack |
+| Exec Word report | `exec/<phase>-<slug>.docx` | e.g. `exec/21-executive-summary.docx` |
+| Exec / strategy deck | `exec/<phase>-<slug>.pptx` | e.g. `exec/03-strategy-brief.pptx` |
+| Funding deck | `04b-funding/pitch.pptx` | investor-ready slides |
+| Funding / financial model | `04b-funding/model.xlsx` | unit economics / raise model |
+| Strategy QA report (optional) | `exec/10-strategy-findings.docx` | when Phase 10 claims Office complete |
+
+## Office Layer B (docx / pptx / xlsx)
+
+MD remains SSOT. Produce Office files **from** craft when the audience needs a shareable artifact.
+
+| Rule | Detail |
+|------|--------|
+| Craft first | Non-empty Layer A MD before Office generation |
+| Design brief | **Required** for branded `.pptx` (brand tokens + slide system under `exec/design/` or `04b-funding/design/`) |
+| Design brief | Optional for plain `.docx` / `.xlsx` |
+| Teach with | `skills/community/awesome-claude-corporate-skills/13-document-processing/{docx,pptx,xlsx}/` |
+| Skip | `production_status: skipped` + reason (e.g. no raise this venture; operator waiver) |
+| Wire | Usually `wire_owner: operator` (download / email / data room) |
+
+### Office existence QA (seat + verifier)
+
+When `production_status: complete` and `production_paths` include `.docx` / `.pptx` / `.xlsx`:
+
+- [ ] Each listed path **exists** on disk
+- [ ] File size **> 0**
+- [ ] Extension matches the claim (no `.md` renamed as “pptx”)
+- [ ] Branded pptx: `design_brief_path` present
+- [ ] No deep slide/content QA in v1 — existence only
+
+False completes: MD-only “deck”, empty `exec/`, claiming complete without paths.
 
 ## Artifact classes (what bound skills must leave behind)
 
 | Artifact class | What “done” looks like | Typical packs | Typical paths |
 |----------------|------------------------|---------------|---------------|
 | **Craft deliverable (Layer A)** | Non-empty markdown / brief under `business-idea/` named in seat Outputs | BA, strategy, sales research, CS QBR, SEO briefs, most marketingskills | `05-prd.md`, `07-sales-playbook.md`, `17-channels/**/*.md`, `HANDOFFS/…` |
-| **Production deliverable (Layer B)** | Importable / deployable / renderable file leased in `write_lease` | email-design, landing-page-design, OpenMontage/Remotion, Next/shadcn, brand stills, CAD exports | Canonical paths above |
+| **Production deliverable (Layer B)** | Importable / deployable / renderable / **Office** file leased in `write_lease` | email-design, landing-page-design, OpenMontage/Remotion, Next/shadcn, brand stills, CAD exports, **docx/pptx/xlsx** | Canonical paths above |
 | **Tooling / method** | Improves how the seat works; deliverable is still Craft or Production | TDD, context-engineering, writing-plans, figma-use (as editor) | Same as the phase matrix — tooling alone is never “shipped” |
 
 ### Rules for agents
@@ -116,6 +147,7 @@ Short phases may embed `## Design brief (required before production)` in the cra
 
 | Phase | Craft (Layer A) | Production owner | Production paths (Layer B) | Teach with | Wire (default) |
 |-------|-----------------|------------------|----------------------------|------------|----------------|
+| **4B** | `04b-funding.md` | `fundraising-lead` | `04b-funding/pitch.pptx` + `04b-funding/model.xlsx` (or skip) | pitch-deck + **pptx** + **xlsx** + production-artifacts | Data room — **operator** |
 | **9** | `09-build-log.md`, `05-prd.md`, `14-pages/` | `tech-lead` | `apps/<venture>/` | Next/shadcn/vercel packs | Vercel/DNS — operator or cto |
 | **9B** | `09b-hardware-build.md` | `hardware-engineer` | `09b-hardware/` | text-to-cad + production-artifacts | Fabrication — operator |
 | **11** | `11-brand-system.md` | `brand-designer` | `11-brand/assets/` | visual-skills + fal/inference + **photoreal-stills** | Brand kit — operator |
@@ -125,8 +157,16 @@ Short phases may embed `## Design brief (required before production)` in the cra
 | **17** | `17-channels/email/*.md`, `social/*.md` | Email HTML: `lifecycle-marketer`; Headers/social: `brand-designer` via ask | `17-channels/email/html/*.html`; `email/assets/`; `social/assets/` | Craft emails → **Design: email-design brief** → HTML + brand-stills | ESP — **operator** |
 | **18** | `18-conversion.md` | Spec; forms → `tech-lead` | `apps/<venture>/` when leased | cro + eng | Analytics — head-of-data / operator |
 | **19** | `19-paid.md` | Stills: `paid-media-manager` (+ brand); Video: `video-producer` | `19-paid/creatives/`; `19-paid/openmontage/` | ads + fal/OpenMontage; budget > $0 or skip | Ad accounts — operator |
+| **21** | `21-executive-summary.md` | `ceo-strategist` | `exec/21-executive-summary.docx` (or skip) | **docx** + production-artifacts | Share with operator |
 
-Phases **0–8, 10, 13, 16, 20–22** are primarily Craft/SPEC. Production not required unless the packet adds a lease.
+### Office-optional (verifier only if Office claimed complete)
+
+| Phase | Craft (Layer A) | Production owner | Layer B when claimed | Teach with |
+|-------|-----------------|------------------|----------------------|------------|
+| **3** | `03-strategy.md` | `ceo-strategist` | `exec/03-strategy-brief.pptx` if `production_status: complete` or packet `require_office: true` | **pptx** + design brief |
+| **10** | `10-strategy-review.md` | `ceo-strategist` | `exec/10-strategy-findings.docx` if complete / `require_office` | **docx** |
+
+Phases **0–2, 4–8, 13, 16, 20, 22** remain primarily Craft/SPEC unless the packet adds a lease.
 
 **Budget:** Phases **15** and **19** require `budget_usd > 0` on the packet **or** explicit `production_status: skipped` with reason.
 
@@ -192,3 +232,6 @@ C-suite scorecards must include **Production** and **Verifier pass?** rows (see 
 | “Manager said it’s done” | Verifier must still pass |
 | “I’ll design in the HTML as I go” | Write Design brief from email-design/brand packs first |
 | “Prompt is in my head” | Prompts must be in the Design brief before stills/video |
+| “MD exec summary is the Word doc” | Phase 21 needs `exec/*.docx` or explicit skip |
+| “Pitch outline in MD is the deck” | Phase 4B needs `04b-funding/pitch.pptx` + `model.xlsx` or skip |
+| “Empty exec/ folder counts” | Office existence QA: file present and size > 0 |

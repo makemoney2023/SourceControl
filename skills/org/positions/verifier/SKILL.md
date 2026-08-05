@@ -23,7 +23,8 @@ _None — IC seat_
 ## Owns phases / steps
 | Phase | Scope |
 |-------|-------|
-| 9, 9B, 11, 12, 14, 15, 17, 18, 19 | Production verification after manager brief (shippable) |
+| 4B, 9, 9B, 11, 12, 14, 15, 17, 18, 19, 21 | Production verification after manager brief (shippable) |
+| 3, 10 | When Office Layer B claimed complete (`production_status: complete`) |
 
 ## Skill packs
 Read each pack's `SKILL.md` before use. Do not load packs outside this list unless the orchestrator expands scope.
@@ -48,8 +49,8 @@ _IC seat — request peers via `ask_manager` only._
 ## Delegation protocol (IC)
 1. Identify what was claimed complete (manager brief + IC handoffs + `production_paths`).
 2. Check implementation exists on disk and is functional (open HTML, run listed tests/doctor, smoke app routes when Phase 9).
-3. Run relevant checks (shell gates, `scripts/doctor-production-runtime.sh` when render claimed, email HTML QA for Phase 17, **photoreal reject checklist** when stills claimed complete, **Design brief present** when Layer B visuals/HTML claimed complete).
-4. Hunt edge cases / false completes (empty dirs, MD-only “production”, craft→pixels with no design brief, Cursor-draft gens shipped as finals, missing skip reasons).
+3. Run relevant checks (shell gates, `scripts/doctor-production-runtime.sh` when render claimed, `scripts/validate-email-html.sh` for Phase 17, **photoreal reject checklist** when stills claimed complete, **Design brief** + `design_brief_path` on disk, **`wire_checklist_path`** when `wire_owner` ≠ `none`, **Office existence** when `production_paths` include `.docx` / `.pptx` / `.xlsx`: each file exists, size > 0, extension matches; branded pptx needs `design_brief_path`).
+4. Hunt edge cases / false completes (empty dirs, MD-only “production”, MD claimed as Office deck/report, empty `exec/` or `04b-funding/` binaries, craft→pixels with no design brief, Cursor-draft gens shipped as `photoreal_qa: pass`, local FLUX.2-dev commercial without `license_basis`, missing skip reasons).
 5. Write **only** `HANDOFFS/<phase>-verifier.md` with `verdict: pass | fail`.
 6. Need a peer? Set `ask_manager` — **do not spawn**. Do **not** mark the phase complete.
 

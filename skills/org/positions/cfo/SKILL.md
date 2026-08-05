@@ -31,6 +31,7 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 | Pack path | Use for |
 |-----------|---------|
+| `skills/org/packs/production-artifacts/` | Phase 4B Office Layer B gate (pitch/model) |
 | `skills/community/awesome-claude-corporate-skills/02-finance-accounting/unit-economics/` | Unit economics |
 | `skills/community/awesome-claude-corporate-skills/02-finance-accounting/financial-plan/` | Financial plan |
 | `skills/community/awesome-claude-corporate-skills/07-operations/business-case-builder/` | Business case |
@@ -50,14 +51,15 @@ _none — request via orchestrator if needed_
 
 ## Delegation protocol (manager)
 1. From the phase goal, choose ICs among: `fpa-analyst`, `fundraising-lead`.
-2. For each IC, spawn with an **IC context packet** (see orchestrator): subset `write_lease`, `report_to: cfo`, `delegate_budget: 0`.
+2. For each IC, spawn with an **IC context packet** (see orchestrator): subset `write_lease`, `report_to: cfo`, `delegate_budget: 0`, `llm_tier` required. Phase 4B: lease `04b-funding/` including pptx/xlsx paths.
 3. Parallelize only when leases do not collide (see ORG-REGISTRY parallel flags + COLLABORATION.md).
 4. **Await** each IC. Require `docs/projects/<active>/business-idea/HANDOFFS/<phase>-<ic>.md`.
-5. Resolve conflicts (COLLABORATION.md). Merge artifacts.
-6. Write **manager brief**: `HANDOFFS/<phase>-manager-cfo.md` using MANAGER-BRIEF-TEMPLATE.md.
-7. Return to orchestrator for **C-suite review**. Do **not** mark the phase ✅.
-8. Never spawn peer managers — list them under Collaborates with and ask orchestrator.
-9. Never spawn ICs not in Delegates to.
+5. **Phase 4B reject gate:** Reject fundraising-lead handoff if missing `production_status`, or if `complete` without existing `04b-funding/pitch.pptx` + `model.xlsx` (size > 0), unless honest `skipped` with reason.
+6. Resolve conflicts (COLLABORATION.md). Merge artifacts.
+7. Write **manager brief**: `HANDOFFS/<phase>-manager-cfo.md` using MANAGER-BRIEF-TEMPLATE.md (repeat production_status).
+8. Return to orchestrator for **verifier** (Phase 4B) then **C-suite review**. Do **not** mark the phase ✅.
+9. Never spawn peer managers — list them under Collaborates with and ask orchestrator.
+10. Never spawn ICs not in Delegates to.
 
 ## Reporting chain
 IC handoffs → you (manager brief) → C-suite review → orchestrator advances phase.
@@ -93,8 +95,11 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting)
+- [ ] Phase 4B: Office Layer B complete or skipped; reject incomplete fundraising handoffs
 - [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
+- [ ] Packs followed (including production-artifacts on 4B)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
+
+History: see `CHANGELOG.md`
 

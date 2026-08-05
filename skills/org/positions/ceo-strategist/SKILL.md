@@ -70,6 +70,9 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/business-analysis-skills/skills/assumption-extractor/` | Surface strategy assumptions |
 | `skills/community/business-analysis-skills/skills/assumptions-constraints-log/` | Assumptions log |
 | `skills/community/business-analysis-skills/skills/problem-statement-refiner/` | Refine problem statements |
+| `skills/org/packs/production-artifacts/` | Craft → Design → Production → Wire; Office Layer B |
+| `skills/community/awesome-claude-corporate-skills/13-document-processing/docx/` | Exec Word reports (Phase 21; optional 10) |
+| `skills/community/awesome-claude-corporate-skills/13-document-processing/pptx/` | Strategy brief decks (optional Phase 3) |
 | `skills/org/orchestrator/` | Company dispatch context (self) |
 
 ## Inputs
@@ -83,6 +86,9 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 - `docs/projects/<active>/business-idea/.agents/product-marketing.md` (Phase 3)
 - `docs/projects/<active>/business-idea/10-strategy-review.md`
 - `docs/projects/<active>/business-idea/21-executive-summary.md`
+- `docs/projects/<active>/business-idea/exec/21-executive-summary.docx` (Phase 21 Layer B; or skip)
+- `docs/projects/<active>/business-idea/exec/03-strategy-brief.pptx` (Phase 3 optional Office)
+- `docs/projects/<active>/business-idea/exec/10-strategy-findings.docx` (Phase 10 optional Office)
 - `docs/projects/<active>/business-idea/22-operating-cadence.md`
 
 ## Collaborates with (peer managers)
@@ -261,6 +267,8 @@ Follow the playbook for the active phase. Replace `<active>` with the venture sl
 - `skills/community/business-analysis-skills/skills/strategy-analysis/`
 - `skills/community/awesome-claude-corporate-skills/01-executive-leadership/strategic-planning/`
 - `skills/community/business-analysis-skills/skills/assumptions-constraints-log/`
+- `skills/org/packs/production-artifacts/` (Office-optional)
+- `skills/community/awesome-claude-corporate-skills/13-document-processing/pptx/` when producing a deck
 
 **Spawn**
 - `product-marketing-manager` — lease for positioning/messaging + `.agents/product-marketing.md`
@@ -272,9 +280,12 @@ Follow the playbook for the active phase. Replace `<active>` with the venture sl
 2. Spawn PMM + BA with IC packets (`llm_tier` required); await handoffs.
 3. Produce integrated strategy: thesis, strategic locks, options comparison, positioning/ICP, value prop (labeled), SWOT, channel role/IA, risks, assumptions, success metrics, what we are NOT doing.
 4. Ensure `.agents/product-marketing.md` exists (PMM owns craft; you merge/accept).
-5. Merge into `03-strategy.md`; write manager brief recommending approve/revise.
-6. Perform or await hard-gate C-suite review — full review, not rubber-stamp.
-7. Do not mark phase ✅.
+5. Merge into `03-strategy.md`.
+6. **Office (optional):** If packet `require_office: true` or operator needs a shareable deck — write design brief → produce `exec/03-strategy-brief.pptx` via pptx pack; set `production_status: complete` + paths. Else `skipped` with reason (default OK).
+7. Manager brief recommending approve/revise (include production_status when Office touched).
+8. If Office complete → orchestrator spawns verifier before hard-gate C-suite.
+9. Hard-gate C-suite review — full review, not rubber-stamp.
+10. Do not mark phase ✅.
 
 **Artifacts**
 
@@ -282,17 +293,19 @@ Follow the playbook for the active phase. Replace `<active>` with the venture sl
 |------|---------------------------|
 | `…/03-strategy.md` | Summary; strategic thesis; strategic locks; options comparison; positioning/ICP/messaging; value prop; SWOT; channel/IA/CTA hierarchy; risks; assumptions log; success metrics; NOT doing; operator questions; fact/inference/assumption; downstream handoff |
 | `…/.agents/product-marketing.md` | Reusable PMM brief for later phases |
+| `…/exec/03-strategy-brief.pptx` | Optional Layer B strategy deck |
 | `HANDOFFS/3-product-marketing-manager.md` | IC handoff |
 | `HANDOFFS/3-business-analyst.md` | IC handoff |
 | `HANDOFFS/3-manager-ceo-strategist.md` | Manager brief |
 | `HANDOFFS/3-csuite-review.md` | Hard-gate review |
 
 **Handoffs**
-- IC → manager brief → hard-gate csuite
+- IC → manager brief → (verifier if Office complete) → hard-gate csuite
 
 **Done checks**
 - [ ] `03-strategy.md` and `.agents/product-marketing.md` both exist
 - [ ] Load-bearing locks explicit
+- [ ] Office complete ⇒ pptx exists and size > 0, or honest skip
 - [ ] Hard-gate review written
 - [ ] Model audit fields; do not mark phase ✅
 
@@ -313,6 +326,8 @@ Follow the playbook for the active phase. Replace `<active>` with the venture sl
 - `skills/community/business-analysis-skills/skills/deliverable-consistency-check/`
 - `skills/community/business-analysis-skills/skills/assumption-extractor/`
 - ORG-REGISTRY Phase 10 + ESCALATION.md
+- `skills/org/packs/production-artifacts/` (Office-optional)
+- `skills/community/awesome-claude-corporate-skills/13-document-processing/docx/` when producing findings doc
 
 **Spawn**
 - `head-of-research` — fact-check / evidence support (lease on review evidence sections)
@@ -324,25 +339,28 @@ Follow the playbook for the active phase. Replace `<active>` with the venture sl
 2. Spawn HoR + BA; await `HANDOFFS/10-*.md`.
 3. Merge: supported vs unsupported claims; labeling gaps; consistency issues; operator gates (launch-blocking vs strategy-blocking).
 4. Write `10-strategy-review.md` with go/no-go and proceed-to-creative checklist.
-5. Manager brief + hard-gate csuite review.
-6. Do not mark phase ✅.
+5. **Office (optional):** If `require_office` or shareable findings needed — produce `exec/10-strategy-findings.docx` from craft; set production_status. Else skip with reason.
+6. Manager brief + (verifier if Office complete) + hard-gate csuite review.
+7. Do not mark phase ✅.
 
 **Artifacts**
 
 | Path | Required contents (shape) |
 |------|---------------------------|
 | `…/10-strategy-review.md` | Summary; scorecard; confirmed locks; fact-check highlights; consistency notes; operator gates; proceed-to-creative checklist; revise-upstream list; go/no-go; risks; IC merge; open items |
+| `…/exec/10-strategy-findings.docx` | Optional Layer B findings report |
 | `HANDOFFS/10-head-of-research.md` | IC |
 | `HANDOFFS/10-business-analyst.md` | IC |
 | `HANDOFFS/10-manager-ceo-strategist.md` | Manager brief |
 | `HANDOFFS/10-csuite-review.md` | Hard-gate review |
 
 **Handoffs**
-- IC → manager brief → hard-gate csuite
+- IC → manager brief → (verifier if Office complete) → hard-gate csuite
 
 **Done checks**
 - [ ] Load-bearing claims fact-checked
 - [ ] Unsupported claims escalated or labeled
+- [ ] Office complete ⇒ docx exists and size > 0, or honest skip
 - [ ] Hard-gate review written
 - [ ] Model audit fields; do not mark phase ✅
 
@@ -350,9 +368,9 @@ Follow the playbook for the active phase. Replace `<active>` with the venture sl
 
 ### Phase 21 — Launch QA / exec summary
 
-**Goal:** One exec-facing summary + launch checklist for go/no-go.  
-**Scorecard (must pass):** Exec summary + launch checklist  
-**Hard C-suite gate?** **Yes**
+**Goal:** One exec-facing summary + launch checklist for go/no-go, plus shareable Word report.  
+**Scorecard (must pass):** Exec summary + launch checklist + `exec/21-executive-summary.docx` (or skip); production_status set; **Verifier pass?**  
+**Hard C-suite gate?** **Yes** (office-shippable)
 
 **Inputs**
 - Strategy, PRD, GTM, build status, channel docs as present
@@ -360,32 +378,41 @@ Follow the playbook for the active phase. Replace `<active>` with the venture sl
 
 **Must-read**
 - `skills/community/business-analysis-skills/skills/deliverable-consistency-check/`
+- `skills/org/packs/production-artifacts/`
+- `skills/community/awesome-claude-corporate-skills/13-document-processing/docx/`
 - CSUITE-REVIEW-TEMPLATE.md
 
 **Spawn**
-- None — CEO craft (may read peer manager briefs already on disk)
+- None for craft — CEO craft (may read peer manager briefs already on disk)
+- Verifier: orchestrator/CTO after manager brief (do not self-spawn)
 
 **Procedure**
 1. Skim tracker + key artifacts; note gaps honestly.
 2. Write `21-executive-summary.md`: idea, strategy lock, product, GTM, what's built, launch checklist (done / blocked / soft-launch minimum), recommendation, next 90 days, consistency QA.
-3. Manager brief recommending approve/revise/block.
-4. Hard-gate csuite review.
-5. Do not mark phase ✅.
+3. **Office Layer B:** Produce `exec/21-executive-summary.docx` from the MD via docx pack (US Letter, clear headings, launch checklist table) **or** `production_status: skipped` with reason.
+4. Manager brief with `production_status` + `production_paths` (or skip_reason); `wire_owner: operator`.
+5. Await verifier pass (orchestrator).
+6. Hard-gate csuite review.
+7. Do not mark phase ✅.
 
 **Artifacts**
 
 | Path | Required contents (shape) |
 |------|---------------------------|
 | `…/21-executive-summary.md` | Idea; market/strategy lock; product (routes/CTA); GTM; what's built; launch checklist (done/blocked/soft-launch); recommendation; next 90 days; consistency QA; sources |
-| `HANDOFFS/21-manager-ceo-strategist.md` | Manager brief |
+| `…/exec/21-executive-summary.docx` | Layer B Word report (or skip) |
+| `HANDOFFS/21-manager-ceo-strategist.md` | Manager brief + production fields |
+| `HANDOFFS/21-verifier.md` | Verifier pass/fail |
 | `HANDOFFS/21-csuite-review.md` | Hard-gate review |
 
 **Handoffs**
-- Manager brief → hard-gate csuite
+- Manager brief → verifier → hard-gate csuite
 
 **Done checks**
-- [ ] Exec summary + launch checklist present
+- [ ] Exec summary + launch checklist present (MD)
+- [ ] docx exists and size > 0 **or** honest skip
 - [ ] Blockers labeled (operator vs seat)
+- [ ] Verifier pass (or skip confirmed)
 - [ ] Hard-gate review written
 - [ ] Model audit fields; do not mark phase ✅
 
@@ -442,6 +469,7 @@ Follow the playbook for the active phase. Replace `<active>` with the venture sl
 - [ ] Scorecard criteria addressed in manager brief / csuite review
 - [ ] Spawn list matched **May spawn** for the phase (peers via orchestrator only)
 - [ ] Craft outputs written (lease-respecting)
+- [ ] Office Layer B on Phase 21 (and 3/10 when claimed): `production_status` + paths exist or skip reason; design brief for branded pptx
 - [ ] Handoff / manager brief on disk as required (HANDOFF-TEMPLATE / MANAGER-BRIEF-TEMPLATE / CSUITE-REVIEW-TEMPLATE)
 - [ ] Packs followed with concrete decisions (not name-drops)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)

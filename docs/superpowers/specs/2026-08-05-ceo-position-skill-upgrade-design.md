@@ -229,7 +229,8 @@ CEO is the first application; later seats should pass the same bar.
 - [ ] **C4.** Artifact paths match runbook / registry outputs
 - [ ] **C5.** Artifact **shape** described (sections / required fields), not only filenames
 - [ ] **C6.** Hard C-suite gates called out when phase is 3, 6, 10, 14, 19, or 21
-- [ ] **C7.** Shippable phases (9, 9B, 11, 12, 14, 15, 17, 18, 19) reference `production-artifacts` + verifier pass
+- [ ] **C7.** Shippable phases (4B, 9, 9B, 11, 12, 14, 15, 17, 18, 19, 21) reference `production-artifacts` + verifier pass
+- [ ] **C8.** Office Layer B seats bind `docx`/`pptx`/`xlsx` as needed; paths under `exec/` or `04b-funding/` (see `2026-08-05-office-layer-b-production-design.md`)
 
 ### D. Craft quality (IC and manager)
 

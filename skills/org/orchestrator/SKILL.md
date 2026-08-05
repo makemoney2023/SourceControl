@@ -56,9 +56,11 @@ You are the **main-session dispatcher**. You spawn **managers only**, enforce th
 3. Build MANAGER context packet (not IC packet) — include model fields
 4. Spawn manager with Cursor model pin from registry
 5. Manager spawns ICs (each with llm_tier) → IC handoffs → manager brief
-5b. Shippable phases (9, 9B, 11, 12, 14, 15, 17, 18, 19): spawn `cto` with preferred_ic `verifier`
+5b. Shippable phases (4B, 9, 9B, 11, 12, 14, 15, 17, 18, 19, 21): spawn `cto` with preferred_ic `verifier`
     (or CTO-owned phase: CTO spawns verifier). Require HANDOFFS/<phase>-verifier.md with verdict: pass.
     verdict: fail → revise loop (do not C-suite approve).
+    Office-optional phases 3, 10: spawn verifier only when manager brief / IC handoff has
+    production_status: complete with .docx/.pptx/.xlsx paths (or packet require_office: true).
 6. Spawn/perform C-suite review (always frontier-reasoning) — only after verifier pass on shippable
 7. If verdict revise → re-dispatch manager with comments (do not advance)
 8. If verdict approve → update tracker Positions & handoffs → mark phase ✅ → next phase
@@ -190,7 +192,7 @@ Full seat→tool map: `skills/org/TOOL-REGISTRY.md`.
 - [ ] Tracker Positions & handoffs row filled
 - [ ] Decisions log notes exec verdict
 - [ ] Phase artifact paths non-empty
-- [ ] Shippable phases (9, 9B, 11, 12, 14, 15, 17, 19): Production Layer B complete or skipped with reason (`packs/production-artifacts`)
+- [ ] Shippable phases (4B, 9, 9B, 11, 12, 14, 15, 17, 19, 21): Production Layer B complete or skipped with reason (`packs/production-artifacts`; includes Office Layer B)
 - [ ] Live-data phases note tool_status / required env when TOOL-REGISTRY expects APIs
 - [ ] Creative/eng/brand/web/CRO/lifecycle/paid IC handoffs pass merge gate (packs + decision per pack + production_status when required)
 - [ ] `scripts/validate-skill-pack-paths.sh` OK after role Skill table edits

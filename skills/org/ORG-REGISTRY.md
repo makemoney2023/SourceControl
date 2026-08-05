@@ -99,7 +99,7 @@ ceo-strategist
 **May delegate** = the **manager** may spawn those ICs. The orchestrator never spawns ICs directly. See `orchestrator/SKILL.md`.
 
 **Collaboration:** Phases 14, 15, 17, 19 → [`COLLABORATION.md`](./COLLABORATION.md). Escalations → [`ESCALATION.md`](./ESCALATION.md).  
-**Production (Craft → Production → Wire):** [`packs/production-artifacts/SKILL.md`](./packs/production-artifacts/SKILL.md) — required for shippable phases **9, 9B, 11, 12, 14, 15, 17, 19** (and 18 when app/forms change).  
+**Production (Craft → Production → Wire):** [`packs/production-artifacts/SKILL.md`](./packs/production-artifacts/SKILL.md) — required for shippable phases **4B, 9, 9B, 11, 12, 14, 15, 17, 19, 21** (and 18 when app/forms change; Office-optional **3, 10** when `production_status: complete`).  
 **Standing context:** [`packs/standing-context/SKILL.md`](./packs/standing-context/SKILL.md) — psychology / persuasion / humor / sales-YouTube frameworks (venture-agnostic; see seat Skill packs).
 
 | Phase | Manager owner | Manager may spawn | C-suite reviewer | Secondary if tagged | Scorecard (must pass) |
@@ -109,7 +109,7 @@ ceo-strategist
 | 2 | head-of-research | market-research-analyst, competitive-intelligence-analyst, seo-manager `(parallel: true)` | ceo-strategist | evidence→HoR | Evidence base cites sources; market doc non-empty |
 | 3 | ceo-strategist | product-marketing-manager, business-analyst | ceo-strategist | — | Strategy + `.agents/product-marketing.md` exist |
 | 4 | cfo | fpa-analyst, product-marketing-manager | ceo-strategist | spend→cfo | Unit economics + pricing explicit |
-| 4B | cfo | fundraising-lead | ceo-strategist | spend→cfo | Deck + model paths present |
+| 4B | cfo | fundraising-lead | ceo-strategist | spend→cfo | Deck + model paths present (`04b-funding/pitch.pptx` + `model.xlsx` or skip); production_status set; **Verifier pass?** |
 | 5 | head-of-product | product-manager, business-analyst `(parallel: true)` | ceo-strategist | scope→HoP | PRD + MoSCoW + AC |
 | 6 | cmo | product-marketing-manager, content-strategist, pr-manager `(parallel: true)` | ceo-strategist | — | GTM channels + launch outline |
 | 7 | head-of-sales-cs | sales-enablement-lead, outbound-lead, customer-success-manager `(parallel: true)` | ceo-strategist | — | Playbook covers close + retain |
@@ -128,7 +128,7 @@ ceo-strategist
 | 18 | cmo | paid-media-manager, product-marketing-manager | ceo-strategist | — | Funnel map + test hypotheses; app form changes leased to eng when needed |
 | 19 | cmo | paid-media-manager, video-producer `(parallel: true)` | ceo-strategist | spend→cfo, brand→CD | Channel plan + **creatives files** under `19-paid/creatives/` (or skip); video finals when budgeted; **Verifier pass?** |
 | 20 | head-of-data | analytics-engineer | ceo-strategist | — | KPI + event plan |
-| 21 | ceo-strategist | — | ceo-strategist | — | Exec summary + launch checklist |
+| 21 | ceo-strategist | — | ceo-strategist | — | Exec summary + launch checklist + `exec/21-executive-summary.docx` (or skip); production_status set; **Verifier pass?** |
 | 22 | ceo-strategist | head-of-data, cmo, paid-media-manager (on demand) | ceo-strategist | — | Cadence entry with actions |
 
 **Hard C-suite gates** (full review, not rubber-stamp): Phases **3, 6, 10, 14, 19, 21**.

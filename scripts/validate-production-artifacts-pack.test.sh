@@ -30,23 +30,34 @@ assert_grep() {
 assert_file "$PACK"
 
 # Pack must define Craft → Production → Wire and shippable phases
-for phase in 9 11 12 14 15 17 19; do
+for phase in 9 11 12 14 15 17 19 4B 21; do
   assert_grep "$PACK" "\\*\\*${phase}\\*\\*|\\| *${phase} *\\|" "pack matrix includes phase $phase"
 done
 assert_grep "$PACK" "Craft → Production → Wire|Craft -> Production -> Wire" "pack names three-layer model"
 assert_grep "$PACK" "production_status" "pack defines production_status handoff field"
 assert_grep "$PACK" "email/html" "pack leases HTML email path"
+assert_grep "$PACK" "docx|\\.docx" "pack defines Office docx Layer B"
+assert_grep "$PACK" "pptx|\\.pptx" "pack defines Office pptx Layer B"
+assert_grep "$PACK" "xlsx|\\.xlsx" "pack defines Office xlsx Layer B"
+assert_grep "$PACK" "exec/" "pack leases exec/ office path"
+assert_grep "$PACK" "Office existence|office existence|Office Layer B" "pack office verifier language"
 
 # COLLABORATION must cover Phase 17 production RACI
 assert_grep "$ROOT/skills/org/COLLABORATION.md" "Phase 17" "COLLABORATION Phase 17 section"
 
 # Shippable seats must load the pack
-for seat in lifecycle-marketer tech-lead brand-designer video-producer paid-media-manager content-strategist web-designer cmo creative-director cto hardware-engineer; do
+for seat in lifecycle-marketer tech-lead brand-designer video-producer paid-media-manager content-strategist web-designer cmo creative-director cto hardware-engineer ceo-strategist fundraising-lead cfo; do
   assert_grep \
     "$ROOT/skills/org/positions/$seat/SKILL.md" \
     "skills/org/packs/production-artifacts" \
     "$seat binds production-artifacts pack"
 done
+
+assert_grep "$ROOT/skills/org/positions/ceo-strategist/SKILL.md" "13-document-processing/docx|document-processing/docx" "ceo binds docx"
+assert_grep "$ROOT/skills/org/positions/ceo-strategist/SKILL.md" "13-document-processing/pptx|document-processing/pptx" "ceo binds pptx"
+assert_grep "$ROOT/skills/org/positions/fundraising-lead/SKILL.md" "04b-funding/.*pptx|pitch\\.pptx|production_status" "fundraising office production"
+assert_grep "$ROOT/skills/org/ORG-REGISTRY.md" "4B.*Verifier|Verifier.*4B|4B.*pptx|4B.*xlsx|Deck \\+ model.*Verifier" "ORG-REGISTRY 4B verifier/office scorecard"
+assert_grep "$ROOT/skills/org/ORG-REGISTRY.md" "21.*Verifier|Verifier.*21|21.*docx|exec summary.*docx|Exec summary.*Verifier" "ORG-REGISTRY 21 verifier/office scorecard"
 
 assert_grep "$PACK" "design-system/<venture>" "pack locks design-system/<venture>"
 assert_grep "$PACK" "11-brand/assets" "pack locks 11-brand/assets"

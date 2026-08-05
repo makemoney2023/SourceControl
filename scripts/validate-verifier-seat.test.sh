@@ -44,6 +44,8 @@ assert_grep "$ROOT/skills/org/CSUITE-REVIEW-TEMPLATE.md" "Verifier pass" "CSUITE
 assert_grep "$ROOT/skills/org/HANDOFF-TEMPLATE.md" "Verifier handoff|position: verifier" "HANDOFF-TEMPLATE verifier section"
 assert_grep "$ROOT/skills/org/COLLABORATION.md" "verifier" "COLLABORATION mentions verifier"
 assert_grep "$ROOT/skills/org/packs/production-artifacts/SKILL.md" "Verifier gate" "production pack Verifier gate"
+assert_grep "$SKILL" "docx|pptx|xlsx|Office" "verifier checks Office Layer B existence"
+assert_grep "$ROOT/skills/org/orchestrator/SKILL.md" "4B|21" "orchestrator lists office-shippable phases"
 
 if [[ "$fail" -ne 0 ]]; then
   echo "validate-verifier-seat.test: FAILED" >&2

@@ -29,11 +29,12 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 | Pack path | Use for |
 |-----------|---------|
+| `skills/org/packs/production-artifacts/` | Craft → Design → Production → Wire; Office Layer B |
 | `skills/community/awesome-claude-corporate-skills/02-finance-accounting/investment-proposal/` | Investment proposal |
-| `skills/community/awesome-claude-corporate-skills/02-finance-accounting/pitch-deck/` | Pitch deck |
+| `skills/community/awesome-claude-corporate-skills/02-finance-accounting/pitch-deck/` | Pitch deck craft |
 | `skills/community/awesome-claude-corporate-skills/02-finance-accounting/dcf-model/` | DCF |
-| `skills/community/awesome-claude-corporate-skills/13-document-processing/pptx/` | Deck file |
-| `skills/community/awesome-claude-corporate-skills/13-document-processing/xlsx/` | Model file |
+| `skills/community/awesome-claude-corporate-skills/13-document-processing/pptx/` | `04b-funding/pitch.pptx` |
+| `skills/community/awesome-claude-corporate-skills/13-document-processing/xlsx/` | `04b-funding/model.xlsx` |
 
 ## Inputs
 - `docs/projects/<active>/business-idea/04-business-model.md`
@@ -41,16 +42,21 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 ## Outputs
 - `docs/projects/<active>/business-idea/04b-funding.md`
+- `docs/projects/<active>/business-idea/04b-funding/pitch.pptx` (Layer B; or skip)
+- `docs/projects/<active>/business-idea/04b-funding/model.xlsx` (Layer B; or skip)
+- `docs/projects/<active>/business-idea/04b-funding/design/` (design brief when producing branded pptx)
 
 ## Collaborates with (peer managers)
 _IC seat — request peers via `ask_manager` only._
 
 ## Delegation protocol (IC)
-1. Do the craft work yourself using listed packs only.
-2. Write **only** paths in your `write_lease`.
-3. Before return, write `docs/projects/<active>/business-idea/HANDOFFS/<phase>-fundraising-lead.md` using HANDOFF-TEMPLATE.md.
-4. Need a peer? Set `ask_manager` in the handoff — **do not spawn** other positions.
-5. Do **not** mark the phase complete. Do **not** write the manager brief.
+1. Do the craft work yourself using listed packs only — write `04b-funding.md` first.
+2. For branded pitch: write design brief under `04b-funding/design/` (brand tokens + slide system), then produce `04b-funding/pitch.pptx` via pptx pack.
+3. Produce `04b-funding/model.xlsx` via xlsx pack (or skip both Office files with reason if no raise).
+4. Write **only** paths in your `write_lease`.
+5. Before return, write `docs/projects/<active>/business-idea/HANDOFFS/<phase>-fundraising-lead.md` using HANDOFF-TEMPLATE.md with `production_status`, `production_paths` (pitch.pptx + model.xlsx), `design_brief_path` when pptx complete, `wire_owner: operator`.
+6. Need a peer? Set `ask_manager` in the handoff — **do not spawn** other positions.
+7. Do **not** mark the phase complete. Do **not** write the manager brief.
 
 ## Reporting chain
 You → `cfo` (manager) → C-suite → orchestrator.
@@ -83,9 +89,13 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
 ## Done criteria
-- [ ] Craft outputs written (lease-respecting)
-- [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
+- [ ] Craft `04b-funding.md` written (lease-respecting)
+- [ ] `04b-funding/pitch.pptx` + `model.xlsx` exist and size > 0 **or** `production_status: skipped` with reason
+- [ ] Design brief present when pptx claimed complete
+- [ ] Handoff includes production fields (HANDOFF-TEMPLATE)
+- [ ] Packs followed (production-artifacts + pptx/xlsx)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
+
+History: see `CHANGELOG.md`
 

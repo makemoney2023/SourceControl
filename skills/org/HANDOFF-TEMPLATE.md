@@ -12,7 +12,7 @@ Copy to `docs/projects/<active>/business-idea/HANDOFFS/<phase>-<slug>.md` before
 4. `write_lease` artifact table is present (paths actually written).
 5. Risks / blockers and Do-not sections present.
 6. Handoff is not a ≤20-line stub when the phase changed user-visible craft.
-7. On shippable phases (**9, 9B, 11, 12, 14, 15, 17, 19**): `production_status` set; if `complete`, `production_paths` lists real Layer B files (see `packs/production-artifacts`).
+7. On shippable phases (**4B, 9, 9B, 11, 12, 14, 15, 17, 19, 21**): `production_status` set; if `complete`, `production_paths` lists real Layer B files (see `packs/production-artifacts`, including Office `.docx`/`.pptx`/`.xlsx`).
 8. When Layer B includes designed visuals/HTML: **Design brief** exists (`design_brief_path`) citing required design packs (e.g. `email-design` before email HTML/headers). Reject “craft → pixels” with no brief.
 
 Exception: pure skip handoffs (e.g. Phase 15 skip) may be short if they only record the skip reason.
@@ -53,11 +53,15 @@ fallback_applied: false
 # sdk_agent_id: "<agent-… or bc-…>"
 # sdk_run_id: "<run id>"
 # sdk_request_id: "<platform UUID>"
-# Required on shippable phases (9, 9B, 11, 12, 14, 15, 17, 19) — see packs/production-artifacts:
+# Required on shippable phases (4B, 9, 9B, 11, 12, 14, 15, 17, 19, 21) — see packs/production-artifacts:
 production_status: complete | skipped | blocked
 production_paths: []
 design_brief_path: ""   # required when production_status=complete for email/stills/video/paid/design-system
+photoreal_qa: ""        # pass | draft (images); draft needs skip_reason cursor-draft|plane-b-missing|lab-only
+generation_used: ""     # local/flux-2-dev | fal/flux-2-max | …
+license_basis: ""       # bfl-self-hosted-commercial when local commercial Layer B
 wire_owner: operator | none | "<seat-slug>"
+wire_checklist_path: "" # required when wire_owner != none and complete
 wire_notes: ""
 skip_reason: ""
 ---
