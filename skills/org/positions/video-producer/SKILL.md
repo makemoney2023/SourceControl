@@ -108,6 +108,88 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
+## Phase craft playbooks
+
+Replace `<active>` with the venture slug from `projects/registry.json`.
+
+### Phase 15 — OpenMontage production (shippable)
+
+**Goal:** Hero/brand video craft + OpenMontage finals (or honest skip) aligned to brand system.  
+**Scorecard contribution:** OpenMontage **finals path** or production skip; `hero-video` / Veo 3.1 (or skip reason).  
+**Hard C-suite gate?** No
+
+**Inputs**
+- `11-brand-system.md`, `12-web-design.md`
+- `03-strategy.md`, `13-copy-foundation.md`
+- Packet `budget_usd` when rendering expected
+
+**Must-read packs**
+- `production-artifacts` (Phase 15 matrix)
+- openmontage (Rule Zero), storyboard-creation, video-prompting-guide, visual-style
+
+**Procedure**
+1. Confirm phase `15`; lease covers `15-media/`, `15-media/openmontage/`, `15-media/design/`.
+2. Confirm `budget_usd > 0` or plan honest skip for Veo/fal/ElevenLabs renders.
+3. Read brand + web SSOT; define video role (hero loop, explainer, social cutdown) in `15-media/` craft MD.
+4. Write **design brief** (visual-style, shot list, keyframe prompts, audio plan) **before** OpenMontage run.
+5. Pipeline-first: OpenMontage Rule Zero → finals under `15-media/openmontage/`.
+6. Run `scripts/doctor-production-runtime.sh` green before claiming render complete (or document skip).
+7. Set production fields; escalate over-budget via `ask_manager` (`spend→cfo`).
+8. Write `HANDOFFS/15-video-producer.md`. Do **not** mark phase ✅.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `…/15-media/` | Scripts, storyboard, scope notes |
+| `…/15-media/openmontage/` | `<slug>-final.{mp4,webm}` or skip |
+| `…/15-media/design/` | Video design brief when finals complete |
+| `HANDOFFS/15-video-producer.md` | IC + production + budget fields |
+
+**Done checks**
+- [ ] Design brief before render
+- [ ] Finals exist **or** honest skip with reason
+- [ ] Doctor green when render claimed complete
+- [ ] Handoff on disk; do not mark phase ✅
+
+---
+
+### Phase 19 — Paid video creatives (shippable)
+
+**Goal:** Paid-channel video finals when budgeted (parallel with paid-media-manager).  
+**Scorecard contribution:** Video finals under `19-paid/` when budgeted; channel plan remains paid-media IC.  
+**Hard C-suite gate?** Yes (phase gate — IC does not run C-suite review)
+
+**Inputs**
+- `19-paid/` channel plan from paid-media-manager when present
+- `11-brand-system.md`, `13-copy-foundation.md`
+- Packet `budget_usd`
+
+**Must-read packs**
+- `production-artifacts` (Phase 19 matrix), video-ad-specs, openmontage, ai-marketing-videos
+
+**Procedure**
+1. Confirm phase `19` and lease covers `19-paid/openmontage/` (and related craft paths).
+2. Confirm budget or honest skip for paid video renders.
+3. Read platform specs (aspect ratio, duration, safe zones) from video-ad-specs pack.
+4. Design brief + storyboard before render; align CTA/end card to paid plan.
+5. Produce finals to leased paths; doctor/runtime checks when claimed complete.
+6. Map each final to channel/placement in handoff.
+7. Write `HANDOFFS/19-video-producer.md`. Need paid peer? `ask_manager` — never spawn.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `…/19-paid/openmontage/` | Platform-sized finals or skip |
+| `…/19-paid/design/` | Brief when finals complete |
+| `HANDOFFS/19-video-producer.md` | IC + channel map + production fields |
+
+**Done checks**
+- [ ] Budget respected **or** skip documented
+- [ ] Finals match ad specs **or** skip
+- [ ] Handoff on disk; do not mark phase ✅
+
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting) — scripts/storyboards
 - [ ] **Design brief** (visual-style, shot list, keyframe prompts) **before** any render/OpenMontage run
@@ -117,4 +199,8 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 - [ ] Packs followed (including production-artifacts)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
+- [ ] Phase craft playbook followed for active phase
+- [ ] Do **not** mark phase ✅
+
+History: see `CHANGELOG.md`
 

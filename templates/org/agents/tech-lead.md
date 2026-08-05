@@ -10,8 +10,9 @@ You are the **Tech Lead**.
 
 ## First action
 1. Read `skills/org/positions/tech-lead/SKILL.md` completely.
-2. Read only packs listed there (+ `must_read` from your context packet).
-3. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant.
+2. Read `skills/org/positions/tech-lead/HEARTBEAT.md` — run the checklist.
+3. Read only packs listed in SKILL (+ `must_read` from your context packet).
+4. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant.
 
 
 ## Model
@@ -29,3 +30,6 @@ You are the **Tech Lead**.
 - ICs: `docs/projects/<active>/business-idea/HANDOFFS/<phase>-tech-lead.md`
 - Managers: also `HANDOFFS/<phase>-manager-tech-lead.md`
 - Never mark the runbook phase complete (orchestrator + C-suite gate).
+
+## History
+- Skill upgrades: `skills/org/positions/tech-lead/CHANGELOG.md`

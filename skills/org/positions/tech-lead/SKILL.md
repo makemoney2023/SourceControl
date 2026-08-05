@@ -115,6 +115,48 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
+## Phase craft playbooks
+
+Replace `<active>` with the venture slug from `projects/registry.json`.
+
+### Phase 9 — Software MVP (shippable)
+
+**Goal:** Verified MVP in `apps/<venture>/` (or honest skip) with TDD and build log traceability to PRD.  
+**Scorecard contribution:** Build log + **verified MVP in `apps/<venture>/`** (or skip); `production_status` set for verifier.  
+**Hard C-suite gate?** No
+
+**Inputs**
+- `05-prd.md` (MoSCoW, acceptance criteria)
+- `12-web-design.md`, `design-system/<venture>/` when UI in scope
+- `14-pages/` when marketing routes in scope
+
+**Must-read packs**
+- `production-artifacts` (Phase 9 matrix)
+- test-driven-development, nextjs, react-best-practices, verification-before-completion
+
+**Procedure**
+1. Confirm phase `9`; lease covers `09-build-log.md` + `apps/<venture>/`.
+2. Read PRD Must/Should; flag scope drift via `ask_manager` (`scope→HoP`) — do not expand unleased.
+3. TDD: failing test → minimal implementation → refactor; consume design-system tokens/components.
+4. Implement routes, forms, and integrations per PRD; log decisions in build log.
+5. Verify: run tests, smoke key routes, note deploy/Vercel status when applicable.
+6. Set `production_status: complete | skipped`, `production_paths`, `wire_owner` on handoff.
+7. Write `HANDOFFS/9-tech-lead.md` with model audit. Do **not** mark phase ✅ or spawn verifier.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `…/09-build-log.md` | Stack; routes shipped/deferred; PRD mapping; tests; deploy; production_status |
+| `apps/<venture>/` | Runnable MVP (Layer B) or skip documented |
+| `HANDOFFS/9-tech-lead.md` | IC + production fields + test evidence |
+
+**Done checks**
+- [ ] TDD evidence in build log
+- [ ] MVP runnable **or** honest skip
+- [ ] production_status set
+- [ ] Handoff on disk; do not mark phase ✅
+
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting) — build log
 - [ ] Production: verified MVP under `apps/<venture>/` **or** `production_status: skipped` with reason
@@ -122,4 +164,8 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 - [ ] Packs followed (including production-artifacts)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
+- [ ] Phase craft playbook followed for active phase
+- [ ] Do **not** mark phase ✅
+
+History: see `CHANGELOG.md`
 

@@ -42,7 +42,7 @@ For **programmatic** `@cursor/sdk` / `cursor-sdk` hosts (e.g. OCC runtime), Team
 | Profile | Image | Video | Audio | Env (minimum) | Used by |
 |---------|-------|-------|-------|---------------|---------|
 | `none` | — | — | — | — | Most text roles |
-| `brand-stills` | **FLUX.2 pro/max** (finals) via fal or inference.sh; drafts may use klein / Cursor gen; optional Imagen / `nano-banana-2` / `gpt-image`; **upscale** via `image-upscaling` | — | — | `FAL_KEY` or `INFSH_API_KEY` / `INFERENCE_API_KEY` | brand-designer, web-designer |
+| `brand-stills` | **Mac:** FLUX.2-dev local via `ai-toolkit-local` (`HF_TOKEN`); **API:** FLUX.2 pro/max via fal or inference.sh; drafts may use klein / Cursor gen; **upscale** via `image-upscaling` | — | — | `HF_TOKEN` (+ `AI_TOOLKIT_ROOT`) and/or `FAL_KEY` / `INFSH_API_KEY` | brand-designer, web-designer |
 | `hero-video` | FLUX keyframes | **Veo 3.1** via fal (`OPENMONTAGE_DEFAULT_VIDEO_MODEL=veo-3.1`) | ElevenLabs | `FAL_KEY`, `ELEVENLABS_API_KEY` | video-producer Phase 15 |
 | `ad-creative` | FLUX.2 pro/max / GPT Image + photoreal-stills QA | Veo 3.1 or Kling short | optional ElevenLabs | `FAL_KEY`; optional `KLING_API_KEY`, `OPENAI_API_KEY` | Phase 19 video + paid creatives |
 
@@ -74,7 +74,7 @@ Every roster slug appears **once**. Orchestrator included.
 | copy-chief | creative-language | `composer-2.5` | none |
 | content-strategist | strong-general | `composer-2.5` | none |
 | seo-manager | fast-ops | `composer-2.5` | none |
-| paid-media-manager | strong-general | `composer-2.5` | none |
+| paid-media-manager | strong-general | `composer-2.5` | ad-creative |
 | lifecycle-marketer | strong-general | `composer-2.5` | none |
 | pr-manager | creative-language | `composer-2.5` | none |
 | creative-director | creative-language | `composer-2.5` | none |
@@ -97,7 +97,7 @@ Every roster slug appears **once**. Orchestrator included.
 | head-of-data | strong-general | `composer-2.5` | none |
 | analytics-engineer | coding-agent | `composer-2.5` | none |
 
-**Phase 19 note:** When `video-producer` works paid ads, packet may set `generation_profile: ad-creative` (overrides default `hero-video` for that spawn only).
+**Phase 19 note:** `paid-media-manager` defaults to `ad-creative`. When `video-producer` works paid ads, packet may set `generation_profile: ad-creative` (overrides default `hero-video` for that spawn only).
 
 ---
 

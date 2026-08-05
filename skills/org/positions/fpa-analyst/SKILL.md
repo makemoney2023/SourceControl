@@ -22,7 +22,7 @@ _None — IC seat_
 ## Owns phases / steps
 | Phase | Scope |
 |-------|-------|
-| 4 | Unit economics + financial plan detail |
+| 4 | Unit economics + financial plan detail (IC slice) |
 
 ## Skill packs
 Read each pack's `SKILL.md` before use. Do not load packs outside this list unless the orchestrator expands scope.
@@ -35,9 +35,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 ## Inputs
 - `docs/projects/<active>/business-idea/03-strategy.md`
+- `docs/projects/<active>/business-idea/02-market-research.md` (pricing context when present)
 
 ## Outputs
-- `docs/projects/<active>/business-idea/04-business-model.md`
+- Leased quantitative sections of `docs/projects/<active>/business-idea/04-business-model.md` (per IC packet `write_lease`)
 
 ## Collaborates with (peer managers)
 _IC seat — request peers via `ask_manager` only._
@@ -50,10 +51,63 @@ _IC seat — request peers via `ask_manager` only._
 5. Do **not** mark the phase complete. Do **not** write the manager brief.
 
 ## Reporting chain
-You → `cfo` (manager) → C-suite → orchestrator.
+You → packet `report_to` (usually `cfo`) → C-suite → orchestrator.
 
 ## Context packet
-Use orchestrator schemas. Managers receive manager packets; ICs receive IC packets with `write_lease`.
+Use orchestrator schemas. IC packets include `write_lease`, `report_to`, and `llm_tier`.
+
+---
+
+## Phase playbooks
+
+Replace `<active>` with the venture slug from `projects/registry.json`.
+
+### Phase 4 — Unit economics + financial detail (IC)
+
+**Goal:** Make unit economics and quantitative assumptions explicit for CFO merge.  
+**Scorecard (must pass):** Unit economics + pricing explicit  
+**Hard C-suite gate?** No  
+**Escalation tag:** spend→cfo on later phases (CFO is secondary reviewer)
+
+**Inputs**
+- `03-strategy.md`, market/pricing context from Phase 2 when available
+- PMM may own pricing posture sections — respect lease boundaries
+
+**Must-read**
+- unit-economics, financial-plan, 3-statements packs
+
+**Spawn**
+- None (parallel with `product-marketing-manager` on Phase 4)
+
+**Procedure**
+1. Confirm Phase `4` IC packet with `report_to: cfo` and lease on quantitative sections of `04-business-model.md`.
+2. Define **unit of analysis** (customer, order, placement, seat — match venture model type).
+3. Build unit economics: revenue per unit, variable costs, contribution margin, payback — **label every assumption**.
+4. Draft sensitivity table (base / upside / downside) for key drivers.
+5. Add breakeven logic (units or revenue) when inputs allow; otherwise list operator blockers.
+6. Summarize 3-statement **directional** view if strategy warrants — do not fake precision.
+7. Flag anti-patterns (SaaS metrics on service businesses, etc.).
+8. IC handoff with assumption register and operator decisions blocking firm numbers.
+9. Do not mark phase ✅.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `…/04-business-model.md` (leased sections) | Unit definition; revenue/cost assumptions; unit economics table; breakeven; sensitivity; F/I/A; operator blockers |
+| `HANDOFFS/4-fpa-analyst.md` | Metrics completed; assumptions; blockers; model audit |
+
+**Handoffs**
+- IC handoff → `cfo` merges with PMM pricing → manager brief → C-suite
+
+**Done checks**
+- [ ] Unit economics explicit (not all TBD without labeled gaps)
+- [ ] Assumptions labeled Fact / Inference / Assumption
+- [ ] No pricing posture duplication if PMM owns that lease
+- [ ] Model audit fields on handoff
+- [ ] Do not mark phase ✅
+
+---
 
 ## Model profile
 
@@ -80,9 +134,12 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
 ## Done criteria
-- [ ] Craft outputs written (lease-respecting)
-- [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
+- [ ] Phase playbook procedure followed for active phase
+- [ ] Craft outputs written (lease-respecting) with explicit unit economics
+- [ ] IC handoff on disk (`HANDOFFS/<phase>-fpa-analyst.md`)
+- [ ] Packs followed with labeled assumptions and sensitivity
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
+- [ ] Do **not** mark phase ✅
 
+History: see `CHANGELOG.md`

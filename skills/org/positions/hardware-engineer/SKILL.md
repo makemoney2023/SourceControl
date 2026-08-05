@@ -90,6 +90,45 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
+## Phase craft playbooks
+
+Replace `<active>` with the venture slug from `projects/registry.json`.
+
+### Phase 9B — CAD / fabrication (shippable)
+
+**Goal:** CAD artifacts under `09b-hardware/` (or honest skip) with build log for physical-product ventures.  
+**Scorecard contribution:** CAD artifacts under `09b-hardware/` or skip reason; feeds verifier pass.  
+**Hard C-suite gate?** No
+
+**Inputs**
+- `05-prd.md` hardware sections, BOM hints, fabrication constraints
+
+**Must-read packs**
+- `production-artifacts` (Phase 9B matrix)
+- text-to-cad packs as needed (cad, step-parts, dxf, gcode, bambu-labs, sendcutsend)
+
+**Procedure**
+1. Confirm phase `9B` in scope (hardware track); lease covers `09b-hardware-build.md` + `09b-hardware/`.
+2. Extract dimensions, materials, tolerances, and print/fabrication path from PRD.
+3. Model in appropriate CAD format; export STEP/DXF/STL/G-code per fabrication plan.
+4. Document assumptions, BOM, and fab vendor path in `09b-hardware-build.md`.
+5. Verify exports non-empty and openable (cad-viewer when available).
+6. Set `production_status`, `production_paths`, `wire_owner` on handoff.
+7. Write `HANDOFFS/9B-hardware-engineer.md`. Do **not** mark phase ✅.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `…/09b-hardware-build.md` | Summary; BOM; fab path; assumptions; production_status |
+| `…/09b-hardware/` | CAD exports (STEP/STL/DXF/G-code) or skip |
+| `HANDOFFS/9B-hardware-engineer.md` | IC + production fields |
+
+**Done checks**
+- [ ] Build log present
+- [ ] Files in `09b-hardware/` **or** honest skip
+- [ ] Handoff on disk; do not mark phase ✅
+
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting)
 - [ ] Production: CAD/exports under `09b-hardware/` **or** `production_status: skipped` with reason
@@ -97,4 +136,8 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 - [ ] Packs followed (including production-artifacts)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
+- [ ] Phase craft playbook followed for active phase
+- [ ] Do **not** mark phase ✅
+
+History: see `CHANGELOG.md`
 

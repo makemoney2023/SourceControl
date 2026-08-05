@@ -35,20 +35,22 @@
 
 ---
 
-## Wave 2 — Craft-heavy ICs (after Wave 1)
+## Wave 2 — Craft-heavy ICs
 
-Prioritize seats that own production / complex craft. Check IC protocol (A4): no May-spawn; Delegates `_None_`; HEARTBEAT + CHANGELOG still required when upgrading.
+IC bar: A4 (Delegates `_None_`, never spawn) + Phase craft playbooks + HEARTBEAT + CHANGELOG + agent sync.
 
 | Dept | Seats | Status |
 |------|-------|--------|
-| Creative | `brand-designer`, `web-designer`, `video-producer` | ⬜ |
-| Marketing | `lifecycle-marketer`, `copy-chief`, `content-strategist`, `seo-manager`, `paid-media-manager`, `pr-manager`, `product-marketing-manager` | ⬜ (lifecycle already strong craft — still verify A–G) |
-| Eng | `tech-lead`, `hardware-engineer`, `verifier` | ⬜ (verifier strong — verify A–G) |
-| Finance | `fpa-analyst`, `fundraising-lead` | ⬜ (fundraising has CHANGELOG from Layer B — verify bar) |
-| Research | `market-research-analyst`, `competitive-intelligence-analyst` | ⬜ |
-| Sales | `sales-enablement-lead`, `outbound-lead`, `customer-success-manager` | ⬜ |
-| Ops / People / Data | `ops-manager`, `legal-counsel`, `recruiter`, `analytics-engineer` | ⬜ |
-| Product | `product-manager`, `business-analyst` | ⬜ |
+| Creative | `brand-designer`, `web-designer`, `video-producer` | ✅ |
+| Marketing | `lifecycle-marketer`, `copy-chief`, `content-strategist`, `seo-manager`, `paid-media-manager`, `pr-manager`, `product-marketing-manager` | ✅ |
+| Eng | `tech-lead`, `hardware-engineer`, `verifier` | ✅ |
+| Finance | `fpa-analyst`, `fundraising-lead` | ✅ |
+| Research | `market-research-analyst`, `competitive-intelligence-analyst` | ✅ |
+| Sales | `sales-enablement-lead`, `outbound-lead`, `customer-success-manager` | ✅ |
+| Ops / People / Data | `ops-manager`, `legal-counsel`, `recruiter`, `analytics-engineer` | ✅ |
+| Product | `product-manager`, `business-analyst` | ✅ |
+
+**Wave 2 exit:** all IC seats ✅ (37 position seats with HEARTBEAT + CHANGELOG + playbooks; agents synced)
 
 ---
 
@@ -73,3 +75,4 @@ For each slug:
 |------|--------|
 | 2026-08-05 | Tracker created; Wave 1 #1–5 done; #6–11 in this pass |
 | 2026-08-05 | Wave 1 complete — all phase-owning managers at CEO bar; agents synced |
+| 2026-08-05 | Wave 2 complete — all IC seats at CEO-bar IC standard; verifier agent created; MODEL-REGISTRY paid-media `ad-creative` aligned |

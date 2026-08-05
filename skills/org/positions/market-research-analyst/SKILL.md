@@ -22,7 +22,7 @@ _None — IC seat_
 ## Owns phases / steps
 | Phase | Scope |
 |-------|-------|
-| 2 | Customer + market synthesis |
+| 2 | Customer + market synthesis (IC slice) |
 
 ## Skill packs
 Read each pack's `SKILL.md` before use. Do not load packs outside this list unless the orchestrator expands scope.
@@ -36,10 +36,12 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/business-analysis-skills/skills/porters-five-forces/` | Five forces |
 
 ## Inputs
-- `docs/projects/<active>/business-idea/02-evidence-base.md`
+- `docs/projects/<active>/business-idea/00-intake.md`
+- `docs/projects/<active>/business-idea/01-problem-framing.md`
+- `docs/projects/<active>/business-idea/02-evidence-base.md` (when present for merge context)
 
 ## Outputs
-- `docs/projects/<active>/business-idea/02-market-research.md`
+- Leased sections of `docs/projects/<active>/business-idea/02-market-research.md` (per IC packet `write_lease`)
 
 ## Collaborates with (peer managers)
 _IC seat — request peers via `ask_manager` only._
@@ -52,10 +54,63 @@ _IC seat — request peers via `ask_manager` only._
 5. Do **not** mark the phase complete. Do **not** write the manager brief.
 
 ## Reporting chain
-You → `head-of-research` (manager) → C-suite → orchestrator.
+You → packet `report_to` (usually `head-of-research`) → C-suite → orchestrator.
 
 ## Context packet
-Use orchestrator schemas. Managers receive manager packets; ICs receive IC packets with `write_lease`.
+Use orchestrator schemas. IC packets include `write_lease`, `report_to`, and `llm_tier`.
+
+---
+
+## Phase playbooks
+
+Replace `<active>` with the venture slug from `projects/registry.json`.
+
+### Phase 2 — Customer + market synthesis (IC)
+
+**Goal:** Deliver non-empty customer/market intelligence so HoR can merge a cited market doc.  
+**Scorecard (must pass):** (Manager) Evidence base cites sources; market doc non-empty — your slice must support segments, JTBD, and implications  
+**Hard C-suite gate?** No
+
+**Inputs**
+- `01-problem-framing.md`, `02-evidence-base.md` (or manager-supplied excerpts)
+- Packet `must_read` and lease paths
+
+**Must-read**
+- customer-research, market-research, avatar-extraction packs
+- PESTLE / Porter when macro or category forces matter
+- `parallel-research` / `firecrawl` integrations before live research runs
+
+**Spawn**
+- None — IC only
+
+**Procedure**
+1. Confirm Phase `2` IC packet with `report_to: head-of-research` and non-colliding lease on `02-market-research.md` (or named sections).
+2. Extract research questions from framing; label assumptions vs facts from evidence base.
+3. Run customer + market research via packs and integrations; **cite sources** (URL, title, date).
+4. Draft leased sections: executive summary; target segments (primary/secondary); JTBD; evaluation criteria; category/standards context; trust signals; buyer journey; market forces (PESTLE/Porter when relevant); implications for strategy; evidence gaps; fact/inference/assumption labels.
+5. Do **not** write competitor deep-dives unless explicitly in your lease (CIA owns that slice).
+6. Self-check: market slice is non-empty and citable — not placeholder bullets.
+7. Write IC handoff summarizing sections written, sources used, gaps for HoR merge, and `tool_status` for integrations.
+8. Do not mark phase ✅.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `…/02-market-research.md` (leased sections) | Segments; JTBD/evaluation criteria; journey; implications; F/I/A; sources index for your sections |
+| `HANDOFFS/2-market-research-analyst.md` | Sections completed; sources; gaps; packs/tools used; model audit fields |
+
+**Handoffs**
+- IC handoff → `head-of-research` merges → manager brief → C-suite
+
+**Done checks**
+- [ ] Leased market sections non-empty with cited sources
+- [ ] No competitor profiling outside lease
+- [ ] Assumptions labeled; operator facts not invented
+- [ ] Model audit fields on handoff
+- [ ] Do not mark phase ✅
+
+---
 
 ## Model profile
 
@@ -84,9 +139,12 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
 ## Done criteria
-- [ ] Craft outputs written (lease-respecting)
-- [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
+- [ ] Phase playbook procedure followed for active phase
+- [ ] Craft outputs written (lease-respecting) with cited sources
+- [ ] IC handoff on disk (`HANDOFFS/<phase>-market-research-analyst.md`)
+- [ ] Packs followed with concrete segment/JTBD decisions
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
+- [ ] Do **not** mark phase ✅
 
+History: see `CHANGELOG.md`

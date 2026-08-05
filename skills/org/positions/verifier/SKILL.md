@@ -78,6 +78,87 @@ Resolve IDs from MODEL-REGISTRY / `.env.local` `WORKER_VERIFIER_MODEL`. Record `
 ## Integrations
 None required. May run local doctor/shell gates.
 
+## Phase craft playbooks
+
+Replace `<active>` with the venture slug. Verification only — **never author product craft** outside handoff lease.
+
+### Build — Phases 9 & 9B
+
+**Goal:** Confirm MVP or CAD Layer B matches manager/IC claims.  
+**Scorecard contribution:** **Verifier pass?** on build log + `apps/<venture>/` or `09b-hardware/`.
+
+**Inputs:** Manager brief, `HANDOFFS/<phase>-tech-lead.md` or `…-hardware-engineer.md`, claimed `production_paths`.
+
+**Must-read packs:** production-artifacts, verification-before-completion
+
+**Procedure**
+1. Read manager brief + IC handoff `production_status` / `production_paths`.
+2. Phase 9: confirm `09-build-log.md`; smoke `apps/<venture>/` routes/tests listed; reject empty app or MD-only MVP.
+3. Phase 9B: list `09b-hardware/` — files exist, size > 0, extensions match claims.
+4. Run `scripts/doctor-production-runtime.sh` when render/deploy claimed.
+5. Record **Passed**, **Failed/incomplete**, **Issues** with specific paths.
+6. Write `HANDOFFS/<phase>-verifier.md` with `verdict: pass | fail`.
+
+**Done checks:** Verdict set; falsifiable evidence cited; do not mark phase ✅.
+
+---
+
+### Brand & design — Phases 11 & 12
+
+**Goal:** Confirm brand stills and design-system Layer B.  
+**Scorecard contribution:** Stills via `brand-stills` or skip; `design-system/<venture>/` populated or skip.
+
+**Procedure**
+1. Verify `design_brief_path` on disk when stills/DS claimed complete.
+2. Phase 11: assets under `11-brand/assets/` non-empty or honest skip; check `photoreal_qa`, `license_basis` for local FLUX commercial.
+3. Phase 12: `12-web-design.md` present; `design-system/<venture>/` non-empty at repo root or skip.
+4. Reject Cursor-draft gens shipped as `photoreal_qa: pass`; hunt empty dirs.
+5. Write verifier handoff with path-level evidence.
+
+---
+
+### Pages & email — Phases 14 & 17
+
+**Goal:** Confirm page imagery and email HTML Layer B.  
+**Scorecard contribution:** Imagery or skip; full HTML under `email/html/` or skip.
+
+**Procedure**
+1. Phase 14: page MD + meta present per manager brief; imagery assets or documented skip per page.
+2. Phase 17: run `scripts/validate-email-html.sh` on `17-channels/email/html/*.html` when HTML claimed complete.
+3. Check `wire_checklist_path` when `wire_owner` ≠ `none`.
+4. Reject MD-only “production” for HTML email.
+
+---
+
+### Video — Phases 15 & 19
+
+**Goal:** Confirm OpenMontage finals exist and doctor passes when renders claimed.  
+**Scorecard contribution:** Finals path or skip; `hero-video` / Veo path documented.
+
+**Procedure**
+1. List finals under `15-media/openmontage/` or `19-paid/openmontage/` — size > 0 or skip reason.
+2. Confirm design brief when `production_status: complete`.
+3. Run doctor when video render claimed complete.
+
+---
+
+### Office & funding — Phases 3, 4B, 10, 21
+
+**Goal:** Confirm Office Layer B binaries when `production_status: complete`.  
+**Scorecard contribution:** `.docx` / `.pptx` / `.xlsx` exist, size > 0, extension matches; branded pptx needs `design_brief_path`.
+
+**Procedure**
+1. Only run when manager/IC claimed Office Layer B complete.
+2. Verify each path in `production_paths`; reject MD claimed as deck/report.
+3. Write fail verdict with missing file list when any binary absent.
+
+---
+
+### Other shippable — Phases 18 & 19 (non-video)
+
+**Goal:** Confirm paid creatives files when scoped to verifier (manager brief defines scope).  
+**Procedure:** Verify `19-paid/creatives/` files or skip; cross-check handoff production fields.
+
 ## Done criteria
 - [ ] `HANDOFFS/<phase>-verifier.md` written with `verdict: pass` or `fail`
 - [ ] **Passed** section lists what was verified
@@ -86,3 +167,7 @@ None required. May run local doctor/shell gates.
 - [ ] Packs followed; no product craft authored outside lease
 - [ ] Model audit fields on handoff
 - [ ] Summary returned up the chain (not sideways to peers)
+- [ ] Phase craft playbook followed for active phase/mode
+- [ ] Do **not** mark phase ✅
+
+History: see `CHANGELOG.md`

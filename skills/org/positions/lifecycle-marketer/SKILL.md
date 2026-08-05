@@ -49,9 +49,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 - `docs/projects/<active>/business-idea/13-copy-foundation.md`
 
 ## Outputs
-- `docs/projects/<active>/business-idea/17-channels/`
+- `docs/projects/<active>/business-idea/17-channels/email/` (craft journeys + design briefs)
 - `docs/projects/<active>/business-idea/17-channels/email/html/` (Layer B HTML per email)
 - `docs/projects/<active>/business-idea/17-channels/email/assets/` (optional; brand headers via ask_manager)
+- `docs/projects/<active>/business-idea/WIRE/` (email wire checklist when claiming complete)
 
 ## Collaborates with (peer managers)
 _IC seat — request peers via `ask_manager` only._
@@ -94,6 +95,7 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
 ## Done criteria
+- [ ] Phase playbook procedure followed for active phase
 - [ ] Craft outputs written (lease-respecting) — full MD journeys
 - [ ] **Design brief** written under `17-channels/email/design/` (or `## Design brief` in craft) after reading **`email-design`** + brand tokens — look/feel, CTA/layout, header prompts — **before** any HTML or header still
 - [ ] Production: `17-channels/email/html/*.html` for each send-ready email **or** `production_status: skipped` with reason
@@ -101,4 +103,68 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 - [ ] Packs followed (including production-artifacts + email-design); email-design cited with concrete layout decisions
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
+- [ ] Do **not** mark phase ✅
+
+---
+
+## Phase playbooks
+
+Replace `<active>` with the venture slug from `projects/registry.json`.
+
+### Phase 17 — Lifecycle email / SMS / nurture (IC craft)
+
+**Goal:** Full email journeys exist as craft MD **and** importable HTML (or honest skip).  
+**Scorecard (must pass):** Full email journeys **+ HTML under `email/html/`** (or production skip); social assets or skip (content-strategist parallel); **Verifier pass?**  
+**Hard C-suite gate?** No (manager merge + verifier before C-suite)  
+**Escalation:** brand→CD for email header stills
+
+**Inputs**
+- `13-copy-foundation.md` (voice, CTA locks, claims tiers)
+- `14-pages/` (routes CTAs link to)
+- `.agents/product-marketing.md`
+- `11-brand-system.md` when present
+
+**Must-read**
+- `skills/org/packs/production-artifacts/` — Craft → Design → Production → Wire
+- `skills/community/inference-sh/email-design/` — 600px, bulletproof CTAs, preview text
+- `skills/community/marketingskills/emails/` — journey craft
+- `skills/org/COLLABORATION.md` — Phase 17 dual-path (lifecycle HTML; brand headers)
+
+**Spawn**
+- None — IC seat. Header stills: `ask_manager` → creative-director / brand-designer.
+
+**Procedure**
+1. Confirm packet phase is `17` and lease includes `17-channels/email/` (+ `html/` when producing).
+2. Inventory journeys from GTM / copy foundation (welcome, nurture, waitlist, program updates, win-back).
+3. Write **full** craft MD per email under `17-channels/email/` — subject, preview, body, CTA, send trigger (not outlines).
+4. Group journeys; write **design brief** per journey or batch under `17-channels/email/design/` (brand tokens, layout, CTA colors, header prompt, HTML filename map) **before** HTML or stills.
+5. Produce Layer B HTML under `17-channels/email/html/` using email-design pack + `_shell/` when present; one file per send-ready email.
+6. Run `scripts/validate-email-html.sh` when available; fix table/width/CTA issues.
+7. Optional SMS / social craft in leased paths only; social **assets** are content-strategist unless leased.
+8. Write `WIRE/phase-17-email.md` checklist when claiming production complete (ESP import steps).
+9. Write `HANDOFFS/17-lifecycle-marketer.md` (HANDOFF-TEMPLATE) with `production_status`, paths, `design_brief_path`, `wire_owner`.
+10. Need headers? Set `ask_manager` with exact asset paths — do **not** spawn brand-designer.
+11. Do **not** mark phase ✅; manager merges + verifier before C-suite.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `17-channels/email/*.md` | Full journey craft: trigger, subject, preview, body, CTA URL, segment rules |
+| `17-channels/email/design/*.md` | Design brief: brand tokens, pack citations, layout decisions, HTML map, header prompt |
+| `17-channels/email/html/*.html` | ESP-importable HTML per email (600px, bulletproof CTA) or skip documented |
+| `17-channels/email/PRODUCTION-INVENTORY.md` | Optional inventory of sends + production status |
+| `HANDOFFS/17-lifecycle-marketer.md` | IC handoff + production fields + model audit |
+
+**Handoffs**
+- IC → `HANDOFFS/17-lifecycle-marketer.md` only (manager writes `17-manager-cmo.md`)
+
+**Done checks**
+- [ ] Every send-ready email has craft MD + design brief + HTML (or documented skip)
+- [ ] email-design decisions cited (width, CTA table, typography)
+- [ ] `production_status` set honestly; verifier can validate HTML
+- [ ] Model audit fields present
+- [ ] Do not mark phase ✅
+
+History: see `CHANGELOG.md`
 

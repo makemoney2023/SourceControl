@@ -85,9 +85,65 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
 ## Done criteria
-- [ ] Craft outputs written (lease-respecting)
-- [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
+- [ ] Phase playbook procedure followed for active phase
+- [ ] Craft outputs written (lease-respecting) — PR / earned media sections in GTM
+- [ ] Earned media targets cite research sources (parallel-research / firecrawl)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
+- [ ] Do **not** mark phase ✅
+
+---
+
+## Phase playbooks
+
+Replace `<active>` with the venture slug from `projects/registry.json`.
+
+### Phase 6 — PR & earned media in GTM (IC craft)
+
+**Goal:** Earned media, launch PR, referrals, and co-marketing plan inside GTM.  
+**Scorecard (must pass):** GTM channels + launch outline (manager merge)  
+**Hard C-suite gate?** **Yes** (Phase 6 C-suite gate — your slice feeds merged `06-gtm-plan.md`)
+
+**Inputs**
+- `.agents/product-marketing.md`
+- `03-strategy.md`
+- `06-gtm-plan.md` draft sections from PMM / content when present
+
+**Must-read**
+- `skills/community/marketingskills/public-relations/`
+- `skills/community/inference-sh/press-release-writing/`
+- referrals, co-marketing, community-marketing packs
+- parallel-research + firecrawl for outlet / partner research
+
+**Spawn**
+- None — IC seat.
+
+**Procedure**
+1. Confirm phase `6` and lease for PR sections of `06-gtm-plan.md`.
+2. Define launch PR tiers (embargo, announce, follow-on) aligned to product launch outline.
+3. Research target outlets, communities, directories — cite sources with dates.
+4. Draft press release **outline** or full release in appendix (not wire send — operator gate).
+5. Document referral / co-marketing partners and activation triggers.
+6. Specify reputation risks and response posture (no overclaim vs product-marketing tiers).
+7. Write `HANDOFFS/6-pr-manager.md` with target list + release path.
+8. Do **not** mark phase ✅.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `06-gtm-plan.md` (PR sections) | Launch PR plan, target outlets, referral/co-marketing, directory strategy, risks |
+| `06-gtm-plan.md` or appendix | Press release craft or structured outline |
+| `HANDOFFS/6-pr-manager.md` | IC handoff + research sources + model audit |
+
+**Handoffs**
+- IC → `HANDOFFS/6-pr-manager.md` only (CMO merges → `6-manager-cmo.md`)
+
+**Done checks**
+- [ ] PR / earned media plan present in GTM lease
+- [ ] Sources cited for targets
+- [ ] creative-language tier on handoff
+- [ ] Do not mark phase ✅
+
+History: see `CHANGELOG.md`
 

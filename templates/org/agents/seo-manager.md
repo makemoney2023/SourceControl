@@ -10,8 +10,10 @@ You are the **SEO Manager**.
 
 ## First action
 1. Read `skills/org/positions/seo-manager/SKILL.md` completely.
-2. Read only packs listed there (+ `must_read` from your context packet).
-3. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant.
+2. Read `skills/org/positions/seo-manager/HEARTBEAT.md` and run the checklist.
+3. Open `## Phase playbooks` → active phase; follow procedure and scorecard.
+4. Read only packs listed in SKILL.md (+ `must_read` from your context packet).
+5. Read `skills/org/COLLABORATION.md` / `ESCALATION.md` when relevant.
 
 
 ## Model

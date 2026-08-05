@@ -55,9 +55,8 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 ## Outputs
 - `docs/projects/<active>/business-idea/13-copy-foundation.md`
 - `docs/projects/<active>/business-idea/14-pages/blog/`
-- `docs/projects/<active>/business-idea/17-channels/`
 - `docs/projects/<active>/business-idea/17-channels/social/` (craft calendar)
-- Note: Layer B social stills live in `17-channels/social/assets/` via `brand-designer` (`ask_manager`)
+- `docs/projects/<active>/business-idea/17-channels/social/assets/` (Layer B via brand-designer ask_manager; lease for merge paths)
 
 ## Collaborates with (peer managers)
 _IC seat — request peers via `ask_manager` only._
@@ -102,10 +101,159 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
 ## Done criteria
+- [ ] Phase playbook procedure followed for active phase
 - [ ] Craft outputs written (lease-respecting)
 - [ ] Phase 17: social craft complete; `ask_manager` for brand stills **or** `production_status: skipped` for assets with reason
-- [ ] Handoff includes `production_status` on shippable phases
-- [ ] Packs followed (including production-artifacts)
+- [ ] Handoff includes `production_status` on shippable phases (17)
+- [ ] Packs followed (including production-artifacts on Phase 17)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
+- [ ] Do **not** mark phase ✅
+
+---
+
+## Phase playbooks
+
+Replace `<active>` with the venture slug from `projects/registry.json`.
+
+### Phase 6 — Content strategy in GTM (IC craft)
+
+**Goal:** Content pillars, editorial compounding plan, and channel content roles inside GTM.  
+**Scorecard (must pass):** GTM channels + launch outline (manager merge)  
+**Hard C-suite gate?** **Yes** (Phase 6 C-suite gate — your slice feeds merged `06-gtm-plan.md`)
+
+**Inputs**
+- `.agents/product-marketing.md`
+- `03-strategy.md`
+- PMM / PR parallel sections when present
+
+**Must-read**
+- `skills/community/marketingskills/content-strategy/`
+- `skills/community/notfair-seo/content-planner/`
+- `skills/org/packs/standing-context/content-persuasion/`
+
+**Spawn**
+- None — IC seat.
+
+**Procedure**
+1. Confirm phase `6` and lease for content sections of `06-gtm-plan.md`.
+2. Define content pillars mapped to ICP segments and awareness stages.
+3. Specify owned vs earned vs social roles; editorial calendar skeleton (90-day).
+4. Document blog / lead-magnet / case-study pipeline priorities.
+5. Align empty-state and publish-before-sell rules with strategy locks.
+6. Write `HANDOFFS/6-content-strategist.md` with pillar table + calendar skeleton.
+7. Do **not** mark phase ✅.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `06-gtm-plan.md` (content sections) | Pillars, calendar skeleton, channel content roles, compounding thesis |
+| `HANDOFFS/6-content-strategist.md` | IC handoff + model audit |
+
+---
+
+### Phase 13 — Content calendar & pillar map (IC craft)
+
+**Goal:** Editorial calendar and pillar→route mapping in copy foundation.  
+**Scorecard (must pass):** Voice + awareness + headlines (manager merge with copy-chief)
+
+**Inputs**
+- `.agents/product-marketing.md`
+- `06-gtm-plan.md` content sections
+
+**Must-read**
+- content-strategy + content-planner packs
+
+**Spawn**
+- None
+
+**Procedure**
+1. Confirm phase `13` and lease for calendar / pillar sections in `13-copy-foundation.md`.
+2. Map pillars to routes and blog topics (multi-page awareness journey).
+3. Define publish cadence, repurposing rules, empty-state copy standards.
+4. Coordinate headline/route alignment with copy-chief (no conflicting IA).
+5. Write `HANDOFFS/13-content-strategist.md`.
+6. Do **not** mark phase ✅.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `13-copy-foundation.md` (content sections) | Pillars→routes, calendar, repurposing, empty-state rules |
+| `HANDOFFS/13-content-strategist.md` | IC handoff |
+
+---
+
+### Phase 14 — Blog pipeline (IC craft, shippable context)
+
+**Goal:** Blog posts and editorial pages drafted for listed routes.  
+**Scorecard (must pass):** All listed pages have body + meta; imagery or skip; **Verifier pass?** (phase-level)
+
+**Inputs**
+- `13-copy-foundation.md`
+- `14-pages/` page list
+
+**Must-read**
+- content-writer, technical-blog-writing, case-study-writing as applicable
+
+**Spawn**
+- None
+
+**Procedure**
+1. Confirm leased blog paths under `14-pages/blog/`.
+2. Draft full articles (not outlines): H1, sections, internal links, CTA to inquire/convert.
+3. Align SEO briefs with seo-manager meta (no duplicate titles).
+4. Note imagery slots for brand-designer; do not claim stills unless leased.
+5. Write `HANDOFFS/14-content-strategist.md` with post checklist.
+6. Do **not** mark phase ✅.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `14-pages/blog/*.md` | Full blog craft + meta |
+| `HANDOFFS/14-content-strategist.md` | IC handoff |
+
+---
+
+### Phase 17 — Social content plan (IC craft, shippable)
+
+**Goal:** Social calendar + post craft; production stills or skip.  
+**Scorecard (must pass):** Full email journeys + HTML (lifecycle parallel); **social assets or skip**; **Verifier pass?**
+
+**Inputs**
+- `13-copy-foundation.md`, `06-gtm-plan.md`
+- Brand tokens when present
+
+**Must-read**
+- `skills/org/packs/production-artifacts/`
+- linkedin-content, twitter-thread-creation, social-media-carousel as needed
+
+**Spawn**
+- None — `ask_manager` → brand-designer for `17-channels/social/assets/`.
+
+**Procedure**
+1. Confirm lease for `17-channels/social/` craft paths.
+2. Build channel calendar (LinkedIn, X, etc.) tied to launch tiers.
+3. Write full post copy / thread craft per slot (not placeholders).
+4. If assets required: document design brief needs; set `ask_manager` for brand stills.
+5. Set `production_status: complete | skipped` for social assets with paths or reason.
+6. Write `HANDOFFS/17-content-strategist.md` with production fields when assets claimed.
+7. Do **not** mark phase ✅.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `17-channels/social/*.md` | Calendar + full post craft per channel |
+| `17-channels/social/assets/` | Stills when produced (via brand) or skip documented |
+| `HANDOFFS/17-content-strategist.md` | IC handoff + production_status when applicable |
+
+**Done checks (all phases)**
+- [ ] Leased craft complete per playbook
+- [ ] Model audit on handoff
+- [ ] Do not mark phase ✅
+
+History: see `CHANGELOG.md`
 

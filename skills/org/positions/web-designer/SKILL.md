@@ -104,6 +104,47 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
+## Phase craft playbooks
+
+Replace `<active>` with the venture slug from `projects/registry.json`.
+
+### Phase 12 — IA + design system (shippable)
+
+**Goal:** Lock information architecture and persist production-ready `design-system/<venture>/` for eng (Phase 9).  
+**Scorecard contribution:** IA + **`design-system/<venture>/` production paths**; brand-stills when UI imagery rendered by brand-designer.  
+**Hard C-suite gate?** No
+
+**Inputs**
+- `11-brand-system.md` (required SSOT)
+- `03-strategy.md`, `05-prd.md`, `13-copy-foundation.md` when present
+
+**Must-read packs**
+- `production-artifacts` (Phase 12 matrix)
+- ui-ux-pro-max-skill/design-system, web-design-guidelines, tailwind-design-system, shadcn
+
+**Procedure**
+1. Confirm packet phase `12`; lease covers `12-web-design.md` and `design-system/<venture>/`.
+2. Read `11-brand-system.md` — stop and `ask_manager` if brand SSOT missing or contradictory.
+3. Write **design brief** (IA goals, token mapping, component scope, a11y targets) before DS files.
+4. Draft `12-web-design.md`: route map, page templates, hero/proof model, CTA hierarchy, shadcn/Tailwind mapping, anti-patterns, eng handoff.
+5. Persist Layer B under `design-system/<venture>/` (MASTER.md, tokens, components, README) — repo-root SSOT.
+6. UI stills: only if leased; otherwise note `ask_manager` for brand-designer imagery.
+7. Set `production_status`, `production_paths`, `design_brief_path`, `wire_owner` on handoff.
+8. Write `HANDOFFS/12-web-designer.md` with model audit. Do **not** mark phase ✅.
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `…/12-web-design.md` | IA; templates; tokens; components; a11y; DS index; eng handoff |
+| `design-system/<venture>/` | Non-empty when production complete, or skip |
+| `HANDOFFS/12-web-designer.md` | IC + production fields |
+
+**Done checks**
+- [ ] Design brief before DS / UI stills
+- [ ] `design-system/<venture>/` populated **or** honest skip
+- [ ] Handoff on disk; do not mark phase ✅
+
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting) — IA / `12-web-design.md`
 - [ ] Production: `design-system/<venture>/` files present for eng consume **or** `production_status: skipped` with reason
@@ -114,4 +155,8 @@ Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `to
 - [ ] Packs followed (including production-artifacts + photoreal-stills when stills rendered)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
+- [ ] Phase craft playbook followed for active phase
+- [ ] Do **not** mark phase ✅
+
+History: see `CHANGELOG.md`
 

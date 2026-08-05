@@ -43,18 +43,20 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 ## Inputs
 - `docs/projects/<active>/business-idea/14-pages/`
 - `docs/projects/<active>/business-idea/18-conversion.md`
+- `docs/projects/<active>/business-idea/06-gtm-plan.md`
+- `docs/projects/<active>/business-idea/09-build-log.md` when present
 
 ## Outputs
-- `docs/projects/<active>/business-idea/20-analytics.md`
+- `docs/projects/<active>/business-idea/20-analytics.md` (lease: event taxonomy, dashboard spec, implementation notes)
 
 ## Collaborates with (peer managers)
 _IC seat — request peers via `ask_manager` only._
 
 ## Delegation protocol (IC)
 1. Do the craft work yourself using listed packs only.
-2. Write **only** paths in your `write_lease`.
+2. Write **only** paths in your `write_lease` — typically event taxonomy, dashboard spec, and CTO implementation notes in `20-analytics.md`.
 3. Before return, write `docs/projects/<active>/business-idea/HANDOFFS/<phase>-analytics-engineer.md` using HANDOFF-TEMPLATE.md.
-4. Need a peer? Set `ask_manager` in the handoff — **do not spawn** other positions.
+4. Need a peer (CTO for `apps/<venture>/` adapter, paid-media when Phase 19 active)? Set `ask_manager` in the handoff — **do not spawn** other positions.
 5. Do **not** mark the phase complete. Do **not** write the manager brief.
 
 ## Reporting chain
@@ -91,10 +93,68 @@ Live tools for this seat (see `skills/org/TOOL-REGISTRY.md`). Read each skill be
 
 Resolve secrets via `obsidian-secrets` then `.env.local`. If unavailable → `tool_status: unavailable` on handoff.
 
-## Done criteria
-- [ ] Craft outputs written (lease-respecting)
-- [ ] Handoff / manager brief on disk as required by role
-- [ ] Packs followed
-- [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
-- [ ] Summary returned up the chain (not sideways to peers)
+---
 
+## Phase playbooks
+
+Replace `<active>` with the venture slug from `projects/registry.json`.
+
+### Phase 20 — Analytics craft (IC slice)
+
+**Goal:** Draft event taxonomy, dashboard spec, and implementation notes so eng can instrument and operators can review KPIs.  
+**Scorecard (must pass):** KPI + event plan  
+**Hard C-suite gate?** No
+
+**Inputs**
+- `18-conversion.md`, `06-gtm-plan.md`, `19-paid.md` (paid skipped vs active)
+- `14-pages/` (routes, forms, CTAs to instrument)
+- `09-build-log.md` (deploy target, existing routes, form behavior)
+
+**Must-read**
+- analytics, ab-testing, interactive-dashboard-builder, sql-queries
+- Read actual app routes/components when `apps/<venture>/` exists — do not invent events for missing UI
+
+**Spawn**
+- None — IC seat
+
+**Procedure**
+1. Confirm phase `20` and lease covers event taxonomy + dashboard + implementation sections.
+2. Inventory measurable user journeys from conversion doc (north-star candidate, funnel steps).
+3. Define north-star + supporting KPIs with formulas; label ASSUMPTION when no baseline.
+4. List guardrails and **excluded** metrics (e.g. paid KPIs when Phase 19 skipped).
+5. Build event taxonomy table: event name, trigger, properties, owner (client/server), F/I/A label.
+6. Write dashboard spec: rows/panels, filters, manual vs automated KPIs.
+7. Add implementation notes for CTO: adapter path (`lib/analytics/track.ts` or equivalent), env vars, consent implications.
+8. Recommend tool stack (GA4 vs Plausible vs Vercel Analytics) with rationale — head-of-data merges exec summary.
+9. IC handoff: events count, build facts verified, wire_owner suggestion (default operator).
+
+**Artifacts**
+
+| Path | Required contents (shape) |
+|------|---------------------------|
+| `…/20-analytics.md` (lease slice) | Event taxonomy; property dictionary; dashboard panels; implementation notes; tool recommendation; F/I/A labels; excluded metrics |
+| `HANDOFFS/20-analytics-engineer.md` | IC handoff: build facts, event count, ask_manager for CTO wire |
+
+**Handoffs**
+- IC handoff → `head-of-data` merge (KPI framework + exec summary) → manager brief → C-suite
+
+**Done checks**
+- [ ] Event taxonomy explicit (not all TBD)
+- [ ] KPI formulas + guardrails present
+- [ ] Paid skipped/excluded documented when Phase 19 skipped
+- [ ] Implementation path names concrete app locations when repo exists
+- [ ] Model audit fields; do not mark phase ✅
+
+---
+
+## Done criteria
+- [ ] Phase 20 analytics slice written (lease-respecting)
+- [ ] Event taxonomy + dashboard spec + implementation notes present
+- [ ] North-star/supporting KPIs with formulas; excluded metrics documented
+- [ ] Handoff on disk (`HANDOFFS/20-analytics-engineer.md`)
+- [ ] Packs followed (analytics + dashboard builder cited with concrete instrumentation decisions)
+- [ ] Model audit fields on handoff
+- [ ] Summary returned up the chain
+- [ ] Do **not** mark phase ✅
+
+History: see `CHANGELOG.md`
