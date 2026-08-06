@@ -1,6 +1,7 @@
 # HyperFrames — Income Stack Deck
 
-Seekable 1920×1080 composition with 15 clips (5s each = **75s**).
+Seekable 1920×1080 composition with 15 clips. Stills are 5s; slides 01 and 03 use
+operator-animated hero loops at 10s each → **85s** total.
 
 ## Files
 

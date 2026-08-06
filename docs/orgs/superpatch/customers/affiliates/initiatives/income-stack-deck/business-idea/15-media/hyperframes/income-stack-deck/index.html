@@ -14,6 +14,8 @@
       .clip { position: absolute; inset: 0; overflow: hidden; }
       .fill { position: absolute; inset: 0; background: radial-gradient(80% 60% at 50% 20%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 65%); }
       .plate { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; background: transparent; }
+      /* Host-root hero videos sit under the timed copy sections (track 1). */
+      .plate-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; background: #05070f; z-index: 0; }
       .slab-stack { position: absolute; inset: 0; z-index: 0; }
       .slab-stack .slab { background: transparent; }
       /* Sits above the scrim so recovered plate type stays bright artwork instead of reading
@@ -41,25 +43,16 @@
     </style>
   </head>
   <body>
-    <div data-hf-id="hf-gtr9" id="root" data-composition-id="income-stack-main" data-start="0" data-width="1920" data-height="1080" data-duration="75">
+    <div data-hf-id="hf-temc" id="root" data-composition-id="income-stack-main" data-start="0" data-width="1920" data-height="1080" data-duration="85">
       <div data-hf-id="hf-t92u" class="brand">Super Patch · Income Stack™</div>
 
-      <section data-hf-id="hf-339b" id="clip-01-title" class="clip slide anchor-bl" data-start="0" data-duration="5" data-track-index="1" data-slide-index="0" style="--accent: #2f6bff; --accent-text: #2f6bff">
+      <video data-hf-id="hf-92lr" id="vid-01-title" class="clip plate-video" src="assets/sp-stack-01-title_animated.mp4" data-start="0" data-duration="10" data-track-index="0" muted playsinline></video>
+
+      <video data-hf-id="hf-5dzr" id="vid-03-four-stacks" class="clip plate-video" src="assets/sp-stack-03-four-stacks_animated.mp4" data-start="15" data-duration="10" data-track-index="0" muted playsinline></video>
+
+      <section data-hf-id="hf-nys3" id="clip-01-title" class="clip slide anchor-bl" data-start="0" data-duration="10" data-track-index="1" data-slide-index="0" style="--accent: #2f6bff; --accent-text: #2f6bff">
         <div data-hf-id="hf-p5w6" class="fill" aria-hidden="true"></div>
 
-        <img data-hf-id="hf-41vs" id="img-01-title" class="plate" src="assets/title-base.png" alt="" width="1920" height="1080">
-        <div data-hf-id="hf-vsc0" class="slab-stack" id="slabs-01-title" aria-hidden="true">
-          <img data-hf-id="hf-1v6m" id="slab-01-title-0" class="plate slab" src="assets/title-slab-00.png" alt="" width="1920" height="1080">
-          <img data-hf-id="hf-gpsg" id="slab-01-title-1" class="plate slab" src="assets/title-slab-01.png" alt="" width="1920" height="1080">
-          <img data-hf-id="hf-mqnu" id="slab-01-title-2" class="plate slab" src="assets/title-slab-02.png" alt="" width="1920" height="1080">
-          <img data-hf-id="hf-ascg" id="slab-01-title-3" class="plate slab" src="assets/title-slab-03.png" alt="" width="1920" height="1080">
-          <img data-hf-id="hf-6b9a" id="slab-01-title-4" class="plate slab" src="assets/title-slab-04.png" alt="" width="1920" height="1080">
-          <img data-hf-id="hf-0m7c" id="slab-01-title-5" class="plate slab" src="assets/title-slab-05.png" alt="" width="1920" height="1080">
-          <img data-hf-id="hf-j9cy" id="slab-01-title-6" class="plate slab" src="assets/title-slab-06.png" alt="" width="1920" height="1080">
-          <img data-hf-id="hf-9izc" id="slab-01-title-7" class="plate slab" src="assets/title-slab-07.png" alt="" width="1920" height="1080">
-          <img data-hf-id="hf-8lge" id="slab-01-title-8" class="plate slab" src="assets/title-slab-08.png" alt="" width="1920" height="1080">
-          <img data-hf-id="hf-qev4" id="slab-01-title-9" class="plate slab" src="assets/title-slab-09.png" alt="" width="1920" height="1080">
-        </div>
 
         <div data-hf-id="hf-261e" class="scrim"></div>
         <div data-hf-id="hf-r8dg" class="copy" id="copy-01-title" style="width: 807px">
@@ -70,7 +63,7 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-fh46" id="clip-02-question" class="clip slide anchor-bl" data-start="5" data-duration="5" data-track-index="1" data-slide-index="1" style="--accent: #c8d0e0; --accent-text: #c8d0e0">
+      <section data-hf-id="hf-if3a" id="clip-02-question" class="clip slide anchor-bl" data-start="10" data-duration="5" data-track-index="1" data-slide-index="1" style="--accent: #c8d0e0; --accent-text: #c8d0e0">
         <div data-hf-id="hf-fx16" class="fill" aria-hidden="true"></div>
 
         <img data-hf-id="hf-tck3" id="img-02-question" class="plate" src="assets/sp-stack-02-the-question.png" alt="" width="1920" height="1080">
@@ -84,17 +77,10 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-k1la" id="clip-03-four-stacks" class="clip slide anchor-tl" data-start="10" data-duration="5" data-track-index="1" data-slide-index="2" style="--accent: #2f6bff; --accent-text: #2f6bff">
+      <section data-hf-id="hf-jkhf" id="clip-03-four-stacks" class="clip slide anchor-tl" data-start="15" data-duration="10" data-track-index="1" data-slide-index="2" style="--accent: #2f6bff; --accent-text: #2f6bff">
         <div data-hf-id="hf-gbc7" class="fill" aria-hidden="true"></div>
 
-        <img data-hf-id="hf-poep" id="img-03-four-stacks" class="plate" src="assets/sp-stack-03-four-stacks.png" alt="" width="1920" height="1080">
 
-        <div data-hf-id="hf-g8m5" class="annotations" id="an-03-four-stacks" aria-hidden="true">
-          <span data-hf-id="hf-z01t" class="annotation label" id="an-03-four-stacks-0" style="left: 427px; top: 876px; font-size: 44px">PRODUCT</span>
-          <span data-hf-id="hf-osf2" class="annotation label" id="an-03-four-stacks-1" style="left: 773px; top: 876px; font-size: 44px">BRAND</span>
-          <span data-hf-id="hf-puvd" class="annotation label" id="an-03-four-stacks-2" style="left: 1138px; top: 876px; font-size: 44px">INCOME</span>
-          <span data-hf-id="hf-s5wf" class="annotation label" id="an-03-four-stacks-3" style="left: 1492px; top: 876px; font-size: 44px">PEOPLE</span>
-        </div>
         <div data-hf-id="hf-aapv" class="scrim"></div>
         <div data-hf-id="hf-0x04" class="copy" id="copy-03-four-stacks" style="width: 1008px">
           <p data-hf-id="hf-nmec" class="eyebrow" id="ey-03-four-stacks">The Super Patch Full Stack</p>
@@ -104,7 +90,7 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-zvb1" id="clip-04-flywheel" class="clip slide anchor-bl" data-start="15" data-duration="5" data-track-index="1" data-slide-index="3" style="--accent: #2f6bff; --accent-text: #2f6bff">
+      <section data-hf-id="hf-oasa" id="clip-04-flywheel" class="clip slide anchor-bl" data-start="25" data-duration="5" data-track-index="1" data-slide-index="3" style="--accent: #2f6bff; --accent-text: #2f6bff">
         <div data-hf-id="hf-gpn8" class="fill" aria-hidden="true"></div>
 
         <img data-hf-id="hf-wt05" id="img-04-flywheel" class="plate" src="assets/sp-stack-04-flywheel.png" alt="" width="1920" height="1080">
@@ -118,7 +104,7 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-g22z" id="clip-05-ecosystem" class="clip slide anchor-bl" data-start="20" data-duration="5" data-track-index="1" data-slide-index="4" style="--accent: #8b5cff; --accent-text: #8b5cff">
+      <section data-hf-id="hf-tszw" id="clip-05-ecosystem" class="clip slide anchor-bl" data-start="30" data-duration="5" data-track-index="1" data-slide-index="4" style="--accent: #8b5cff; --accent-text: #8b5cff">
         <div data-hf-id="hf-h3y9" class="fill" aria-hidden="true"></div>
 
         <img data-hf-id="hf-a43t" id="img-05-ecosystem" class="plate" src="assets/sp-stack-05-ecosystem.png" alt="" width="1920" height="1080">
@@ -132,7 +118,7 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-4lam" id="clip-06-ten-layers" class="clip slide anchor-bl" data-start="25" data-duration="5" data-track-index="1" data-slide-index="5" style="--accent: #ff7a1a; --accent-text: #ff7a1a">
+      <section data-hf-id="hf-o9er" id="clip-06-ten-layers" class="clip slide anchor-bl" data-start="35" data-duration="5" data-track-index="1" data-slide-index="5" style="--accent: #ff7a1a; --accent-text: #ff7a1a">
         <div data-hf-id="hf-hi9a" class="fill" aria-hidden="true"></div>
 
         <img data-hf-id="hf-nhh5" id="img-06-ten-layers" class="plate" src="assets/sp-stack-06-ten-layers.png" alt="" width="1920" height="1080">
@@ -146,7 +132,7 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-33at" id="clip-07-retail" class="clip slide anchor-br" data-start="30" data-duration="5" data-track-index="1" data-slide-index="6" style="--accent: #22d36b; --accent-text: #22d36b">
+      <section data-hf-id="hf-7jze" id="clip-07-retail" class="clip slide anchor-br" data-start="40" data-duration="5" data-track-index="1" data-slide-index="6" style="--accent: #22d36b; --accent-text: #22d36b">
         <div data-hf-id="hf-hwkb" class="fill" aria-hidden="true"></div>
 
         <img data-hf-id="hf-vzdt" id="img-07-retail" class="plate" src="assets/sp-stack-07-retail.png" alt="" width="1920" height="1080">
@@ -163,7 +149,7 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-mene" id="clip-08-fast-start" class="clip slide anchor-bl" data-start="35" data-duration="5" data-track-index="1" data-slide-index="7" style="--accent: #ff7a1a; --accent-text: #ff7a1a">
+      <section data-hf-id="hf-090x" id="clip-08-fast-start" class="clip slide anchor-bl" data-start="45" data-duration="5" data-track-index="1" data-slide-index="7" style="--accent: #ff7a1a; --accent-text: #ff7a1a">
         <div data-hf-id="hf-iavc" class="fill" aria-hidden="true"></div>
 
         <img data-hf-id="hf-42al" id="img-08-fast-start" class="plate" src="assets/sp-stack-08-fast-start.png" alt="" width="1920" height="1080">
@@ -180,7 +166,7 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-dr3g" id="clip-09-team-overrides" class="clip slide anchor-br" data-start="40" data-duration="5" data-track-index="1" data-slide-index="8" style="--accent: #2f6bff; --accent-text: #2f6bff">
+      <section data-hf-id="hf-1gup" id="clip-09-team-overrides" class="clip slide anchor-br" data-start="50" data-duration="5" data-track-index="1" data-slide-index="8" style="--accent: #2f6bff; --accent-text: #2f6bff">
         <div data-hf-id="hf-ip6d" class="fill" aria-hidden="true"></div>
 
         <img data-hf-id="hf-gww1" id="img-09-team-overrides" class="plate" src="assets/sp-stack-09-team-overrides.png" alt="" width="1920" height="1080">
@@ -201,7 +187,7 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-x9i8" id="clip-10-md-depth" class="clip slide anchor-bl" data-start="45" data-duration="5" data-track-index="1" data-slide-index="9" style="--accent: #8b5cff; --accent-text: #8b5cff">
+      <section data-hf-id="hf-zpip" id="clip-10-md-depth" class="clip slide anchor-bl" data-start="55" data-duration="5" data-track-index="1" data-slide-index="9" style="--accent: #8b5cff; --accent-text: #8b5cff">
         <div data-hf-id="hf-j3he" class="fill" aria-hidden="true"></div>
 
         <img data-hf-id="hf-ay13" id="img-10-md-depth" class="plate" src="assets/sp-stack-10-unlimited-depth.png" alt="" width="1920" height="1080">
@@ -218,7 +204,7 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-p0m9" id="clip-11-vp-override" class="clip slide anchor-bl" data-start="50" data-duration="5" data-track-index="1" data-slide-index="10" style="--accent: #2f6bff; --accent-text: #2f6bff">
+      <section data-hf-id="hf-woos" id="clip-11-vp-override" class="clip slide anchor-bl" data-start="60" data-duration="5" data-track-index="1" data-slide-index="10" style="--accent: #2f6bff; --accent-text: #2f6bff">
         <div data-hf-id="hf-aozi" class="fill" aria-hidden="true"></div>
 
         <img data-hf-id="hf-hc1h" id="img-11-vp-override" class="plate" src="assets/sp-stack-11-vp-override.png" alt="" width="1920" height="1080">
@@ -232,7 +218,7 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-bi08" id="clip-12-generations" class="clip slide anchor-bl" data-start="55" data-duration="5" data-track-index="1" data-slide-index="11" style="--accent: #22d36b; --accent-text: #22d36b">
+      <section data-hf-id="hf-g5oh" id="clip-12-generations" class="clip slide anchor-bl" data-start="65" data-duration="5" data-track-index="1" data-slide-index="11" style="--accent: #22d36b; --accent-text: #22d36b">
         <div data-hf-id="hf-aaoh" class="fill" aria-hidden="true"></div>
 
         <img data-hf-id="hf-ygxr" id="img-12-generations" class="plate" src="assets/sp-stack-12-generations.png" alt="" width="1920" height="1080">
@@ -246,7 +232,7 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-jv0h" id="clip-13-executive" class="clip slide anchor-bl" data-start="60" data-duration="5" data-track-index="1" data-slide-index="12" style="--accent: #ff7a1a; --accent-text: #ff7a1a">
+      <section data-hf-id="hf-oy1q" id="clip-13-executive" class="clip slide anchor-bl" data-start="70" data-duration="5" data-track-index="1" data-slide-index="12" style="--accent: #ff7a1a; --accent-text: #ff7a1a">
         <div data-hf-id="hf-bhlk" class="fill" aria-hidden="true"></div>
 
         <img data-hf-id="hf-t71j" id="img-13-executive" class="plate" src="assets/sp-stack-13-executive.png" alt="" width="1920" height="1080">
@@ -260,7 +246,7 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-htur" id="clip-14-global" class="clip slide anchor-bl" data-start="65" data-duration="5" data-track-index="1" data-slide-index="13" style="--accent: #8b5cff; --accent-text: #8b5cff">
+      <section data-hf-id="hf-99ma" id="clip-14-global" class="clip slide anchor-bl" data-start="75" data-duration="5" data-track-index="1" data-slide-index="13" style="--accent: #8b5cff; --accent-text: #8b5cff">
         <div data-hf-id="hf-b3aj" class="fill" aria-hidden="true"></div>
 
         <img data-hf-id="hf-asbi" id="img-14-global" class="plate" src="assets/sp-stack-14-global-pool.png" alt="" width="1920" height="1080">
@@ -274,7 +260,7 @@
         </div>
       </section>
 
-      <section data-hf-id="hf-rbom" id="clip-15-closing" class="clip slide anchor-bl" data-start="70" data-duration="5" data-track-index="1" data-slide-index="14" style="--accent: #dd0604; --accent-text: #ef8989">
+      <section data-hf-id="hf-joaj" id="clip-15-closing" class="clip slide anchor-bl" data-start="80" data-duration="5" data-track-index="1" data-slide-index="14" style="--accent: #dd0604; --accent-text: #ef8989">
         <div data-hf-id="hf-93re" class="fill" aria-hidden="true"></div>
 
         <img data-hf-id="hf-igyd" id="img-15-closing" class="plate" src="assets/sp-stack-15-closing.png" alt="" width="1920" height="1080">
@@ -299,120 +285,135 @@
       "index": 0,
       "label": "10 Ways to Build Life-Changing Income",
       "start": 0,
-      "duration": 5,
-      "notes": "At Super Patch, we didn't create just another affiliate program. We built an Income Stack™ — ten ways to earn as you grow. Every new activity can unlock another stream without replacing the one before it."
+      "duration": 10,
+      "notes": "At Super Patch, we didn't create just another affiliate program. We built an Income Stack™ — ten ways to earn as you grow. Every new activity can unlock another stream without replacing the one before it.",
+      "heroVideo": true
     },
     {
       "id": "02-question",
       "index": 1,
       "label": "One Commission Is Not a Business",
-      "start": 5,
+      "start": 10,
       "duration": 5,
-      "notes": "Most affiliate programs pay a single stream and leave you hoping volume alone will work. When growth stalls, so does income. Super Patch rewards every stage of building — customers, teams, and leaders — so progress compounds instead of resetting."
+      "notes": "Most affiliate programs pay a single stream and leave you hoping volume alone will work. When growth stalls, so does income. Super Patch rewards every stage of building — customers, teams, and leaders — so progress compounds instead of resetting.",
+      "heroVideo": false
     },
     {
       "id": "03-four-stacks",
       "index": 2,
       "label": "One Company. Four Stacks. Infinite Potential.",
-      "start": 10,
-      "duration": 5,
-      "notes": "We are building a full-stack human performance ecosystem: Product delivers outcomes, Brand & Marketing creates demand, Income opens opportunity, and Personal Development builds leaders. Each layer strengthens the others — not a catalog, a system."
+      "start": 15,
+      "duration": 10,
+      "notes": "We are building a full-stack human performance ecosystem: Product delivers outcomes, Brand & Marketing creates demand, Income opens opportunity, and Personal Development builds leaders. Each layer strengthens the others — not a catalog, a system.",
+      "heroVideo": true
     },
     {
       "id": "04-flywheel",
       "index": 3,
       "label": "Each Stack Reinforces the Others",
-      "start": 15,
+      "start": 25,
       "duration": 5,
-      "notes": "Better products strengthen the brand. A stronger brand accelerates customers. Greater awareness expands income. Greater income attracts leaders. Better leaders build community. Stronger communities fund innovation. The result is a self-reinforcing ecosystem built to last."
+      "notes": "Better products strengthen the brand. A stronger brand accelerates customers. Greater awareness expands income. Greater income attracts leaders. Better leaders build community. Stronger communities fund innovation. The result is a self-reinforcing ecosystem built to last.",
+      "heroVideo": false
     },
     {
       "id": "05-ecosystem",
       "index": 4,
       "label": "Exponential Value Across the Ecosystem",
-      "start": 20,
+      "start": 30,
       "duration": 5,
-      "notes": "Rather than competing with single-product wellness companies, Super Patch connects health outcomes, economic opportunity, leadership, and community. Every major initiative should strengthen one or more stacks — the more stacks touched, the greater the long-term value."
+      "notes": "Rather than competing with single-product wellness companies, Super Patch connects health outcomes, economic opportunity, leadership, and community. Every major initiative should strengthen one or more stacks — the more stacks touched, the greater the long-term value.",
+      "heroVideo": false
     },
     {
       "id": "06-ten-layers",
       "index": 5,
       "label": "The More Value You Create, the More Stacks Work for You",
-      "start": 25,
+      "start": 35,
       "duration": 5,
-      "notes": "Instead of relying on a single commission, Super Patch created multiple streams that reward sharing products, building customers, introducing affiliates, and developing leaders. Every new activity can unlock another stream — without replacing the one before it."
+      "notes": "Instead of relying on a single commission, Super Patch created multiple streams that reward sharing products, building customers, introducing affiliates, and developing leaders. Every new activity can unlock another stream — without replacing the one before it.",
+      "heroVideo": false
     },
     {
       "id": "07-retail",
       "index": 6,
       "label": "25% Retail Affiliate Commissions",
-      "start": 30,
+      "start": 40,
       "duration": 5,
-      "notes": "This is where everyone begins. Every time someone purchases through your personal affiliate link, you earn a guaranteed 25% commission — paid weekly. One product or several, if they buy through your link, you earn 25% of what they pay."
+      "notes": "This is where everyone begins. Every time someone purchases through your personal affiliate link, you earn a guaranteed 25% commission — paid weekly. One product or several, if they buy through your link, you earn 25% of what they pay.",
+      "heroVideo": false
     },
     {
       "id": "08-fast-start",
       "index": 7,
       "label": "Fast Start & Rank Advancement Bonuses",
-      "start": 35,
+      "start": 45,
       "duration": 5,
-      "notes": "Personally enroll three or more new affiliates in a month with qualifying kits and unlock Fast Start Bonuses from an additional $200 up to $2,000. As your organization hits sales milestones, Rank Advancement Bonuses can reach up to $100,000."
+      "notes": "Personally enroll three or more new affiliates in a month with qualifying kits and unlock Fast Start Bonuses from an additional $200 up to $2,000. As your organization hits sales milestones, Rank Advancement Bonuses can reach up to $100,000.",
+      "heroVideo": false
     },
     {
       "id": "09-team-overrides",
       "index": 8,
       "label": "Team Override Commissions",
-      "start": 40,
+      "start": 50,
       "duration": 5,
-      "notes": "True residual income begins as you help others build. Earn up to 15% of Bonus Volume on Level 1, up to 10% on Level 2, and up to 4% on Levels 3, 4, and 5. There is no ceiling on organization size."
+      "notes": "True residual income begins as you help others build. Earn up to 15% of Bonus Volume on Level 1, up to 10% on Level 2, and up to 4% on Levels 3, 4, and 5. There is no ceiling on organization size.",
+      "heroVideo": false
     },
     {
       "id": "10-md-depth",
       "index": 9,
       "label": "Managing Director Leaders Unlimited Depth Bonus",
-      "start": 45,
+      "start": 55,
       "duration": 5,
-      "notes": "Once you achieve Managing Director, you begin earning an additional unlimited 2% on qualifying Bonus Volume past level 5, up to the next qualified Managing Director. Leadership unlocks another layer of recurring income that grows with your organization."
+      "notes": "Once you achieve Managing Director, you begin earning an additional unlimited 2% on qualifying Bonus Volume past level 5, up to the next qualified Managing Director. Leadership unlocks another layer of recurring income that grows with your organization.",
+      "heroVideo": false
     },
     {
       "id": "11-vp-override",
       "index": 10,
       "label": "Vice President Leadership Override",
-      "start": 50,
+      "start": 60,
       "duration": 5,
-      "notes": "As a Vice President, your leadership expands further. Instead of the Managing Director override, you earn 2% of Bonus Volume on every organizational leg down to the next qualified Vice President. The larger your organization becomes, the greater this income grows."
+      "notes": "As a Vice President, your leadership expands further. Instead of the Managing Director override, you earn 2% of Bonus Volume on every organizational leg down to the next qualified Vice President. The larger your organization becomes, the greater this income grows.",
+      "heroVideo": false
     },
     {
       "id": "12-generations",
       "index": 11,
       "label": "Generation Bonuses",
-      "start": 55,
+      "start": 65,
       "duration": 5,
-      "notes": "This is where leadership begins rewarding leadership. As a Vice President and above, you earn 3% Generation Bonuses through up to three generations of Vice Presidents within your organization. Develop leaders who develop leaders — and your income keeps expanding."
+      "notes": "This is where leadership begins rewarding leadership. As a Vice President and above, you earn 3% Generation Bonuses through up to three generations of Vice Presidents within your organization. Develop leaders who develop leaders — and your income keeps expanding.",
+      "heroVideo": false
     },
     {
       "id": "13-executive",
       "index": 12,
       "label": "Executive Leadership & CEO Leadership Bonus",
-      "start": 60,
+      "start": 70,
       "duration": 5,
-      "notes": "Reach Executive Leadership and earn up to an additional 2% override on Bonus Volume across your qualified affiliate organization — no preset cap. At President or Global President, earn an extra $10,000 to $20,000 every month for top-tier leadership performance."
+      "notes": "Reach Executive Leadership and earn up to an additional 2% override on Bonus Volume across your qualified affiliate organization — no preset cap. At President or Global President, earn an extra $10,000 to $20,000 every month for top-tier leadership performance.",
+      "heroVideo": false
     },
     {
       "id": "14-global",
       "index": 13,
       "label": "Global President Override & Global Leadership Pool",
-      "start": 65,
+      "start": 75,
       "duration": 5,
-      "notes": "Global Presidents receive an additional 1% override on Bonus Volume throughout their qualified global organization. Qualified National Vice Presidents and above also participate in the Global 1% Leadership Pool — sharing in worldwide growth they help create."
+      "notes": "Global Presidents receive an additional 1% override on Bonus Volume throughout their qualified global organization. Qualified National Vice Presidents and above also participate in the Global 1% Leadership Pool — sharing in worldwide growth they help create.",
+      "heroVideo": false
     },
     {
       "id": "15-closing",
       "index": 14,
       "label": "Build Customers. Build Leaders. Build Leverage.",
-      "start": 70,
+      "start": 80,
       "duration": 5,
-      "notes": "Most affiliate programs pay one commission. Super Patch rewards every stage of building a business — from retail customers to global profit pools. Whether you want a few hundred a month or generational wealth, the Income Stack gives you multiple ways to get there."
+      "notes": "Most affiliate programs pay one commission. Super Patch rewards every stage of building a business — from retail customers to global profit pools. Whether you want a few hundred a month or generational wealth, the Income Stack gives you multiple ways to get there.",
+      "heroVideo": false
     }
   ]
 }
@@ -421,109 +422,106 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
 
-      tl.from("#img-01-title", { opacity: 0, duration: 0.4, ease: "power2.out" }, 0);
-      tl.from("#slabs-01-title .slab", { y: -520, opacity: 0, duration: 0.45, stagger: 0.1, ease: "power3.out" }, 0.15);
       tl.from("#ey-01-title", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 0.25);
       tl.from("#hl-01-title", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 0.35);
       tl.from("#bd-01-title", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 0.5);
       
       
 
-      tl.fromTo("#img-02-question", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 5);
-      tl.from("#ey-02-question", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 5.25);
-      tl.from("#hl-02-question", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 5.35);
-      tl.from("#bd-02-question", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 5.5);
+      tl.fromTo("#img-02-question", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 10);
+      tl.from("#ey-02-question", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 10.25);
+      tl.from("#hl-02-question", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 10.35);
+      tl.from("#bd-02-question", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 10.5);
       
       
 
-      tl.fromTo("#img-03-four-stacks", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 10);
-      tl.from("#ey-03-four-stacks", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 10.25);
-      tl.from("#hl-03-four-stacks", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 10.35);
-      tl.from("#bd-03-four-stacks", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 10.5);
-      tl.from("#an-03-four-stacks > *", { scale: 0.82, opacity: 0, duration: 0.5, stagger: 0.12, ease: "back.out(1.8)" }, 10.45);
-      
-
-      tl.fromTo("#img-04-flywheel", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 15);
-      tl.from("#ey-04-flywheel", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 15.25);
-      tl.from("#hl-04-flywheel", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 15.35);
-      tl.from("#bd-04-flywheel", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 15.5);
+      tl.from("#ey-03-four-stacks", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 15.25);
+      tl.from("#hl-03-four-stacks", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 15.35);
+      tl.from("#bd-03-four-stacks", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 15.5);
       
       
 
-      tl.fromTo("#img-05-ecosystem", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 20);
-      tl.from("#ey-05-ecosystem", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 20.25);
-      tl.from("#hl-05-ecosystem", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 20.35);
-      tl.from("#bd-05-ecosystem", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 20.5);
+      tl.fromTo("#img-04-flywheel", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 25);
+      tl.from("#ey-04-flywheel", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 25.25);
+      tl.from("#hl-04-flywheel", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 25.35);
+      tl.from("#bd-04-flywheel", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 25.5);
       
       
 
-      tl.fromTo("#img-06-ten-layers", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 25);
-      tl.from("#ey-06-ten-layers", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 25.25);
-      tl.from("#hl-06-ten-layers", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 25.35);
-      tl.from("#bd-06-ten-layers", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 25.5);
+      tl.fromTo("#img-05-ecosystem", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 30);
+      tl.from("#ey-05-ecosystem", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 30.25);
+      tl.from("#hl-05-ecosystem", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 30.35);
+      tl.from("#bd-05-ecosystem", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 30.5);
       
       
 
-      tl.fromTo("#img-07-retail", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 30);
-      tl.from("#ey-07-retail", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 30.25);
-      tl.from("#hl-07-retail", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 30.35);
-      tl.from("#bd-07-retail", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 30.5);
-      tl.from("#an-07-retail > *", { scale: 0.82, opacity: 0, duration: 0.5, stagger: 0.12, ease: "back.out(1.8)" }, 30.45);
-      tl.from("#d-07-retail", { opacity: 0, duration: 0.4 }, 30.7);
-
-      tl.fromTo("#img-08-fast-start", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 35);
-      tl.from("#ey-08-fast-start", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 35.25);
-      tl.from("#hl-08-fast-start", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 35.35);
-      tl.from("#bd-08-fast-start", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 35.5);
-      tl.from("#an-08-fast-start > *", { scale: 0.82, opacity: 0, duration: 0.5, stagger: 0.12, ease: "back.out(1.8)" }, 35.45);
-      tl.from("#d-08-fast-start", { opacity: 0, duration: 0.4 }, 35.7);
-
-      tl.fromTo("#img-09-team-overrides", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 40);
-      tl.from("#ey-09-team-overrides", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 40.25);
-      tl.from("#hl-09-team-overrides", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 40.35);
-      tl.from("#bd-09-team-overrides", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 40.5);
-      tl.from("#an-09-team-overrides > *", { scale: 0.82, opacity: 0, duration: 0.5, stagger: 0.12, ease: "back.out(1.8)" }, 40.45);
-      tl.from("#d-09-team-overrides", { opacity: 0, duration: 0.4 }, 40.7);
-
-      tl.fromTo("#img-10-md-depth", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 45);
-      tl.from("#ey-10-md-depth", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 45.25);
-      tl.from("#hl-10-md-depth", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 45.35);
-      tl.from("#bd-10-md-depth", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 45.5);
-      tl.from("#an-10-md-depth > *", { scale: 0.82, opacity: 0, duration: 0.5, stagger: 0.12, ease: "back.out(1.8)" }, 45.45);
-      tl.from("#d-10-md-depth", { opacity: 0, duration: 0.4 }, 45.7);
-
-      tl.fromTo("#img-11-vp-override", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 50);
-      tl.from("#ey-11-vp-override", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 50.25);
-      tl.from("#hl-11-vp-override", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 50.35);
-      tl.from("#bd-11-vp-override", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 50.5);
+      tl.fromTo("#img-06-ten-layers", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 35);
+      tl.from("#ey-06-ten-layers", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 35.25);
+      tl.from("#hl-06-ten-layers", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 35.35);
+      tl.from("#bd-06-ten-layers", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 35.5);
       
-      tl.from("#d-11-vp-override", { opacity: 0, duration: 0.4 }, 50.7);
-
-      tl.fromTo("#img-12-generations", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 55);
-      tl.from("#ey-12-generations", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 55.25);
-      tl.from("#hl-12-generations", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 55.35);
-      tl.from("#bd-12-generations", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 55.5);
       
-      tl.from("#d-12-generations", { opacity: 0, duration: 0.4 }, 55.7);
 
-      tl.fromTo("#img-13-executive", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 60);
-      tl.from("#ey-13-executive", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 60.25);
-      tl.from("#hl-13-executive", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 60.35);
-      tl.from("#bd-13-executive", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 60.5);
+      tl.fromTo("#img-07-retail", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 40);
+      tl.from("#ey-07-retail", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 40.25);
+      tl.from("#hl-07-retail", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 40.35);
+      tl.from("#bd-07-retail", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 40.5);
+      tl.from("#an-07-retail > *", { scale: 0.82, opacity: 0, duration: 0.5, stagger: 0.12, ease: "back.out(1.8)" }, 40.45);
+      tl.from("#d-07-retail", { opacity: 0, duration: 0.4 }, 40.7);
+
+      tl.fromTo("#img-08-fast-start", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 45);
+      tl.from("#ey-08-fast-start", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 45.25);
+      tl.from("#hl-08-fast-start", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 45.35);
+      tl.from("#bd-08-fast-start", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 45.5);
+      tl.from("#an-08-fast-start > *", { scale: 0.82, opacity: 0, duration: 0.5, stagger: 0.12, ease: "back.out(1.8)" }, 45.45);
+      tl.from("#d-08-fast-start", { opacity: 0, duration: 0.4 }, 45.7);
+
+      tl.fromTo("#img-09-team-overrides", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 50);
+      tl.from("#ey-09-team-overrides", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 50.25);
+      tl.from("#hl-09-team-overrides", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 50.35);
+      tl.from("#bd-09-team-overrides", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 50.5);
+      tl.from("#an-09-team-overrides > *", { scale: 0.82, opacity: 0, duration: 0.5, stagger: 0.12, ease: "back.out(1.8)" }, 50.45);
+      tl.from("#d-09-team-overrides", { opacity: 0, duration: 0.4 }, 50.7);
+
+      tl.fromTo("#img-10-md-depth", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 55);
+      tl.from("#ey-10-md-depth", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 55.25);
+      tl.from("#hl-10-md-depth", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 55.35);
+      tl.from("#bd-10-md-depth", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 55.5);
+      tl.from("#an-10-md-depth > *", { scale: 0.82, opacity: 0, duration: 0.5, stagger: 0.12, ease: "back.out(1.8)" }, 55.45);
+      tl.from("#d-10-md-depth", { opacity: 0, duration: 0.4 }, 55.7);
+
+      tl.fromTo("#img-11-vp-override", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 60);
+      tl.from("#ey-11-vp-override", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 60.25);
+      tl.from("#hl-11-vp-override", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 60.35);
+      tl.from("#bd-11-vp-override", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 60.5);
       
-      tl.from("#d-13-executive", { opacity: 0, duration: 0.4 }, 60.7);
+      tl.from("#d-11-vp-override", { opacity: 0, duration: 0.4 }, 60.7);
 
-      tl.fromTo("#img-14-global", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 65);
-      tl.from("#ey-14-global", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 65.25);
-      tl.from("#hl-14-global", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 65.35);
-      tl.from("#bd-14-global", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 65.5);
+      tl.fromTo("#img-12-generations", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 65);
+      tl.from("#ey-12-generations", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 65.25);
+      tl.from("#hl-12-generations", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 65.35);
+      tl.from("#bd-12-generations", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 65.5);
       
-      tl.from("#d-14-global", { opacity: 0, duration: 0.4 }, 65.7);
+      tl.from("#d-12-generations", { opacity: 0, duration: 0.4 }, 65.7);
 
-      tl.fromTo("#img-15-closing", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 70);
-      tl.from("#ey-15-closing", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 70.25);
-      tl.from("#hl-15-closing", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 70.35);
-      tl.from("#bd-15-closing", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 70.5);
+      tl.fromTo("#img-13-executive", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 70);
+      tl.from("#ey-13-executive", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 70.25);
+      tl.from("#hl-13-executive", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 70.35);
+      tl.from("#bd-13-executive", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 70.5);
+      
+      tl.from("#d-13-executive", { opacity: 0, duration: 0.4 }, 70.7);
+
+      tl.fromTo("#img-14-global", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 75);
+      tl.from("#ey-14-global", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 75.25);
+      tl.from("#hl-14-global", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 75.35);
+      tl.from("#bd-14-global", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 75.5);
+      
+      tl.from("#d-14-global", { opacity: 0, duration: 0.4 }, 75.7);
+
+      tl.fromTo("#img-15-closing", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 80);
+      tl.from("#ey-15-closing", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 80.25);
+      tl.from("#hl-15-closing", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 80.35);
+      tl.from("#bd-15-closing", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 80.5);
       
       
       window.__timelines["income-stack-main"] = tl;
