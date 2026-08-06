@@ -61,6 +61,18 @@ reproduced at its original cap height can overrun the plate edge. `fittedSizePct
 `slides.ts` shrinks any such string to fit, and both surfaces call it so the web deck and the
 film stay identical.
 
+## Title stack drop
+
+Slide 01 (`parallax-slabs`) does not use the flat concept plate. It composites:
+
+| Asset | Role |
+|-------|------|
+| `assets/title-base.png` | Plate with the coloured stack removed |
+| `assets/title-slab-00.png` … `09.png` | The ten coloured sections, full-frame transparent |
+
+GSAP drops the slabs from above one by one (`y: -520 → 0`, stagger 0.1s, `power3.out`).
+Source layers live in `apps/superpatch-income-stack/public/concepts/slabs/`.
+
 ## Relationship to Vite app
 
 | Surface | Job |

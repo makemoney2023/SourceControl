@@ -31,10 +31,11 @@ We scaffolded OpenMontage + HyperFrames under this initiative so the Income Stac
 ## Next steps
 
 1. ~~`hyperframes check`~~ green; ~~render deck MP4~~ done and frame-verified
-2. Operator review of `income-stack-deck-final.mp4` — the open call is whether slides 04 and
-   07 should keep their plate metrics (needs a copy-block reposition) or stay as rendered
-3. Optional: OpenMontage `animation` / `cinematic` pipeline for I2V hero loops (needs `budget_usd`)
-4. Wire loops into `apps/superpatch-income-stack` `heroVideoSrc`
+2. ~~Brand type + title slab drop~~ applied (uppercase headlines, Montserrat weights, ten
+   coloured slabs drop in on slide 01). Accent palette kept as-is per operator.
+3. Operator review in Studio (`localhost:3002`) — confirm title drop timing, then decide
+   whether other plates (four pillars, flywheel) get the same treatment
+4. Optional: OpenMontage I2V hero loops (needs `budget_usd`)
 
 ## Production fields
 

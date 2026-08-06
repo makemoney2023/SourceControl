@@ -17,8 +17,8 @@ Two complementary motion products:
 | Token | Value |
 |-------|--------|
 | Background | `#05070F` |
-| Accents | blue `#2F6BFF`, green `#22D36B`, orange `#FF7A1A`, violet `#8B5CFF`, SP red `#DD0604` |
-| Type | Montserrat Black / ExtraBold |
+| Accents | Keep the deck accent set: blue `#2F6BFF`, green `#22D36B`, orange `#FF7A1A`, violet `#8B5CFF`, SP red `#DD0604` (not the product-patch rainbow) |
+| Type | Brand HTML rules: Montserrat. Headlines Black/900, always uppercase, 100% leading, −1.6% tracking. Sub-headlines bold/700 sentence case at 150%. Body medium/500 at 150%, one grey step lighter than the headline |
 | Imagery | v1 concept PNGs, **de-texted** — do not invent new compensation art |
 | Motif | Full Stack Flywheel (live SVG in web app; optional HF overlay later) |
 
