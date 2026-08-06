@@ -31,7 +31,13 @@ const OPS_ONLY = new Set<JarvisIntent>([
   "work.intake_save",
   "seat.answer_draft",
 ]);
-const STRUCTURAL = new Set<JarvisIntent>(["venture.create", "venture.switch"]);
+const STRUCTURAL = new Set<JarvisIntent>([
+  "venture.create",
+  "venture.switch",
+  "customer.create",
+  "initiative.create",
+  "portfolio.switch",
+]);
 const ARCHITECT_ONLY = new Set<JarvisIntent>([...STRUCTURAL]);
 
 export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy {
@@ -52,6 +58,14 @@ export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy 
   }
 
   if (intent === "memory.reindex" && mode !== "ops") {
+    return {
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    };
+  }
+
+  if (intent === "obsidian.sync" && mode !== "ops") {
     return {
       allowed: false,
       needsConfirm: false,
@@ -120,6 +134,7 @@ export function policyFor(intent: JarvisIntent, mode: JarvisMode): JarvisPolicy 
     intent === "memory.note" ||
     intent === "memory.digest" ||
     intent === "memory.reindex" ||
+    intent === "obsidian.sync" ||
     STRUCTURAL.has(intent);
 
   return { allowed: true, needsConfirm };

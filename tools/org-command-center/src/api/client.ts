@@ -173,11 +173,35 @@ export type ProjectListItem = {
   memory: string;
 };
 
+export type InitiativeListItem = {
+  slug: string;
+  name: string;
+  businessIdea: string;
+  memory: string;
+};
+
+export type CustomerListItem = {
+  slug: string;
+  name: string;
+  initiatives: InitiativeListItem[];
+};
+
+export type ActiveRef = {
+  org: string;
+  customer: string;
+  initiative: string;
+};
+
 export async function fetchProject(): Promise<{
-  active: string;
+  version?: number;
+  active: ActiveRef | string;
+  activeProject?: string;
+  activeInitiative?: string;
+  org?: { slug: string; name: string };
   businessIdeaRel: string;
   memoryRel: string | null;
   projects: ProjectListItem[];
+  customers?: CustomerListItem[];
 }> {
   const res = await fetch("/api/project");
   if (!res.ok) throw new Error(await res.text());
@@ -186,7 +210,8 @@ export async function fetchProject(): Promise<{
 
 export async function setActiveProject(active: string): Promise<{
   ok: true;
-  active: string;
+  active: ActiveRef | string;
+  activeProject?: string;
   businessIdeaRel: string;
   memoryRel: string;
 }> {
@@ -197,6 +222,27 @@ export async function setActiveProject(active: string): Promise<{
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "project switch failed");
+  return data;
+}
+
+export async function setActivePortfolio(input: {
+  org?: string;
+  customer: string;
+  initiative: string;
+}): Promise<{
+  ok: true;
+  active: ActiveRef;
+  activeProject?: string;
+  businessIdeaRel: string;
+  memoryRel: string;
+}> {
+  const res = await fetch("/api/project", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "portfolio switch failed");
   return data;
 }
 
@@ -220,6 +266,57 @@ export async function createProject(input: {
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "create venture failed");
+  return data;
+}
+
+export async function createCustomer(input: {
+  name: string;
+  slug?: string;
+  org?: string;
+  activate?: boolean;
+  contextNote?: string;
+}): Promise<{
+  ok: true;
+  slug: string;
+  name: string;
+  initiative: string;
+  active: ActiveRef;
+  businessIdea: string;
+  memory: string;
+}> {
+  const res = await fetch("/api/customer/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "create customer failed");
+  return data;
+}
+
+export async function createInitiative(input: {
+  name: string;
+  slug?: string;
+  org?: string;
+  customer?: string;
+  activate?: boolean;
+  contextNote?: string;
+}): Promise<{
+  ok: true;
+  slug: string;
+  name: string;
+  customer: string;
+  active: ActiveRef;
+  businessIdea: string;
+  memory: string;
+}> {
+  const res = await fetch("/api/initiative/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "create initiative failed");
   return data;
 }
 
@@ -260,6 +357,31 @@ export async function fetchCompanyDigest() {
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "digest failed");
   return data.digest as import("../jarvis/company-digest").CompanyDigest;
+}
+
+export type GraphifyStatusResponse = {
+  ready: boolean;
+  hasHtml: boolean;
+  nodeCount: number;
+  edgeCount: number;
+  graphJson: string;
+  graphHtml: string;
+};
+
+export async function fetchGraphifyStatus(): Promise<GraphifyStatusResponse> {
+  const res = await fetch("/api/graphify/status");
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "graphify status failed");
+  return data as GraphifyStatusResponse;
+}
+
+export async function fetchOrgWorkGraph(
+  scope: "portfolio" | "initiative" = "portfolio",
+): Promise<import("../jarvis/org-work-graph").OrgWorkGraph> {
+  const res = await fetch(`/api/org-work-graph?scope=${scope}`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "org work graph failed");
+  return data.graph as import("../jarvis/org-work-graph").OrgWorkGraph;
 }
 
 export type JarvisActResult = {

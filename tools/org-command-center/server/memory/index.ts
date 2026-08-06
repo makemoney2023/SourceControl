@@ -116,8 +116,9 @@ export async function memoryDigest(
   const at = new Date();
   const snap = loadSnapshot(repoRoot);
   const reg = loadRegistry(repoRoot);
-  const slug = reg.active;
-  const ventureName = reg.projects[slug]?.name ?? slug;
+  const slug = reg.active.customer;
+  const ventureName =
+    reg.orgs[reg.active.org]?.customers[slug]?.name ?? slug;
   const snippets = readMemorySnippets(repoRoot);
   const runLines = loadRecentRunLines(repoRoot, 10);
   const noteLines = [

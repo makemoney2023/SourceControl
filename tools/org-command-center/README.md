@@ -121,12 +121,85 @@ When Jarvis proposes a write (assign, run, pause, cancel, etc.):
 
 Example: “Queue phase 2 research” → summary → “Confirm?” → “yes”.
 
+## Knowledge graph (org work + Graphify)
+
+**Situation Room → Intelligence → Knowledge graph** shows the **portfolio org-work graph** by default (`GET /api/org-work-graph?scope=portfolio`): Velocity Agency → customers → initiatives → work (active initiative expanded; others summarized). Use `scope=initiative` for the single-active work graph. Click a seat node to open that seat’s report.
+
+**Graphify** remains a separate local code/docs graph for agents (query instead of grepping). It is not what the Knowledge graph menu renders.
+
+```bash
+# Install CLI (once)
+uv tool install "graphifyy[mcp,ollama]"
+
+# Build / refresh the OCC code graph (AST only, no API key)
+graphify extract tools/org-command-center --code-only --force
+graphify cluster-only tools/org-command-center   # writes graph.html + GRAPH_REPORT.md
+
+# Optional: semantic pass over org skill docs (needs Ollama or another backend)
+OLLAMA_API_KEY=ollama OLLAMA_MODEL=qwen3 \
+  graphify extract skills/org --backend ollama --token-budget 3000
+
+# Cursor skill + always-on rule
+graphify cursor install --project
+
+# MCP (Cursor / agents) — see docs/mcp.json
+graphify-mcp tools/org-command-center/graphify-out/graph.json
+```
+
+| Surface | How |
+|---------|-----|
+| Situation Room | Intelligence → **Knowledge graph** → org-work graph (`/api/org-work-graph`) |
+| Jarvis intents | `graph.status`, `graph.query`, `graph.path`, `graph.explain` (Graphify code map; read-only) |
+| HTTP (Graphify) | `GET /api/graphify/status`, `GET /api/graphify/view` |
+| Cursor MCP | `docs/mcp.json` → `graphify` server (`query_graph`, `shortest_path`, …) |
+
+Canonical artifacts live at repo-root `graphify-out/` (OCC also keeps a copy under `tools/org-command-center/graphify-out/`). Jarvis resolves root first. Ignore `cost.json` / local cache churn; commit `graph.json` + `graph.html` + `GRAPH_REPORT.md` when you want the team to share a map.
+
+## Obsidian vault source of truth (role markdown)
+
+Role notes live once in the **memorybank** Obsidian vault. OCC keeps the usual paths under `docs/projects/<venture>/…` as **symlinks** into the vault (no dual copies).
+
+| Path in OCC (symlink) | Vault SoT |
+|-----------------------|-----------|
+| `…/business-idea/HANDOFFS` | `memorybank/org/<venture>/HANDOFFS` |
+| `…/business-idea/BRIEFINGS` | `memorybank/org/<venture>/BRIEFINGS` |
+| `…/business-idea/REVIEW` | `memorybank/org/<venture>/REVIEW` |
+| `…/MEMORY` | `memorybank/org/<venture>/MEMORY` |
+| `…/business-idea/NN-*.md` | `memorybank/org/<venture>/phases/NN-*.md` |
+
+Runtime stays on disk under docs: `DISPATCH/`, `RUNBOOK-TRACKER.md`, `SOURCES/`, operator blockers, etc.
+
+```bash
+# Optional — Obsidian MCP for search/tools (not required for SoT layout)
+OBSIDIAN_MCP_URL=http://127.0.0.1:27200/mcp
+OBSIDIAN_MCP_TOKEN=<token from Obsidian → MCP Connector settings>
+
+# Cursor MCP: copy .cursor/mcp.json.example → .cursor/mcp.json and paste the token
+```
+
+| Surface | How |
+|---------|-----|
+| Layout | `ensureVentureVaultSourceOfTruth` (create-venture + `obsidian.sync`) |
+| Jarvis | `obsidian.status` (read) · `obsidian.sync` (Ops + confirm) — link/migrate, not copy |
+| HTTP | `GET /api/obsidian/status` · `POST /api/obsidian/sync` `{ "venture": "blacksage-kennels" }` |
+| Vault layout | `memorybank/org/<venture>/{HANDOFFS,BRIEFINGS,REVIEW,MEMORY,phases}/…` |
+
+Refresh Graphify over vault notes after large changes:
+
+```bash
+graphify extract memorybank/org --force
+graphify merge-graphs graphify-out/graph.json memorybank/org/graphify-out/graph.json \
+  --out graphify-out/graph.json
+graphify cluster-only graphify-out --graph graphify-out/graph.json --no-label
+```
+
 ## What you see
 
 | Zone | Purpose |
 |------|---------|
 | Mission strip | NOW phase, %, Run next primary, Talk / Brief me, Assign / Outputs, Intelligence / System menus |
 | Theater | Canonical org graph, seat status, command deck, camera focus, threat and seat overlays |
+| Knowledge graph | Intelligence menu → live org-work graph (all roster seats, handoffs, runs, deliverables, artifacts; click opens seat report). Graphify CLI remains for code RAG only. |
 | Floating Talk | LiveKit mic session (Ollama + Whisper + Kokoro TTS) |
 | Seat Report / Seat console | Same business-conversation layout for every role: What happened → Why it matters → Next steps → What we need from you → What’s stuck. `/api/seat-report` returns the deterministic brief immediately, then Grok rewrites in the background (UI soft-polls until ready). Voice `seat.report` awaits up to `JARVIS_SEAT_BRIEF_TIMEOUT_MS` (default 4s) then falls back. Model: `JARVIS_SEAT_BRIEF_MODEL` / `JARVIS_BRAIN_MODEL` (default `grok-4.5`) via Cursor SDK + `CURSOR_API_KEY`. Cached by seat + content hash. |
 | Threat rail / company digest | Blocked + needs-input seats show roster **title**, plain status (**Needs your input** / **Stuck**), and humanized reasons (process noise like “peer help: none” dropped). On every `/api/company-digest`, `digest.get`, and `blocker.list`, OCC batch-rewrites threat headlines with the same Cursor Grok path (`JARVIS_THREAT_BRIEF_MODEL` → seat/brain model, default `grok-4.5`), cached by threat content hash. |
@@ -135,7 +208,9 @@ Example: “Queue phase 2 research” → summary → “Confirm?” → “yes�
 | Runs / Routines | Execution + cron |
 | Outputs | **Production assets only** (HTML, apps, images, video, Office, design-system) with typed preview (`/api/file/raw` for binary). Snapshot also discovers files under each seat’s `## Outputs` leases. Needs-review inbox stays a separate strip; narrative briefs live in Report. |
 
-**Sources / context:** Outputs drawer → **Sources** — upload docs (text extracted for agents), edit the venture context note. New idea can set the note at create time. Assign/queue auto-adds `MEMORY/context.md` + source index to `must_read`.
+**Portfolio:** Mission strip selects **Agency / Customer / Initiative**. **Add initiative** scaffolds a full workspace under the current customer; **Add customer** creates a customer with default `main`. Registry is portfolio v2 (`projects/registry.json`).
+
+**Sources / context:** Outputs drawer → **Sources** — upload docs (text extracted for agents), edit the initiative context note. Add initiative / Add customer can set the note at create time. Assign/queue auto-adds `MEMORY/context.md` + source index to `must_read`.
 
 ## Execution
 
@@ -189,6 +264,12 @@ Jarvis maps natural speech to **intents** via `jarvis_act`. Use **Ops** before q
 | Write a short blog / create an article | `work.resolve` → intake → `work.request` | Yes (on request) |
 | Kick off the work / start Cursor | `work.request` | Yes |
 | Show review inbox / needs review | `review.inbox_list` | No |
+| Knowledge graph status / is the graph ready | `graph.status` | No |
+| Query the graph for auth flow / what connects SeatNode | `graph.query` | No |
+| Path from SituationRoom to SeatNode | `graph.path` | No |
+| Explain SeatNode in the graph | `graph.explain` | No |
+| Vault SoT status | `obsidian.status` | No |
+| Ensure vault SoT (symlinks) | `obsidian.sync` | Yes (Ops) |
 
 Review mode adds `file.read`, `csuite.draft`, and handoffs; spawn intents stay disabled there. IC spawn requests are always denied — use `work.resolve` / `work.request` so Jarvis intakes with the manager and starts Cursor.
 

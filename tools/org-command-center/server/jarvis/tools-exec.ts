@@ -14,14 +14,19 @@ import { resolveSeatSlug } from "./resolve-seat";
 import { appendActivity } from "../activity";
 import { ackHandoffAlert } from "../alerts-fs";
 import { setSeatPaused } from "../agent-state";
+import { createCustomer } from "../create-customer";
+import { createInitiative } from "../create-initiative";
 import { createVenture, slugifyVentureName } from "../create-venture";
 import {
+  DEFAULT_INITIATIVE_SLUG,
   activeProjectSlug,
   assertJarvisReadable,
   assertWritable,
   briefingsDir,
   businessIdeaFile,
   dispatchRoot,
+  getCustomerMain,
+  getInitiative,
   listProjects,
   loadRegistry,
   saveRegistry,
@@ -91,6 +96,18 @@ import {
   memoryRecall,
   memoryReindex,
 } from "../memory";
+import {
+  graphifyExplain,
+  graphifyPath,
+  graphifyQuery,
+  graphifyStatus,
+} from "./graphify-query";
+import {
+  ensureVentureVaultSourceOfTruth,
+  getServerInfo,
+  inspectVentureVaultSourceOfTruth,
+  obsidianConfigured,
+} from "../obsidian";
 
 export { JarvisExecError } from "./errors";
 
@@ -538,17 +555,23 @@ export async function executeIntent(
 
     case "venture.list": {
       const reg = loadRegistry(repoRoot);
-      return { active: reg.active, projects: listProjects(repoRoot) };
+      return {
+        active: reg.active,
+        activeProject: reg.active.customer,
+        projects: listProjects(repoRoot),
+      };
     }
 
     case "venture.get": {
       const reg = loadRegistry(repoRoot);
-      const entry = reg.projects[reg.active];
+      const { entry, customerName, ref } = getInitiative(reg);
       return {
-        active: reg.active,
-        name: entry?.name,
-        businessIdea: entry?.businessIdea,
-        memory: entry?.memory,
+        active: ref,
+        activeProject: ref.customer,
+        name: customerName,
+        initiative: ref.initiative,
+        businessIdea: entry.businessIdea,
+        memory: entry.memory,
       };
     }
 
@@ -568,10 +591,70 @@ export async function executeIntent(
       const slug = String(args.slug ?? "").trim();
       if (!slug) throw new JarvisExecError("slug required", "missing_arg");
       const reg = loadRegistry(repoRoot);
-      if (!reg.projects[slug]) throw new JarvisExecError(`Unknown project: ${slug}`, "unknown_venture");
-      reg.active = slug;
+      try {
+        getCustomerMain(reg, slug);
+      } catch {
+        throw new JarvisExecError(`Unknown project: ${slug}`, "unknown_venture");
+      }
+      reg.active = {
+        org: reg.active.org,
+        customer: slug,
+        initiative: DEFAULT_INITIATIVE_SLUG,
+      };
       saveRegistry(repoRoot, reg);
-      return { ok: true, active: activeProjectSlug(repoRoot) };
+      return { ok: true, active: activeProjectSlug(repoRoot), activeRef: reg.active };
+    }
+
+    case "customer.create": {
+      const name = String(args.name ?? "").trim();
+      if (!name) throw new JarvisExecError("name required", "missing_arg");
+      const slug = args.slug != null ? String(args.slug) : undefined;
+      return createCustomer(repoRoot, {
+        name,
+        slug,
+        activate: true,
+        contextNote: args.contextNote != null ? String(args.contextNote) : undefined,
+      });
+    }
+
+    case "initiative.create": {
+      const name = String(args.name ?? "").trim();
+      if (!name) throw new JarvisExecError("name required", "missing_arg");
+      const slug = args.slug != null ? String(args.slug) : undefined;
+      const customer = args.customer != null ? String(args.customer) : undefined;
+      return createInitiative(repoRoot, {
+        name,
+        slug,
+        customer,
+        activate: true,
+        contextNote: args.contextNote != null ? String(args.contextNote) : undefined,
+      });
+    }
+
+    case "portfolio.switch": {
+      const customer = String(args.customer ?? args.slug ?? "").trim();
+      const initiative = String(args.initiative ?? DEFAULT_INITIATIVE_SLUG).trim();
+      if (!customer) throw new JarvisExecError("customer required", "missing_arg");
+      const reg = loadRegistry(repoRoot);
+      try {
+        getInitiative(reg, {
+          org: reg.active.org,
+          customer,
+          initiative,
+        });
+      } catch {
+        throw new JarvisExecError(
+          `Unknown portfolio target: ${customer}/${initiative}`,
+          "unknown_venture",
+        );
+      }
+      reg.active = {
+        org: reg.active.org,
+        customer,
+        initiative,
+      };
+      saveRegistry(repoRoot, reg);
+      return { ok: true, active: reg.active };
     }
 
     // Task 6: dispatch-for builder + awareness reads
@@ -1169,6 +1252,67 @@ export async function executeIntent(
 
     case "memory.reindex":
       return memoryReindex(repoRoot);
+
+    case "graph.status":
+      return graphifyStatus(repoRoot);
+
+    case "graph.query": {
+      const question = String(args.question ?? args.query ?? args.prompt ?? "").trim();
+      const budgetRaw = args.budget;
+      const budget =
+        typeof budgetRaw === "number" && Number.isFinite(budgetRaw) && budgetRaw > 0
+          ? Math.floor(budgetRaw)
+          : undefined;
+      return graphifyQuery(repoRoot, { question, budget });
+    }
+
+    case "graph.path": {
+      const source = String(args.source ?? args.from ?? args.a ?? "").trim();
+      const target = String(args.target ?? args.to ?? args.b ?? "").trim();
+      return graphifyPath(repoRoot, { source, target });
+    }
+
+    case "graph.explain": {
+      const label = String(args.label ?? args.node ?? args.concept ?? "").trim();
+      return graphifyExplain(repoRoot, { label });
+    }
+
+    case "obsidian.status": {
+      const sot = inspectVentureVaultSourceOfTruth(repoRoot);
+      const mcp = obsidianConfigured()
+        ? await getServerInfo()
+        : { ok: false, text: "", error: "OBSIDIAN_MCP_TOKEN not set" };
+      return {
+        vaultSourceOfTruth: true,
+        vaultRoot: sot.vaultRoot,
+        linked: sot.linked,
+        pending: sot.pending,
+        configured: true,
+        ready: sot.ready,
+        mcpConfigured: obsidianConfigured(),
+        mcpReady: mcp.ok,
+        message: sot.ready
+          ? `Vault SoT ready at ${sot.vaultRoot}`
+          : `Vault SoT pending: ${sot.pending.join(", ")} — run obsidian.sync`,
+      };
+    }
+
+    case "obsidian.sync": {
+      const venture =
+        args.venture != null
+          ? String(args.venture)
+          : args.slug != null
+            ? String(args.slug)
+            : undefined;
+      const result = ensureVentureVaultSourceOfTruth(repoRoot, venture);
+      if (!result.ok) {
+        throw new JarvisExecError(
+          result.errors.join("; ") || "vault source-of-truth layout failed",
+          "validation_error",
+        );
+      }
+      return result;
+    }
 
     default:
       throw new JarvisExecError(`executeIntent not wired for ${intent}`);

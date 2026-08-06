@@ -9,6 +9,19 @@
       "env": {
         "OCC_API_BASE": "http://127.0.0.1:5177"
       }
+    },
+    "graphify": {
+      "command": "graphify-mcp",
+      "args": [
+        "graphify-out/graph.json"
+      ]
+    },
+    "obsidian-memorybank": {
+      "type": "streamable-http",
+      "url": "http://127.0.0.1:27200/mcp",
+      "headers": {
+        "Authorization": "Bearer ${OBSIDIAN_MCP_TOKEN}"
+      }
     }
   }
 }

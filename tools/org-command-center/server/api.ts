@@ -1,5 +1,6 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
+import { config as loadDotenv } from "dotenv";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { watch } from "chokidar";
@@ -29,6 +30,7 @@ import {
   businessIdeaRel,
   dispatchRoot,
   handoffsDir,
+  loadRegistry,
   resolveRepoRoot,
 } from "./paths";
 import { appendActivity, readActivityTail } from "./activity";
@@ -60,8 +62,15 @@ import { memoryDigest } from "./memory";
 import { handleOccControlRpc } from "./mcp/occ-control";
 import { queueValidatedDispatch } from "./queue-validated-dispatch";
 import { writeCsuiteDraft } from "./write-csuite-draft";
+import { graphifyStatus } from "./jarvis/graphify-query";
+import {
+  buildOrgWorkGraph,
+  buildPortfolioWorkGraph,
+  type PortfolioInitiativeInput,
+} from "../src/jarvis/org-work-graph";
 
 export function createApi(repoRoot = resolveRepoRoot()) {
+  loadDotenv({ path: resolve(repoRoot, ".env.local") });
   const app = new Hono();
   let bump = 0;
   const stopPoller = startRoutinePoller(repoRoot, 30_000);
@@ -635,6 +644,119 @@ export function createApi(repoRoot = resolveRepoRoot()) {
     const summary = typeof body.summary === "string" ? body.summary.trim() : undefined;
     const result = await memoryDigest(repoRoot, summary ? { summary } : undefined);
     return c.json(result);
+  });
+
+  app.get("/api/graphify/status", (c) => {
+    const status = graphifyStatus(repoRoot);
+    return c.json({
+      ready: status.ready,
+      hasHtml: status.hasHtml,
+      nodeCount: status.nodeCount,
+      edgeCount: status.edgeCount,
+      graphJson: relative(repoRoot, status.graphJson).split("\\").join("/"),
+      graphHtml: relative(repoRoot, status.graphHtml).split("\\").join("/"),
+    });
+  });
+
+  app.get("/api/org-work-graph", (c) => {
+    const scope = (c.req.query("scope") || "portfolio").toLowerCase();
+    const snap = loadSnapshot(repoRoot);
+    const inbox = listReviewInbox(repoRoot);
+    const activeWork = buildOrgWorkGraph({
+      org: snap.org,
+      handoffs: snap.handoffs,
+      runs: snap.runs,
+      inbox,
+    });
+
+    if (scope === "initiative") {
+      return c.json({ ok: true, scope: "initiative", graph: activeWork });
+    }
+
+    const reg = loadRegistry(repoRoot);
+    const orgSlug = reg.active.org;
+    const orgEntry = reg.orgs[orgSlug];
+    const initiatives: PortfolioInitiativeInput[] = [];
+    for (const [customerSlug, customer] of Object.entries(orgEntry?.customers ?? {})) {
+      for (const [initSlug, init] of Object.entries(customer.initiatives)) {
+        const isActive =
+          reg.active.customer === customerSlug && reg.active.initiative === initSlug;
+        const handoffsAbs = join(repoRoot, init.businessIdea, "HANDOFFS");
+        const runsAbs = join(repoRoot, init.businessIdea, "DISPATCH", "runs");
+        let workCount = 0;
+        if (existsSync(handoffsAbs)) {
+          workCount += readdirSync(handoffsAbs).filter(
+            (n) => n.endsWith(".md") && n !== "README.md",
+          ).length;
+        }
+        if (existsSync(runsAbs)) {
+          workCount += readdirSync(runsAbs).filter((n) => n.endsWith(".json")).length;
+        }
+        initiatives.push({
+          org: orgSlug,
+          customer: customerSlug,
+          customerName: customer.name,
+          initiative: initSlug,
+          initiativeName: init.name,
+          isActive,
+          workCount,
+          workGraph: isActive ? activeWork : undefined,
+        });
+      }
+    }
+
+    const graph = buildPortfolioWorkGraph({
+      orgSlug,
+      orgName: orgEntry?.name ?? orgSlug,
+      initiatives,
+    });
+    return c.json({ ok: true, scope: "portfolio", graph });
+  });
+
+  app.get("/api/graphify/view", (c) => {
+    const status = graphifyStatus(repoRoot);
+    if (!status.hasHtml || !existsSync(status.graphHtml)) {
+      return c.json(
+        {
+          error:
+            "graph.html not built — run: graphify cluster-only tools/org-command-center",
+        },
+        404,
+      );
+    }
+    return c.html(readFileSync(status.graphHtml, "utf8"));
+  });
+
+  app.get("/api/obsidian/status", async (c) => {
+    const { inspectVentureVaultSourceOfTruth, obsidianConfigured, getServerInfo } =
+      await import("./obsidian");
+    const sot = inspectVentureVaultSourceOfTruth(repoRoot);
+    const mcp = obsidianConfigured()
+      ? await getServerInfo()
+      : { ok: false, text: "", error: "OBSIDIAN_MCP_TOKEN not set" };
+    return c.json({
+      vaultSourceOfTruth: true,
+      vaultRoot: sot.vaultRoot,
+      linked: sot.linked,
+      pending: sot.pending,
+      configured: obsidianConfigured(),
+      ready: sot.ready,
+      mcpReady: mcp.ok,
+      message: sot.ready
+        ? `Vault SoT ready at ${sot.vaultRoot}${mcp.ok ? "; MCP connected" : ""}`
+        : `Vault SoT pending: ${sot.pending.join(", ")} — POST /api/obsidian/sync`,
+    });
+  });
+
+  app.post("/api/obsidian/sync", async (c) => {
+    const body = (await c.req.json().catch(() => ({}))) as { venture?: string; slug?: string };
+    const venture = typeof body.venture === "string" ? body.venture : body.slug;
+    const { ensureVentureVaultSourceOfTruth } = await import("./obsidian");
+    const result = ensureVentureVaultSourceOfTruth(
+      repoRoot,
+      typeof venture === "string" ? venture : undefined,
+    );
+    return c.json(result, result.ok ? 200 : 500);
   });
 
   app.get("/api/jarvis/review-inbox", (c) => {

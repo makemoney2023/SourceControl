@@ -60,21 +60,18 @@ describe("createVenture", () => {
     });
     expect(result.slug).toBe("solar-lantern");
     expect(result.active).toBe("solar-lantern");
-    expect(existsSync(join(root, "docs/projects/solar-lantern/business-idea/RUNBOOK-TRACKER.md"))).toBe(
-      true,
-    );
-    expect(existsSync(join(root, "docs/projects/solar-lantern/business-idea/DISPATCH/queue"))).toBe(
-      true,
-    );
-    expect(existsSync(join(root, "docs/projects/solar-lantern/MEMORY/decisions.md"))).toBe(true);
-    const tracker = readFileSync(
-      join(root, "docs/projects/solar-lantern/business-idea/RUNBOOK-TRACKER.md"),
-      "utf8",
-    );
+    const base =
+      "docs/orgs/velocity-agency/customers/solar-lantern/initiatives/main";
+    expect(existsSync(join(root, base, "business-idea/RUNBOOK-TRACKER.md"))).toBe(true);
+    expect(existsSync(join(root, base, "business-idea/DISPATCH/queue"))).toBe(true);
+    expect(existsSync(join(root, base, "MEMORY/decisions.md"))).toBe(true);
+    const tracker = readFileSync(join(root, base, "business-idea/RUNBOOK-TRACKER.md"), "utf8");
     expect(tracker).toMatch(/\*\*Idea:\*\* Solar Lantern/);
     const reg = JSON.parse(readFileSync(join(root, "projects/registry.json"), "utf8"));
-    expect(reg.active).toBe("solar-lantern");
-    expect(reg.projects["solar-lantern"].name).toBe("Solar Lantern");
+    expect(reg.version).toBe(2);
+    expect(reg.active.customer).toBe("solar-lantern");
+    expect(reg.active.initiative).toBe("main");
+    expect(reg.orgs["velocity-agency"].customers["solar-lantern"].name).toBe("Solar Lantern");
   });
 
   it("rejects duplicate slug", () => {

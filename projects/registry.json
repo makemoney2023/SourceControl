@@ -1,25 +1,55 @@
 {
-  "active": "blacksage-kennels",
-  "projects": {
-    "passive-grid": {
-      "name": "Passive Grid",
-      "businessIdea": "docs/projects/passive-grid/business-idea",
-      "memory": "docs/projects/passive-grid/MEMORY"
-    },
-    "demo-venture": {
-      "name": "Demo Venture",
-      "businessIdea": "docs/projects/demo-venture/business-idea",
-      "memory": "docs/projects/demo-venture/MEMORY"
-    },
-    "lemonade-stand": {
-      "name": "Lemonade Stand",
-      "businessIdea": "docs/projects/lemonade-stand/business-idea",
-      "memory": "docs/projects/lemonade-stand/MEMORY"
-    },
-    "blacksage-kennels": {
-      "name": "Blacksage Kennels",
-      "businessIdea": "docs/projects/blacksage-kennels/business-idea",
-      "memory": "docs/projects/blacksage-kennels/MEMORY"
+  "version": 2,
+  "active": {
+    "org": "velocity-agency",
+    "customer": "blacksage-kennels",
+    "initiative": "main"
+  },
+  "orgs": {
+    "velocity-agency": {
+      "name": "Velocity Agency",
+      "customers": {
+        "passive-grid": {
+          "name": "Passive Grid",
+          "initiatives": {
+            "main": {
+              "name": "Main",
+              "businessIdea": "docs/projects/passive-grid/business-idea",
+              "memory": "docs/projects/passive-grid/MEMORY"
+            }
+          }
+        },
+        "demo-venture": {
+          "name": "Demo Venture",
+          "initiatives": {
+            "main": {
+              "name": "Main",
+              "businessIdea": "docs/projects/demo-venture/business-idea",
+              "memory": "docs/projects/demo-venture/MEMORY"
+            }
+          }
+        },
+        "lemonade-stand": {
+          "name": "Lemonade Stand",
+          "initiatives": {
+            "main": {
+              "name": "Main",
+              "businessIdea": "docs/projects/lemonade-stand/business-idea",
+              "memory": "docs/projects/lemonade-stand/MEMORY"
+            }
+          }
+        },
+        "blacksage-kennels": {
+          "name": "Blacksage Kennels",
+          "initiatives": {
+            "main": {
+              "name": "Main",
+              "businessIdea": "docs/projects/blacksage-kennels/business-idea",
+              "memory": "docs/projects/blacksage-kennels/MEMORY"
+            }
+          }
+        }
+      }
     }
   }
 }

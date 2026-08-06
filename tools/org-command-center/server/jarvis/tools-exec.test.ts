@@ -209,6 +209,18 @@ const INTENT_COVERAGE: CoverageCase[] = [
     args: { name: "Coverage Venture Alpha" },
   },
   { intent: "venture.switch", args: { slug: "passive-grid" } },
+  {
+    intent: "customer.create",
+    args: { name: "Coverage Customer Beta" },
+  },
+  {
+    intent: "initiative.create",
+    args: { name: "Coverage Initiative Gamma", customer: "passive-grid" },
+  },
+  {
+    intent: "portfolio.switch",
+    args: { customer: "passive-grid", initiative: "main" },
+  },
   { intent: "agent.spawn_ic", args: {}, expectThrow: /forbidden/i },
   { intent: "seat.who_owns", args: { phase: "2" } },
   {
@@ -418,6 +430,24 @@ fallback_applied: ""
       vi.spyOn(chromaIndex, "reindexProjectFromFs").mockResolvedValue({ count: 0 });
     },
   },
+  { intent: "graph.status", args: {} },
+  {
+    intent: "graph.query",
+    args: { question: "Alpha" },
+    expectThrow: /graph not ready/i,
+  },
+  {
+    intent: "graph.path",
+    args: { source: "Alpha", target: "Beta" },
+    expectThrow: /graph not ready/i,
+  },
+  {
+    intent: "graph.explain",
+    args: { label: "Alpha" },
+    expectThrow: /graph not ready/i,
+  },
+  { intent: "obsidian.status", args: {} },
+  { intent: "obsidian.sync", args: {} },
 ];
 
 describe("intent coverage checklist", () => {
@@ -841,8 +871,12 @@ describe("executeIntent", () => {
       active: string;
     };
     expect(r.active).toBe(r.slug);
-    const get = (await executeIntent(repo, "venture.get", {})) as { active: string };
-    expect(get.active).toBe(r.slug);
+    const get = (await executeIntent(repo, "venture.get", {})) as {
+      activeProject: string;
+      active: { customer: string };
+    };
+    expect(get.activeProject).toBe(r.slug);
+    expect(get.active.customer).toBe(r.slug);
   });
 
   it("venture.switch changes active", async () => {
@@ -863,8 +897,12 @@ describe("executeIntent", () => {
     expect(switched.ok).toBe(true);
     expect(switched.active).toBe(a.slug);
 
-    const get = (await executeIntent(repo, "venture.get", {})) as { active: string };
-    expect(get.active).toBe(a.slug);
+    const get = (await executeIntent(repo, "venture.get", {})) as {
+      activeProject: string;
+      active: { customer: string };
+    };
+    expect(get.activeProject).toBe(a.slug);
+    expect(get.active.customer).toBe(a.slug);
   });
 
   it("mode.set accepts architect", async () => {

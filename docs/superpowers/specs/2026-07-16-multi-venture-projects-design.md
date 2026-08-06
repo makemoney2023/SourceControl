@@ -1,7 +1,7 @@
 # Design: Multi-Venture Project Switch
 
 **Date:** 2026-07-16  
-**Status:** Active  
+**Status:** Superseded in part by [Agency → Customer → Initiative](./2026-08-06-agency-customer-initiative-design.md) (portfolio v2 registry). Flat ventures still migrate wrap-in-place.  
 **Approach:** A — Filesystem registry + namespaced ventures (Chroma deferred)
 
 ## Jobs to be done

@@ -15,19 +15,26 @@ import {
 describe("FS allowlist + multi-venture paths", () => {
   const root = resolveRepoRoot();
 
-  it("loads registry with a registered active venture", () => {
+  it("loads registry with a registered active customer/initiative", () => {
     const reg = loadRegistry(root);
-    expect(reg.projects[reg.active]).toBeTruthy();
-    expect(activeProjectSlug(root)).toBe(reg.active);
-    expect(businessIdeaRel(root)).toBe(reg.projects[reg.active].businessIdea);
+    expect(reg.version).toBe(2);
+    expect(reg.orgs[reg.active.org]?.customers[reg.active.customer]?.initiatives[reg.active.initiative]).toBeTruthy();
+    expect(activeProjectSlug(root)).toBe(reg.active.customer);
+    expect(businessIdeaRel(root)).toBe(
+      reg.orgs[reg.active.org]!.customers[reg.active.customer]!.initiatives[reg.active.initiative]!
+        .businessIdea,
+    );
   });
 
-  it("allows reading org skills and namespaced business-idea docs", () => {
+  it("allows reading org skills, vault SoT, and namespaced business-idea docs", () => {
     expect(() => assertReadable(root, "skills/org/ORG-REGISTRY.md")).not.toThrow();
     expect(() => assertReadable(root, "apps/demo/page.tsx")).not.toThrow();
     expect(() => assertReadable(root, "design-system/demo/tokens.css")).not.toThrow();
     expect(() =>
       assertReadable(root, "docs/projects/passive-grid/business-idea/RUNBOOK-TRACKER.md"),
+    ).not.toThrow();
+    expect(() =>
+      assertReadable(root, "memorybank/org/blacksage-kennels/HANDOFFS"),
     ).not.toThrow();
     expect(() => assertReadable(root, "projects/registry.json")).not.toThrow();
   });
@@ -57,6 +64,9 @@ describe("FS allowlist + multi-venture paths", () => {
       ),
     ).not.toThrow();
     expect(() => assertWritable(root, "projects/registry.json")).not.toThrow();
+    expect(() =>
+      assertWritable(root, "memorybank/org/blacksage-kennels/HANDOFFS/1-cfo.md"),
+    ).not.toThrow();
     expect(() => assertWritable(root, "skills/org/ORG-REGISTRY.md")).toThrow(/allowlist/i);
   });
 

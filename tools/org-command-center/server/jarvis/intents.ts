@@ -32,6 +32,9 @@ export const JARVIS_INTENTS = [
   "venture.slugify",
   "venture.create",
   "venture.switch",
+  "customer.create",
+  "initiative.create",
+  "portfolio.switch",
   "agent.spawn_ic",
   "seat.who_owns",
   "dispatch.preview",
@@ -63,6 +66,12 @@ export const JARVIS_INTENTS = [
   "memory.brief",
   "memory.digest",
   "memory.reindex",
+  "graph.status",
+  "graph.query",
+  "graph.path",
+  "graph.explain",
+  "obsidian.status",
+  "obsidian.sync",
 ] as const;
 
 export type JarvisIntent = (typeof JARVIS_INTENTS)[number];

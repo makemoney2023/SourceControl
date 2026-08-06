@@ -46,8 +46,14 @@ describe("GET/POST /api/project", () => {
     const get1 = await app.request("/api/project");
     expect(get1.status).toBe(200);
     const list = await get1.json();
-    expect(list.active).toBe("a");
+    expect(list.active).toEqual({
+      org: "velocity-agency",
+      customer: "a",
+      initiative: "main",
+    });
+    expect(list.activeProject).toBe("a");
     expect(list.projects).toHaveLength(2);
+    expect(list.customers).toHaveLength(2);
 
     const post = await app.request("/api/project", {
       method: "POST",
@@ -57,11 +63,13 @@ describe("GET/POST /api/project", () => {
     expect(post.status).toBe(200);
     const switched = await post.json();
     expect(switched.ok).toBe(true);
-    expect(switched.active).toBe("b");
+    expect(switched.active.customer).toBe("b");
+    expect(switched.activeProject).toBe("b");
     expect(switched.businessIdeaRel).toBe("docs/projects/b/business-idea");
 
     const disk = JSON.parse(readFileSync(join(root, "projects/registry.json"), "utf8"));
-    expect(disk.active).toBe("b");
+    expect(disk.active.customer).toBe("b");
+    expect(disk.version).toBe(2);
 
     const bad = await app.request("/api/project", {
       method: "POST",

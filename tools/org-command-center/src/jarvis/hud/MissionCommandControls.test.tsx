@@ -19,6 +19,7 @@ function renderControls() {
     onRunNext: vi.fn(),
     onRuns: vi.fn(),
     onDigest: vi.fn(),
+    onGraph: vi.fn(),
     onAlerts: vi.fn(),
     onRoutines: vi.fn(),
     onToggleTheater: vi.fn(),
@@ -64,6 +65,11 @@ describe("MissionCommandControls", () => {
     const intelligence = screen.getByRole("menu", { name: "Intelligence controls" });
     await user.click(within(intelligence).getByRole("menuitem", { name: "Brief CEO" }));
     expect(actions.onBriefSeat).toHaveBeenCalledOnce();
+
+    await user.click(screen.getByRole("button", { name: "Intelligence controls" }));
+    const intelligenceAgain = screen.getByRole("menu", { name: "Intelligence controls" });
+    await user.click(within(intelligenceAgain).getByRole("menuitem", { name: "Knowledge graph" }));
+    expect(actions.onGraph).toHaveBeenCalledOnce();
 
     await user.click(screen.getByRole("button", { name: "System controls" }));
     const system = screen.getByRole("menu", { name: "System controls" });

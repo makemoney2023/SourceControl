@@ -25,6 +25,7 @@ type Props = {
   onRunNext: () => void;
   onRuns: () => void;
   onDigest: () => void;
+  onGraph: () => void;
   onAlerts: () => void;
   onRoutines: () => void;
   onToggleTheater: (next: boolean) => void;
@@ -61,6 +62,7 @@ export function MissionCommandControls(props: Props) {
             <DropdownMenuItem onSelect={props.onLegacyVoice}>Legacy voice</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={props.onDigest}>Digest</DropdownMenuItem>
+            <DropdownMenuItem onSelect={props.onGraph}>Knowledge graph</DropdownMenuItem>
             <DropdownMenuItem onSelect={props.onAlerts}>Alerts ({props.alertCount})</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

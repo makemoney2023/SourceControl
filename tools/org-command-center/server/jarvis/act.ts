@@ -113,6 +113,20 @@ function confirmSummary(intent: JarvisIntent, args: Record<string, unknown>): st
     const slug = String(args.slug ?? "");
     return `Switch active venture to ${slug}. Confirm?`;
   }
+  if (intent === "customer.create") {
+    const name = String(args.name ?? "unnamed");
+    return `Create customer "${name}" with main initiative and make it active. Confirm?`;
+  }
+  if (intent === "initiative.create") {
+    const name = String(args.name ?? "unnamed");
+    const customer = String(args.customer ?? "current customer");
+    return `Create initiative "${name}" under ${customer} and make it active. Confirm?`;
+  }
+  if (intent === "portfolio.switch") {
+    const customer = String(args.customer ?? args.slug ?? "");
+    const initiative = String(args.initiative ?? "main");
+    return `Switch active portfolio to ${customer}/${initiative}. Confirm?`;
+  }
   if (intent === "dispatch.queue_for") {
     const position = String(args.position ?? "manager");
     const phase = String(args.phase ?? "?");
@@ -175,6 +189,20 @@ function confirmSummary(intent: JarvisIntent, args: Record<string, unknown>): st
   if (intent === "memory.reindex") {
     const venture = String(args.ventureName ?? "this venture");
     return `Rebuild memory index for ${venture}. Confirm?`;
+  }
+  if (intent === "graph.query") {
+    const q = String(args.question ?? args.query ?? args.prompt ?? "").trim();
+    const truncated = q.length > 80 ? `${q.slice(0, 77)}...` : q;
+    return `Query knowledge graph: ${truncated || "?"}?`;
+  }
+  if (intent === "graph.path") {
+    const source = String(args.source ?? args.from ?? args.a ?? "?").trim();
+    const target = String(args.target ?? args.to ?? args.b ?? "?").trim();
+    return `Trace graph path ${source} → ${target}. Confirm?`;
+  }
+  if (intent === "obsidian.sync") {
+    const venture = String(args.venture ?? args.slug ?? "active venture").trim();
+    return `Make Obsidian vault source of truth for ${venture} (symlink OCC note folders). Confirm?`;
   }
   return `Confirm ${intent.replace(/\./g, " ")}?`;
 }
@@ -318,6 +346,48 @@ function okSummary(intent: JarvisIntent, result: unknown): string {
   }
   if (intent === "memory.reindex" && typeof result === "object" && result !== null && "count" in result) {
     return `Reindexed ${(result as { count: number }).count} memory chunks.`;
+  }
+  if (
+    (intent === "graph.query" || intent === "graph.path" || intent === "graph.explain") &&
+    typeof result === "object" &&
+    result !== null &&
+    "text" in result
+  ) {
+    const text = String((result as { text: string }).text).trim();
+    if (text.length <= 400) return text;
+    return `${text.slice(0, 397)}...`;
+  }
+  if (intent === "graph.status" && typeof result === "object" && result !== null) {
+    const r = result as { ready?: boolean; nodeCount?: number; edgeCount?: number; hasHtml?: boolean };
+    if (!r.ready) return "Knowledge graph is not built yet.";
+    return `Knowledge graph ready: ${r.nodeCount ?? 0} nodes, ${r.edgeCount ?? 0} edges${
+      r.hasHtml ? ", HTML view available" : ""
+    }.`;
+  }
+  if (intent === "obsidian.status" && typeof result === "object" && result !== null) {
+    const r = result as {
+      ready?: boolean;
+      vaultRoot?: string;
+      mcpReady?: boolean;
+      message?: string;
+    };
+    if (!r.ready) return `Vault source of truth not ready${r.message ? `: ${r.message}` : "."}`;
+    return `Vault is source of truth at ${r.vaultRoot ?? "memorybank/org"}${
+      r.mcpReady ? " (MCP connected)" : ""
+    }.`;
+  }
+  if (intent === "obsidian.sync" && typeof result === "object" && result !== null) {
+    const r = result as {
+      venture?: string;
+      linked?: string[];
+      moved?: string[];
+      vaultRoot?: string;
+    };
+    const linked = r.linked?.length ?? 0;
+    const moved = r.moved?.length ?? 0;
+    return `Vault SoT for ${r.venture ?? "venture"} at ${r.vaultRoot ?? "memorybank"}: ${linked} linked${
+      moved ? `, ${moved} migrated` : ""
+    }.`;
   }
   return `Done: ${intent.replace(/\./g, " ")}.`;
 }
@@ -503,7 +573,9 @@ export async function handleJarvisAct(
             const reg = loadRegistry(repoRoot);
             summaryArgs = {
               ...confirmArgs,
-              ventureName: reg.projects[reg.active]?.name ?? reg.active,
+              ventureName:
+                reg.orgs[reg.active.org]?.customers[reg.active.customer]?.name ??
+                reg.active.customer,
             };
           } catch {
             /* use default venture label */

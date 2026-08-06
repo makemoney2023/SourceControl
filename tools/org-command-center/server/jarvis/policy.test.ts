@@ -364,4 +364,25 @@ describe("policyFor", () => {
       needsConfirm: true,
     });
   });
+  it("graph intents are read-only without confirm", () => {
+    for (const intent of ["graph.status", "graph.query", "graph.path", "graph.explain"] as const) {
+      expect(policyFor(intent, "briefing")).toEqual({ allowed: true, needsConfirm: false });
+      expect(policyFor(intent, "ops")).toEqual({ allowed: true, needsConfirm: false });
+    }
+  });
+  it("obsidian.status is read-only; obsidian.sync needs confirm in ops", () => {
+    expect(policyFor("obsidian.status", "briefing")).toEqual({
+      allowed: true,
+      needsConfirm: false,
+    });
+    expect(policyFor("obsidian.sync", "briefing")).toEqual({
+      allowed: false,
+      needsConfirm: false,
+      reason: "Switch to Ops mode first",
+    });
+    expect(policyFor("obsidian.sync", "ops")).toEqual({
+      allowed: true,
+      needsConfirm: true,
+    });
+  });
 });

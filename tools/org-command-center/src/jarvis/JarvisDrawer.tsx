@@ -11,11 +11,13 @@ export function JarvisDrawer({
   title,
   onOpenChange,
   children,
+  wide = false,
 }: {
   open: boolean;
   title: string;
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
+  wide?: boolean;
 }) {
   const restoreFocusRef = useRef<HTMLElement | null>(null);
 
@@ -23,6 +25,7 @@ export function JarvisDrawer({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         theme="jarvis"
+        className={wide ? "j-console-drawer-content--wide" : undefined}
         onOpenAutoFocus={() => {
           restoreFocusRef.current =
             document.activeElement instanceof HTMLElement ? document.activeElement : null;

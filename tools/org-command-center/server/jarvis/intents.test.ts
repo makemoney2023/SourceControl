@@ -123,4 +123,33 @@ describe("parseJarvisAct", () => {
   it("accepts memory.reindex", () => {
     expect(parseJarvisAct({ intent: "memory.reindex", args: {} }).intent).toBe("memory.reindex");
   });
+  it("accepts graph.status", () => {
+    expect(parseJarvisAct({ intent: "graph.status", args: {} }).intent).toBe("graph.status");
+  });
+  it("accepts graph.query", () => {
+    expect(
+      parseJarvisAct({ intent: "graph.query", args: { question: "auth flow" } }).intent,
+    ).toBe("graph.query");
+  });
+  it("accepts graph.path", () => {
+    expect(
+      parseJarvisAct({
+        intent: "graph.path",
+        args: { source: "SeatNode", target: "SituationRoom" },
+      }).intent,
+    ).toBe("graph.path");
+  });
+  it("accepts graph.explain", () => {
+    expect(
+      parseJarvisAct({ intent: "graph.explain", args: { label: "SeatNode" } }).intent,
+    ).toBe("graph.explain");
+  });
+  it("accepts obsidian.status", () => {
+    expect(parseJarvisAct({ intent: "obsidian.status", args: {} }).intent).toBe(
+      "obsidian.status",
+    );
+  });
+  it("accepts obsidian.sync", () => {
+    expect(parseJarvisAct({ intent: "obsidian.sync", args: {} }).intent).toBe("obsidian.sync");
+  });
 });

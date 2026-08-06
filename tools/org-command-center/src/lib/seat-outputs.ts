@@ -12,20 +12,48 @@ function resolveVentureContext(
       businessIdeaRel: opts.businessIdeaRel.replace(/\/+$/, ""),
     };
   }
-  const reg = JSON.parse(
-    readFileSync(join(repoRoot, "projects/registry.json"), "utf8"),
-  ) as {
-    active: string;
-    projects: Record<string, { businessIdea: string }>;
+  const raw = JSON.parse(readFileSync(join(repoRoot, "projects/registry.json"), "utf8")) as {
+    version?: number;
+    active: string | { org: string; customer: string; initiative: string };
+    projects?: Record<string, { businessIdea: string }>;
+    orgs?: Record<
+      string,
+      {
+        customers: Record<
+          string,
+          { initiatives: Record<string, { businessIdea: string }> }
+        >;
+      }
+    >;
   };
-  const ventureSlug = opts?.ventureSlug ?? reg.active;
-  const entry = reg.projects[ventureSlug];
-  if (!entry) throw new Error(`Unknown project slug: ${ventureSlug}`);
+
+  let ventureSlug: string;
+  let businessIdea: string | undefined;
+
+  if (raw.version === 2 && typeof raw.active === "object" && raw.orgs) {
+    ventureSlug =
+      opts?.ventureSlug ??
+      (typeof raw.active === "object" ? raw.active.customer : String(raw.active));
+    const org = typeof raw.active === "object" ? raw.active.org : Object.keys(raw.orgs)[0]!;
+    const initiative =
+      typeof raw.active === "object" && opts?.ventureSlug === undefined
+        ? raw.active.initiative
+        : "main";
+    businessIdea =
+      raw.orgs[org]?.customers[ventureSlug]?.initiatives[initiative]?.businessIdea ??
+      raw.orgs[org]?.customers[ventureSlug]?.initiatives.main?.businessIdea;
+  } else {
+    ventureSlug =
+      opts?.ventureSlug ??
+      (typeof raw.active === "string" ? raw.active : raw.active.customer);
+    businessIdea = raw.projects?.[ventureSlug]?.businessIdea;
+  }
+
+  if (!businessIdea) throw new Error(`Unknown project slug: ${ventureSlug}`);
   return {
     ventureSlug,
     businessIdeaRel:
-      opts?.businessIdeaRel?.replace(/\/+$/, "") ??
-      entry.businessIdea.replace(/\/+$/, ""),
+      opts?.businessIdeaRel?.replace(/\/+$/, "") ?? businessIdea.replace(/\/+$/, ""),
   };
 }
 

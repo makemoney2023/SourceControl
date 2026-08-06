@@ -1,21 +1,47 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  DEFAULT_INITIATIVE_SLUG,
+  DEFAULT_ORG_SLUG,
+  flatProjectsView,
+  getCustomerMain,
+  getInitiative,
+  listCustomers,
+  normalizeRegistry,
+  type ActiveRef,
+  type InitiativeEntry,
+  type PortfolioRegistry,
+  type ProjectEntry,
+  type ProjectRegistry,
+} from "./portfolio-registry";
 
-export type ProjectEntry = {
-  name: string;
-  businessIdea: string;
-  memory: string;
-};
+export type {
+  ActiveRef,
+  InitiativeEntry,
+  PortfolioRegistry,
+  ProjectEntry,
+  ProjectRegistry,
+} from "./portfolio-registry";
 
-export type ProjectRegistry = {
-  active: string;
-  projects: Record<string, ProjectEntry>;
-};
+export {
+  DEFAULT_INITIATIVE_NAME,
+  DEFAULT_INITIATIVE_SLUG,
+  DEFAULT_ORG_NAME,
+  DEFAULT_ORG_SLUG,
+  flatProjectsView,
+  getCustomerMain,
+  getInitiative,
+  listCustomers,
+  listInitiatives,
+  migrateFlatToPortfolio,
+} from "./portfolio-registry";
 
 const READ_PREFIXES = [
   "skills/org/",
   "docs/projects/",
+  "docs/orgs/",
+  "memorybank/org/",
   "templates/business-idea/",
   "projects/",
   "apps/",
@@ -42,41 +68,58 @@ export function registryPath(repoRoot: string): string {
   return join(repoRoot, "projects/registry.json");
 }
 
-export function loadRegistry(repoRoot: string): ProjectRegistry {
+export function loadRegistry(repoRoot: string): PortfolioRegistry {
   const path = registryPath(repoRoot);
   if (!existsSync(path)) {
     throw new Error(`Missing projects/registry.json under ${repoRoot}`);
   }
-  const raw = JSON.parse(readFileSync(path, "utf8")) as ProjectRegistry;
-  if (!raw.active || !raw.projects?.[raw.active]) {
-    throw new Error(`Invalid registry: active "${raw.active}" not in projects`);
+  const raw = JSON.parse(readFileSync(path, "utf8")) as unknown;
+  const { registry, migrated } = normalizeRegistry(raw);
+  if (migrated) {
+    saveRegistry(repoRoot, registry);
   }
-  return raw;
+  return registry;
 }
 
-export function saveRegistry(repoRoot: string, reg: ProjectRegistry): void {
-  if (!reg.projects[reg.active]) {
-    throw new Error(`Cannot set active to unknown project: ${reg.active}`);
-  }
-  writeFileSync(registryPath(repoRoot), JSON.stringify(reg, null, 2) + "\n", "utf8");
+export function saveRegistry(repoRoot: string, reg: PortfolioRegistry): void {
+  const { registry } = normalizeRegistry(reg);
+  writeFileSync(registryPath(repoRoot), JSON.stringify(registry, null, 2) + "\n", "utf8");
 }
 
-export function activeProjectSlug(repoRoot: string): string {
+export function activeRef(repoRoot: string): ActiveRef {
   return loadRegistry(repoRoot).active;
 }
 
-export function listProjects(repoRoot: string): { slug: string; name: string }[] {
-  const reg = loadRegistry(repoRoot);
-  return Object.entries(reg.projects).map(([slug, p]) => ({ slug, name: p.name }));
+/** Compat: returns active customer slug (was venture slug). */
+export function activeProjectSlug(repoRoot: string): string {
+  return activeRef(repoRoot).customer;
 }
 
-/** Relative business-idea dir for slug (default: active). */
-export function businessIdeaRel(repoRoot: string, slug?: string): string {
+export function activeInitiativeSlug(repoRoot: string): string {
+  return activeRef(repoRoot).initiative;
+}
+
+export function listProjects(repoRoot: string): { slug: string; name: string }[] {
+  return listCustomers(loadRegistry(repoRoot));
+}
+
+function resolveEntry(
+  repoRoot: string,
+  slug?: string,
+): { entry: InitiativeEntry; ref: ActiveRef } {
   const reg = loadRegistry(repoRoot);
-  const s = slug ?? reg.active;
-  const entry = reg.projects[s];
-  if (!entry) throw new Error(`Unknown project slug: ${s}`);
-  return entry.businessIdea.replace(/\/+$/, "");
+  if (!slug || slug === reg.active.customer) {
+    const resolved = getInitiative(reg);
+    return { entry: resolved.entry, ref: resolved.ref };
+  }
+  // Legacy: slug is customer → main initiative
+  const resolved = getCustomerMain(reg, slug, DEFAULT_ORG_SLUG);
+  return { entry: resolved.entry, ref: resolved.ref };
+}
+
+/** Relative business-idea dir for active initiative, or customer slug → main. */
+export function businessIdeaRel(repoRoot: string, slug?: string): string {
+  return resolveEntry(repoRoot, slug).entry.businessIdea.replace(/\/+$/, "");
 }
 
 /** Absolute business-idea root. */
@@ -92,15 +135,16 @@ export function businessIdeaFile(repoRoot: string, subpath: string, slug?: strin
 }
 
 export function memoryRel(repoRoot: string, slug?: string): string {
-  const reg = loadRegistry(repoRoot);
-  const s = slug ?? reg.active;
-  const entry = reg.projects[s];
-  if (!entry) throw new Error(`Unknown project slug: ${s}`);
-  return entry.memory.replace(/\/+$/, "");
+  return resolveEntry(repoRoot, slug).entry.memory.replace(/\/+$/, "");
 }
 
 export function memoryDir(repoRoot: string, slug?: string): string {
   return join(repoRoot, memoryRel(repoRoot, slug));
+}
+
+/** Compat projection: customer → main initiative as ProjectEntry. */
+export function projectsMap(repoRoot: string): Record<string, ProjectEntry> {
+  return flatProjectsView(loadRegistry(repoRoot));
 }
 
 function toRel(repoRoot: string, relPath: string): string {
@@ -126,6 +170,43 @@ function isWritableRel(rel: string): boolean {
   if (/^docs\/projects\/[^/]+\/business-idea\/REVIEW\/inbox\//.test(rel)) return true;
   if (/^docs\/projects\/[^/]+\/business-idea\/SOURCES\//.test(rel)) return true;
   if (/^docs\/projects\/[^/]+\/MEMORY\//.test(rel)) return true;
+  // Nested org/customer/initiative paths
+  if (
+    /^docs\/orgs\/[^/]+\/customers\/[^/]+\/initiatives\/[^/]+\/business-idea\/RUNBOOK-TRACKER\.md$/.test(
+      rel,
+    )
+  ) {
+    return true;
+  }
+  if (/^docs\/orgs\/[^/]+\/customers\/[^/]+\/initiatives\/[^/]+\/business-idea\/DISPATCH\//.test(rel)) {
+    return true;
+  }
+  if (/^docs\/orgs\/[^/]+\/customers\/[^/]+\/initiatives\/[^/]+\/business-idea\/BRIEFINGS\//.test(rel)) {
+    return true;
+  }
+  if (/^docs\/orgs\/[^/]+\/customers\/[^/]+\/initiatives\/[^/]+\/business-idea\/HANDOFFS\//.test(rel)) {
+    return true;
+  }
+  if (
+    /^docs\/orgs\/[^/]+\/customers\/[^/]+\/initiatives\/[^/]+\/business-idea\/REVIEW\/inbox\//.test(rel)
+  ) {
+    return true;
+  }
+  if (/^docs\/orgs\/[^/]+\/customers\/[^/]+\/initiatives\/[^/]+\/business-idea\/SOURCES\//.test(rel)) {
+    return true;
+  }
+  if (/^docs\/orgs\/[^/]+\/customers\/[^/]+\/initiatives\/[^/]+\/MEMORY\//.test(rel)) {
+    return true;
+  }
+  // Vault is SoT; OCC paths are usually symlinks into these prefixes.
+  if (/^memorybank\/org\/[^/]+\/(HANDOFFS|BRIEFINGS|REVIEW|MEMORY|phases)\//.test(rel)) {
+    return true;
+  }
+  if (
+    /^memorybank\/org\/[^/]+\/[^/]+\/[^/]+\/(HANDOFFS|BRIEFINGS|REVIEW|MEMORY|phases)\//.test(rel)
+  ) {
+    return true;
+  }
   return false;
 }
 
@@ -138,7 +219,7 @@ export function assertReadable(repoRoot: string, relPath: string): string {
   return resolve(repoRoot, rel);
 }
 
-/** Jarvis file.read — active venture business-idea only (includes HANDOFFS, BRIEFINGS, etc.). */
+/** Jarvis file.read — active initiative business-idea only. */
 export function assertJarvisReadable(repoRoot: string, relPath: string): string {
   if (isAbsolute(relPath)) {
     const abs = resolve(relPath);
@@ -190,4 +271,16 @@ export function reviewInboxRel(repoRoot: string, slug?: string) {
 
 export function sourcesDir(repoRoot: string, slug?: string) {
   return join(businessIdeaRoot(repoRoot, slug), "SOURCES");
+}
+
+export function initiativePaths(
+  org: string,
+  customer: string,
+  initiative: string,
+): { businessIdea: string; memory: string } {
+  const base = `docs/orgs/${org}/customers/${customer}/initiatives/${initiative}`;
+  return {
+    businessIdea: `${base}/business-idea`,
+    memory: `${base}/MEMORY`,
+  };
 }

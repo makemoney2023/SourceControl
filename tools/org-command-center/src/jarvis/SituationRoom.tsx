@@ -4,6 +4,7 @@ import {
   cancelRun,
   fetchBriefScript,
   fetchCompanyDigest,
+  fetchOrgWorkGraph,
   fetchSeatReport,
   fetchSnapshot,
   pauseSeat,
@@ -13,9 +14,11 @@ import {
   resumeSeat,
   rewakeSession,
   setRoutineEnabled,
-  createProject,
+  createCustomer,
+  createInitiative,
   answerSeatQuestions,
   resolveBlocker,
+  setActivePortfolio,
   setActiveProject,
   spawnManager,
   speakText,
@@ -23,6 +26,7 @@ import {
   voiceChat,
   voiceHealth,
   type CSuiteCard,
+  type CustomerListItem,
   type ProjectListItem,
   type RunRecord,
   type SituationSnapshot,
@@ -44,6 +48,8 @@ import { SeatConsole } from "./hud/SeatConsole";
 import { ThreatRail } from "./hud/ThreatRail";
 import { CommandDeck } from "./hud/CommandDeck";
 import { MissionCommandControls } from "./hud/MissionCommandControls";
+import { OrgWorkGraphView } from "./hud/OrgWorkGraphView";
+import type { OrgWorkGraph } from "./org-work-graph";
 import "./hud/theme.css";
 import { OrgTheater } from "./scene/OrgTheater";
 import type { SeatNextAction, SeatReport } from "./seat-report";
@@ -88,6 +94,7 @@ type Drawer =
   | "run"
   | "routines"
   | "digest"
+  | "graph"
   | "alerts";
 
 type BlockerConfirmationRequest = {
@@ -221,16 +228,26 @@ export function SituationRoom() {
   const loadedReportSlugRef = useRef<string | null>(null);
   const previousReportQuestionsRef = useRef<string[]>([]);
   const [digest, setDigest] = useState<CompanyDigest | null>(null);
+  const [orgWorkGraph, setOrgWorkGraph] = useState<OrgWorkGraph | null>(null);
+  const [graphStatusError, setGraphStatusError] = useState<string | null>(null);
   const [artifact, setArtifact] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [projects, setProjects] = useState<ProjectListItem[]>([]);
+  const [customers, setCustomers] = useState<CustomerListItem[]>([]);
+  const [orgName, setOrgName] = useState("Velocity Agency");
+  const [activeInitiative, setActiveInitiative] = useState("main");
   const [switchingProject, setSwitchingProject] = useState(false);
   const [showNewVenture, setShowNewVenture] = useState(false);
+  const [showNewInitiative, setShowNewInitiative] = useState(false);
   const [newVentureName, setNewVentureName] = useState("");
   const [newVentureSlug, setNewVentureSlug] = useState("");
   const [newVentureContext, setNewVentureContext] = useState("");
+  const [newInitiativeName, setNewInitiativeName] = useState("");
+  const [newInitiativeSlug, setNewInitiativeSlug] = useState("");
+  const [newInitiativeContext, setNewInitiativeContext] = useState("");
   const [creatingVenture, setCreatingVenture] = useState(false);
+  const [creatingInitiative, setCreatingInitiative] = useState(false);
   const [jarvisFocus, setJarvisFocus] = useState<JarvisFocus | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
@@ -287,12 +304,21 @@ export function SituationRoom() {
         fetchSnapshot(),
         fetch("/api/project").then(async (r) => {
           if (!r.ok) return null;
-          return r.json() as Promise<{ projects: ProjectListItem[] }>;
+          return r.json() as Promise<{
+            projects: ProjectListItem[];
+            customers?: CustomerListItem[];
+            org?: { slug: string; name: string };
+            activeInitiative?: string;
+            activeProject?: string;
+          }>;
         }),
       ]);
       if (reloadSequence.current.isCurrent(request)) {
         setSnap(s);
         if (proj?.projects) setProjects(proj.projects);
+        if (proj?.customers) setCustomers(proj.customers);
+        if (proj?.org?.name) setOrgName(proj.org.name);
+        if (proj?.activeInitiative) setActiveInitiative(proj.activeInitiative);
         setError(null);
         setLastUpdated(new Date().toLocaleTimeString());
       }
@@ -337,16 +363,54 @@ export function SituationRoom() {
     }
   }
 
-  function slugPreviewFromName(name: string): string {
-    return name
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .replace(/-{2,}/g, "-");
+  async function onSwitchInitiative(initiative: string) {
+    if (!snap?.activeProject || !initiative || switchingProject) return;
+    if (initiative === activeInitiative) return;
+    setSwitchingProject(true);
+    digestSequence.current.begin();
+    setDigest(null);
+    setActionError(null);
+    try {
+      await setActivePortfolio({
+        customer: snap.activeProject,
+        initiative,
+      });
+      await reload(true);
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSwitchingProject(false);
+    }
   }
 
-  async function onCreateVenture() {
+  async function onCreateInitiative() {
+    const name = newInitiativeName.trim();
+    if (!name || creatingInitiative || !snap?.activeProject) return;
+    setCreatingInitiative(true);
+    digestSequence.current.begin();
+    setDigest(null);
+    setActionError(null);
+    try {
+      await createInitiative({
+        name,
+        slug: newInitiativeSlug.trim() || undefined,
+        customer: snap.activeProject,
+        activate: true,
+        contextNote: newInitiativeContext.trim() || undefined,
+      });
+      setShowNewInitiative(false);
+      setNewInitiativeName("");
+      setNewInitiativeSlug("");
+      setNewInitiativeContext("");
+      await reload(true);
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCreatingInitiative(false);
+    }
+  }
+
+  async function onCreateCustomer() {
     const name = newVentureName.trim();
     if (!name || creatingVenture) return;
     setCreatingVenture(true);
@@ -354,10 +418,9 @@ export function SituationRoom() {
     setDigest(null);
     setActionError(null);
     try {
-      const slug = newVentureSlug.trim() || undefined;
-      await createProject({
+      await createCustomer({
         name,
-        slug,
+        slug: newVentureSlug.trim() || undefined,
         activate: true,
         contextNote: newVentureContext.trim() || undefined,
       });
@@ -371,6 +434,15 @@ export function SituationRoom() {
     } finally {
       setCreatingVenture(false);
     }
+  }
+
+  function slugPreviewFromName(name: string): string {
+    return name
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .replace(/-{2,}/g, "-");
   }
 
   useEffect(() => {
@@ -705,6 +777,17 @@ export function SituationRoom() {
     }
   }
 
+  async function openGraph() {
+    setDrawer("graph");
+    setOrgWorkGraph(null);
+    setGraphStatusError(null);
+    try {
+      setOrgWorkGraph(await fetchOrgWorkGraph());
+    } catch (e) {
+      setGraphStatusError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
   async function runCta(a: SeatNextAction) {
     switch (a.cta) {
       case "run_next":
@@ -929,23 +1012,58 @@ export function SituationRoom() {
           <div style={{ flex: "1 1 280px" }}>
             <p className="j-title">Situation Room</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 6 }}>
+              <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-agency">
+                Agency
+              </label>
+              <select
+                id="sr-agency"
+                className="j-select"
+                disabled
+                value="velocity-agency"
+                style={{ minWidth: 140 }}
+              >
+                <option value="velocity-agency">{orgName}</option>
+              </select>
               <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-project">
-                Venture
+                Customer
               </label>
               <select
                 id="sr-project"
                 className="j-select"
-                disabled={switchingProject || creatingVenture || projects.length === 0}
+                disabled={switchingProject || creatingVenture || creatingInitiative || projects.length === 0}
                 value={snap.activeProject}
                 onChange={(e) => void onSwitchProject(e.target.value)}
                 style={{ minWidth: 160 }}
               >
-                {(projects.length
-                  ? projects
-                  : [{ slug: snap.activeProject, name: snap.activeProject }]
+                {(customers.length
+                  ? customers
+                  : projects.length
+                    ? projects
+                    : [{ slug: snap.activeProject, name: snap.activeProject }]
                 ).map((p) => (
                   <option key={p.slug} value={p.slug}>
                     {p.name || p.slug}
+                  </option>
+                ))}
+              </select>
+              <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-initiative">
+                Initiative
+              </label>
+              <select
+                id="sr-initiative"
+                className="j-select"
+                disabled={switchingProject || creatingInitiative}
+                value={activeInitiative}
+                onChange={(e) => void onSwitchInitiative(e.target.value)}
+                style={{ minWidth: 140 }}
+              >
+                {(
+                  customers.find((c) => c.slug === snap.activeProject)?.initiatives ?? [
+                    { slug: activeInitiative, name: activeInitiative },
+                  ]
+                ).map((i) => (
+                  <option key={i.slug} value={i.slug}>
+                    {i.name || i.slug}
                   </option>
                 ))}
               </select>
@@ -953,15 +1071,111 @@ export function SituationRoom() {
                 type="button"
                 className="j-btn"
                 data-active="true"
-                disabled={creatingVenture}
+                disabled={creatingInitiative || creatingVenture}
                 onClick={() => {
-                  setShowNewVenture((v) => !v);
+                  setShowNewInitiative((v) => !v);
+                  setShowNewVenture(false);
                   setActionError(null);
                 }}
               >
-                New idea
+                Add initiative
+              </button>
+              <button
+                type="button"
+                className="j-btn"
+                disabled={creatingVenture || creatingInitiative}
+                onClick={() => {
+                  setShowNewVenture((v) => !v);
+                  setShowNewInitiative(false);
+                  setActionError(null);
+                }}
+              >
+                Add customer
               </button>
             </div>
+            {showNewInitiative && (
+              <div
+                className="j-glass"
+                style={{
+                  marginBottom: 10,
+                  padding: 12,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                  maxWidth: 420,
+                }}
+              >
+                <p className="j-muted" style={{ margin: 0, fontSize: 12 }}>
+                  New initiative under {snap.activeProject}: full workspace + Sources context, then switch.
+                </p>
+                <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-init-name">
+                  Initiative name
+                </label>
+                <input
+                  id="sr-init-name"
+                  className="j-input"
+                  placeholder="e.g. Web Design"
+                  value={newInitiativeName}
+                  onChange={(e) => {
+                    setNewInitiativeName(e.target.value);
+                    if (
+                      !newInitiativeSlug ||
+                      newInitiativeSlug === slugPreviewFromName(newInitiativeName)
+                    ) {
+                      setNewInitiativeSlug(slugPreviewFromName(e.target.value));
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") void onCreateInitiative();
+                  }}
+                />
+                <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-init-slug">
+                  Slug
+                </label>
+                <input
+                  id="sr-init-slug"
+                  className="j-input"
+                  placeholder="web-design"
+                  value={newInitiativeSlug}
+                  onChange={(e) => setNewInitiativeSlug(e.target.value)}
+                />
+                <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-init-context">
+                  Business context (optional)
+                </label>
+                <Textarea
+                  id="sr-init-context"
+                  className="j-textarea"
+                  placeholder="Operator notes — goals, constraints, source material summary…"
+                  rows={3}
+                  value={newInitiativeContext}
+                  onChange={(e) => setNewInitiativeContext(e.target.value)}
+                />
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button
+                    type="button"
+                    className="j-btn"
+                    data-active="true"
+                    disabled={!newInitiativeName.trim() || creatingInitiative}
+                    onClick={() => void onCreateInitiative()}
+                  >
+                    {creatingInitiative ? "Creating…" : "Create & switch"}
+                  </button>
+                  <button
+                    type="button"
+                    className="j-btn"
+                    disabled={creatingInitiative}
+                    onClick={() => {
+                      setShowNewInitiative(false);
+                      setNewInitiativeName("");
+                      setNewInitiativeSlug("");
+                      setNewInitiativeContext("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
             {showNewVenture && (
               <div
                 className="j-glass"
@@ -975,15 +1189,15 @@ export function SituationRoom() {
                 }}
               >
                 <p className="j-muted" style={{ margin: 0, fontSize: 12 }}>
-                  Creates a new venture folder, tracker, DISPATCH queue, and MEMORY — then switches to it.
+                  New customer under {orgName} with a default main initiative.
                 </p>
                 <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-new-name">
-                  Idea name
+                  Customer name
                 </label>
                 <input
                   id="sr-new-name"
                   className="j-input"
-                  placeholder="e.g. Solar Lantern"
+                  placeholder="e.g. Blacksage Kennels"
                   value={newVentureName}
                   onChange={(e) => {
                     setNewVentureName(e.target.value);
@@ -992,7 +1206,7 @@ export function SituationRoom() {
                     }
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") void onCreateVenture();
+                    if (e.key === "Enter") void onCreateCustomer();
                   }}
                 />
                 <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-new-slug">
@@ -1001,7 +1215,7 @@ export function SituationRoom() {
                 <input
                   id="sr-new-slug"
                   className="j-input"
-                  placeholder="solar-lantern"
+                  placeholder="blacksage-kennels"
                   value={newVentureSlug}
                   onChange={(e) => setNewVentureSlug(e.target.value)}
                 />
@@ -1022,7 +1236,7 @@ export function SituationRoom() {
                     className="j-btn"
                     data-active="true"
                     disabled={!newVentureName.trim() || creatingVenture}
-                    onClick={() => void onCreateVenture()}
+                    onClick={() => void onCreateCustomer()}
                   >
                     {creatingVenture ? "Creating…" : "Create & switch"}
                   </button>
@@ -1115,6 +1329,7 @@ export function SituationRoom() {
               onRunNext={() => void onSpawn({ wakeReason: "run_next" })}
               onRuns={() => setDrawer("run")}
               onDigest={() => void openDigest()}
+              onGraph={() => void openGraph()}
               onAlerts={() => setDrawer("alerts")}
               onRoutines={() => setDrawer("routines")}
               onToggleTheater={onSetTheater}
@@ -1802,6 +2017,29 @@ export function SituationRoom() {
             </div>
           )}
         </Drawer>
+      )}
+
+      {drawer === "graph" && (
+        <JarvisDrawer
+          open
+          wide
+          title="Knowledge graph"
+          onOpenChange={(open) => {
+            if (!open) setDrawer(null);
+          }}
+        >
+          {graphStatusError && <p className="j-muted">{graphStatusError}</p>}
+          {!orgWorkGraph && !graphStatusError && <p className="j-muted">Loading…</p>}
+          {orgWorkGraph && (
+            <OrgWorkGraphView
+              graph={orgWorkGraph}
+              onSelectSeat={(slug) => {
+                setDrawer(null);
+                void openReport(slug);
+              }}
+            />
+          )}
+        </JarvisDrawer>
       )}
 
       {drawer === "digest" && (

@@ -1,12 +1,22 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { fetchSnapshot, subscribeEvents } from "../api/client";
-import { latestJarvisFocus, type JarvisFocus } from "./jarvis-focus";
+import {
+  latestJarvisFocus,
+  resolveJarvisFocusApply,
+  type JarvisFocus,
+  type JarvisFocusApplyState,
+} from "./jarvis-focus";
 
 export function JarvisFocusListener({
   onFocus,
 }: {
   onFocus: (focus: JarvisFocus | null) => void;
 }) {
+  const stateRef = useRef<JarvisFocusApplyState>({
+    hydrated: false,
+    lastAppliedAt: null,
+  });
+
   useEffect(() => {
     let cancelled = false;
 
@@ -14,7 +24,10 @@ export function JarvisFocusListener({
       try {
         const snap = await fetchSnapshot();
         if (cancelled) return;
-        onFocus(latestJarvisFocus(snap.activity ?? []));
+        const focus = latestJarvisFocus(snap.activity ?? []);
+        const { apply, next } = resolveJarvisFocusApply(focus, stateRef.current);
+        stateRef.current = next;
+        if (apply) onFocus(apply);
       } catch {
         /* snapshot unavailable — keep prior focus */
       }
