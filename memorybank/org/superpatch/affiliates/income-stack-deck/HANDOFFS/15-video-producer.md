@@ -15,10 +15,15 @@ We scaffolded OpenMontage + HyperFrames under this initiative so the Income Stac
 - HyperFrames composition authored: 15 clips, 75s, HQ concept plates + live copy + slideshow JSON island
 - OpenMontage production folder + animation pipeline choice documented; finals not rendered yet
 - Design brief written before any paid render
+- Plates had type baked into the pixels, duplicating the live copy. All 50 text regions across the
+  15 plates were detected (macOS Vision OCR) and painted out locally at no generation cost; a
+  re-scan of the cleaned set returns zero detections. The recovered strings — pillar labels, tier
+  percentages, `25%`, `$2,000`, `2%` — now render as an animated annotation layer in both the web
+  app and the HyperFrames composition, positioned and sized from the original type.
 
 ## Next steps
 
-1. Run `npx hyperframes lint|validate|preview` on `15-media/hyperframes/income-stack-deck/`
+1. ~~`npx hyperframes lint`~~ green (0 errors, 3 advisory warnings); run `validate|preview` next
 2. Operator approve → `hyperframes render` into `15-media/openmontage/`
 3. Optional: OpenMontage `animation` / `cinematic` pipeline for I2V hero loops (needs `budget_usd`)
 4. Wire loops into `apps/superpatch-income-stack` `heroVideoSrc`
@@ -34,7 +39,9 @@ design_brief_path: docs/orgs/superpatch/customers/affiliates/initiatives/income-
 wire_owner: web-designer
 budget_usd: 0
 pipeline: animation.yaml
-notes: Finals pending CLI preview + operator render approve; no paid I2V without budget
+notes: >-
+  Plates de-texted locally (0 spend, OCR-verified); type recovered as live annotation layer.
+  Finals pending CLI preview + operator render approve; no paid I2V without budget.
 ```
 
 ## Asks
