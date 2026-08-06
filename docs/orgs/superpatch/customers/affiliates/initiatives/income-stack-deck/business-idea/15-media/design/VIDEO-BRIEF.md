@@ -19,8 +19,22 @@ Two complementary motion products:
 | Background | `#05070F` |
 | Accents | blue `#2F6BFF`, green `#22D36B`, orange `#FF7A1A`, violet `#8B5CFF`, SP red `#DD0604` |
 | Type | Montserrat Black / ExtraBold |
-| Imagery | v1 concept PNGs in `assets/concepts/` — do not invent new compensation art |
+| Imagery | v1 concept PNGs, **de-texted** — do not invent new compensation art |
 | Motif | Full Stack Flywheel (live SVG in web app; optional HF overlay later) |
+
+## Type policy
+
+Plates carry **zero baked type**. The v1 concepts shipped with headlines and diagram labels
+burned into the pixels; those were painted out (`apps/superpatch-income-stack/scripts/`) and the
+strings re-declared as live layers:
+
+| Layer | Content | Source |
+|-------|---------|--------|
+| Copy block | eyebrow, headline, body, disclosure | `slides.ts` |
+| Annotations | pillar labels, tier percentages, display metrics | `slides.ts` `annotations[]`, positioned from the original type |
+
+Consequence for render: every figure on screen is text the compliance read can verify in source,
+and re-typesetting a number never requires regenerating art.
 
 ## Shot list (15)
 
@@ -62,6 +76,7 @@ Two complementary motion products:
 
 - [x] Design brief written before render claims
 - [x] HyperFrames `index.html` composition present with 15 clips
-- [ ] `npx hyperframes lint && validate` green (when CLI available)
+- [x] Plates de-texted; OCR re-scan of `public/concepts/clean/` returns zero text detections
+- [x] `npx hyperframes lint` green — 0 errors, 3 advisory warnings (file size, track density, Google Fonts)
 - [ ] OpenMontage finals **or** honest skip documented
 - [ ] Web app can point `heroVideoSrc` at exported loops

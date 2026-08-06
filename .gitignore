@@ -9,7 +9,10 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 .venv/
+.venv-*/
 venv/
+# HyperFrames CLI scratch output
+.thumbnails/
 *.egg-info/
 .pytest_cache/
 .mypy_cache/
