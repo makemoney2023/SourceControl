@@ -1,0 +1,16 @@
+## 2026-08-05
+- Operator answered questions for business-analyst:
+- Is Blacksage operating as brand-first or pre-litter, or as an active placement program right now? This chooses interest-list versus waitlist packaging, whether Litters belongs in navigation, and the honesty tone for dogs and litters that are not ready.: Blacksage has been ooperating for over 20 years with at least one litter of puppies per year.
+- What public geography and contact details may we publish—region, phone, and email? Local trust, tap-to-call, footer and contact structure, and local SEO signals depend on what you are willing to show.: Shipping to All of North America but based in Collingwood and Beaverton ontario canada
+- What does success in the next twelve months mean in your words? Acceptance thresholds and which outcomes the site is judged on stay assumption-only until you define that.: Ranking in the search engines and Ai search
+- What is the photography and media plan—what exists today, what will be shot, and by when? Hero and Dogs pages cannot claim evidence-led trust without real kennel imagery, and placeholder media was explicitly rejected.: Shots will be taken soon, hopefully before august 31 2026
+- Where should inquiries go, who owns them, and what response time should success copy imply? Form backend, ops handoff, and conversion acceptance cannot close without a destination and owner.: Inquires should go to an email address that will be provided later
+- What budget and timeline caps apply to the rebuild phases? Performance targets and how much can be built in later phases need your ceiling so scope does not silently expand.: not sure what this means
+- For each breeding dog you want named publicly, what health-test records and links are verified and publishable? Parent-specific health claims on Dogs are gated until that inventory exists.: unsure at this moment
+- Which club memberships, titles, and affiliations are verified for About and credibility badges? Unverified badges would violate the publish-only-verified-facts rule.: True North Rotweiller Club, The Canadian Kennel Club, The American Kennel Club The rotweiller club of canada
+- What is your natural-tail policy for buyer-fit education copy? Breed-standard education needs your decision so messaging stays inside approved temperament and standard bounds.: Tails are natural no docking
+- What contract, guarantee, or return language is approved for process transparency around selective placement? Placement copy must not imply checkout, but it still needs accurate off-site process wording.: you decide
+- Operator answered questions for head-of-product:
+- 1. Approve PRD as strategy-to-spec lock for trust-first kennel website the previous version.: yes
+- 2. Schedule operator interview to close,,, before build — PRD supports tier branches but public launch cannot proceed without these.: yes go ahead
+- 3. Confirm no RUNBOOK phase advance until C-suite yes/no on this brief.: ok

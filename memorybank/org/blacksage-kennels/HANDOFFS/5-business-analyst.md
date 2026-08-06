@@ -4,8 +4,10 @@ position: business-analyst
 reports_to: head-of-product
 status: done
 verdict_for_manager: ready_to_merge
+continuation_run: 1785959774541-head-of-product
+prior_run: 1785959443259-head-of-product
 llm_tier: strong-general
-llm_model: composer-2.5-fast
+llm_model: composer-2.5
 generation_profile: none
 generation_used: none
 fallback_applied: false
@@ -325,7 +327,7 @@ Tier 0 (staging)
 ## Asks for manager (`ask_manager`)
 
 - Peer help needed: **none**
-- Clarification needed: **Schedule operator interview** to close Q1, Q2, Q6, Q7, health inventory before finalizing PRD launch-tier default — **none** blocking merge of this handoff structure
+- Clarification needed: **none** — operator approved PRD lock + interview schedule; C-suite yes/no is next gate
 
 ## Risks / blockers
 
@@ -347,3 +349,138 @@ Tier 0 (staging)
 - Write outside write_lease
 - Spawn other positions
 - Invent Blacksage location, prices, health inventory, or litter claims
+
+## Operator answers
+
+_Answered 2026-08-05T19:50:43.240Z · Applied by business-analyst continuation run `1785959443259-head-of-product`_
+
+| ID | Operator answer (verbatim) | Resolution | Unblocks |
+|----|---------------------------|------------|----------|
+| **Q1** | Operating 20+ years; at least one litter/year | **Resolved → active program** | `FR-IA-004`, Package **B**, Litters nav, Tier **2** default |
+| **Q2** | Ships all North America; based Collingwood & Beaverton, Ontario, Canada | **Partial** — geography yes; phone/email still TBD | Footer/About region; `NFR-SEO-002` LocalBusiness when phone/email added |
+| **Q4** | Ranking in search engines and AI search | **Resolved** — 12-month success = organic + AI discoverability | M9–M11 success metrics; SEO/structured-data AC weight |
+| **Q6** | Shots soon, hopefully before 2026-08-31 | **Partial** — target date set; assets not yet delivered | `FR-VS-002`, Tier 2 media gate remains until shoot complete |
+| **Q7** | Inquiry email to be provided later | **Still blocked** for public launch | `FR-CV-005`, LG2, soft-launch minimum |
+| **Q8** | "Not sure what this means" | **Needs plain-English follow-up** — see Q8 clarification below | Scope sizing unchanged; trust-first default holds |
+| **Health inventory** | Unsure at this moment | **Still blocked** | Per-dog OFA/CHIC links; Dogs page population |
+| **GAP-CL** | TNRC, CKC, AKC, Rottweiler Club of Canada | **Resolved** | About affiliation badges (`FR-TR-005`) |
+| **GAP-NT** | Natural tails; no docking | **Resolved** | `FR-ED-002` natural-tail education copy |
+| **GAP-CT** | "You decide" | **Resolved (draft)** — HoP-approved process copy; no dollar guarantees | `FR-ED-004`, Package C process overview |
+
+### Q8 clarification for operator (non-technical)
+
+> **What we meant:** What is the most you are willing to spend on the website rebuild, and when do you want it publicly live? That sets how much we build now vs later and whether we hold for photography before launch.
+
+**Default until answered:** Trust-first static scope per Phase 4 (~$5.5k Year-1 web band); no scope expansion without operator ceiling.
+
+### Approved placement process copy (GAP-CT draft — operator delegated)
+
+Site may publish this process overview (no checkout, no prices, no deposit amounts):
+
+1. **Inquiry** — Buyer submits inquiry after reviewing program evidence on-site.  
+2. **Mutual-fit review** — Blacksage reviews goals, experience, and home fit; may decline or request a conversation.  
+3. **Waitlist consideration** — Approved applicants may be invited to a waitlist; deposit terms provided **individually off-site** after approval.  
+4. **Contract & placement** — Written placement agreement before any deposit; puppy goes home per contract health and return/rehome terms stated in that agreement.  
+5. **Lifetime support** — Blacksage maintains a rehome/right-of-first-refusal posture consistent with selective placement (specific contract language operator-approved at signing).
+
+**Must not publish:** Dollar amounts, deposit totals, "100% healthy" guarantees, or checkout/reserve CTAs.
+
+---
+
+## 7. Operator answers applied — gap status update
+
+| Gap ID | Prior status | New status | Notes |
+|--------|--------------|------------|-------|
+| **GAP-Q1** | Blocked | **Cleared** | Active program → Package B + Litters in IA |
+| **GAP-Q2** | Blocked | **Partial** | Dual Ontario bases + NA shipping publishable; phone/email pending |
+| **GAP-Q4** | Blocked | **Cleared** | Success = SEO + AI search visibility (12-month) |
+| **GAP-Q6** | Blocked | **Partial** | Target shoot by 2026-08-31; no assets yet |
+| **GAP-Q7** | Blocked | **Blocked** | Email destination still TBD |
+| **GAP-Q8** | Blocked | **Needs follow-up** | Operator asked for plain-English rephrase |
+| **GAP-HT** | Blocked | **Blocked** | Health inventory still unknown |
+| **GAP-PH** | Blocked | **Partial** | Tied to Q6 shoot timeline |
+| **GAP-CL** | Blocked | **Cleared** | Four clubs verified for About |
+| **GAP-NT** | Blocked | **Cleared** | Natural tail, no docking |
+| **GAP-CT** | Blocked | **Cleared (draft)** | Process copy approved pending operator sign-off at launch |
+| **GAP-OP** | Blocked | **Partial** | 20+ years operating supports credibility; bio text still needed |
+
+### Revised operator-gate flags (post-answers)
+
+| Requirement ID | Prior block | Current status |
+|----------------|-------------|----------------|
+| `FR-IA-004` (Litters nav) | Q1 open | **Unblocked** — include Litters when litter facts verified |
+| `FR-CV-008` (Waitlist/application) | Q1 open | **Unblocked** — Package B default |
+| `FR-CV-006` (Interest list only) | Q1 open | **Superseded** — Package B primary; A remains fallback if operator pauses program |
+| `FR-TR-005` (Affiliations) | GAP-CL open | **Unblocked** for four named clubs |
+| `FR-ED-002` (Natural tail) | GAP-NT open | **Unblocked** |
+| `FR-ED-004` (Process copy) | GAP-CT open | **Unblocked (draft)** |
+| `FR-CV-003`, `FR-CV-005` | Q7/Q2 | **Still blocked** — no public form without email |
+| `FR-TR-001`, `FR-TR-003` | Health + Q6 | **Still blocked** — Dogs page per-dog claims |
+| `FR-VS-002` | Q6 | **Partial** — hold until shoot delivers |
+| `NFR-SEO-002` LocalBusiness | Q2 | **Partial** — region OK; full NAP when phone/email added |
+
+### Revised default launch tier
+
+**Previous default:** Tier 1 (brand-first) until Q1 closed.  
+**New default:** **Tier 2 — active program** (Q1 resolved). Promotion to public launch still blocked on Q7, health inventory, and Q6 photography delivery.
+
+### Revised critical path
+
+1. **Q7** — monitored inquiry email (soft-launch minimum)  
+2. **Q6** — kennel photography shoot (target 2026-08-31)  
+3. **Health inventory** — per-dog publishable test records  
+4. **Q8 follow-up** — budget/timeline ceiling in plain English  
+5. **Operator sign-off** — claim inventory + placement process copy (`AC-HN-005`)
+
+---
+
+## 8. Operator instruction continuation (run `1785959774541-head-of-product`)
+
+_Applied 2026-08-05T19:56Z_
+
+| # | Operator instruction | Resolution | Status |
+|---|---------------------|------------|--------|
+| 1 | Approve PRD as strategy-to-spec lock for trust-first kennel website | **Approved** — PRD locked as spec source; tier branches remain; launch gates unchanged | **Cleared** |
+| 2 | Schedule operator interview to close remaining gaps before build | **Scheduled** — proposed window 2026-08-12 – 2026-08-14; agenda in §8A | **Cleared (pending slot confirm)** |
+| 3 | No RUNBOOK phase advance until C-suite yes/no on this brief | **Acknowledged** — RUNBOOK held at Phase 1; C-suite gate documented | **Cleared** |
+
+### 8A — Pre-build operator interview (scheduled)
+
+| Field | Value |
+|-------|-------|
+| Purpose | Close Q7, Q8, health inventory, Q6 plan, Q2 phone, bio, litter facts |
+| Proposed window | **2026-08-12 – 2026-08-14** |
+| Duration | 45–60 min |
+| Facilitator | head-of-product |
+| Prerequisite | C-suite yes/no on HoP brief |
+
+**Agenda items (BA traceability):**
+
+| Agenda # | Topic | Gap / requirement IDs |
+|----------|-------|----------------------|
+| 1 | Inquiry email + owner + SLA | GAP-Q7, `FR-CV-005`, LG2 |
+| 2 | Budget + launch date (plain English) | GAP-Q8 |
+| 3 | Photography shoot confirmation | GAP-Q6, GAP-PH, `FR-VS-002` |
+| 4 | Health-test inventory per dog | GAP-HT, `FR-TR-003` |
+| 5 | Public phone (optional) | GAP-Q2 remainder, `NFR-SEO-002` |
+| 6 | Operator bio | GAP-OP, `FR-TR-005` |
+| 7 | Current litter facts | `FR-IA-004`, Litters honesty |
+| 8 | Placement process copy sign-off | GAP-CT, `FR-ED-004` |
+
+**Interview exit AC (BA):**
+
+- [ ] Q7 destination recorded with owner name  
+- [ ] Q8 budget ceiling or explicit default acceptance  
+- [ ] Health inventory table started (dog → test → link) or explicit "Dogs coming-soon" decision  
+- [ ] Q6 shoot date confirmed or Tier 1 fallback date agreed  
+- [ ] Operator sign-off on placement process draft (`AC-HN-005` partial)
+
+### 8B — needs_input / blocked status after operator instruction
+
+| Item | Prior | Now |
+|------|-------|-----|
+| PRD strategy-to-spec lock | needs C-suite + operator | **Operator approved** — C-suite yes/no pending |
+| Operator interview | not scheduled | **Scheduled** (slot confirm pending) |
+| RUNBOOK phase advance | ambiguous | **Blocked** until C-suite decides |
+| Q7, Q8, health, Q6 delivery | blocked | **Still blocked** — interview targets closure |
+| Public launch | blocked | **Still blocked** — unchanged |

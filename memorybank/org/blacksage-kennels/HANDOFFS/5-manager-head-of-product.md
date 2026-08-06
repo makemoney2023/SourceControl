@@ -79,3 +79,10 @@ Phase 5 defines what Blacksage Kennels will build: a trust-first website where s
 ## Recommendation
 
 **approve** — ship phase artifacts as-is. PRD is complete for downstream phases; operator inputs are correctly gated, not invented. Phase 5 remains unmarked on RUNBOOK pending C-suite gate.
+## Operator answers
+
+_Answered 2026-08-05T19:56:14.539Z_
+
+- **1. Approve PRD as strategy-to-spec lock for trust-first kennel website the previous version.:** yes
+- **2. Schedule operator interview to close,,, before build — PRD supports tier branches but public launch cannot proceed without these.:** yes go ahead
+- **3. Confirm no RUNBOOK phase advance until C-suite yes/no on this brief.:** ok

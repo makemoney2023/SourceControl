@@ -22,6 +22,7 @@ npm-debug.log*
 .env
 .env.local
 *.pem
+.cursor/mcp.json
 
 # Build / cache
 dist/
@@ -29,6 +30,22 @@ build/
 .tmp/
 tmp/
 *.log
+
+# Graphify local churn (commit graph.json / graph.html / GRAPH_REPORT.md when sharing)
+**/graphify-out/cost.json
+**/graphify-out/cache/
+**/graphify-out/.graphify_*
+skills/org/graphify-out/
+docs/projects/graphify-out/
+# Root corpus graph exceeds GitHub's 100MB file limit — keep report/manifest only
+/graphify-out/graph.json
+
+# Obsidian vault: commit notes; skip machine-local / secret plugin state
+memorybank/.obsidian/workspace.json
+memorybank/.obsidian/workspace-mobile.json
+memorybank/.obsidian/plugins/**/data.json
+memorybank/.obsidian/plugins/**/main.js
+memorybank/.trash/
 
 # OpenMontage local runtime (keep source; ignore installed env)
 skills/community/openmontage/.venv/
