@@ -1,7 +1,7 @@
 # Design: Super Patch Income Stack — Animated Affiliate Deck
 
 **Date:** 2026-08-06  
-**Status:** Draft — pending operator review of this spec before implementation planning  
+**Status:** Active — implementing per `docs/superpowers/plans/2026-08-06-superpatch-income-stack-deck.md`  
 **Branch:** `feature/superpatch-income-stack-deck`  
 **Approach:** Peer Superpatch agency + creative-seat hybrid motion presentation  
 **Related:** [Agency → Customer → Initiative](./2026-08-06-agency-customer-initiative-design.md), `income-stack-deck/README.md`, `skills/org/positions/creative-director/SKILL.md`

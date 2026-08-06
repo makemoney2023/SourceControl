@@ -1,9 +1,9 @@
 {
   "version": 2,
   "active": {
-    "org": "velocity-agency",
-    "customer": "blacksage-kennels",
-    "initiative": "main"
+    "org": "superpatch",
+    "customer": "affiliates",
+    "initiative": "income-stack-deck"
   },
   "orgs": {
     "velocity-agency": {
@@ -46,6 +46,26 @@
               "name": "Main",
               "businessIdea": "docs/projects/blacksage-kennels/business-idea",
               "memory": "docs/projects/blacksage-kennels/MEMORY"
+            }
+          }
+        }
+      }
+    },
+    "superpatch": {
+      "name": "Superpatch",
+      "customers": {
+        "affiliates": {
+          "name": "Affiliates",
+          "initiatives": {
+            "main": {
+              "name": "Main",
+              "businessIdea": "docs/orgs/superpatch/customers/affiliates/initiatives/main/business-idea",
+              "memory": "docs/orgs/superpatch/customers/affiliates/initiatives/main/MEMORY"
+            },
+            "income-stack-deck": {
+              "name": "Income Stack Deck",
+              "businessIdea": "docs/orgs/superpatch/customers/affiliates/initiatives/income-stack-deck/business-idea",
+              "memory": "docs/orgs/superpatch/customers/affiliates/initiatives/income-stack-deck/MEMORY"
             }
           }
         }
