@@ -1,12 +1,23 @@
 # Business Idea Runbook Tracker
 
-**Idea:** Income Stack Deck
-**Classification:** SaaS | Service | E-commerce | Content | Marketplace | Internal
-**Mode:** explore | build | scale
-**Depth:** light | standard | investor-ready | full-execution
-**Started:** 2026-08-06
-**Last updated:** 2026-08-06
-**Current phase:** 0
+**Idea:** Income Stack Deck — animated affiliate presentation  
+**Classification:** Content / Enablement  
+**Mode:** build  
+**Depth:** light (creative track — not full 0–22)  
+**Started:** 2026-08-06  
+**Last updated:** 2026-08-06  
+**Current phase:** Creative production (app shipped)
+
+## Creative production
+
+| Step | Status | Artifact |
+|------|--------|----------|
+| Portfolio scaffold | ✅ | `superpatch` / `affiliates` / `income-stack-deck` |
+| Concept assets | ✅ | `assets/concepts/` |
+| Slide copy | ✅ | `assets/copy/SLIDES.md` + `apps/superpatch-income-stack/src/data/slides.ts` |
+| Animated deck app | ✅ | `apps/superpatch-income-stack/` |
+| Hero AI video (optional) | ⬜ | `heroVideoSrc` hooks ready |
+| Legal disclosure polish | ⬜ | Consult `legal-counsel` on money-slide line |
 
 ## Execution mode
 
