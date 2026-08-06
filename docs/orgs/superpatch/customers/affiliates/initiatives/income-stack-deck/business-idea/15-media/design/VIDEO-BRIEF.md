@@ -107,6 +107,22 @@ After files land:
 2. Update `hero.src`, `hero.width` (1920), `hero.height` (1080) in `slides.ts`
 3. Remove the slide id from `LEGACY_720P_HERO_IDS` — tests then require 1080p for all heroes
 
+## Remotion Studio seek QA
+
+After `npm run remotion` in `apps/superpatch-income-stack`, open `IncomeStackFilm`
+(1920×1080 / 30 fps / 2298 frames). Absolute clip starts (18f fade overlap):
+
+| Slide | Frame | Check |
+|-------|------:|-------|
+| 03 four-stacks | 414 | Hero loop; live annotations off when baked |
+| 04 flywheel | 696 | Flywheel overlay visible; plate entrance distinct |
+| 07 retail | 1092 | Disclosure; no unqualified “guaranteed” earnings |
+| 09 team-overrides | 1356 | Annotations settle before dense copy |
+| 15 closing | 2148 | EndCard CTAs + ≥16px disclosure |
+
+MotionDirector: `src/remotion/motion/presets.ts` + `gating.ts`. Hero meta / CTA fields:
+see app README “Remotion motion system”.
+
 ## Acceptance
 
 - [x] Design brief written before render claims
@@ -114,6 +130,8 @@ After files land:
 - [x] Plates de-texted; OCR re-scan of `public/concepts/clean/` returns zero text detections
 - [x] `npx hyperframes check` green — 0 lint errors, 0 motion errors, 23/23 text checks pass WCAG AA
 - [x] Deck MP4 rendered and frame-verified: 1920×1080 / 30fps / 75.0s, 0 spend
+- [x] Hero / I2V delivery contract + 720p allowlist documented (Tasks 5–7)
+- [x] Remotion Studio seek checklist (03 / 04 / 07 / 09 / 15) documented
 - [ ] OpenMontage finals **or** honest skip documented
 - [ ] Web app can point `heroVideoSrc` at exported loops
 - [ ] Hero loops at native 1920×1080 (01 / 03 still 720p allowlisted debt)

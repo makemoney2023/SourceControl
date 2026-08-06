@@ -15,13 +15,31 @@ Ship a Remotion composition where **transitions**, **layered diagrams**, and **k
 | Location | `apps/superpatch-income-stack/src/remotion/` (same package as web deck) |
 | SSOT | `src/data/slides.ts` + `public/` assets |
 | Formats | Mobile-first portrait master: 1080×1920; landscape adaptation: 1920×1080; both at 30 fps |
-| Transitions | `@remotion/transitions` `TransitionSeries` + `fade()`, ~0.55–0.6s |
-| Heroes | `OffthreadVideo` for slides with `hero` / `heroVideoSrc` |
+| Transitions | `@remotion/transitions` `TransitionSeries` + `fade()`, ~0.55–0.6s (`TRANSITION_FRAMES` = 18) |
+| MotionDirector | `src/remotion/motion/presets.ts` (`getMotionBeat`) + `gating.ts` (`getMotionPhases`); `SlideScene` dispatches plate / annotation / copy timing from `motionPreset` |
+| Heroes | `OffthreadVideo` for slides with `hero` (`HeroMedia`) / deprecated `heroVideoSrc` |
 | Hero delivery | Native **1920×1080** @ 30 fps (dense keyframes); optional 1080×1920 when available. No 720p upscale for new assets. `assertHeroMedia` + slides tests enforce the contract; `01-title` / `03-four-stacks` remain allowlisted 720p debt until operator re-export (VIDEO-BRIEF checklist). |
+| Labels | `shouldShowLiveAnnotations` — live overlays off when `hero.annotationsBaked === true` |
+| Narrative | `onScreenBody` (film 30–50 words) preferred over `body`; `presenterNotes` for proof/objections; `INCOME_STREAMS` index + spine + slide-14 recap |
+| CTA / close | `ctaPrimary` / `ctaSecondary` + `INCOME_DISCLOSURE` on `15-closing` via Remotion `EndCard` |
 | Stills | Clean plate `Img` + motion presets |
 | Type | Montserrat via `@remotion/google-fonts`; kinetic word springs on headlines |
 | Diagrams | React layers: slab drop (`parallax-slabs`), annotation stagger (`pillars-sequence` / flywheel) |
 | HyperFrames | Untouched; remains the approved HTML film path |
+
+## Studio seek QA (landscape film)
+
+Composition `IncomeStackFilm`: **1920×1080**, 30 fps, **2298** frames. Seek absolute starts:
+
+| Slide | Frame | Expect |
+|-------|------:|--------|
+| 03 | 414 | Hero + pillars; baked-label policy respected |
+| 04 | 696 | Flywheel overlay + plate entrance |
+| 07 | 1092 | Retail diagram-first; disclosure; no unqualified “guaranteed” |
+| 09 | 1356 | Annotations before dense copy |
+| 15 | 2148 | EndCard CTAs + disclosure |
+
+Full checklist also lives in `apps/superpatch-income-stack/README.md`.
 
 ## Responsive composition system
 
