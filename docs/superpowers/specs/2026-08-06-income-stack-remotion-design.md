@@ -1,0 +1,45 @@
+# Income Stack Remotion Film — Design
+
+**Date:** 2026-08-06  
+**Branch:** `feature/income-stack-remotion`  
+**Baseline kept:** HyperFrames film on `feature/superpatch-income-stack-deck` @ `cbf8337`
+
+## Goal
+
+Ship a Remotion composition where **transitions**, **layered diagrams**, and **kinetic type** are first-class — not bolted onto HyperFrames HTML.
+
+## Decisions
+
+| Choice | Decision |
+|--------|----------|
+| Location | `apps/superpatch-income-stack/src/remotion/` (same package as web deck) |
+| SSOT | `src/data/slides.ts` + `public/` assets |
+| Formats | Mobile-first portrait master: 1080×1920; landscape adaptation: 1920×1080; both at 30 fps |
+| Transitions | `@remotion/transitions` `TransitionSeries` + `fade()`, ~0.55–0.6s |
+| Heroes | `OffthreadVideo` for slides with `heroVideoSrc` |
+| Stills | Clean plate `Img` + motion presets |
+| Type | Montserrat via `@remotion/google-fonts`; kinetic word springs on headlines |
+| Diagrams | React layers: slab drop (`parallax-slabs`), annotation stagger (`pillars-sequence` / flywheel) |
+| HyperFrames | Untouched; remains the approved HTML film path |
+
+## Responsive composition system
+
+The presentation must not shrink a landscape composition onto a phone. Remotion exports
+separate portrait and landscape compositions that share the same slide data, motion
+presets, narration, and compliance copy while selecting aspect-specific layouts.
+
+- **Portrait / mobile master:** `1080×1920` (9:16), designed first.
+- **Landscape presentation:** `1920×1080` (16:9), adapted from the portrait hierarchy.
+- **Optional social derivative:** `1080×1350` (4:5) after 9:16 and 16:9 are approved.
+- Copy, focal subject, annotations, and CTA must remain inside aspect-specific safe zones.
+- Every animated plate needs portrait and landscape framing, or a protected center-safe
+  source with enough overscan to recompose both ways.
+- Scene metadata should define portrait and landscape `copyZone`, `focalPoint`, `crop`,
+  `protectedRegion`, and `typeScale`; these are art-directed values, not automatic scaling.
+- The web deck remains fluid and must be verified at 390px, 768px, and desktop widths.
+
+## Out of scope (v1)
+
+- Voiceover / music bed
+- Replacing HyperFrames generator
+- Budgeted I2V for remaining slides
