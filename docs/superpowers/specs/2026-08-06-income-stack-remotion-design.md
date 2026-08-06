@@ -29,15 +29,15 @@ Ship a Remotion composition where **transitions**, **layered diagrams**, and **k
 
 ## Studio seek QA (landscape film)
 
-Composition `IncomeStackFilm`: **1920×1080**, 30 fps, **2448** frames. Seek absolute starts:
+Composition `IncomeStackFilm`: **1920×1080**, 30 fps, **4248** frames. Seek absolute starts:
 
 | Slide | Frame | Expect |
 |-------|------:|--------|
-| 03 | 414 | Hero + pillars; baked-label policy respected |
-| 04 | 696 | Native 1080p hero loop + Flywheel overlay |
-| 07 | 1242 | Retail diagram-first; disclosure; no unqualified “guaranteed” |
-| 09 | 1506 | Annotations before dense copy |
-| 15 | 2298 | EndCard CTAs + disclosure |
+| 03 | 564 | Hero + pillars; baked-label policy respected |
+| 04 | 846 | Native 1080p hero loop + Flywheel overlay |
+| 07 | 1692 | Retail diagram-first; disclosure; no unqualified “guaranteed” |
+| 09 | 2256 | Annotations before dense copy |
+| 15 | 3948 | EndCard CTAs + disclosure |
 
 Full checklist also lives in `apps/superpatch-income-stack/README.md`.
 

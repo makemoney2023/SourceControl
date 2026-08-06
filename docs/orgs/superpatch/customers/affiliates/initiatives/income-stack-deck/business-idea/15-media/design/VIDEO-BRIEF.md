@@ -110,15 +110,15 @@ After files land:
 ## Remotion Studio seek QA
 
 After `npm run remotion` in `apps/superpatch-income-stack`, open `IncomeStackFilm`
-(1920×1080 / 30 fps / 2448 frames). Absolute clip starts (18f fade overlap):
+(1920×1080 / 30 fps / 4248 frames). Absolute clip starts (18f fade overlap; all slides are 10s heroes):
 
 | Slide | Frame | Check |
 |-------|------:|-------|
-| 03 four-stacks | 414 | Hero loop; live annotations off when baked |
-| 04 flywheel | 696 | Native 1080p hero loop; Flywheel overlay visible |
-| 07 retail | 1242 | Disclosure; no unqualified “guaranteed” earnings |
-| 09 team-overrides | 1506 | Annotations settle before dense copy |
-| 15 closing | 2298 | EndCard CTAs + ≥16px disclosure |
+| 03 four-stacks | 564 | Hero loop; live annotations off when baked |
+| 04 flywheel | 846 | Native 1080p hero loop; Flywheel overlay visible |
+| 07 retail | 1692 | Disclosure; no unqualified “guaranteed” earnings |
+| 09 team-overrides | 2256 | Annotations settle before dense copy |
+| 15 closing | 3948 | EndCard CTAs + ≥16px disclosure |
 
 MotionDirector: `src/remotion/motion/presets.ts` + `gating.ts`. Hero meta / CTA fields:
 see app README “Remotion motion system”.
