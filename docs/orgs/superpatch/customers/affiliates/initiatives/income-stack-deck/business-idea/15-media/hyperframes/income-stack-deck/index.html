@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Super Patch Income Stack™ — HyperFrames</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800;900&display=swap" rel="stylesheet" />
+    <style>
+      body { margin: 0; background: #05070f; color: #f4f6fb; font-family: "Montserrat", system-ui, sans-serif; }
+      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #05070f; }
+      .clip { position: absolute; inset: 0; overflow: hidden; }
+      .fill { position: absolute; inset: 0; background: radial-gradient(80% 60% at 50% 20%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 65%); }
+      .plate { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; background: #05070f; }
+      .scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,7,15,0.15) 0%, rgba(5,7,15,0.25) 40%, rgba(5,7,15,0.92) 78%, #05070f 100%); }
+      .copy { position: absolute; left: 96px; right: 96px; bottom: 88px; max-width: 1100px; z-index: 2; }
+      .eyebrow { margin: 0 0 14px; color: var(--accent); font-size: 22px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+      .headline { margin: 0 0 18px; font-size: 64px; font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
+      .body { margin: 0; max-width: 38ch; color: #9aa3b5; font-size: 28px; font-weight: 600; line-height: 1.4; }
+      .disclosure { margin: 18px 0 0; max-width: 52ch; color: rgba(244,246,251,0.5); font-size: 16px; line-height: 1.35; }
+      .brand { position: absolute; top: 40px; left: 96px; z-index: 3; font-size: 18px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="income-stack-main" data-width="1920" data-height="1080" data-duration="75">
+      <div class="brand">Super Patch · Income Stack™</div>
+
+      <section
+        id="clip-01-title"
+        class="clip slide"
+        data-start="0"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="0"
+        style="--accent: #2f6bff"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-01-title"
+          class="plate"
+          src="assets/sp-stack-01-title.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-01-title">
+          <p class="eyebrow" id="ey-01-title">The Super Patch Income Stack™</p>
+          <h2 class="headline" id="hl-01-title">10 Ways to Build Life-Changing Income</h2>
+          <p class="body" id="bd-01-title">At Super Patch, we didn't create just another affiliate program. We built an Income Stack™ — ten ways to earn as you grow. Every new activity can unlock another stream without replacing the one before it.</p>
+          
+        </div>
+      </section>
+
+      <section
+        id="clip-02-question"
+        class="clip slide"
+        data-start="5"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="1"
+        style="--accent: #c8d0e0"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-02-question"
+          class="plate"
+          src="assets/sp-stack-02-the-question.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-02-question">
+          <p class="eyebrow" id="ey-02-question">The Old Model</p>
+          <h2 class="headline" id="hl-02-question">One Commission Is Not a Business</h2>
+          <p class="body" id="bd-02-question">Most affiliate programs pay a single stream and leave you hoping volume alone will work. When growth stalls, so does income. Super Patch rewards every stage of building — customers, teams, and leaders — so progress compounds instead of resetting.</p>
+          
+        </div>
+      </section>
+
+      <section
+        id="clip-03-four-stacks"
+        class="clip slide"
+        data-start="10"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="2"
+        style="--accent: #2f6bff"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-03-four-stacks"
+          class="plate"
+          src="assets/sp-stack-03-four-stacks.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-03-four-stacks">
+          <p class="eyebrow" id="ey-03-four-stacks">The Super Patch Full Stack</p>
+          <h2 class="headline" id="hl-03-four-stacks">One Company. Four Stacks. Infinite Potential.</h2>
+          <p class="body" id="bd-03-four-stacks">We are building a full-stack human performance ecosystem: Product delivers outcomes, Brand &amp; Marketing creates demand, Income opens opportunity, and Personal Development builds leaders. Each layer strengthens the others — not a catalog, a system.</p>
+          
+        </div>
+      </section>
+
+      <section
+        id="clip-04-flywheel"
+        class="clip slide"
+        data-start="15"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="3"
+        style="--accent: #2f6bff"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-04-flywheel"
+          class="plate"
+          src="assets/sp-stack-04-flywheel.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-04-flywheel">
+          <p class="eyebrow" id="ey-04-flywheel">The Flywheel Effect</p>
+          <h2 class="headline" id="hl-04-flywheel">Each Stack Reinforces the Others</h2>
+          <p class="body" id="bd-04-flywheel">Better products strengthen the brand. A stronger brand accelerates customers. Greater awareness expands income. Greater income attracts leaders. Better leaders build community. Stronger communities fund innovation. The result is a self-reinforcing ecosystem built to last.</p>
+          
+        </div>
+      </section>
+
+      <section
+        id="clip-05-ecosystem"
+        class="clip slide"
+        data-start="20"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="4"
+        style="--accent: #8b5cff"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-05-ecosystem"
+          class="plate"
+          src="assets/sp-stack-05-ecosystem.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-05-ecosystem">
+          <p class="eyebrow" id="ey-05-ecosystem">Why It Compounds</p>
+          <h2 class="headline" id="hl-05-ecosystem">Exponential Value Across the Ecosystem</h2>
+          <p class="body" id="bd-05-ecosystem">Rather than competing with single-product wellness companies, Super Patch connects health outcomes, economic opportunity, leadership, and community. Every major initiative should strengthen one or more stacks — the more stacks touched, the greater the long-term value.</p>
+          
+        </div>
+      </section>
+
+      <section
+        id="clip-06-ten-layers"
+        class="clip slide"
+        data-start="25"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="5"
+        style="--accent: #ff7a1a"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-06-ten-layers"
+          class="plate"
+          src="assets/sp-stack-06-ten-layers.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-06-ten-layers">
+          <p class="eyebrow" id="ey-06-ten-layers">Income Stack™</p>
+          <h2 class="headline" id="hl-06-ten-layers">The More Value You Create, the More Stacks Work for You</h2>
+          <p class="body" id="bd-06-ten-layers">Instead of relying on a single commission, Super Patch created multiple streams that reward sharing products, building customers, introducing affiliates, and developing leaders. Every new activity can unlock another stream — without replacing the one before it.</p>
+          
+        </div>
+      </section>
+
+      <section
+        id="clip-07-retail"
+        class="clip slide"
+        data-start="30"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="6"
+        style="--accent: #22d36b"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-07-retail"
+          class="plate"
+          src="assets/sp-stack-07-retail.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-07-retail">
+          <p class="eyebrow" id="ey-07-retail">Stack 1</p>
+          <h2 class="headline" id="hl-07-retail">25% Retail Affiliate Commissions</h2>
+          <p class="body" id="bd-07-retail">This is where everyone begins. Every time someone purchases through your personal affiliate link, you earn a guaranteed 25% commission — paid weekly. One product or several, if they buy through your link, you earn 25% of what they pay.</p>
+          <p class="disclosure" id="d-07-retail">Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.</p>
+        </div>
+      </section>
+
+      <section
+        id="clip-08-fast-start"
+        class="clip slide"
+        data-start="35"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="7"
+        style="--accent: #ff7a1a"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-08-fast-start"
+          class="plate"
+          src="assets/sp-stack-08-fast-start.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-08-fast-start">
+          <p class="eyebrow" id="ey-08-fast-start">Stack 2</p>
+          <h2 class="headline" id="hl-08-fast-start">Fast Start &amp; Rank Advancement Bonuses</h2>
+          <p class="body" id="bd-08-fast-start">Personally enroll three or more new affiliates in a month with qualifying kits and unlock Fast Start Bonuses from an additional $200 up to $2,000. As your organization hits sales milestones, Rank Advancement Bonuses can reach up to $100,000.</p>
+          <p class="disclosure" id="d-08-fast-start">Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.</p>
+        </div>
+      </section>
+
+      <section
+        id="clip-09-team-overrides"
+        class="clip slide"
+        data-start="40"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="8"
+        style="--accent: #2f6bff"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-09-team-overrides"
+          class="plate"
+          src="assets/sp-stack-09-team-overrides.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-09-team-overrides">
+          <p class="eyebrow" id="ey-09-team-overrides">Stack 3</p>
+          <h2 class="headline" id="hl-09-team-overrides">Team Override Commissions</h2>
+          <p class="body" id="bd-09-team-overrides">True residual income begins as you help others build. Earn up to 15% of Bonus Volume on Level 1, up to 10% on Level 2, and up to 4% on Levels 3, 4, and 5. There is no ceiling on organization size.</p>
+          <p class="disclosure" id="d-09-team-overrides">Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.</p>
+        </div>
+      </section>
+
+      <section
+        id="clip-10-md-depth"
+        class="clip slide"
+        data-start="45"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="9"
+        style="--accent: #8b5cff"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-10-md-depth"
+          class="plate"
+          src="assets/sp-stack-10-unlimited-depth.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-10-md-depth">
+          <p class="eyebrow" id="ey-10-md-depth">Stack 4</p>
+          <h2 class="headline" id="hl-10-md-depth">Managing Director Leaders Unlimited Depth Bonus</h2>
+          <p class="body" id="bd-10-md-depth">Once you achieve Managing Director, you begin earning an additional unlimited 2% on qualifying Bonus Volume past level 5, up to the next qualified Managing Director. Leadership unlocks another layer of recurring income that grows with your organization.</p>
+          <p class="disclosure" id="d-10-md-depth">Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.</p>
+        </div>
+      </section>
+
+      <section
+        id="clip-11-vp-override"
+        class="clip slide"
+        data-start="50"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="10"
+        style="--accent: #2f6bff"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-11-vp-override"
+          class="plate"
+          src="assets/sp-stack-11-vp-override.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-11-vp-override">
+          <p class="eyebrow" id="ey-11-vp-override">Stack 5</p>
+          <h2 class="headline" id="hl-11-vp-override">Vice President Leadership Override</h2>
+          <p class="body" id="bd-11-vp-override">As a Vice President, your leadership expands further. Instead of the Managing Director override, you earn 2% of Bonus Volume on every organizational leg down to the next qualified Vice President. The larger your organization becomes, the greater this income grows.</p>
+          <p class="disclosure" id="d-11-vp-override">Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.</p>
+        </div>
+      </section>
+
+      <section
+        id="clip-12-generations"
+        class="clip slide"
+        data-start="55"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="11"
+        style="--accent: #22d36b"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-12-generations"
+          class="plate"
+          src="assets/sp-stack-12-generations.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-12-generations">
+          <p class="eyebrow" id="ey-12-generations">Stack 6</p>
+          <h2 class="headline" id="hl-12-generations">Generation Bonuses</h2>
+          <p class="body" id="bd-12-generations">This is where leadership begins rewarding leadership. As a Vice President and above, you earn 3% Generation Bonuses through up to three generations of Vice Presidents within your organization. Develop leaders who develop leaders — and your income keeps expanding.</p>
+          <p class="disclosure" id="d-12-generations">Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.</p>
+        </div>
+      </section>
+
+      <section
+        id="clip-13-executive"
+        class="clip slide"
+        data-start="60"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="12"
+        style="--accent: #ff7a1a"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-13-executive"
+          class="plate"
+          src="assets/sp-stack-13-executive.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-13-executive">
+          <p class="eyebrow" id="ey-13-executive">Stacks 7 &amp; 8</p>
+          <h2 class="headline" id="hl-13-executive">Executive Leadership &amp; CEO Leadership Bonus</h2>
+          <p class="body" id="bd-13-executive">Reach Executive Leadership and earn up to an additional 2% override on Bonus Volume across your qualified affiliate organization — no preset cap. At President or Global President, earn an extra $10,000 to $20,000 every month for top-tier leadership performance.</p>
+          <p class="disclosure" id="d-13-executive">Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.</p>
+        </div>
+      </section>
+
+      <section
+        id="clip-14-global"
+        class="clip slide"
+        data-start="65"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="13"
+        style="--accent: #8b5cff"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-14-global"
+          class="plate"
+          src="assets/sp-stack-14-global-pool.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-14-global">
+          <p class="eyebrow" id="ey-14-global">Stacks 9 &amp; 10</p>
+          <h2 class="headline" id="hl-14-global">Global President Override &amp; Global Leadership Pool</h2>
+          <p class="body" id="bd-14-global">Global Presidents receive an additional 1% override on Bonus Volume throughout their qualified global organization. Qualified National Vice Presidents and above also participate in the Global 1% Leadership Pool — sharing in worldwide growth they help create.</p>
+          <p class="disclosure" id="d-14-global">Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.</p>
+        </div>
+      </section>
+
+      <section
+        id="clip-15-closing"
+        class="clip slide"
+        data-start="70"
+        data-duration="5"
+        data-track-index="1"
+        data-slide-index="14"
+        style="--accent: #dd0604"
+      >
+        <div class="fill" aria-hidden="true"></div>
+        <img
+          id="img-15-closing"
+          class="plate"
+          src="assets/sp-stack-15-closing.png"
+          alt=""
+          width="1920"
+          height="1080"
+        />
+        <div class="scrim"></div>
+        <div class="copy" id="copy-15-closing">
+          <p class="eyebrow" id="ey-15-closing">One Opportunity. Ten Income Streams.</p>
+          <h2 class="headline" id="hl-15-closing">Build Customers. Build Leaders. Build Leverage.</h2>
+          <p class="body" id="bd-15-closing">Most affiliate programs pay one commission. Super Patch rewards every stage of building a business — from retail customers to global profit pools. Whether you want a few hundred a month or generational wealth, the Income Stack gives you multiple ways to get there.</p>
+          
+        </div>
+      </section>
+    </div>
+    <script id="slideshow-deck" type="application/json">
+{
+  "version": 1,
+  "compositionId": "income-stack-main",
+  "mode": "deck",
+  "slides": [
+    {
+      "id": "01-title",
+      "index": 0,
+      "label": "10 Ways to Build Life-Changing Income",
+      "start": 0,
+      "duration": 5,
+      "notes": "At Super Patch, we didn't create just another affiliate program. We built an Income Stack™ — ten ways to earn as you grow. Every new activity can unlock another stream without replacing the one before it."
+    },
+    {
+      "id": "02-question",
+      "index": 1,
+      "label": "One Commission Is Not a Business",
+      "start": 5,
+      "duration": 5,
+      "notes": "Most affiliate programs pay a single stream and leave you hoping volume alone will work. When growth stalls, so does income. Super Patch rewards every stage of building — customers, teams, and leaders — so progress compounds instead of resetting."
+    },
+    {
+      "id": "03-four-stacks",
+      "index": 2,
+      "label": "One Company. Four Stacks. Infinite Potential.",
+      "start": 10,
+      "duration": 5,
+      "notes": "We are building a full-stack human performance ecosystem: Product delivers outcomes, Brand & Marketing creates demand, Income opens opportunity, and Personal Development builds leaders. Each layer strengthens the others — not a catalog, a system."
+    },
+    {
+      "id": "04-flywheel",
+      "index": 3,
+      "label": "Each Stack Reinforces the Others",
+      "start": 15,
+      "duration": 5,
+      "notes": "Better products strengthen the brand. A stronger brand accelerates customers. Greater awareness expands income. Greater income attracts leaders. Better leaders build community. Stronger communities fund innovation. The result is a self-reinforcing ecosystem built to last."
+    },
+    {
+      "id": "05-ecosystem",
+      "index": 4,
+      "label": "Exponential Value Across the Ecosystem",
+      "start": 20,
+      "duration": 5,
+      "notes": "Rather than competing with single-product wellness companies, Super Patch connects health outcomes, economic opportunity, leadership, and community. Every major initiative should strengthen one or more stacks — the more stacks touched, the greater the long-term value."
+    },
+    {
+      "id": "06-ten-layers",
+      "index": 5,
+      "label": "The More Value You Create, the More Stacks Work for You",
+      "start": 25,
+      "duration": 5,
+      "notes": "Instead of relying on a single commission, Super Patch created multiple streams that reward sharing products, building customers, introducing affiliates, and developing leaders. Every new activity can unlock another stream — without replacing the one before it."
+    },
+    {
+      "id": "07-retail",
+      "index": 6,
+      "label": "25% Retail Affiliate Commissions",
+      "start": 30,
+      "duration": 5,
+      "notes": "This is where everyone begins. Every time someone purchases through your personal affiliate link, you earn a guaranteed 25% commission — paid weekly. One product or several, if they buy through your link, you earn 25% of what they pay."
+    },
+    {
+      "id": "08-fast-start",
+      "index": 7,
+      "label": "Fast Start & Rank Advancement Bonuses",
+      "start": 35,
+      "duration": 5,
+      "notes": "Personally enroll three or more new affiliates in a month with qualifying kits and unlock Fast Start Bonuses from an additional $200 up to $2,000. As your organization hits sales milestones, Rank Advancement Bonuses can reach up to $100,000."
+    },
+    {
+      "id": "09-team-overrides",
+      "index": 8,
+      "label": "Team Override Commissions",
+      "start": 40,
+      "duration": 5,
+      "notes": "True residual income begins as you help others build. Earn up to 15% of Bonus Volume on Level 1, up to 10% on Level 2, and up to 4% on Levels 3, 4, and 5. There is no ceiling on organization size."
+    },
+    {
+      "id": "10-md-depth",
+      "index": 9,
+      "label": "Managing Director Leaders Unlimited Depth Bonus",
+      "start": 45,
+      "duration": 5,
+      "notes": "Once you achieve Managing Director, you begin earning an additional unlimited 2% on qualifying Bonus Volume past level 5, up to the next qualified Managing Director. Leadership unlocks another layer of recurring income that grows with your organization."
+    },
+    {
+      "id": "11-vp-override",
+      "index": 10,
+      "label": "Vice President Leadership Override",
+      "start": 50,
+      "duration": 5,
+      "notes": "As a Vice President, your leadership expands further. Instead of the Managing Director override, you earn 2% of Bonus Volume on every organizational leg down to the next qualified Vice President. The larger your organization becomes, the greater this income grows."
+    },
+    {
+      "id": "12-generations",
+      "index": 11,
+      "label": "Generation Bonuses",
+      "start": 55,
+      "duration": 5,
+      "notes": "This is where leadership begins rewarding leadership. As a Vice President and above, you earn 3% Generation Bonuses through up to three generations of Vice Presidents within your organization. Develop leaders who develop leaders — and your income keeps expanding."
+    },
+    {
+      "id": "13-executive",
+      "index": 12,
+      "label": "Executive Leadership & CEO Leadership Bonus",
+      "start": 60,
+      "duration": 5,
+      "notes": "Reach Executive Leadership and earn up to an additional 2% override on Bonus Volume across your qualified affiliate organization — no preset cap. At President or Global President, earn an extra $10,000 to $20,000 every month for top-tier leadership performance."
+    },
+    {
+      "id": "14-global",
+      "index": 13,
+      "label": "Global President Override & Global Leadership Pool",
+      "start": 65,
+      "duration": 5,
+      "notes": "Global Presidents receive an additional 1% override on Bonus Volume throughout their qualified global organization. Qualified National Vice Presidents and above also participate in the Global 1% Leadership Pool — sharing in worldwide growth they help create."
+    },
+    {
+      "id": "15-closing",
+      "index": 14,
+      "label": "Build Customers. Build Leaders. Build Leverage.",
+      "start": 70,
+      "duration": 5,
+      "notes": "Most affiliate programs pay one commission. Super Patch rewards every stage of building a business — from retail customers to global profit pools. Whether you want a few hundred a month or generational wealth, the Income Stack gives you multiple ways to get there."
+    }
+  ]
+}
+    </script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      tl.fromTo("#img-01-title", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 0);
+      tl.from("#ey-01-title", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 0.25);
+      tl.from("#hl-01-title", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 0.35);
+      tl.from("#bd-01-title", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 0.5);
+      
+
+      tl.fromTo("#img-02-question", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 5);
+      tl.from("#ey-02-question", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 5.25);
+      tl.from("#hl-02-question", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 5.35);
+      tl.from("#bd-02-question", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 5.5);
+      
+
+      tl.fromTo("#img-03-four-stacks", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 10);
+      tl.from("#ey-03-four-stacks", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 10.25);
+      tl.from("#hl-03-four-stacks", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 10.35);
+      tl.from("#bd-03-four-stacks", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 10.5);
+      
+
+      tl.fromTo("#img-04-flywheel", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 15);
+      tl.from("#ey-04-flywheel", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 15.25);
+      tl.from("#hl-04-flywheel", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 15.35);
+      tl.from("#bd-04-flywheel", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 15.5);
+      
+
+      tl.fromTo("#img-05-ecosystem", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 20);
+      tl.from("#ey-05-ecosystem", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 20.25);
+      tl.from("#hl-05-ecosystem", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 20.35);
+      tl.from("#bd-05-ecosystem", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 20.5);
+      
+
+      tl.fromTo("#img-06-ten-layers", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 25);
+      tl.from("#ey-06-ten-layers", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 25.25);
+      tl.from("#hl-06-ten-layers", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 25.35);
+      tl.from("#bd-06-ten-layers", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 25.5);
+      
+
+      tl.fromTo("#img-07-retail", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 30);
+      tl.from("#ey-07-retail", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 30.25);
+      tl.from("#hl-07-retail", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 30.35);
+      tl.from("#bd-07-retail", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 30.5);
+      tl.from("#d-07-retail", { opacity: 0, duration: 0.4 }, 30.7);
+
+      tl.fromTo("#img-08-fast-start", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 35);
+      tl.from("#ey-08-fast-start", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 35.25);
+      tl.from("#hl-08-fast-start", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 35.35);
+      tl.from("#bd-08-fast-start", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 35.5);
+      tl.from("#d-08-fast-start", { opacity: 0, duration: 0.4 }, 35.7);
+
+      tl.fromTo("#img-09-team-overrides", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 40);
+      tl.from("#ey-09-team-overrides", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 40.25);
+      tl.from("#hl-09-team-overrides", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 40.35);
+      tl.from("#bd-09-team-overrides", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 40.5);
+      tl.from("#d-09-team-overrides", { opacity: 0, duration: 0.4 }, 40.7);
+
+      tl.fromTo("#img-10-md-depth", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 45);
+      tl.from("#ey-10-md-depth", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 45.25);
+      tl.from("#hl-10-md-depth", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 45.35);
+      tl.from("#bd-10-md-depth", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 45.5);
+      tl.from("#d-10-md-depth", { opacity: 0, duration: 0.4 }, 45.7);
+
+      tl.fromTo("#img-11-vp-override", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 50);
+      tl.from("#ey-11-vp-override", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 50.25);
+      tl.from("#hl-11-vp-override", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 50.35);
+      tl.from("#bd-11-vp-override", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 50.5);
+      tl.from("#d-11-vp-override", { opacity: 0, duration: 0.4 }, 50.7);
+
+      tl.fromTo("#img-12-generations", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 55);
+      tl.from("#ey-12-generations", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 55.25);
+      tl.from("#hl-12-generations", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 55.35);
+      tl.from("#bd-12-generations", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 55.5);
+      tl.from("#d-12-generations", { opacity: 0, duration: 0.4 }, 55.7);
+
+      tl.fromTo("#img-13-executive", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 60);
+      tl.from("#ey-13-executive", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 60.25);
+      tl.from("#hl-13-executive", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 60.35);
+      tl.from("#bd-13-executive", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 60.5);
+      tl.from("#d-13-executive", { opacity: 0, duration: 0.4 }, 60.7);
+
+      tl.fromTo("#img-14-global", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 65);
+      tl.from("#ey-14-global", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 65.25);
+      tl.from("#hl-14-global", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 65.35);
+      tl.from("#bd-14-global", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 65.5);
+      tl.from("#d-14-global", { opacity: 0, duration: 0.4 }, 65.7);
+
+      tl.fromTo("#img-15-closing", { scale: 1.08, y: -20 }, { scale: 1, y: 12, duration: 5, ease: "none" }, 70);
+      tl.from("#ey-15-closing", { y: 24, opacity: 0, duration: 0.55, ease: "power3.out" }, 70.25);
+      tl.from("#hl-15-closing", { y: 32, opacity: 0, duration: 0.65, ease: "power3.out" }, 70.35);
+      tl.from("#bd-15-closing", { y: 28, opacity: 0, duration: 0.6, ease: "power2.out" }, 70.5);
+      
+      window.__timelines["income-stack-main"] = tl;
+      window.__incomeStackDeck = JSON.parse(document.getElementById("slideshow-deck").textContent);
+    </script>
+  </body>
+</html>

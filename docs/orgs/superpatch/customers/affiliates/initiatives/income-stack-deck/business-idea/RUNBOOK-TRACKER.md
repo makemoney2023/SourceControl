@@ -16,7 +16,10 @@
 | Concept assets | ✅ | `assets/concepts/` |
 | Slide copy | ✅ | `assets/copy/SLIDES.md` + `apps/superpatch-income-stack/src/data/slides.ts` |
 | Animated deck app | ✅ | `apps/superpatch-income-stack/` |
-| Hero AI video (optional) | ⬜ | `heroVideoSrc` hooks ready |
+| HyperFrames composition | ✅ | `15-media/hyperframes/income-stack-deck/` (75s / 15 clips) |
+| OpenMontage scaffold + brief | ✅ | `15-media/openmontage/` + `design/VIDEO-BRIEF.md` |
+| OpenMontage / HF render finals | ⬜ | Preview → operator approve → render |
+| Hero AI video loops (optional) | ⬜ | `heroVideoSrc` + I2V via OpenMontage |
 | Legal disclosure polish | ⬜ | Consult `legal-counsel` on money-slide line |
 
 ## Execution mode
