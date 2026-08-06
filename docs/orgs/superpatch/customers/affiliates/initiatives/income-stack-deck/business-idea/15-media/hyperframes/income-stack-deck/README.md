@@ -17,11 +17,11 @@ Requires Node ≥ 22 + FFmpeg (`hyperframes-cli` skill).
 
 ```bash
 cd docs/orgs/superpatch/customers/affiliates/initiatives/income-stack-deck/business-idea/15-media/hyperframes/income-stack-deck
-npx hyperframes lint
-npx hyperframes validate
-npx hyperframes preview   # Studio — review before render
-# Only after operator approve:
-npx hyperframes render --quality high --output ../../openmontage/income-stack-deck-final.mp4
+cd ..                     # the CLI takes the project dir
+npx hyperframes check income-stack-deck    # lint + motion + WCAG contrast
+npx hyperframes preview income-stack-deck  # Studio
+npx hyperframes render income-stack-deck --quality high \
+  --output ../openmontage/income-stack-deck-final.mp4
 ```
 
 Regenerate HTML from slide SSOT:
@@ -42,9 +42,24 @@ No type is baked into the plates. All copy is live:
 | `.copy` block | eyebrow, headline, body, disclosure |
 | `.annotations` | diagram labels and display metrics recovered from the original plates (`PRODUCT/BRAND/INCOME/PEOPLE`, `15/10/4%`, `25%`, `$2,000`, `2%`) |
 
-Annotations render between plate and scrim, so they read as part of the artwork and never
-collide with the copy block. Positions and sizes come from the original burned-in type —
-see `apps/superpatch-income-stack/scripts/plate-text.json`.
+Positions and sizes come from the original burned-in type — see
+`apps/superpatch-income-stack/scripts/plate-text.json`.
+
+Two rules keep the two type layers apart in the 16:9 film, where the copy block covers far
+more of the plate than it does in the web app's two-column layout:
+
+- **Annotations sit above the scrim** so they stay bright artwork. Under the scrim they read
+  as leftover baked type, which is the exact impression the de-texting was meant to remove.
+- **The copy block picks a free corner.** The generator measures each slide's annotation box
+  and anchors the copy bottom-left / bottom-right / top-left / top-right — the first corner
+  that clears it, flipping the scrim gradient when the copy goes up top. Slide 03 takes
+  top-left, slide 09 bottom-right. When no corner is free (slides 04 and 07) the annotations
+  are dropped from the film; the headline and body already state those figures.
+
+Montserrat is wider than the condensed face the plates were originally set in, so a metric
+reproduced at its original cap height can overrun the plate edge. `fittedSizePct()` in
+`slides.ts` shrinks any such string to fit, and both surfaces call it so the web deck and the
+film stay identical.
 
 ## Relationship to Vite app
 

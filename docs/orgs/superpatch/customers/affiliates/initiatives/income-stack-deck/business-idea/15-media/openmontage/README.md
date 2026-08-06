@@ -35,7 +35,15 @@ cd skills/community/openmontage
 |------|--------|
 | Design brief | complete |
 | HyperFrames composition | complete (source for timing) |
-| OpenMontage finals | **pending** — needs pipeline run + budget |
-| production_status | `in_progress` (scaffold) |
+| Full share film | **rendered** — `income-stack-deck-final.mp4`, 1920×1080 / 30fps / 75.0s, 0 spend |
+| Hero loops (I2V) | **pending** — needs pipeline run + budget |
+| production_status | `in_progress` |
+
+The share film comes out of HyperFrames (local Chrome + FFmpeg, no provider spend), so Rule Zero
+does not apply to it — nothing is generated. Only the optional I2V hero loops need a pipeline
+run and `budget_usd`.
+
+Renders are git-ignored: the composition is the source of truth and a fresh MP4 takes ~30s
+(`hyperframes render`, see the HyperFrames README). Distribute the file itself out-of-band.
 
 When finals land, set `production_status: complete` in the video-producer handoff and copy loops into `apps/superpatch-income-stack/public/loops/`.

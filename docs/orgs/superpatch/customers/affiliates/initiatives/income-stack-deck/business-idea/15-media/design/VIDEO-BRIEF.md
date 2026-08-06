@@ -36,6 +36,11 @@ strings re-declared as live layers:
 Consequence for render: every figure on screen is text the compliance read can verify in source,
 and re-typesetting a number never requires regenerating art.
 
+The 16:9 film gives the copy block much more of the frame than the web app's two-column layout,
+so the two type layers have to be kept apart deliberately: annotations render above the scrim,
+and the copy block is anchored to whichever corner clears them. Where no corner is free
+(slides 04 and 07) the film drops the plate annotations rather than stack type on type.
+
 ## Shot list (15)
 
 | # | Beat | Source plate | Motion intent | Duration |
@@ -77,6 +82,7 @@ and re-typesetting a number never requires regenerating art.
 - [x] Design brief written before render claims
 - [x] HyperFrames `index.html` composition present with 15 clips
 - [x] Plates de-texted; OCR re-scan of `public/concepts/clean/` returns zero text detections
-- [x] `npx hyperframes lint` green — 0 errors, 3 advisory warnings (file size, track density, Google Fonts)
+- [x] `npx hyperframes check` green — 0 lint errors, 0 motion errors, 23/23 text checks pass WCAG AA
+- [x] Deck MP4 rendered and frame-verified: 1920×1080 / 30fps / 75.0s, 0 spend
 - [ ] OpenMontage finals **or** honest skip documented
 - [ ] Web app can point `heroVideoSrc` at exported loops
