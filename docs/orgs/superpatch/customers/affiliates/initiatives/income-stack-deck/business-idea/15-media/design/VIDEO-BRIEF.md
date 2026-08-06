@@ -77,6 +77,36 @@ and the copy block is anchored to whichever corner clears them. Where no corner 
 - Baking final type into new plates (live type in HF + web)
 - Auto-spend on Veo/fal without `budget_usd` and operator approve
 
+## Hero / I2V delivery (mandatory)
+
+New animated backgrounds for Remotion / web must ship native HD — do not upscale 720p for new assets.
+
+- Resolution: 1920×1080 (16:9) and 1080×1920 (9:16) when available
+- Frame rate: 30 fps, dense keyframes for Remotion seek
+- Labels: either baked (set `annotationsBaked: true`) OR text-free (`false` + live annotations)
+- First frame must match still plate grade/framing for handoff
+- No 720p upscale for new assets
+
+### Operator re-export (existing 720p debt)
+
+Slides `01-title` and `03-four-stacks` currently ship 1280×720 loops under
+`apps/superpatch-income-stack/public/concepts/animated/`. They remain on an
+explicit allowlist in `LEGACY_720P_HERO_IDS` until native 1080p files land.
+
+```bash
+# Example (operator machine) — re-encode / re-export each hero at native 1080p
+ffmpeg -i sp-stack-01-title_animated.mp4 -vf scale=1920:1080:flags=lanczos \
+  -c:v libx264 -pix_fmt yuv420p -r 30 -g 15 \
+  sp-stack-01-title_animated_1080.mp4
+```
+
+Prefer a true 1080p I2V re-export over Lanczos upscale when the pipeline allows.
+After files land:
+
+1. Replace (or add) the asset under `public/concepts/animated/`
+2. Update `hero.src`, `hero.width` (1920), `hero.height` (1080) in `slides.ts`
+3. Remove the slide id from `LEGACY_720P_HERO_IDS` — tests then require 1080p for all heroes
+
 ## Acceptance
 
 - [x] Design brief written before render claims
@@ -86,3 +116,4 @@ and the copy block is anchored to whichever corner clears them. Where no corner 
 - [x] Deck MP4 rendered and frame-verified: 1920×1080 / 30fps / 75.0s, 0 spend
 - [ ] OpenMontage finals **or** honest skip documented
 - [ ] Web app can point `heroVideoSrc` at exported loops
+- [ ] Hero loops at native 1920×1080 (01 / 03 still 720p allowlisted debt)

@@ -16,7 +16,8 @@ Ship a Remotion composition where **transitions**, **layered diagrams**, and **k
 | SSOT | `src/data/slides.ts` + `public/` assets |
 | Formats | Mobile-first portrait master: 1080×1920; landscape adaptation: 1920×1080; both at 30 fps |
 | Transitions | `@remotion/transitions` `TransitionSeries` + `fade()`, ~0.55–0.6s |
-| Heroes | `OffthreadVideo` for slides with `heroVideoSrc` |
+| Heroes | `OffthreadVideo` for slides with `hero` / `heroVideoSrc` |
+| Hero delivery | Native **1920×1080** @ 30 fps (dense keyframes); optional 1080×1920 when available. No 720p upscale for new assets. `assertHeroMedia` + slides tests enforce the contract; `01-title` / `03-four-stacks` remain allowlisted 720p debt until operator re-export (VIDEO-BRIEF checklist). |
 | Stills | Clean plate `Img` + motion presets |
 | Type | Montserrat via `@remotion/google-fonts`; kinetic word springs on headlines |
 | Diagrams | React layers: slab drop (`parallax-slabs`), annotation stagger (`pillars-sequence` / flywheel) |
