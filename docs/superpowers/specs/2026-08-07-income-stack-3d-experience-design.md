@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-07  
 **Venture:** Superpatch / affiliates / income-stack-deck  
-**Status:** Approved for execution (Premium V2 contract locked)  
+**Status:** Approved for execution (Premium V2 + Mobile UX V3 contract locked)  
 **App:** `apps/superpatch-income-stack`
 
 ## Goal
@@ -98,6 +98,18 @@ Each scene resolves to a web choreography derived from its `motionPreset` in `sl
 2. **Dwell** — scene settles long enough to read while media receives a preset-specific restrained drift or push.
 
 Scene scroll height increases modestly on desktop and less on touch devices to create readable dwell without scroll-jacking. Headlines use GSAP SplitText **line** reveals (`type: "lines"`, `autoSplit`, font-ready init, `onSplit` cleanup via `gsap.context()`). In `prefers-reduced-motion: reduce`, disable splitting, staggering, pin, parallax, and blur; present static copy with posters.
+
+### Mobile UX V3 — partial text motion
+
+Coarse pointers use `copyMode: "touch"` (fine pointers keep `copyMode: "cinematic"`):
+
+| Layer | Coarse / touch | Fine / desktop |
+|---|---|---|
+| Headline | Keep short SplitText **line** reveals (faster settle; no parent-layer handoff tween) | Full cinematic line reveals |
+| Body / eyebrow / CTA / disclosure | No scrubbed parallax — opacity settle near handoff end, then stay readable | Restrained parallax scrub |
+| Reduced motion | Static copy immediately | Static |
+
+Rationale: multi-layer scrub fights finger scrolling and doubles work with SplitText; a brief headline reveal still matches the Cinematic Lower Third brand.
 
 Live annotations, stream index, and progress spine enter on preset-specific timing—not as static overlays from scene start.
 
@@ -212,8 +224,24 @@ Measurable gates for implementation and QA. All must pass on desktop **1440×900
 | **Compositor budget** | Distant scenes not promoted to persistent compositor layers; active-neighborhood `will-change` only |
 | **Scroll task budget** | Long representative scroll tasks < 50 ms in trace |
 | **Accessibility** | WCAG 2.2 AA; axe zero serious/critical on scenes 1, 7, 15; keyboard nav (arrows, Page Up/Down) without requiring dot focus |
-| **First-scroll cue** | “Scroll to explore” on scene 1 disappears after first meaningful scroll |
-| **Audio control** | Opt-in only; labeled enable/mute; no new assets; follows active scene when enabled |
+| **First-scroll cue** | Scene 1 cue disappears after first meaningful scroll; fine pointer: “Scroll to explore”; coarse/compact: “Swipe to explore” |
+| **Audio control** | Opt-in only; labeled enable/mute; no new assets; follows active scene when enabled; unmute only inside a user gesture; do not restore unmuted audio on coarse mount |
+
+### Mobile UX V3 acceptance criteria
+
+Additional gates for touch / compact layouts. Must pass on **390×844**, **375×812**, and short landscape **844×390**.
+
+| Criterion | Pass condition |
+|---|---|
+| **viewport-fit=cover** | `index.html` includes `viewport-fit=cover` so `env(safe-area-inset-*)` resolves on notched iOS |
+| **Touch copyMode** | Coarse pointer resolves `copyMode: "touch"`: SplitText headline only; no body/eyebrow/CTA/disclosure parallax scrub; no dual tween on `[data-anim-layer="headline"]` |
+| **Portrait chrome** | Compact/portrait parks counter/chapter top-right; brand remains left; chrome does not collide with lower-third copy |
+| **Short-landscape copy** | `.scene-copy` scrolls internally (`overflow-y: auto`) so body is reachable without clipping |
+| **Coarse scene jumps** | Jump/nav on coarse uses instant `scrollTo` / layer reset (no long tween) |
+| **Progress viewport stability** | Progress/shuffle height prefers `svh` / `visualViewport` over raw `innerHeight` so URL-bar show/hide does not thrash progress |
+| **Mid-funnel affiliate CTA** | Scenes 07–14 show compact verified HTTPS affiliate control on mobile; never covers lower-third copy or Jump/Sound |
+| **44px touch targets** | Jump, Sound, and mid-funnel affiliate controls meet ≥44×44 hit areas |
+| **Swipe cue** | Coarse/compact first-scene cue reads “Swipe to explore” |
 
 ## Library guidance (claudedesignskills)
 

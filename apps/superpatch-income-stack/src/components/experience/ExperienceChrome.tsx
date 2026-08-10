@@ -1,4 +1,4 @@
-import { useId, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useState, type KeyboardEvent } from "react";
 import {
   SLIDES,
   chapterForSceneIndex,
@@ -39,6 +39,10 @@ export function ExperienceChrome({
   const progressFraction =
     scrollProgress ?? (activeIndex + 1) / SLIDES.length;
   const audioLabel = soundEnabled ? "Mute audio" : "Enable audio";
+
+  useEffect(() => {
+    setJumpOpen(false);
+  }, [activeIndex]);
 
   const onNavKeyDown = (
     event: KeyboardEvent<HTMLButtonElement>,
@@ -96,7 +100,7 @@ export function ExperienceChrome({
       {showAffiliateCta && ctaLinks ? (
         <div className="experience-affiliate-cta" data-affiliate-cta>
           <a
-            className="experience-affiliate-cta-link ui-btn ui-btn-default ui-btn-sm"
+            className="experience-affiliate-cta-link ui-btn ui-btn-default ui-btn-sm experience-touch-target"
             href={ctaLinks.primary}
           >
             Get your affiliate link
@@ -113,6 +117,7 @@ export function ExperienceChrome({
           <Button
             variant="outline"
             size="sm"
+            className="experience-touch-target"
             aria-expanded={jumpOpen}
             aria-controls={jumpSelectId}
             onClick={() => setJumpOpen((open) => !open)}
@@ -182,6 +187,7 @@ export function ExperienceChrome({
           <Button
             variant="outline"
             size="sm"
+            className="experience-touch-target"
             aria-pressed={soundEnabled}
             aria-label={audioLabel}
             data-sound-toggle

@@ -6,15 +6,19 @@ import { SplitText } from "gsap/SplitText";
 import type { RefObject } from "react";
 import {
   buildCardShuffleVars,
+  computeMaxScroll,
   computeScrollProgress,
   buildOutgoingTweenVars,
   buildParallaxLayerVars,
   experienceMotionEnabled,
+  measureSceneViewportHeight,
+  measureScrollViewportHeight,
   resolveSceneLifecycle,
   resolveWebChoreography,
   sceneDwellEnabled,
   sceneLayerState,
   sceneScrollHeightVh,
+  shouldRefreshScrollTriggerOnResize,
 } from "./experienceMotionConfig";
 
 let registered = false;
@@ -49,11 +53,15 @@ export function useExperienceMotion({
       if (!root) return;
 
       const reportProgress = () => {
-        const maxScroll =
-          document.documentElement.scrollHeight - window.innerHeight;
+        const maxScroll = computeMaxScroll(
+          document.documentElement.scrollHeight,
+          measureScrollViewportHeight(),
+        );
         onProgress?.(computeScrollProgress(window.scrollY, maxScroll));
       };
       window.addEventListener("scroll", reportProgress, { passive: true });
+      window.visualViewport?.addEventListener("resize", reportProgress);
+      window.visualViewport?.addEventListener("scroll", reportProgress);
       reportProgress();
 
       if (!enabled) {
@@ -63,7 +71,11 @@ export function useExperienceMotion({
           ),
           { clearProps: "all" },
         );
-        return () => window.removeEventListener("scroll", reportProgress);
+        return () => {
+          window.removeEventListener("scroll", reportProgress);
+          window.visualViewport?.removeEventListener("resize", reportProgress);
+          window.visualViewport?.removeEventListener("scroll", reportProgress);
+        };
       }
 
       const mm = gsap.matchMedia();
@@ -97,6 +109,7 @@ export function useExperienceMotion({
           const scrollHeight = sceneScrollHeightVh({
             coarsePointer: Boolean(coarsePointer),
           });
+          const viewportHeight = measureSceneViewportHeight();
           let lastActiveIndex = -1;
           const reportActiveIndex = (index: number) => {
             if (index === lastActiveIndex) return;
@@ -119,7 +132,9 @@ export function useExperienceMotion({
             const card = scene.querySelector<HTMLElement>("[data-scene-card]");
             const plane = scene.querySelector<HTMLElement>("[data-scene-plane]");
             const scrim = scene.querySelector<HTMLElement>("[data-scene-scrim]");
-            const preset = resolveWebChoreography(scene.dataset.motion ?? "");
+            const preset = resolveWebChoreography(scene.dataset.motion ?? "", {
+              coarsePointer: Boolean(coarsePointer),
+            });
             const prev =
               index > 0
                 ? scenes[index - 1]?.querySelector<HTMLElement>(
@@ -129,8 +144,8 @@ export function useExperienceMotion({
 
             if (!card || !plane || !scrim) return;
 
-            const shuffle = buildCardShuffleVars(window.innerHeight);
-            gsap.set(card, sceneLayerState(index, 0, window.innerHeight));
+            const shuffle = buildCardShuffleVars(viewportHeight);
+            gsap.set(card, sceneLayerState(index, 0, viewportHeight));
 
             (
               [
@@ -146,6 +161,14 @@ export function useExperienceMotion({
               );
               if (!element) return;
               if (layer === "headline") return;
+              if (!preset.parallaxCopyLayers) {
+                gsap.set(element, {
+                  yPercent: 0,
+                  scale: 1,
+                  opacity: index === 0 ? 1 : 0,
+                });
+                return;
+              }
               const layerVars = buildParallaxLayerVars(layer);
               gsap.set(element, {
                 yPercent: index === 0 ? 0 : -layerVars.yPercent,
@@ -217,13 +240,20 @@ export function useExperienceMotion({
               );
 
               (
-                ["eyebrow", "headline", "body", "cta", "disclosure"] as const
+                ["eyebrow", "body", "cta", "disclosure"] as const
               ).forEach((layer, layerIndex) => {
                 const element = scene.querySelector<HTMLElement>(
                   `[data-anim-layer="${layer}"]`,
                 );
                 if (!element) return;
-                const layerVars = buildParallaxLayerVars(layer);
+                // Headline is owned by SplitText — never tween the parent layer.
+                if (preset.parallaxCopyLayers) {
+                  const layerVars = buildParallaxLayerVars(layer);
+                  gsap.set(element, {
+                    yPercent: -layerVars.yPercent,
+                    scale: layerVars.scale,
+                  });
+                }
                 handoff.to(
                   element,
                   {
@@ -231,15 +261,11 @@ export function useExperienceMotion({
                     scale: 1,
                     opacity: 1,
                     ease: "power2.out",
-                    duration: 0.72,
+                    duration: preset.parallaxCopyLayers ? 0.72 : 0.4,
                   },
                   preset.handoff.copyStart +
                     layerIndex * preset.handoff.copyStagger,
                 );
-                gsap.set(element, {
-                  yPercent: -layerVars.yPercent,
-                  scale: layerVars.scale,
-                });
               });
 
               if (annotations.length > 0) {
@@ -320,6 +346,11 @@ export function useExperienceMotion({
               const headline =
                 scene.querySelector<HTMLElement>("[data-anim-layer='headline']");
               if (!headline) continue;
+              const headlineChoreo = resolveWebChoreography(
+                scene.dataset.motion ?? "",
+                { coarsePointer: Boolean(coarsePointer) },
+              );
+              const lineStagger = headlineChoreo.headlineLineStagger;
               const record: HeadlineSplitRecord = { cleaned: false };
               const split = SplitText.create(headline, {
                 type: "lines",
@@ -333,8 +364,8 @@ export function useExperienceMotion({
                       ? gsap.from(self.lines, {
                           yPercent: 105,
                           opacity: 0,
-                          duration: 0.65,
-                          stagger: 0.08,
+                          duration: headlineChoreo.copyMode === "touch" ? 0.5 : 0.65,
+                          stagger: lineStagger,
                           ease: "power3.out",
                           overwrite: "auto",
                         })
@@ -344,13 +375,16 @@ export function useExperienceMotion({
                           {
                             yPercent: 0,
                             opacity: 1,
-                            stagger: 0.08,
+                            stagger: lineStagger,
                             ease: "power3.out",
                             overwrite: "auto",
                             scrollTrigger: {
                               trigger: scene,
                               start: "top 78%",
-                              end: "top 28%",
+                              end:
+                                headlineChoreo.copyMode === "touch"
+                                  ? "top 40%"
+                                  : "top 28%",
                               scrub: coarsePointer ? 0.85 : 0.65,
                               invalidateOnRefresh: true,
                             },
@@ -366,9 +400,31 @@ export function useExperienceMotion({
           });
 
           let resizeTimer: ReturnType<typeof setTimeout> | undefined;
+          let lastViewport = {
+            width: window.innerWidth,
+            height: viewportHeight,
+          };
           const onResize = () => {
             clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => ScrollTrigger.refresh(), 250);
+            resizeTimer = setTimeout(() => {
+              const next = {
+                width: window.innerWidth,
+                height: measureSceneViewportHeight() || window.innerHeight,
+              };
+              if (
+                !shouldRefreshScrollTriggerOnResize({
+                  coarsePointer: Boolean(coarsePointer),
+                  previousWidth: lastViewport.width,
+                  previousHeight: lastViewport.height,
+                  nextWidth: next.width,
+                  nextHeight: next.height,
+                })
+              ) {
+                return;
+              }
+              lastViewport = next;
+              ScrollTrigger.refresh();
+            }, 250);
           };
           window.addEventListener("resize", onResize);
 
@@ -400,6 +456,8 @@ export function useExperienceMotion({
       return () => {
         mm.revert();
         window.removeEventListener("scroll", reportProgress);
+        window.visualViewport?.removeEventListener("resize", reportProgress);
+        window.visualViewport?.removeEventListener("scroll", reportProgress);
       };
     },
     { scope, dependencies: [enabled, onActiveIndex, onProgress] },
@@ -415,23 +473,18 @@ export function scrollToScene(
   windowScrollTween?.kill();
   gsap.killTweensOf(window);
 
-  if (options?.reduceMotion) {
-    const el = document.querySelector(target);
-    el?.scrollIntoView({ behavior: "auto" });
-    return;
-  }
-
   const scenes = gsap.utils.toArray<HTMLElement>(
     document.querySelectorAll("[data-experience-scene]"),
   );
   const targetIndex = scenes.findIndex((scene) => scene.id === `scene-${sceneId}`);
+  const viewportHeight = measureSceneViewportHeight() || window.innerHeight;
   const resetLayers = () => {
     scenes.forEach((scene, index) => {
       const card = scene.querySelector<HTMLElement>("[data-scene-card]");
       if (card && targetIndex >= 0) {
         gsap.set(
           card,
-          sceneLayerState(index, targetIndex, window.innerHeight),
+          sceneLayerState(index, targetIndex, viewportHeight),
         );
       }
       gsap.set(
@@ -442,8 +495,22 @@ export function scrollToScene(
           autoAlpha: index === targetIndex ? 1 : 0,
         },
       );
+      scene.dataset.sceneLifecycle = resolveSceneLifecycle(index, targetIndex);
+      scene.dataset.motionLayerActive =
+        resolveSceneLifecycle(index, targetIndex) === "distant"
+          ? "false"
+          : "true";
     });
   };
+
+  if (options?.reduceMotion) {
+    resetLayers();
+    const el = document.querySelector(target);
+    el?.scrollIntoView({ behavior: "auto" });
+    ScrollTrigger.update();
+    return;
+  }
+
   resetLayers();
 
   windowScrollTween = gsap.to(window, {

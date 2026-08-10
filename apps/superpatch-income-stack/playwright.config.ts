@@ -25,5 +25,31 @@ export default defineConfig({
       name: "mobile-chrome",
       use: { ...devices["Pixel 7"] },
     },
+    {
+      name: "iphone-390",
+      use: {
+        ...devices["Pixel 7"],
+        viewport: { width: 390, height: 844 },
+        deviceScaleFactor: 3,
+      },
+    },
+    {
+      name: "iphone-375",
+      use: {
+        ...devices["Pixel 7"],
+        viewport: { width: 375, height: 812 },
+        deviceScaleFactor: 3,
+      },
+    },
+    {
+      name: "short-landscape",
+      use: {
+        ...devices["Pixel 7"],
+        viewport: { width: 844, height: 390 },
+        deviceScaleFactor: 2,
+        isMobile: true,
+        hasTouch: true,
+      },
+    },
   ],
 });

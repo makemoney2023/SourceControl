@@ -82,6 +82,24 @@ describe("Premium V2 web choreography", () => {
     );
   });
 
+  it("uses touch copyMode on coarse pointers without body parallax scrub", () => {
+    const cinematic = MotionConfig.resolveWebChoreography(
+      SLIDES[1].motionPreset,
+      { coarsePointer: false },
+    );
+    const touch = MotionConfig.resolveWebChoreography(SLIDES[1].motionPreset, {
+      coarsePointer: true,
+    });
+    expect(cinematic.copyMode).toBe("cinematic");
+    expect(cinematic.parallaxCopyLayers).toBe(true);
+    expect(touch.copyMode).toBe("touch");
+    expect(touch.parallaxCopyLayers).toBe(false);
+    expect(touch.headlineLineStagger).toBeLessThan(cinematic.headlineLineStagger);
+    expect(touch.handoff.copyStagger).toBeLessThanOrEqual(
+      cinematic.handoff.copyStagger,
+    );
+  });
+
   it("provides modest dwell with a shorter touch scroll track", () => {
     expect(MotionConfig.sceneScrollHeightVh({ coarsePointer: false })).toBeGreaterThan(
       MotionConfig.sceneScrollHeightVh({ coarsePointer: true }),
@@ -98,6 +116,38 @@ describe("Premium V2 web choreography", () => {
     expect(MotionConfig.sceneDwellEnabled(0)).toBe(false);
     expect(MotionConfig.sceneDwellEnabled(1)).toBe(true);
     expect(MotionConfig.sceneDwellEnabled(14)).toBe(true);
+  });
+
+  it("ignores coarse height-only resize jitter while refreshing on orientation", () => {
+    expect(
+      MotionConfig.shouldRefreshScrollTriggerOnResize({
+        coarsePointer: true,
+        previousWidth: 390,
+        previousHeight: 844,
+        nextWidth: 390,
+        nextHeight: 760,
+      }),
+    ).toBe(false);
+    expect(
+      MotionConfig.shouldRefreshScrollTriggerOnResize({
+        coarsePointer: true,
+        previousWidth: 390,
+        previousHeight: 844,
+        nextWidth: 844,
+        nextHeight: 390,
+      }),
+    ).toBe(true);
+  });
+
+  it("measures an svh probe for shuffle distance", () => {
+    expect(typeof MotionConfig.measureSceneViewportHeight).toBe("function");
+    const height = MotionConfig.measureSceneViewportHeight();
+    expect(height).toBeGreaterThan(0);
+  });
+
+  it("computes max scroll from a stable viewport height", () => {
+    expect(MotionConfig.computeMaxScroll(2000, 800)).toBe(1200);
+    expect(MotionConfig.computeMaxScroll(500, 800)).toBe(0);
   });
 
   it("resets future cards to a deterministic hidden state after rapid jumps", () => {

@@ -245,7 +245,7 @@ test.describe("Income Stack 3D experience", () => {
 
   test("media, scrim, and typography occupy distinct parallax planes", async ({
     page,
-  }) => {
+  }, testInfo) => {
     await page.goto("/");
     const viewport = page.viewportSize()!;
     await page.evaluate(
@@ -269,8 +269,14 @@ test.describe("Income Stack 3D experience", () => {
         };
       });
 
-    expect(new Set(Object.values(travel)).size).toBe(4);
-    expect(travel.headline).not.toBe(travel.body);
+    // Touch copyMode skips body/headline y parallax; media vs scrim still diverge.
+    if (testInfo.project.name === "desktop-chrome") {
+      expect(new Set(Object.values(travel)).size).toBe(4);
+      expect(travel.headline).not.toBe(travel.body);
+    } else {
+      expect(travel.media).not.toBe(travel.scrim);
+      expect(travel.body).toBe(0);
+    }
   });
 
   test("captures representative visual baselines", async ({ page }, testInfo) => {
@@ -331,7 +337,7 @@ test.describe("Premium V2 experience contracts", () => {
 
   test("shows first-scroll cue on scene 1", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByText(/scroll to explore/i)).toBeVisible();
+    await expect(page.getByText(/(scroll|swipe) to explore/i)).toBeVisible();
     await expect(page.locator("[data-scroll-cue]")).toHaveAttribute(
       "data-dismissed",
       "false",
@@ -492,5 +498,33 @@ test.describe("Premium V2 experience contracts", () => {
     expect(layout.top).toBeGreaterThanOrEqual(60);
     expect(layout.bottom).toBeLessThanOrEqual(382);
     expect(layout.headlineSize).toBeLessThanOrEqual(50);
+  });
+
+  test("mobile V3: swipe cue, 44px chrome, mid-funnel affiliate CTA", async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      !["mobile-chrome", "iphone-390", "iphone-375"].includes(testInfo.project.name),
+      "touch portrait projects only",
+    );
+    await page.goto("/");
+    await expect(page.locator("[data-scroll-cue]")).toContainText(
+      "Swipe to explore",
+    );
+
+    const jump = page.getByRole("button", { name: "Jump to scene" });
+    const sound = page.getByRole("button", { name: "Enable audio" });
+    for (const control of [jump, sound]) {
+      const box = await control.boundingBox();
+      expect(box?.width).toBeGreaterThanOrEqual(44);
+      expect(box?.height).toBeGreaterThanOrEqual(44);
+    }
+
+    await jumpToScene(page, 7);
+    const affiliate = page.locator(".experience-affiliate-cta-link");
+    await expect(affiliate).toBeVisible();
+    const affiliateBox = await affiliate.boundingBox();
+    expect(affiliateBox?.height).toBeGreaterThanOrEqual(44);
+    await expect(affiliate).toHaveAttribute("href", /^https:/);
   });
 });

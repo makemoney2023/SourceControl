@@ -28,6 +28,67 @@ export function experienceMotionEnabled(conditions: MotionConditions): boolean {
   return !conditions.reduceMotion;
 }
 
+/**
+ * Align with GSAP ignoreMobileResize: on coarse pointers, ignore height-only
+ * URL-bar jitter; still refresh for orientation / width changes.
+ */
+export function shouldRefreshScrollTriggerOnResize(options: {
+  coarsePointer: boolean;
+  previousWidth: number;
+  previousHeight: number;
+  nextWidth: number;
+  nextHeight: number;
+}): boolean {
+  const {
+    coarsePointer,
+    previousWidth,
+    previousHeight,
+    nextWidth,
+    nextHeight,
+  } = options;
+  if (!coarsePointer) return true;
+  if (previousWidth !== nextWidth) return true;
+  if (previousHeight <= 0) return true;
+  const heightDelta =
+    Math.abs(nextHeight - previousHeight) / previousHeight;
+  return heightDelta > 0.25;
+}
+
+/** Match CSS `svh` scene tracks instead of dynamic `window.innerHeight`. */
+export function measureSceneViewportHeight(
+  doc: Document = document,
+): number {
+  const probe = doc.createElement("div");
+  probe.setAttribute("data-svh-probe", "true");
+  probe.style.cssText =
+    "position:fixed;left:0;top:0;height:100svh;width:0;pointer-events:none;visibility:hidden;";
+  doc.documentElement.appendChild(probe);
+  const height = probe.offsetHeight;
+  probe.remove();
+  if (height > 0) return height;
+  return doc.defaultView?.innerHeight ?? 0;
+}
+
+/**
+ * Prefer the stable small viewport for scroll math so Android Chrome URL-bar
+ * show/hide does not rewrite progress from innerHeight jitter.
+ */
+export function measureScrollViewportHeight(
+  win: Window & typeof globalThis = window,
+): number {
+  const svh = measureSceneViewportHeight(win.document);
+  if (svh > 0) return svh;
+  return win.visualViewport?.height || win.innerHeight || 0;
+}
+
+/** Max scroll distance using the stable viewport height. */
+export function computeMaxScroll(
+  scrollHeight: number,
+  viewportHeight: number,
+): number {
+  return Math.max(0, scrollHeight - viewportHeight);
+}
+
 export function buildParallaxLayerVars(layer: ParallaxLayer): {
   yPercent: number;
   scale: number;
@@ -93,8 +154,15 @@ export function buildOutgoingTweenVars(): {
   };
 }
 
+export type CopyMode = "cinematic" | "touch";
+
 export type WebChoreography = {
   presetId: string;
+  copyMode: CopyMode;
+  /** Whether eyebrow/body/CTA/disclosure use scrubbed parallax offsets. */
+  parallaxCopyLayers: boolean;
+  /** SplitText line stagger for headlines. */
+  headlineLineStagger: number;
   handoff: {
     durationRatio: number;
     copyStart: number;
@@ -142,7 +210,10 @@ function overlayStarts(beat: MotionBeat): Pick<
 }
 
 /** Convert the shared film beat into rotation-free, scroll-normalized web motion. */
-export function resolveWebChoreography(preset: string): WebChoreography {
+export function resolveWebChoreography(
+  preset: string,
+  options: { coarsePointer?: boolean } = {},
+): WebChoreography {
   const beat = getMotionBeat(preset);
   const mediaHandoffEnd = buildParallaxLayerVars("media");
   const scrimHandoffEnd = buildParallaxLayerVars("scrim");
@@ -151,12 +222,17 @@ export function resolveWebChoreography(preset: string): WebChoreography {
     Math.max(0.5, beat.plate.durationFrames / beat.primarySettleFrames),
   );
   const scale = Math.min(1.06, Math.max(1, beat.ambientScale[1]));
+  const copyMode: CopyMode = options.coarsePointer ? "touch" : "cinematic";
+  const touch = copyMode === "touch";
 
   return {
     presetId: beat.id,
+    copyMode,
+    parallaxCopyLayers: !touch,
+    headlineLineStagger: touch ? 0.05 : 0.08,
     handoff: {
       durationRatio,
-      copyStagger: 0.06,
+      copyStagger: touch ? 0.04 : 0.06,
       mediaEnd: mediaHandoffEnd,
       scrimEnd: scrimHandoffEnd,
       ...overlayStarts(beat),

@@ -9,6 +9,8 @@
   background: var(--sp-black);
   color: var(--sp-text);
   font-family: var(--font-body);
+  /* Prefer clip over body overflow-x:hidden so iOS fixed sticky scenes stay stable. */
+  overflow-x: clip;
 }
 
 .sr-only {
@@ -323,6 +325,15 @@
   font-size: 0.75rem;
 }
 
+.experience-touch-target {
+  box-sizing: border-box;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .ui-btn-icon {
   width: 2.25rem;
   height: 2.25rem;
@@ -625,12 +636,43 @@
     right: calc(18px + var(--safe-right));
   }
 
+  .experience-meta {
+    display: none;
+  }
+
   .experience-orientation {
     top: calc(18px + var(--safe-top));
+    left: auto;
+    right: calc(18px + var(--safe-right));
+    transform: none;
+    align-items: flex-end;
+    text-align: right;
+    max-width: min(46vw, 168px);
+  }
+
+  .experience-chapter-label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .experience-affiliate-cta {
-    display: none;
+    display: block;
+    top: auto;
+    bottom: calc(72px + var(--safe-bottom));
+    right: calc(18px + var(--safe-right));
+    left: auto;
+    max-width: min(72vw, 220px);
+  }
+
+  .experience-affiliate-cta-link {
+    width: 100%;
+    font-size: 0.68rem;
+    padding-inline: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .scene-plane {
@@ -680,7 +722,17 @@
   }
 }
 
-@media (max-height: 520px) and (orientation: landscape) {
+@media (max-height: 520px) {
+  .experience-shell .scene-copy {
+    max-height: calc(100svh - 78px - var(--safe-bottom));
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}
+
+@media (max-height: 520px) {
   .experience-top {
     top: calc(10px + var(--safe-top));
     left: calc(18px + var(--safe-left));
@@ -691,8 +743,18 @@
     width: 118px;
   }
 
+  .experience-meta {
+    display: none;
+  }
+
   .experience-orientation {
     top: calc(10px + var(--safe-top));
+    left: auto;
+    right: calc(18px + var(--safe-right));
+    transform: none;
+    align-items: flex-end;
+    text-align: right;
+    max-width: min(40vw, 180px);
   }
 
   .scene-copy {
@@ -702,6 +764,10 @@
     width: min(64vw, 560px);
     max-height: calc(100svh - 78px - var(--safe-bottom));
     gap: 0.35rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 
   .scene-annotations,

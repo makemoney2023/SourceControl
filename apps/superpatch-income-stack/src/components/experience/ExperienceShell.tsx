@@ -15,8 +15,11 @@ import {
 import {
   loadSoundPreference,
   saveSoundPreference,
+  shouldRestoreSoundOnMount,
+  syncSceneVideosMuted,
 } from "./soundPreference";
 import { useSceneMedia } from "./useSceneMedia";
+import { useDataSave } from "./useDataSave";
 import "./experience.css";
 
 function usePrefersReducedMotion(): boolean {
@@ -63,18 +66,6 @@ function useCompactChrome(): boolean {
   return compact;
 }
 
-function useDataSave(): boolean {
-  const [save] = useState(() => {
-    const conn = (
-      navigator as Navigator & {
-        connection?: { saveData?: boolean };
-      }
-    ).connection;
-    return Boolean(conn?.saveData);
-  });
-  return save;
-}
-
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;
@@ -85,6 +76,29 @@ function isEditableTarget(target: EventTarget | null): boolean {
 /** Scene indices 7–14 (0-based 6–13): after Foundation scene 6, before closing. */
 function shouldShowAffiliateCta(activeIndex: number): boolean {
   return activeIndex >= 6 && activeIndex <= 13;
+}
+
+function ScrollExploreCue({ compact }: { compact: boolean }) {
+  const [coarse, setCoarse] = useState(() =>
+    window.matchMedia("(pointer: coarse)").matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: coarse)");
+    const update = () => setCoarse(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return (
+    <div
+      className="experience-scroll-cue"
+      data-scroll-cue
+      data-dismissed="false"
+      aria-hidden="false"
+    >
+      {coarse || compact ? "Swipe to explore" : "Scroll to explore"}
+    </div>
+  );
 }
 
 export function ExperienceShell() {
@@ -115,7 +129,11 @@ export function ExperienceShell() {
   });
 
   useEffect(() => {
-    setSoundEnabled(loadSoundPreference());
+    const saved = loadSoundPreference();
+    const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    if (shouldRestoreSoundOnMount({ coarsePointer, saved })) {
+      setSoundEnabled(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -159,7 +177,10 @@ export function ExperienceShell() {
       const slide = SLIDES[index];
       if (!slide) return;
       setActiveIndex(index);
-      scrollToScene(slide.id, { reduceMotion });
+      const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+      // Instant jump on touch devices — scrubbed GSAP scrollTo is flaky on iOS WebKit
+      // and leaves lifecycle/media windows on the wrong scene.
+      scrollToScene(slide.id, { reduceMotion: reduceMotion || coarsePointer });
     },
     [reduceMotion],
   );
@@ -189,6 +210,8 @@ export function ExperienceShell() {
   const toggleSound = () => {
     setSoundEnabled((prev) => {
       const next = !prev;
+      // Unmute must happen in this click stack for iOS autoplay policy.
+      syncSceneVideosMuted(next);
       saveSoundPreference(next);
       return next;
     });
@@ -201,6 +224,7 @@ export function ExperienceShell() {
       data-experience-shell
       data-reduced-motion={reduceMotion ? "true" : "false"}
       data-aspect={aspect}
+      data-data-save={dataSave ? "true" : "false"}
     >
       <a className="skip-link" href="#experience-main">
         Skip to experience
@@ -229,14 +253,7 @@ export function ExperienceShell() {
       />
 
       {activeIndex === 0 && !scrollCueDismissed ? (
-        <div
-          className="experience-scroll-cue"
-          data-scroll-cue
-          data-dismissed="false"
-          aria-hidden="false"
-        >
-          Scroll to explore
-        </div>
+        <ScrollExploreCue compact={compactChrome} />
       ) : null}
 
       <main id="experience-main" className="experience-main">
