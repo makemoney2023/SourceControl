@@ -70,51 +70,104 @@ describe("SceneVideo Premium V2 media contract", () => {
     });
   });
 
-  it("keeps poster fallback when autoplay is rejected", async () => {
-    vi.spyOn(HTMLMediaElement.prototype, "play").mockRejectedValue(
-      new DOMException("autoplay blocked", "NotAllowedError"),
-    );
+  it("keeps the video attached and retries after NotAllowedError (mobile autoplay)", async () => {
+    const play = vi
+      .spyOn(HTMLMediaElement.prototype, "play")
+      .mockRejectedValueOnce(new DOMException("Not allowed", "NotAllowedError"))
+      .mockResolvedValue(undefined);
+
     const { container } = render(
       <SceneVideo variant={variant} attachVideo autoplay muted />,
     );
+    const video = container.querySelector<HTMLVideoElement>("[data-scene-video]");
+    expect(video).toBeTruthy();
 
+    await waitFor(() => expect(play).toHaveBeenCalled());
+    expect(container.querySelector("[data-scene-video]")).toBeTruthy();
+    expect(
+      container
+        .querySelector("[data-scene-poster]")
+        ?.getAttribute("data-poster-visible"),
+    ).toBe("true");
+
+    play.mockClear();
+    fireEvent.loadedData(video!);
+
+    await waitFor(() => expect(play).toHaveBeenCalled());
+    expect(container.querySelector("[data-scene-video]")).toBeTruthy();
+  });
+
+  it("sets the muted DOM property before play so mobile autoplay policies pass", () => {
+    const play = vi.fn().mockResolvedValue(undefined);
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(function (
+      this: HTMLMediaElement,
+    ) {
+      expect(this.muted).toBe(true);
+      return play();
+    });
+
+    render(<SceneVideo variant={variant} attachVideo autoplay muted />);
+    expect(play).toHaveBeenCalled();
+  });
+
+  it("retries play after AbortError once the element can play", async () => {
+    const play = vi
+      .spyOn(HTMLMediaElement.prototype, "play")
+      .mockRejectedValueOnce(new DOMException("Aborted", "AbortError"))
+      .mockResolvedValue(undefined);
+
+    const { container } = render(
+      <SceneVideo variant={variant} attachVideo autoplay muted />,
+    );
+    const video = container.querySelector<HTMLVideoElement>("[data-scene-video]");
+
+    await waitFor(() => expect(play).toHaveBeenCalled());
+    expect(container.querySelector("[data-scene-video]")).toBeTruthy();
+    const callsAfterBlock = play.mock.calls.length;
+
+    fireEvent.loadedData(video!);
+    await waitFor(() =>
+      expect(play.mock.calls.length).toBeGreaterThan(callsAfterBlock),
+    );
     await waitFor(() => {
-      expect(container.querySelector("[data-scene-video]")).toBeNull();
       expect(
         container
-          .querySelector("[data-scene-poster]")
-          ?.getAttribute("data-poster-visible"),
+          .querySelector("[data-scene-video]")
+          ?.getAttribute("data-video-ready"),
       ).toBe("true");
     });
   });
 
-  it("does not permanently fail when play is aborted by a decoder reset", async () => {
-    vi.spyOn(HTMLMediaElement.prototype, "play").mockRejectedValue(
-      new DOMException(
-        "The play() request was interrupted by a call to load()",
-        "AbortError",
-      ),
-    );
+  it("retries a blocked play after the first user gesture", async () => {
+    const play = vi
+      .spyOn(HTMLMediaElement.prototype, "play")
+      .mockRejectedValueOnce(new DOMException("Not allowed", "NotAllowedError"))
+      .mockResolvedValue(undefined);
+
     const { container } = render(
       <SceneVideo variant={variant} attachVideo autoplay muted />,
     );
 
-    await waitFor(() => {
-      expect(container.querySelector("[data-scene-video]")).toBeTruthy();
-    });
-    expect(
-      container.querySelector("[data-scene-media]")?.getAttribute("data-media-state"),
-    ).not.toBe("poster-only");
+    await waitFor(() =>
+      expect(
+        container
+          .querySelector("[data-scene-media]")
+          ?.getAttribute("data-play-blocked"),
+      ).toBe("true"),
+    );
+    play.mockClear();
+
+    window.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    await waitFor(() => expect(play).toHaveBeenCalled());
+    expect(container.querySelector("[data-scene-video]")).toBeTruthy();
   });
 
-  it("resets readiness and releases the old decoder when the source changes", async () => {
+  it("keeps the same video element across orientation source swaps", async () => {
     const pause = vi.fn();
-    const load = vi.fn();
     vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(pause);
-    vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(load);
 
     const { container, rerender } = render(
-      <SceneVideo variant={variant} attachVideo autoplay={false} muted />,
+      <SceneVideo variant={variant} attachVideo autoplay muted />,
     );
     const firstVideo =
       container.querySelector<HTMLVideoElement>("[data-scene-video]");
@@ -134,24 +187,46 @@ describe("SceneVideo Premium V2 media contract", () => {
       <SceneVideo
         variant={portraitVariant}
         attachVideo
-        autoplay={false}
+        autoplay
         muted
       />,
     );
 
     const nextVideo =
       container.querySelector<HTMLVideoElement>("[data-scene-video]");
-    expect(nextVideo).not.toBe(firstVideo);
+    expect(nextVideo).toBe(firstVideo);
+    expect(nextVideo?.getAttribute("src")).toContain("/9x16/");
     expect(nextVideo?.getAttribute("data-video-ready")).toBe("false");
     expect(
       container
         .querySelector("[data-scene-poster]")
         ?.getAttribute("data-poster-visible"),
     ).toBe("true");
-    await waitFor(() => {
-      expect(pause).toHaveBeenCalled();
-      expect(load).toHaveBeenCalled();
+    expect(pause).toHaveBeenCalled();
+  });
+
+  it("retries a blocked play when the page becomes visible again", async () => {
+    const play = vi
+      .spyOn(HTMLMediaElement.prototype, "play")
+      .mockRejectedValueOnce(new DOMException("Not allowed", "NotAllowedError"))
+      .mockResolvedValue(undefined);
+
+    render(<SceneVideo variant={variant} attachVideo autoplay muted />);
+    await waitFor(() =>
+      expect(
+        document
+          .querySelector("[data-scene-media]")
+          ?.getAttribute("data-play-blocked"),
+      ).toBe("true"),
+    );
+    play.mockClear();
+
+    Object.defineProperty(document, "visibilityState", {
+      configurable: true,
+      value: "visible",
     });
+    document.dispatchEvent(new Event("visibilitychange"));
+    await waitFor(() => expect(play).toHaveBeenCalled());
   });
 
   it("releases the decoder when a warm video is detached", async () => {
