@@ -16,6 +16,15 @@ function releaseVideoDecoder(el: HTMLVideoElement | null) {
   el.load();
 }
 
+function isBenignPlaybackInterruption(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    (error as { name?: string }).name === "AbortError"
+  );
+}
+
 export function SceneVideo({
   variant,
   attachVideo,
@@ -45,7 +54,10 @@ export function SceneVideo({
     if (autoplay) {
       const playResult = el.play();
       if (playResult && typeof playResult.catch === "function") {
-        void playResult.catch(markFailed);
+        void playResult.catch((error: unknown) => {
+          if (isBenignPlaybackInterruption(error)) return;
+          markFailed();
+        });
       }
     } else if (typeof el.pause === "function") {
       el.pause();
@@ -53,10 +65,18 @@ export function SceneVideo({
   }, [attachVideo, autoplay, failed, markFailed]);
 
   useEffect(() => {
+    if (!attachVideo) return;
     const el = videoRef.current;
     if (!el) return;
     return () => {
-      releaseVideoDecoder(el);
+      // Strict Mode re-runs effects while the node is still connected.
+      // Only strip the decoder when the element is truly leaving the tree.
+      el.pause();
+      queueMicrotask(() => {
+        if (!el.isConnected) {
+          releaseVideoDecoder(el);
+        }
+      });
     };
   }, [attachVideo, variant.src]);
 

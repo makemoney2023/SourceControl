@@ -72,7 +72,7 @@ describe("SceneVideo Premium V2 media contract", () => {
 
   it("keeps poster fallback when autoplay is rejected", async () => {
     vi.spyOn(HTMLMediaElement.prototype, "play").mockRejectedValue(
-      new Error("autoplay blocked"),
+      new DOMException("autoplay blocked", "NotAllowedError"),
     );
     const { container } = render(
       <SceneVideo variant={variant} attachVideo autoplay muted />,
@@ -86,6 +86,25 @@ describe("SceneVideo Premium V2 media contract", () => {
           ?.getAttribute("data-poster-visible"),
       ).toBe("true");
     });
+  });
+
+  it("does not permanently fail when play is aborted by a decoder reset", async () => {
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockRejectedValue(
+      new DOMException(
+        "The play() request was interrupted by a call to load()",
+        "AbortError",
+      ),
+    );
+    const { container } = render(
+      <SceneVideo variant={variant} attachVideo autoplay muted />,
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector("[data-scene-video]")).toBeTruthy();
+    });
+    expect(
+      container.querySelector("[data-scene-media]")?.getAttribute("data-media-state"),
+    ).not.toBe("poster-only");
   });
 
   it("resets readiness and releases the old decoder when the source changes", async () => {
@@ -129,11 +148,13 @@ describe("SceneVideo Premium V2 media contract", () => {
         .querySelector("[data-scene-poster]")
         ?.getAttribute("data-poster-visible"),
     ).toBe("true");
-    expect(pause).toHaveBeenCalled();
-    expect(load).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(pause).toHaveBeenCalled();
+      expect(load).toHaveBeenCalled();
+    });
   });
 
-  it("releases the decoder when a warm video is detached", () => {
+  it("releases the decoder when a warm video is detached", async () => {
     const pause = vi.fn();
     const load = vi.fn();
     vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(pause);
@@ -154,7 +175,9 @@ describe("SceneVideo Premium V2 media contract", () => {
     );
 
     expect(container.querySelector("[data-scene-video]")).toBeNull();
-    expect(pause).toHaveBeenCalled();
-    expect(load).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(pause).toHaveBeenCalled();
+      expect(load).toHaveBeenCalled();
+    });
   });
 });
