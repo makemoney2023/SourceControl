@@ -41,6 +41,7 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/openmontage/.agents/skills/tailwind-design-system/` | Tailwind token system |
 | `skills/community/openmontage/.agents/skills/framer-motion/` | Motion specs (non-WebGL) |
 | `skills/community/openmontage/.agents/skills/threejs-fundamentals/` | Hero 3D island constraints (review) |
+| `skills/community/img2threejs/` | Product reference → procedural Three.js hero factory (Phase 12 default when product ref exists); see `ORG-WIRING.md` |
 | `skills/plugins/vercel/shadcn/` | shadcn component patterns |
 | `skills/plugins/figma/figma-design-to-code/` | Figma → code |
 | `skills/community/visual-skills/image/` | UI imagery prompts |
@@ -128,31 +129,35 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 3. Write **design brief** (IA goals, token mapping, component scope, a11y targets) before DS files.
 4. Draft `12-web-design.md`: route map, page templates, hero/proof model, CTA hierarchy, shadcn/Tailwind mapping, anti-patterns, eng handoff.
 5. Persist Layer B under `design-system/<venture>/` (MASTER.md, tokens, components, README) — repo-root SSOT.
-6. UI stills: only if leased; otherwise note `ask_manager` for brand-designer imagery.
-7. Set `production_status`, `production_paths`, `design_brief_path`, `wire_owner` on handoff.
-8. Write `HANDOFFS/12-web-designer.md` with model audit. Do **not** mark phase ✅.
+6. **Hero 3D (img2threejs):** If a clear product/object reference exists (Phase 11 assets or leased still), read `skills/community/img2threejs/SKILL.md` + `ORG-WIRING.md`, run the pipeline with `--strict-quality`, and write SSOT to `design-system/<venture>/3d/` (`object-sculpt-spec.json`, TypeScript factory, `review/`, `README.md` mount contract). Index the island in `12-web-design.md`. If no product reference, Python unavailable, or gates block → `production_status: skipped` or `blocked` with reason; do not invent geometry.
+7. UI stills: only if leased; otherwise note `ask_manager` for brand-designer imagery.
+8. Set `production_status`, `production_paths`, `design_brief_path`, `wire_owner` on handoff (include `design-system/<venture>/3d/` in `production_paths` when 3D complete).
+9. Write `HANDOFFS/12-web-designer.md` with model audit. Do **not** mark phase ✅.
 
 **Artifacts**
 
 | Path | Required contents (shape) |
 |------|---------------------------|
-| `…/12-web-design.md` | IA; templates; tokens; components; a11y; DS index; eng handoff |
+| `…/12-web-design.md` | IA; templates; tokens; components; a11y; DS index; eng handoff; hero 3D island note when applicable |
 | `design-system/<venture>/` | Non-empty when production complete, or skip |
+| `design-system/<venture>/3d/` | Spec + factory + review + README when product ref exists; else honest skip |
 | `HANDOFFS/12-web-designer.md` | IC + production fields |
 
 **Done checks**
 - [ ] Design brief before DS / UI stills
 - [ ] `design-system/<venture>/` populated **or** honest skip
+- [ ] Hero 3D under `design-system/<venture>/3d/` **or** honest skip/block with reason
 - [ ] Handoff on disk; do not mark phase ✅
 
 ## Done criteria
 - [ ] Craft outputs written (lease-respecting) — IA / `12-web-design.md`
 - [ ] Production: `design-system/<venture>/` files present for eng consume **or** `production_status: skipped` with reason
+- [ ] Hero 3D: `design-system/<venture>/3d/` complete (strict-quality) when product reference exists **or** skip/block reason recorded
 - [ ] Figma edits exported into leased paths before claiming production complete
 - [ ] **Design brief** from design-system / ui-styling / shadcn packs before writing `design-system/<venture>/` or UI stills
 - [ ] UI stills (if rendered): photoreal checklist / `photoreal_qa` per photoreal-stills pack
 - [ ] Handoff includes `production_status`, `production_paths`, `design_brief_path`, `wire_owner`
-- [ ] Packs followed (including production-artifacts + photoreal-stills when stills rendered)
+- [ ] Packs followed (including production-artifacts + photoreal-stills when stills rendered; img2threejs when 3D runs)
 - [ ] Model audit fields on handoff (`llm_tier`, `llm_model`, `generation_*`, `fallback_applied`)
 - [ ] Summary returned up the chain (not sideways to peers)
 - [ ] Phase craft playbook followed for active phase

@@ -87,6 +87,7 @@ Short phases may embed `## Design brief (required before production)` in the cra
 |-------------|----------------|--------|
 | App / MVP | `apps/<venture>/` | Next app conventions |
 | Design system | `design-system/<venture>/` (repo root — SSOT; do not treat `apps/<venture>/design-system/` as SSOT) | tokens, components, docs |
+| Hero 3D (img2threejs) | `design-system/<venture>/3d/` | `object-sculpt-spec.json`, TypeScript factory, `review/`, `README.md` mount contract |
 | Brand stills | `11-brand/assets/` | `<slug>-<w>x<h>.{png,webp,jpg}` |
 | Page imagery | `14-pages/assets/` | `<page>-<slug>.{png,webp}` |
 | Video finals | `15-media/openmontage/` | `<slug>-final.{mp4,webm}` |
@@ -151,7 +152,7 @@ False completes: MD-only “deck”, empty `exec/`, claiming complete without pa
 | **9** | `09-build-log.md`, `05-prd.md`, `14-pages/` | `tech-lead` | `apps/<venture>/` | Next/shadcn/vercel packs | Vercel/DNS — operator or cto |
 | **9B** | `09b-hardware-build.md` | `hardware-engineer` | `09b-hardware/` | text-to-cad + production-artifacts | Fabrication — operator |
 | **11** | `11-brand-system.md` | `brand-designer` | `11-brand/assets/` | visual-skills + fal/inference + **photoreal-stills** | Brand kit — operator |
-| **12** | `12-web-design.md` | `web-designer` (+ brand) | `design-system/<venture>/`; UI stills when leased | shadcn, figma-design-to-code, brand-stills | Consumed by Phase 9 — eng |
+| **12** | `12-web-design.md` | `web-designer` (+ brand) | `design-system/<venture>/`; `design-system/<venture>/3d/` when product ref (img2threejs); UI stills when leased | shadcn, figma-design-to-code, brand-stills, **img2threejs** | Consumed by Phase 9 — eng |
 | **14** | `14-pages/*.md` | Craft: copy/seo/content; **Imagery:** `brand-designer`; **HTML/app:** `tech-lead` (P9) | `14-pages/assets/`; app via `apps/<venture>/` | copy + visual-skills; eng packs | Deploy — operator/cto |
 | **15** | `15-media/` scripts | `video-producer` | `15-media/openmontage/` (or skip) | OpenMontage + `hero-video`; doctor green or skip | Upload — operator |
 | **17** | `17-channels/email/*.md`, `social/*.md` | Email HTML: `lifecycle-marketer`; Headers/social: `brand-designer` via ask | `17-channels/email/html/*.html`; `email/assets/`; `social/assets/` | Craft emails → **Design: email-design brief** → HTML + brand-stills | ESP — **operator** |

@@ -67,6 +67,7 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/openmontage/.claude/skills/visual-style/` | Visual style direction |
 | `skills/community/visual-skills/image/` | Image prompt QA |
 | `skills/community/openmontage/.agents/skills/threejs-fundamentals/` | Hero 3D scope review |
+| `skills/community/img2threejs/` | Review-only: hero 3D candidate under `design-system/<venture>/3d/` or honest skip (Web Designer generates) |
 | `skills/community/awesome-claude-corporate-skills/04-marketing/canvas-design/` | Design canvas review |
 | `skills/org/packs/standing-context/humor-craft/` | Humor craft review standing context |
 | `skills/org/COLLABORATION.md` | Phases 14 / 15 / 17 / 19 RACI with CMO |

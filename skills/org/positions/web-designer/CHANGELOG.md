@@ -1,5 +1,16 @@
 # Changelog — web-designer
 
+## 2026-08-10 — img2threejs hero 3D wiring
+
+**Why:** Org-wide product hero 3D needs a Phase 12 SSOT path and seat ownership.
+
+**Changed**
+- Skill packs: Added `skills/community/img2threejs/`
+- Phase 12: Default img2threejs run when product reference exists; SSOT `design-system/<venture>/3d/`; honest skip/block otherwise
+- Done criteria: Hero 3D complete or skip/block reason
+
+**Spec:** `docs/superpowers/specs/2026-08-10-img2threejs-org-wiring-design.md`
+
 ## 2026-08-05 — Figma MCP operational wiring
 
 **Why:** HEARTBEAT/agent did not force-load figma adapter before MCP calls.

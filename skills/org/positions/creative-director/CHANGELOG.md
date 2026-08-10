@@ -1,5 +1,14 @@
 # Changelog — creative-director
 
+## 2026-08-10 — img2threejs review pack
+
+**Why:** Phase 12 hero 3D candidates need CD review without generation ownership.
+
+**Changed**
+- Skill packs: Added `skills/community/img2threejs/` (review-only; Web Designer generates)
+
+**Spec:** `docs/superpowers/specs/2026-08-10-img2threejs-org-wiring-design.md`
+
 ## 2026-08-05 — Figma MCP operational wiring
 
 **Why:** Figma was primary in Integrations but Skill packs / HEARTBEAT / agent did not force-load the adapter or plugin skills.

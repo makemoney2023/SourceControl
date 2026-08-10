@@ -52,6 +52,7 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/openmontage/.agents/skills/threejs-interaction/` | Pointer / orbit (no scroll-jack) |
 | `skills/community/openmontage/.agents/skills/threejs-geometry/` | Procedural stand-ins |
 | `skills/community/openmontage/.agents/skills/threejs-postprocessing/` | Optional hero polish |
+| `skills/community/img2threejs/` | Consume Phase 12 `design-system/<venture>/3d/` factory into WebGL island (see pack `ORG-WIRING.md`) |
 | `skills/plugins/vercel/ai-sdk/` | AI SDK patterns |
 | `skills/plugins/vercel/auth/` | Auth integration |
 | `skills/plugins/vercel/env-vars/` | Env var hygiene |

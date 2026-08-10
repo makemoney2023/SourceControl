@@ -1,5 +1,14 @@
 # Changelog — tech-lead
 
+## 2026-08-10 — img2threejs consume path
+
+**Why:** Phase 12 now emits procedural Three.js factories under design-system SSOT.
+
+**Changed**
+- Skill packs: Added `skills/community/img2threejs/` for consuming `design-system/<venture>/3d/` into WebGL islands
+
+**Spec:** `docs/superpowers/specs/2026-08-10-img2threejs-org-wiring-design.md`
+
 ## 2026-08-05 — Context7 + Playwright operational wiring
 
 **Why:** Context7 was primary and Playwright secondary in registry but Phase 9 playbook/HEARTBEAT did not mandate live docs or smoke.
