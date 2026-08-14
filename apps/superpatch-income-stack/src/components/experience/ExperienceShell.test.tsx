@@ -25,10 +25,10 @@ describe("ExperienceShell", () => {
     });
   });
 
-  it("renders 15 ordered semantic scenes with heading hierarchy", () => {
+  it("renders 20 ordered semantic scenes with heading hierarchy", () => {
     const { container } = render(<ExperienceShell />);
     const scenes = container.querySelectorAll("[data-experience-scene]");
-    expect(scenes).toHaveLength(15);
+    expect(scenes).toHaveLength(20);
     expect([...scenes].map((el) => el.getAttribute("data-slide"))).toEqual(
       SLIDES.map((s) => s.id),
     );
@@ -74,7 +74,15 @@ describe("ExperienceShell", () => {
         '[data-slide="03-four-stacks"] [data-annotation-layer]',
       ),
     ).toHaveLength(0);
-    expect(container.querySelectorAll("[data-plate-annotation]")).toHaveLength(0);
+    // Active title + next world scenes mount live labels; distant scenes stay empty.
+    expect(
+      container.querySelectorAll(
+        '[data-scene-lifecycle="distant"] [data-plate-annotation]',
+      ),
+    ).toHaveLength(0);
+    expect(
+      container.querySelectorAll("[data-plate-annotation]").length,
+    ).toBeGreaterThan(0);
     expect(container.querySelectorAll("[data-annotation-layer]")).toHaveLength(
       SLIDES.filter(shouldShowLiveAnnotations).length,
     );
@@ -178,15 +186,24 @@ describe("ExperienceShell", () => {
       /\/concepts\/omni-chain\/posters\/16x9\/sp-stack-01-title\.webp$/,
     );
     // Later scenes still use Omni video (warm window attaches src).
-    const qVideo = container.querySelector<HTMLVideoElement>(
-      '[data-slide="02-question"] video',
+    // 02-world is still-only; assert via poster. Omni video lives on later mapped scenes.
+    const worldPoster = container.querySelector<HTMLImageElement>(
+      '[data-slide="02-world"] [data-scene-poster]',
     );
-    const qPoster = container.querySelector<HTMLImageElement>(
-      '[data-slide="02-question"] [data-scene-poster]',
+    expect(worldPoster?.getAttribute("src") ?? "").toMatch(
+      /sp-stack-02-the-question/,
     );
-    const qSrc =
-      qVideo?.getAttribute("src") ?? qPoster?.getAttribute("src") ?? "";
-    expect(qSrc).toMatch(/sp-stack-02-the-question/);
+    const stacksVideo = container.querySelector<HTMLVideoElement>(
+      '[data-slide="03-four-stacks"] video',
+    );
+    const stacksPoster = container.querySelector<HTMLImageElement>(
+      '[data-slide="03-four-stacks"] [data-scene-poster]',
+    );
+    const stacksSrc =
+      stacksVideo?.getAttribute("src") ??
+      stacksPoster?.getAttribute("src") ??
+      "";
+    expect(stacksSrc).toMatch(/sp-stack-03-four-stacks/);
   });
 
   it("keeps the experience title overlay copy on the 3D hero scene", () => {
@@ -195,16 +212,16 @@ describe("ExperienceShell", () => {
       '[data-slide="01-title"] [data-scene-copy]',
     );
     expect(copy?.querySelector("[data-anim-layer='headline']")?.textContent).toMatch(
-      /10 Ways to Build Life-Changing Income/i,
+      /More Than an Affiliate Program\. A Complete Opportunity\./i,
     );
     expect(copy?.querySelector("[data-anim-layer='eyebrow']")).toBeTruthy();
     expect(copy?.querySelector("[data-anim-layer='body']")).toBeTruthy();
   });
 
-  it("exposes a vertical scene navigator with 15 steps", () => {
+  it("exposes a vertical scene navigator with 20 steps", () => {
     render(<ExperienceShell />);
     const nav = screen.getByRole("navigation", { name: /scene navigator/i });
-    expect(nav.querySelectorAll("button")).toHaveLength(15);
+    expect(nav.querySelectorAll("button")).toHaveLength(20);
   });
 
   it("composes each scene as one layered viewport card", () => {
@@ -243,8 +260,8 @@ describe("ExperienceShell", () => {
 
   it("exposes chapter-aware orientation in the chrome", () => {
     render(<ExperienceShell />);
-    expect(screen.getByText("01 / 15")).toBeTruthy();
-    expect(screen.getByText("Foundation")).toBeTruthy();
+    expect(screen.getByText("01 / 20")).toBeTruthy();
+    expect(screen.getByText("Full Stack")).toBeTruthy();
   });
 
   it("does not expose hash placeholder CTA destinations in production scenes", () => {
