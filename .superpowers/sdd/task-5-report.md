@@ -57,4 +57,22 @@ Test Files  2 passed (2)
 ## Concerns
 
 - Brief said OrgTheater should pass `previewWakeSlug` and `dept`. Only `previewWakeSlug` is a new prop; `dept` is already on `seat` and is read inside `SeatNode` for the pinstripe.
-- Preview “dashed” torus is 12 short torus arcs at opacity 0.5, not `LineDashedMaterial`.
+- Preview "dashed" torus is 12 short torus arcs at opacity 0.5, not `LineDashedMaterial`.
+
+## Review fix: hover dwell across child meshes
+
+**Finding:** `onPointerOver`/`onPointerOut` on the multi-child terminal `<group>` re-fired when the pointer crossed body, pip, pinstripe, and hover light — clearing and restarting the 150ms hover-card timer.
+
+**Fix:** Switched to `onPointerEnter`/`onPointerLeave` on the same terminal group so enter/leave only fire at the group boundary.
+
+**Commit:** `92d201b` — `fix(occ): keep seat hover-card dwell across child meshes`
+
+**TDD:** Added source-contract assertion that SeatNode uses enter/leave and not over/out.
+
+**Test command + results:**
+
+```
+cd tools/org-command-center && npm test -- src/jarvis/scene/nodes/SeatNode.test.tsx
+```
+
+PASS — 6 tests (1 file).
