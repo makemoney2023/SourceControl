@@ -61,4 +61,11 @@ describe("OrgTheater accessibility", () => {
     expect(source).toMatch(/CommandTable/);
     expect(source).toMatch(/ambientLight/);
   });
+
+  it("does not let decorative table meshes steal empty-table clicks", () => {
+    const source = readFileSync("src/jarvis/scene/CommandTable.tsx", "utf8");
+    const groupHandlesClick = /<group\b[\s\S]{0,80}onClick=/.test(source);
+    const overlaySkipCount = (source.match(/raycast=\{null\}/g) ?? []).length;
+    expect(groupHandlesClick || overlaySkipCount >= 5).toBe(true);
+  });
 });

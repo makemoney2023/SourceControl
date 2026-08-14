@@ -22,33 +22,23 @@ export function CommandTable({
   const wedgeSpan = (Math.PI * 2) / wedgeCount;
 
   return (
-    <group>
+    <group
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick?.();
+      }}
+    >
       <mesh>
         <sphereGeometry args={[22, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2]} />
         <meshStandardMaterial color="#05070a" roughness={1} side={BackSide} />
       </mesh>
 
-      <mesh
-        position={[0, -TABLE_HEIGHT / 2, 0]}
-        receiveShadow
-        onClick={(event) => {
-          event.stopPropagation();
-          onClick?.();
-        }}
-      >
+      <mesh position={[0, -TABLE_HEIGHT / 2, 0]} receiveShadow>
         <cylinderGeometry args={[TABLE_RADIUS, TABLE_RADIUS, TABLE_HEIGHT, 64]} />
         <meshStandardMaterial color="#0c1014" roughness={0.72} metalness={0.22} />
       </mesh>
 
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, 0.001, 0]}
-        receiveShadow
-        onClick={(event) => {
-          event.stopPropagation();
-          onClick?.();
-        }}
-      >
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]} receiveShadow>
         <circleGeometry args={[TABLE_RADIUS - 0.04, 64]} />
         <MeshReflectorMaterial
           color="#0c1014"
