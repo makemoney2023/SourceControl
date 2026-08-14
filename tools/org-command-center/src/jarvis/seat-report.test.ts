@@ -54,6 +54,7 @@ function handoff(
 ): HandoffRecord {
   return {
     phase: "2",
+    icsSpawned: [],
     reportsTo: "",
     status: "",
     verdictForManager: "",

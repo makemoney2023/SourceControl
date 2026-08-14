@@ -51,6 +51,7 @@ function handoff(partial: Partial<HandoffRecord> & Pick<HandoffRecord, "filename
     kind: "ic",
     phase: "1",
     position: "business-analyst",
+    icsSpawned: [],
     reportsTo: "head-of-product",
     status: "done",
     verdictForManager: "",

@@ -8,6 +8,7 @@ function h(partial: Partial<HandoffRecord>): HandoffRecord {
     kind: "ic",
     phase: "2",
     position: "market-research-analyst",
+    icsSpawned: [],
     reportsTo: "head-of-research",
     status: "done",
     verdictForManager: "",

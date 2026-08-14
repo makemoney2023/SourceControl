@@ -184,6 +184,22 @@ verdict: revise
       },
     ]);
   });
+
+  it("parses ics_spawned list", () => {
+    const h = parseHandoff(
+      "1-manager-ceo-strategist.md",
+      `---
+phase: "1"
+position: ceo-strategist
+ics_spawned:
+  - business-analyst
+  - market-research-analyst
+---
+# Brief
+`,
+    );
+    expect(h.icsSpawned).toEqual(["business-analyst", "market-research-analyst"]);
+  });
 });
 
 describe("indexHandoffs", () => {

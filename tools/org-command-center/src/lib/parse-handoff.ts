@@ -85,6 +85,7 @@ export function parseHandoff(filename: string, content: string): HandoffRecord {
     kind: classifyHandoffFilename(filename),
     phase: String(data.phase ?? ""),
     position: String(data.position ?? "").trim() || seatSlugFromHandoffFilename(filename),
+    icsSpawned: parsePathList(data.ics_spawned),
     reportsTo: String(data.reports_to ?? ""),
     status: String(data.status ?? ""),
     verdictForManager: String(data.verdict_for_manager ?? ""),

@@ -41,6 +41,7 @@ export interface HandoffRecord {
   kind: HandoffKind;
   phase: string;
   position: string;
+  icsSpawned: string[];
   reportsTo: string;
   status: string;
   verdictForManager: string;
