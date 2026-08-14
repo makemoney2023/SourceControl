@@ -37,6 +37,7 @@ function TheaterScene({ snapshot }: { snapshot: TheaterSnap }) {
     selectedArtifact,
     beamActive,
     reducedMotion,
+    previewWakeSlug,
     selectSlug,
     selectPhase,
     selectArtifact,
@@ -132,6 +133,7 @@ function TheaterScene({ snapshot }: { snapshot: TheaterSnap }) {
             dimmed={dimmed}
             ghost={isGhost}
             reducedMotion={reducedMotion}
+            previewWakeSlug={previewWakeSlug}
             onSelect={selectSlug}
           />
         );
