@@ -46,7 +46,7 @@
   border: 1px solid var(--j-panel-border);
   backdrop-filter: var(--j-glass);
   -webkit-backdrop-filter: var(--j-glass);
-  border-radius: 10px;
+  border-radius: var(--j-radius);
   box-shadow: 0 0 24px rgba(63, 212, 190, 0.08);
 }
 
@@ -248,7 +248,7 @@
   position: relative;
   min-height: 0;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: var(--j-radius);
 }
 
 @media (max-width: 1100px) {

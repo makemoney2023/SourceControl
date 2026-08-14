@@ -110,13 +110,22 @@ describe("Jarvis HUD theme contracts", () => {
   });
 
   it("layers modal surfaces above the voice control", () => {
-    expect(themeCss).toMatch(/\.j-console-drawer\s*\{[\s\S]*?z-index:\s*90/);
-    expect(themeCss).toMatch(/\.j-console-drawer-content\s*\{[\s\S]*?z-index:\s*91/);
+    expect(themeCss).toMatch(/\.j-console-drawer\s*\{[\s\S]*?z-index:\s*20000000/);
+    expect(themeCss).toMatch(/\.j-console-drawer-content\s*\{[\s\S]*?z-index:\s*20000001/);
     expect(themeCss).toMatch(/\.j-dropdown-content\s*\{[\s\S]*?z-index:\s*100/);
   });
 
   it("allows short desktop viewports to scroll without collapsing theater", () => {
     expect(themeCss).toMatch(/@media \(max-height: 700px\)[\s\S]*?\.j-situation-shell/);
     expect(themeCss).toMatch(/@media \(max-height: 700px\)[\s\S]*?\.j-theater-stage\s*\{[^}]*min-height:\s*520px/);
+  });
+
+  it("does not use emoji as phase status chrome", () => {
+    const room = readFileSync(new URL("../SituationRoom.tsx", import.meta.url), "utf8");
+    const beads = readFileSync(new URL("../scene/nodes/PhaseBead.tsx", import.meta.url), "utf8");
+    for (const ch of ["⬜", "🔄", "✅", "⏭️"]) {
+      expect(room.includes(ch)).toBe(false);
+      expect(beads.includes(ch)).toBe(false);
+    }
   });
 });

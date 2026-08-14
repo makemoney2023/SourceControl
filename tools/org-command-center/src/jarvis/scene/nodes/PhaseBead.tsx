@@ -3,24 +3,26 @@ import { useJarvisStore } from "../../state/useJarvisStore";
 import { SCENE_HTML_Z_INDEX_RANGE } from "../sceneHtml";
 import { useState } from "react";
 
-function statusColor(status: string) {
-  if (status === "✅") return "#4ecf8a";
-  if (status === "🔄") return "#e0a04a";
-  if (status === "⏭️") return "#44555a";
-  return "#3a4a50";
-}
+type PhaseMarkStatus = "Pending" | "In progress" | "Done" | "Skipped";
 
-function statusLabel(status: string) {
-  if (status === "✅") return "Done";
-  if (status === "🔄") return "In progress";
-  if (status === "⏭️") return "Skipped";
+function phaseMarkStatus(status: string): PhaseMarkStatus {
+  if (status === "Done" || status === "\u2705") return "Done";
+  if (status === "In progress" || status === "\u{1F504}") return "In progress";
+  if (status === "Skipped" || status === "\u23ED\uFE0F" || status === "\u23ED") return "Skipped";
   return "Pending";
 }
 
-function PhaseMark({ status, selected }: { status: string; selected?: boolean }) {
+function statusColor(status: PhaseMarkStatus) {
+  if (status === "Done") return "#4ecf8a";
+  if (status === "In progress") return "#e0a04a";
+  if (status === "Skipped") return "#44555a";
+  return "#3a4a50";
+}
+
+function PhaseMark({ status, selected }: { status: PhaseMarkStatus; selected?: boolean }) {
   const color = statusColor(status);
   const intensity = selected ? 1.4 : 0.5;
-  if (status === "🔄") {
+  if (status === "In progress") {
     return (
       <mesh rotation={[0, Math.PI / 4, 0]}>
         <boxGeometry args={[0.12, 0.04, 0.12]} />
@@ -28,7 +30,7 @@ function PhaseMark({ status, selected }: { status: string; selected?: boolean })
       </mesh>
     );
   }
-  if (status === "✅") {
+  if (status === "Done") {
     return (
       <mesh>
         <boxGeometry args={[0.14, 0.03, 0.08]} />
@@ -36,7 +38,7 @@ function PhaseMark({ status, selected }: { status: string; selected?: boolean })
       </mesh>
     );
   }
-  if (status === "⏭️") {
+  if (status === "Skipped") {
     return (
       <mesh>
         <boxGeometry args={[0.16, 0.02, 0.04]} />
@@ -81,7 +83,7 @@ export function PhaseBead({
   const z = Math.sin(angle) * r;
   const y = 0.06;
   const lift = selected ? 0.04 : 0;
-  const label = statusLabel(phase.status);
+  const label = phaseMarkStatus(phase.status);
 
   return (
     <group position={[x, y + lift, z]}>
@@ -100,7 +102,7 @@ export function PhaseBead({
           document.body.style.cursor = "auto";
         }}
       >
-        <PhaseMark status={phase.status} selected={selected} />
+        <PhaseMark status={label} selected={selected} />
       </group>
       {!drawerOpen && (hovered || selected) && (
         <Html

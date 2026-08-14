@@ -1,20 +1,25 @@
 # Org Command Center — Situation Room
 
-Theater-first Jarvis HUD: full-bleed 3D org graph with holographic glass overlays — **threat rail** (blockers + RESOLVE via `blocker.resolve`; **ANSWER** for `needs_input` / open asks opens the Report Q&A form), **seat console** (live runs / telemetry from `seatWorkContext`, ANSWER CTA when questions are open), keyboard-accessible **Command deck**, activity strip, and **Outputs** production-asset viewer. Ops tables remain available via **Ops tables**. Voice stack is self-hosted LiveKit + Dialogue Control Plane.
+Glance-first war-table: full-bleed 3D command table with a thin **Glance** bar (customer · initiative · phase, threat-first status line, **Run next** as the only filled CTA, Talk / Brief me, **Command deck**, Intelligence, System). **Threat rail** mounts only when seats are blocked (RESOLVE via `blocker.resolve`; **ANSWER** for `needs_input` / open asks opens the Report Q&A form). **Seat console** opens only while a seat is selected. Portfolio CRUD, spend, progress, auto-spawn, OmniVoice, and follow-cam live in **System → Workspace**. First visit plays a four-step tour (`sr-tour-v1`; replay from System). Voice stack is self-hosted LiveKit + Dialogue Control Plane.
 
-Glanceable mission status, C-suite board, live tasks, execution controls, narrative seat reports, and production artifact browsing all share the same teal glass system (`theme.css` · `.j-hud-panel`). Active, running, blocked, needs-input (**ANSWER** cue), and escalated seats retain persistent text cues in addition to semantic color; reduced-motion preferences disable their perpetual pulse/orbit motion.
+Glanceable mission status, live tasks, execution controls, narrative seat reports, and production artifact browsing share the same teal glass system (`theme.css` · `.j-hud-panel`). Active, running, blocked, needs-input (**ANSWER** cue), and escalated seats retain persistent text cues in addition to semantic color; phase rail marks use **Pending / In progress / Done / Skipped** (no emoji chrome). Reduced-motion preferences disable pulse/orbit, follow-cam, gaze lift, tour motion, and animated camera travel.
 
-Use the compact **Command deck** control in the theater HUD, or its keyboard shortcut from either Theater or Ops-only mode, to search seats and active tasks. Seat results drive the canonical theater highlight and seat-console selection; run-backed tasks resolve their run position when needed and also open the matching Runs detail. Completed, cancelled, and done tasks are excluded.
+Use the compact **Command deck** control in the Glance bar, or `Cmd+K` / `Ctrl+K`, to search seats and active tasks. Seat results drive the canonical theater highlight and seat-console selection; run-backed tasks resolve their run position when needed and also open the matching Runs detail. Completed, cancelled, and done tasks are excluded.
 
 ## Situation Room operation
 
-`SituationRoom` is the canonical Jarvis interface. The organization theater remains its defining workspace; **Ops tables** are an optional supplement. Workspace toggles never permit both views to be hidden.
+`SituationRoom` is the canonical Jarvis interface. The organization theater remains its defining workspace; **Ops tables** are an optional supplement under **System**. Workspace toggles never permit both views to be hidden. Floor / Assign / Outputs are not 3D modes — Assign and Outputs stay drawers from Intelligence.
 
-- **Mission command hierarchy:** **Run next** is primary. Talk / Brief me and Assign / Outputs remain immediately available; lower-frequency intelligence and system actions live in keyboard-accessible **Intelligence** and **System** menus.
-- **Command deck:** open from the theater control or `Cmd+K` on macOS / `Ctrl+K` elsewhere. The controller remains mounted when Theater is hidden, so the shortcut also works in Ops-only mode. Search seats and active tasks, use arrow keys and Enter to select, and Escape to close. Selection writes through the canonical Jarvis store, highlights the seat, focuses the theater camera, and opens run detail for run-backed tasks.
+- **Glance bar:** identity + one status sentence from `glanceStatusLine` (top threat headline when blocked, otherwise `mission.nextAction`). **Run next** is the only filled button; hover/focus previews the wake seat. Talk / Brief me stay in the bar. Portfolio CRUD is not in the hero.
+- **Command deck:** open from the Glance bar or `Cmd+K` on macOS / `Ctrl+K` elsewhere. The controller remains mounted when Theater is hidden, so the shortcut also works in Ops-only mode. Search seats and active tasks, use arrow keys and Enter to select, and Escape to close. Selection writes through the canonical Jarvis store, highlights the seat, focuses the theater camera, and opens run detail for run-backed tasks.
+- **Inspect:** click a seat (or Command deck result) to open the seat console; double-click opens the full report drawer. Click empty table, or **Esc** when no dialog is open, clears selection, closes the console, and frames the company. **j** / **k** cycle needs-you seats (`blocked`, `needs_input`); ignored while a field or dialog has focus.
+- **Threat rail:** left overlay only when `blockedSeats.length > 0`. When clear, the left stack is empty — no “ALL CLEAR” card.
+- **Follow-cam:** on by default (`sr-follow-cam` unset). Tracks running seats when nothing is selected and the operator is not orbiting. Toggle from System or Workspace. Yields to inspect.
+- **Tour:** four coach marks on first visit (`sr-tour-v1`). **System → Replay tour** resets and replays.
+- **System → Workspace:** Agency (disabled), customer, initiative, Add customer, Add initiative, plus Status (progress, spend, OmniVoice, auto-spawn, last updated, follow-cam).
 - **Accessible overlays:** shadcn/Radix Dialog, Command, and Dropdown primitives provide named dialogs and menus, focus trapping, keyboard navigation, backdrop/Escape dismissal, and focus restoration to the opener.
 - **Responsive theater:** wide desktop keeps the full theater and side overlays; short laptop viewports scroll without collapsing the 520px theater; at 390px the document scrolls around a retained 620px theater with compact, scrollable command clusters and docked overlays.
-- **Feedback:** initial skeletons, loading/status announcements, explicit error and empty states, refresh/last-updated status, retryable scorecard/chat/review-inbox failures, and copy-path success/failure are visible and announced where appropriate. “Inbox clear” appears only after a successful empty review-inbox response. Reduced-motion disables cinematic transitions, pulse/orbit effects, bloom, and animated camera travel.
+- **Feedback:** initial skeletons, loading/status announcements, explicit error and empty states, refresh/last-updated status, retryable scorecard/chat/review-inbox failures, and copy-path success/failure are visible and announced where appropriate. “Inbox clear” appears only after a successful empty review-inbox response. Reduced-motion disables cinematic transitions, pulse/orbit effects, bloom, follow-cam, and animated camera travel.
 - **Safety contracts:** dispatch remains manager-only and venture-isolated. A `needs_confirm` response is returned without automatic resubmission; blocker resolution displays the server summary/reason in a Radix confirmation dialog, and only explicit operator confirmation sends the token. Cancel, Escape, and backdrop dismissal explicitly invalidate that exact token with `accept: false`; cancellation failures remain visible in the dialog and cannot fall through to confirmation. Run next and other hard writes retain confirmation requirements unless explicit auto-spawn is enabled.
 - **Live status:** only active runs (`starting`, `running`) or sessions (`active`, `starting`, `running`, `connected`) render a seat as running. Completed historical sessions are ignored. Claimed packets are correlated with run/session lifecycle truth: successful terminal work is done, failed/cancelled work is pending and recoverable when a session can be rewoken, and an orphan claimed packet stays idle/pending rather than appearing live.
 
@@ -63,7 +68,7 @@ npm run dev                 # UI — floating mic FAB bottom-right
 
 `mlx-tts:up` starts Kokoro in the background, waits for `:3900`, POSTs a warmup to `/tmp/kokoro-warm.wav`, then keeps the server in the foreground. Preload failure logs a warning only — the server stays up.
 
-**Talk FAB:** tap to connect · tap again to mute/unmute · × to hang up. Mission strip **Talk** uses the same session. **Legacy voice** = old Web Speech + HTTP chat (`OCC_VOICE_BACKEND=legacy`).
+**Talk FAB:** tap to connect · tap again to mute/unmute · × to hang up. Glance bar **Talk** uses the same session. **Legacy voice** = old Web Speech + HTTP chat (`OCC_VOICE_BACKEND=legacy`).
 
 **Speech hygiene:** Tool results are sanitized for TTS (`sanitizeForSpeech`) and prefer the act `summary` over raw JSON/markdown so Kokoro does not say “asterisk” or monologue dump payloads. Restart `npm run jarvis:agent` (or your voice-stack recipe) after pulling these changes.
 
@@ -197,18 +202,18 @@ graphify cluster-only graphify-out --graph graphify-out/graph.json --no-label
 
 | Zone | Purpose |
 |------|---------|
-| Mission strip | NOW phase, %, Run next primary, Talk / Brief me, Assign / Outputs, Intelligence / System menus |
-| Theater | Canonical org graph, seat status, command deck, camera focus, threat and seat overlays |
+| Glance bar | Situation Room title, customer · initiative · phase, threat-first status line, **Run next** (only filled CTA), Talk / Brief me, Command deck, Intelligence / System |
+| Theater | Command table, seat terminals, phase rail (Pending / In progress / Done / Skipped), follow-cam, inspect on select |
 | Knowledge graph | Intelligence menu → live org-work graph (all roster seats, handoffs, runs, deliverables, artifacts; click opens seat report). Graphify CLI remains for code RAG only. |
 | Floating Talk | LiveKit mic session (Ollama + Whisper + Kokoro TTS) |
-| Seat Report / Seat console | Same business-conversation layout for every role: What happened → Why it matters → Next steps → What we need from you → What’s stuck. `/api/seat-report` returns the deterministic brief immediately, then Grok rewrites in the background (UI soft-polls until ready). Voice `seat.report` awaits up to `JARVIS_SEAT_BRIEF_TIMEOUT_MS` (default 4s) then falls back. Model: `JARVIS_SEAT_BRIEF_MODEL` / `JARVIS_BRAIN_MODEL` (default `grok-4.5`) via Cursor SDK + `CURSOR_API_KEY`. Cached by seat + content hash. |
-| Threat rail / company digest | Blocked + needs-input seats show roster **title**, plain status (**Needs your input** / **Stuck**), and humanized reasons (process noise like “peer help: none” dropped). On every `/api/company-digest`, `digest.get`, and `blocker.list`, OCC batch-rewrites threat headlines with the same Cursor Grok path (`JARVIS_THREAT_BRIEF_MODEL` → seat/brain model, default `grok-4.5`), cached by threat content hash. |
-| Company digest | Blocked/escalate/awaiting-csuite rollup |
-| Live tasks | Play / Cancel / Rewake |
-| Runs / Routines | Execution + cron |
-| Outputs | **Production assets only** (HTML, apps, images, video, Office, design-system) with typed preview (`/api/file/raw` for binary). Snapshot also discovers files under each seat’s `## Outputs` leases. Needs-review inbox stays a separate strip; narrative briefs live in Report. |
+| Seat Report / Seat console | Console only while a seat is selected. Same business-conversation layout for every role: What happened → Why it matters → Next steps → What we need from you → What’s stuck. `/api/seat-report` returns the deterministic brief immediately, then Grok rewrites in the background (UI soft-polls until ready). Voice `seat.report` awaits up to `JARVIS_SEAT_BRIEF_TIMEOUT_MS` (default 4s) then falls back. Model: `JARVIS_SEAT_BRIEF_MODEL` / `JARVIS_BRAIN_MODEL` (default `grok-4.5`) via Cursor SDK + `CURSOR_API_KEY`. Cached by seat + content hash. |
+| Threat rail | Mounts only when seats are blocked. Blocked + needs-input seats show roster **title**, plain status (**Needs your input** / **Stuck**), and humanized reasons (process noise like “peer help: none” dropped). On every `/api/company-digest`, `digest.get`, and `blocker.list`, OCC batch-rewrites threat headlines with the same Cursor Grok path (`JARVIS_THREAT_BRIEF_MODEL` → seat/brain model, default `grok-4.5`), cached by threat content hash. |
+| Company digest | Blocked/escalate/awaiting-csuite rollup (Intelligence → Digest) |
+| Live tasks | Play / Cancel / Rewake (Ops tables) |
+| Runs / Routines | Execution + cron (System drawers) |
+| Outputs | Intelligence drawer — **production assets only** (HTML, apps, images, video, Office, design-system) with typed preview (`/api/file/raw` for binary). Snapshot also discovers files under each seat’s `## Outputs` leases. Needs-review inbox stays a separate strip; narrative briefs live in Report. |
 
-**Portfolio:** Mission strip selects **Agency / Customer / Initiative**. **Add initiative** scaffolds a full workspace under the current customer; **Add customer** creates a customer with default `main`. Registry is portfolio v2 (`projects/registry.json`).
+**Portfolio:** **System → Workspace** selects **Agency / Customer / Initiative**. **Add initiative** scaffolds a full workspace under the current customer; **Add customer** creates a customer with default `main`. Registry is portfolio v2 (`projects/registry.json`).
 
 **Sources / context:** Outputs drawer → **Sources** — upload docs (text extracted for agents), edit the initiative context note. Add initiative / Add customer can set the note at create time. Assign/queue auto-adds `MEMORY/context.md` + source index to `must_read`.
 
