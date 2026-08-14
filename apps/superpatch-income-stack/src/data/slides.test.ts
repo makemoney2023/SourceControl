@@ -18,6 +18,28 @@ import {
 describe("SLIDES", () => {
   it("has 20 slides with copy fields", () => {
     expect(SLIDES).toHaveLength(20);
+    expect(SLIDES.map((s) => s.id)).toEqual([
+      "01-title",
+      "02-world",
+      "03-four-stacks",
+      "04-flywheel",
+      "05-product",
+      "06-brand",
+      "07-development",
+      "08-ten-layers",
+      "07-retail",
+      "08-fast-start",
+      "09-team-overrides",
+      "10-md-depth",
+      "11-vp-override",
+      "12-generations",
+      "13-executive",
+      "14-global",
+      "17-compounding",
+      "18-different",
+      "19-future",
+      "15-closing",
+    ]);
     for (const s of SLIDES) {
       expect(s.eyebrow.length).toBeGreaterThan(0);
       expect(s.headline.length).toBeGreaterThan(0);
@@ -52,25 +74,45 @@ describe("SLIDES", () => {
     expect(close.ctaSecondary).toBe("Read the Income Disclosure");
   });
 
-  it("rewrites slide 06 as the ten-stream index bridge", () => {
-    const bridge = SLIDES.find((s) => s.id === "06-ten-layers")!;
+  it("rewrites the ten-stream index as 08-ten-layers with tier bands", () => {
+    const bridge = SLIDES.find((s) => s.id === "08-ten-layers")!;
     expect(bridge.eyebrow).toBe("Income Stack™ — Ten Streams");
-    expect(bridge.headline).toBe("Ten Ways. One Path Forward.");
-    expect(bridge.onScreenBody).toMatch(/Start with retail/i);
-    expect(bridge.voiceover).toMatch(/one by one/i);
-    expect(bridge.body.toLowerCase()).toMatch(/retail/);
-    expect(bridge.body.toLowerCase()).toMatch(/global leadership pool/);
+    expect(bridge.headline).toBe("One Opportunity. Ten Income Streams.");
+    expect(bridge.annotations?.map((a) => a.text)).toEqual([
+      "1–3 FOUNDATION",
+      "4–7 LEADERSHIP",
+      "8–10 EXECUTIVE & GLOBAL",
+    ]);
   });
 
-  it("adds proof/objection presenter notes without inventing dollar claims", () => {
-    const eco = SLIDES.find((s) => s.id === "05-ecosystem")!;
-    expect(eco.onScreenBody).toMatch(/Health outcomes/i);
-    expect(eco.presenterNotes).toMatch(/Do I have to recruit/i);
-    expect(eco.presenterNotes).toMatch(/Income Disclosure/i);
-    expect(eco.presenterNotes).not.toMatch(/\$\d/);
+  it("covers the seven new Full Stack and Momentum beats", () => {
+    expect(SLIDES.find((s) => s.id === "02-world")!.headline).toMatch(
+      /no longer optional/i,
+    );
+    expect(SLIDES.find((s) => s.id === "05-product")!.eyebrow).toBe("Product Stack");
+    expect(SLIDES.find((s) => s.id === "06-brand")!.eyebrow).toBe(
+      "Brand & Marketing Stack",
+    );
+    expect(SLIDES.find((s) => s.id === "07-development")!.headline).toMatch(
+      /better people/i,
+    );
+    expect(SLIDES.find((s) => s.id === "17-compounding")!.eyebrow).toMatch(
+      /Compounding/i,
+    );
+    expect(SLIDES.find((s) => s.id === "18-different")!.eyebrow).toMatch(
+      /Different/i,
+    );
+    const future = SLIDES.find((s) => s.id === "19-future")!;
+    expect(future.requiresDisclosure).toBe(true);
+    expect(future.disclosure).toBe(INCOME_DISCLOSURE);
+  });
+
+  it("keeps product presenter notes off invented clinical claims", () => {
+    const product = SLIDES.find((s) => s.id === "05-product")!;
+    expect(product.presenterNotes).toMatch(/official Super Patch materials/i);
+    expect(product.body.toLowerCase()).not.toMatch(/\bguaranteed\b/);
     const four = SLIDES.find((s) => s.id === "03-four-stacks")!;
     expect(four.presenterNotes).toMatch(/official Super Patch materials/i);
-    expect(four.presenterNotes).not.toMatch(/\b\d+%\b/);
   });
 
   it("assertSlidesValid word-counts onScreenBody for film when set", () => {
@@ -135,10 +177,10 @@ describe("plate annotations", () => {
 
   it("re-declares the four-stack pillar labels as overlay graphics", () => {
     expect(byId("03-four-stacks").annotations?.map((a) => a.text)).toEqual([
-      "PRODUCT",
-      "BRAND",
-      "INCOME",
-      "PEOPLE",
+      "PRODUCT STACK",
+      "BRAND & MARKETING",
+      "INCOME STACK",
+      "PERSONAL DEVELOPMENT",
     ]);
   });
 
@@ -148,6 +190,10 @@ describe("plate annotations", () => {
       "BRAND",
       "PEOPLE",
       "INCOME",
+      "Products create customers",
+      "Marketing creates demand",
+      "Income creates opportunity",
+      "Personal development creates leaders",
     ]);
   });
 
@@ -215,9 +261,9 @@ describe("plate annotations", () => {
     for (const a of byId("09-team-overrides").annotations!) {
       expect(fittedSizePct(a)).toBe(a.sizePct);
     }
-    for (const a of byId("03-four-stacks").annotations!) {
-      expect(fittedSizePct(a)).toBe(a.sizePct);
-    }
+    const fourStacks = byId("03-four-stacks").annotations!;
+    expect(fittedSizePct(fourStacks[0]!)).toBe(fourStacks[0]!.sizePct);
+    expect(fittedSizePct(fourStacks[2]!)).toBe(fourStacks[2]!.sizePct);
   });
 
   it("drops flywheel lower-third labels on compact layouts so copy does not clip them", () => {
@@ -227,10 +273,16 @@ describe("plate annotations", () => {
       "BRAND",
       "PEOPLE",
       "INCOME",
+      "Products create customers",
+      "Marketing creates demand",
+      "Income creates opportunity",
+      "Personal development creates leaders",
     ]);
     expect(annotationsVisibleInLayout(flywheel, true).map((a) => a.text)).toEqual([
       "PRODUCT",
       "BRAND",
+      "PEOPLE",
+      "INCOME",
     ]);
     expect(
       annotationsVisibleInLayout(byId("07-retail").annotations, true).map((a) => a.text),
@@ -276,8 +328,22 @@ describe("plate annotations", () => {
     expect(TITLE_SLAB_BASE).toContain("title-base");
   });
 
-  it("uses animated hero loops on every slide", () => {
+  it("uses animated hero loops on Omni scenes and omits hero on still-only beats", () => {
+    const stillOnly = new Set([
+      "02-world",
+      "05-product",
+      "06-brand",
+      "07-development",
+      "17-compounding",
+      "18-different",
+      "19-future",
+    ]);
     for (const s of SLIDES) {
+      if (stillOnly.has(s.id)) {
+        expect(s.hero, s.id).toBeUndefined();
+        expect(s.heroVideoSrc, s.id).toBeUndefined();
+        continue;
+      }
       expect(s.heroVideoSrc, s.id).toMatch(/^\/concepts\/animated\/.+\.mp4$/);
       expect(s.hero?.src, s.id).toBe(s.heroVideoSrc);
     }

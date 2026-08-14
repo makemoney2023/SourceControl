@@ -22,11 +22,9 @@ export type ExperienceMedia = {
 /** Omni plate slug keyed by slide id — plate filenames differ from a few slide ids. */
 const SLIDE_TO_OMNI_SLUG: Record<string, string> = {
   "01-title": "title",
-  "02-question": "the-question",
   "03-four-stacks": "four-stacks",
   "04-flywheel": "flywheel",
-  "05-ecosystem": "ecosystem",
-  "06-ten-layers": "ten-layers",
+  "08-ten-layers": "ten-layers",
   "07-retail": "retail",
   "08-fast-start": "fast-start",
   "09-team-overrides": "team-overrides",
@@ -37,6 +35,16 @@ const SLIDE_TO_OMNI_SLUG: Record<string, string> = {
   "14-global": "global-pool",
   "15-closing": "closing",
 };
+
+const STILL_ONLY_IDS = new Set([
+  "02-world",
+  "05-product",
+  "06-brand",
+  "07-development",
+  "17-compounding",
+  "18-different",
+  "19-future",
+]);
 
 function omniIdForSlide(slideId: string): string {
   const plate = OMNI_PLATES.find(
@@ -69,12 +77,23 @@ function variantFor(
   };
 }
 
-export const EXPERIENCE_MEDIA: ExperienceMedia[] = SLIDES.map((slide) => ({
-  slideId: slide.id,
-  landscape: variantFor(slide.id, "16x9", 1280, 720),
-  portrait: variantFor(slide.id, "9x16", 720, 1280),
-  brandLockup: slide.id === "15-closing" ? true : undefined,
-}));
+export const EXPERIENCE_MEDIA: ExperienceMedia[] = SLIDES.map((slide) => {
+  if (STILL_ONLY_IDS.has(slide.id)) {
+    const poster = slide.conceptSrc;
+    return {
+      slideId: slide.id,
+      stillOnly: true,
+      landscape: { src: "", poster, width: 1920, height: 1080 },
+      portrait: { src: "", poster, width: 1920, height: 1080 },
+    };
+  }
+  return {
+    slideId: slide.id,
+    landscape: variantFor(slide.id, "16x9", 1280, 720),
+    portrait: variantFor(slide.id, "9x16", 720, 1280),
+    brandLockup: slide.id === "15-closing" ? true : undefined,
+  };
+});
 
 export function experienceMediaForSlide(
   slideId: string,

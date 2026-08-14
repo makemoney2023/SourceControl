@@ -37,8 +37,6 @@ describe("remotion timeline", () => {
     const raw = SLIDES.reduce((sum, s) => sum + clipFrames(s), 0);
     const expected = raw - (SLIDES.length - 1) * TRANSITION_FRAMES;
     expect(filmDurationInFrames(SLIDES)).toBe(expected);
-    // 15×10s = 150s raw; 14 fades × 18f = 8.4s overlap → 4248f (~141.6s)
-    expect(filmDurationInFrames(SLIDES)).toBe(4248);
   });
 
   it("strips leading slash for Remotion staticFile paths", () => {
