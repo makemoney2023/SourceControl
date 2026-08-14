@@ -14,6 +14,20 @@ export function appendVentureContextReads(
     prefix.push(ctxRel);
   }
 
+  const decisionsRel = `${memoryRel(repoRoot)}/decisions.md`;
+  if (existsSync(join(repoRoot, decisionsRel))) {
+    prefix.push(decisionsRel);
+  }
+
+  const goodEx = "skills/org/examples/handoff-good.md";
+  if (existsSync(join(repoRoot, goodEx))) {
+    prefix.push(goodEx);
+  }
+  const badEx = "skills/org/examples/handoff-bad.md";
+  if (existsSync(join(repoRoot, badEx))) {
+    prefix.push(badEx);
+  }
+
   const indexRel = businessIdeaFile(repoRoot, "SOURCES/INDEX.md");
   if (existsSync(join(repoRoot, indexRel))) {
     prefix.push(indexRel);

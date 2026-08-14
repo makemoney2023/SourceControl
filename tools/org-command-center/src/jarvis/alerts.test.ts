@@ -28,6 +28,8 @@ const base: HandoffRecord = {
   wireChecklistPath: "",
   licenseBasis: "",
   generationUsed: "",
+  happyPathSpec: "",
+  happyPathStatus: "",
   body: "",
 };
 

@@ -67,6 +67,27 @@ describe("expandOutputPath", () => {
       }),
     ).toBe("docs/projects/passive-grid/business-idea/09b-hardware");
   });
+
+  it("rewrites docs/projects/<active>/business-idea onto nested initiative businessIdeaRel", () => {
+    const nested =
+      "docs/orgs/velocity-agency/customers/blacksage-kennels/initiatives/sieger-show-secretary/business-idea";
+    expect(
+      expandOutputPath("docs/projects/<active>/business-idea/00-intake.md", {
+        ventureSlug: "sieger-show-secretary",
+        businessIdeaRel: nested,
+      }),
+    ).toBe(`${nested}/00-intake.md`);
+
+    expect(
+      expandOutputPath(
+        "docs/projects/blacksage-kennels/business-idea/01-problem-framing.md",
+        {
+          ventureSlug: "blacksage-kennels",
+          businessIdeaRel: nested,
+        },
+      ),
+    ).toBe(`${nested}/01-problem-framing.md`);
+  });
 });
 
 describe("mergeUniquePaths", () => {
@@ -117,6 +138,61 @@ describe("loadSeatOutputPaths", () => {
     const paths = loadSeatOutputPaths(root, "lifecycle-marketer");
     expect(paths).toContain(
       "docs/projects/blacksage-kennels/business-idea/17-channels/email/html",
+    );
+  });
+
+  it("expands onto nested initiative businessIdea for portfolio v2 non-main active", () => {
+    root = mkdtempSync(join(tmpdir(), "seat-outputs-v2-"));
+    const nested =
+      "docs/orgs/velocity-agency/customers/blacksage-kennels/initiatives/sieger-show-secretary/business-idea";
+    mkdirSync(join(root, "projects"), { recursive: true });
+    mkdirSync(join(root, "skills/org/positions/ceo-strategist"), {
+      recursive: true,
+    });
+    writeFileSync(
+      join(root, "projects/registry.json"),
+      JSON.stringify({
+        version: 2,
+        active: {
+          org: "velocity-agency",
+          customer: "blacksage-kennels",
+          initiative: "sieger-show-secretary",
+        },
+        orgs: {
+          "velocity-agency": {
+            customers: {
+              "blacksage-kennels": {
+                initiatives: {
+                  main: {
+                    name: "Website",
+                    businessIdea: "docs/projects/blacksage-kennels/business-idea",
+                  },
+                  "sieger-show-secretary": {
+                    name: "Sieger Show Secretary",
+                    businessIdea: nested,
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    );
+    writeFileSync(
+      join(root, "skills/org/positions/ceo-strategist/SKILL.md"),
+      `# CEO
+
+## Outputs
+- \`docs/projects/<active>/business-idea/00-intake.md\`
+- apps/<venture>/
+`,
+    );
+
+    const paths = loadSeatOutputPaths(root, "ceo-strategist");
+    expect(paths).toContain(`${nested}/00-intake.md`);
+    expect(paths).toContain("apps/sieger-show-secretary");
+    expect(paths).not.toContain(
+      "docs/projects/blacksage-kennels/business-idea/00-intake.md",
     );
   });
 });

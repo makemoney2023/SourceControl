@@ -26,6 +26,7 @@ Markdown under `docs/projects/<active>/business-idea/` is **Layer A craft** (SSO
 8. **Figma ≠ Layer B.** Editing in Figma alone is not production. Export PNG/SVG/PDF (or tokens/components) into the leased path before `production_status: complete`.
 9. **Verifier gate.** Shippable phases require `HANDOFFS/<phase>-verifier.md` with `verdict: pass` before C-suite may approve (see `positions/verifier/`).
 10. **Design before production.** Never generate Layer B (HTML, stills, video, design-system tokens, app UI) until a **Design brief** exists that (a) cites the required design skill packs, (b) locks look/feel from brand tokens, and (c) includes generation/layout prompts. Jumping from craft MD → pixels is a reject.
+11. **Design-before-Phase-9 is a dispatch refuse.** Orchestrator/OCC must not spawn Phase 9 (`design_before_build`) unless a design brief / `11-brand/MASTER.md` / `HANDOFFS/11-creative-director.md` exists, or a Locked register waiver matches design-before-build / skip design / waiver phase 9.
 
 ## Four layers
 
@@ -124,9 +125,9 @@ When `production_status: complete` and `production_paths` include `.docx` / `.pp
 - [ ] File size **> 0**
 - [ ] Extension matches the claim (no `.md` renamed as “pptx”)
 - [ ] Branded pptx: `design_brief_path` present
-- [ ] No deep slide/content QA in v1 — existence only
+- [ ] Existence is the floor, not the bar. When `ARTIFACT-QUALITY.md` has a row for this phase, those headings must also pass (`quality_fail:<id>` / `quality_scorecard`). Existence alone is not enough.
 
-False completes: MD-only “deck”, empty `exec/`, claiming complete without paths.
+False completes: MD-only “deck”, empty `exec/`, claiming complete without paths, or a present file that fails the phase quality row.
 
 ## Artifact classes (what bound skills must leave behind)
 
@@ -236,3 +237,5 @@ C-suite scorecards must include **Production** and **Verifier pass?** rows (see 
 | “MD exec summary is the Word doc” | Phase 21 needs `exec/*.docx` or explicit skip |
 | “Pitch outline in MD is the deck” | Phase 4B needs `04b-funding/pitch.pptx` + `model.xlsx` or skip |
 | “Empty exec/ folder counts” | Office existence QA: file present and size > 0 |
+| “File exists so quality is done” | When `ARTIFACT-QUALITY.md` has a row, headings must pass (`quality_fail:<id>`) |
+| “Phase 9 can build without a design brief” | Dispatch refuse: `design_before_build` |

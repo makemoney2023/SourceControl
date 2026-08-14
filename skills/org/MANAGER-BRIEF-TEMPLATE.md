@@ -18,10 +18,13 @@ fallback_applied: false
 # Manager brief — <Title> — Phase <id>
 
 ## Operator brief (plain English)
-3–5 short sentences a non-technical operator can understand: what the team did, what it means, and whether we can continue. No runIds, no scorecard tables here. Write this at the source — Jarvis reads it directly. (Alias: `## In plain English`.)
+Max **5 sentences** that are a **delta**: what this seat uniquely produced, one decision, whether work can continue.
+Do **not** restate the product one-liner or locked register rows.
+Do **not** re-ask a Locked id. At most one new Open question, and only if it is absent from MEMORY/decisions.md.
+No runIds, no scorecard tables here. Write this at the source — Jarvis reads it directly. (Alias: `## In plain English`.)
 
 ## What we found
-- Up to 5 load-bearing facts or labeled assumptions
+- Max **5 bullets**: load-bearing facts or labeled assumptions
 
 ## Next steps
 1. Who acts next (operator / seat) and the concrete ask

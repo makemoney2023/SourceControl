@@ -6,11 +6,11 @@ Peers do **not** spawn each other. Cross-seat work goes through the **immediate 
 
 Write plain English **when you author the handoff**, not later. Required sections (see `HANDOFF-TEMPLATE.md` / manager / C-suite templates):
 
-1. `## Operator brief (plain English)`
+1. `## Operator brief (plain English)` — a **delta**: what this seat uniquely produced, one decision, whether work can continue. Do **not** restate the product one-liner or locked register rows. Do **not** re-ask a Locked `asked_as` id. At most one new Open question, and only if it is absent from `MEMORY/decisions.md`.
 2. `## What we found`
 3. `## Next steps` (blocking questions for the operator go here and in Asks)
 
-Situation Room / Jarvis reads these at the source. Managers reject IC handoffs that omit them.
+Situation Room / Jarvis reads these at the source. Managers reject IC handoffs that omit them. Managers **reject echo**: same-phase operator briefs with Jaccard > 0.35 fail merge gate (`brief_echo`).
 
 ## Rules
 
@@ -35,8 +35,13 @@ When ORG-REGISTRY marks `(parallel: true)` and multiple ICs contribute to **one*
 2. Confirm no path appears in two leases.
 3. Tell ICs: write only leased slices; leave other headings as stubs or untouched.
 4. You merge into the canonical phase artifact; resolve conflicts in the manager brief.
+5. **Manager merge is an edit pass** — cut repetition and resolve conflicts; do not concatenate IC operator briefs. Point C-suite at the client artifact, not a pasted stack of IC memos.
 
 ICs that need content outside their lease set `ask_manager` — they do not expand the lease themselves.
+
+## Manager merge is an edit pass
+
+The manager brief is an **editor cut**, not a concatenation of IC operator briefs. Cut echo, keep one decision, and point C-suite at the file a client would open. Jaccard echo vs IC briefs still applies (`brief_echo`).
 
 ## Phase 14 — Pages (RACI)
 

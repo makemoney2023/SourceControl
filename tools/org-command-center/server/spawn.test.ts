@@ -140,6 +140,7 @@ describe("buildSpawnPrompt", () => {
     const prompt = buildSpawnPrompt(withAcceptance, repo, "run-123");
     expect(prompt).toContain("runId: run-123");
     expect(prompt).toMatch(/frontmatter/i);
+    expect(prompt).toMatch(/artifact_path/);
   });
 
   it("omits optional acceptance lines when flags unset", () => {
@@ -147,6 +148,17 @@ describe("buildSpawnPrompt", () => {
     const prompt = buildSpawnPrompt(packet, repo);
     expect(prompt).not.toMatch(/hard acceptance criteria/i);
     expect(prompt).not.toContain("preferred_ic");
+  });
+
+  it("includes discipline acceptance lines on every spawn prompt", () => {
+    const repo = resolveRepoRoot();
+    const prompt = buildSpawnPrompt(packet, repo);
+    expect(prompt).toMatch(
+      /discipline: operator brief must be a delta; do not re-ask locked register ids; packs used must match your SKILL\.md/,
+    );
+    expect(prompt).toMatch(
+      /After a shippable MVP exists, do not implement product bugs or design in this orchestrator\/manager session — queue the phase owner \(cto \/ creative-director\)/,
+    );
   });
 });
 
@@ -185,6 +197,54 @@ describe("buildRewakePrompt", () => {
     const repo = resolveRepoRoot();
     const prompt = buildRewakePrompt(packet, repo, undefined, "run-789");
     expect(prompt).not.toMatch(/## Operator instruction \(new\)/);
+  });
+
+  it("appends formatted redlines from revise csuite review when instruction is empty", () => {
+    const repo = tempRepo();
+    const handoffs = join(repo, BIZ_IDEA, "HANDOFFS");
+    mkdirSync(handoffs, { recursive: true });
+    writeFileSync(
+      join(handoffs, "2-csuite-review.md"),
+      `---
+phase: "2"
+verdict: revise
+---
+# C-suite review
+
+## Redlines
+| path | comment |
+|------|---------|
+| 05-prd.md#US-014 | Acceptance does not mention offline queue flush |
+`,
+    );
+    const prompt = buildRewakePrompt(packet, repo);
+    expect(prompt).toContain("05-prd.md#US-014");
+    expect(prompt).toMatch(/Redlines \(do not restart\)/);
+    expect(prompt).toContain("Acceptance does not mention offline queue flush");
+    expect(prompt).toMatch(/Continue the manager packet/i);
+  });
+
+  it("asks orchestrator when revise verdict has empty Redlines table", () => {
+    const repo = tempRepo();
+    const handoffs = join(repo, BIZ_IDEA, "HANDOFFS");
+    mkdirSync(handoffs, { recursive: true });
+    writeFileSync(
+      join(handoffs, "2-csuite-review.md"),
+      `---
+phase: "2"
+verdict: revise
+---
+# C-suite review
+
+## Redlines
+| path | comment |
+|------|---------|
+`,
+    );
+    const prompt = buildRewakePrompt(packet, repo);
+    expect(prompt).toContain(
+      "C-suite verdict is revise but Redlines table is empty — ask orchestrator for section comments.",
+    );
   });
 });
 

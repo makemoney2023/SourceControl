@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  activeArtifactSlug,
+  activeInitiativeSlug,
   activeProjectSlug,
   assertJarvisReadable,
   assertReadable,
@@ -20,6 +22,12 @@ describe("FS allowlist + multi-venture paths", () => {
     expect(reg.version).toBe(2);
     expect(reg.orgs[reg.active.org]?.customers[reg.active.customer]?.initiatives[reg.active.initiative]).toBeTruthy();
     expect(activeProjectSlug(root)).toBe(reg.active.customer);
+    expect(activeInitiativeSlug(root)).toBe(reg.active.initiative);
+    expect(activeArtifactSlug(root)).toBe(
+      reg.active.initiative !== "main"
+        ? reg.active.initiative
+        : reg.active.customer,
+    );
     expect(businessIdeaRel(root)).toBe(
       reg.orgs[reg.active.org]!.customers[reg.active.customer]!.initiatives[reg.active.initiative]!
         .businessIdea,

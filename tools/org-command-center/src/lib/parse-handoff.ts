@@ -1,5 +1,6 @@
 import matter from "gray-matter";
 import { parseMarkdownTable, tableAsObjects } from "./parse-md-table";
+import { parseRedlines } from "./redlines";
 import type { HandoffKind, HandoffRecord } from "./types";
 
 export function classifyHandoffFilename(filename: string): HandoffKind {
@@ -31,6 +32,14 @@ function sectionBullets(body: string, headingRe: RegExp): string[] {
     .split("\n")
     .map((l) => l.replace(/^[-*]\s*/, "").trim())
     .filter((l) => l && !/^none$/i.test(l) && l !== "…" && l !== "...");
+}
+
+function sectionText(body: string, headingRe: RegExp): string {
+  const m = body.match(headingRe);
+  if (!m || m.index === undefined) return "";
+  const from = body.slice(m.index + m[0].length);
+  const next = from.search(/\n## /);
+  return (next === -1 ? from : from.slice(0, next)).trim();
 }
 
 function parseEscalationTags(raw: unknown): string[] {
@@ -97,6 +106,17 @@ export function parseHandoff(filename: string, content: string): HandoffRecord {
     wireChecklistPath: String(data.wire_checklist_path ?? "").trim(),
     licenseBasis: String(data.license_basis ?? "").trim(),
     generationUsed: String(data.generation_used ?? "").trim(),
+    happyPathSpec: String(data.happy_path_spec ?? "").trim(),
+    happyPathStatus: String(data.happy_path_status ?? "").trim(),
+    operatorBrief: sectionText(
+      body,
+      /## (?:Operator brief \(plain English\)|In plain English)[^\n]*\n/i,
+    ),
+    nextSteps: sectionText(body, /## Next steps[^\n]*\n/i),
+    packsUsed: tableAsObjects(parseMarkdownTable(body, "## Packs used"))
+      .map((r) => (r.Pack ?? r.pack ?? "").replace(/`/g, "").trim())
+      .filter(Boolean),
+    redlines: parseRedlines(body),
     body,
   };
 }

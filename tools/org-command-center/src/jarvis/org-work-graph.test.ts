@@ -72,6 +72,8 @@ function handoff(partial: Partial<HandoffRecord> & Pick<HandoffRecord, "filename
     wireChecklistPath: "",
     licenseBasis: "",
     generationUsed: "",
+    happyPathSpec: "",
+    happyPathStatus: "",
     body: "",
     ...partial,
   };

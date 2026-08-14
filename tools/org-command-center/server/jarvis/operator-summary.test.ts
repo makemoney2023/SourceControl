@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  OPERATOR_DELIVERABLE_FORMAT,
   collectOpenQuestions,
   extractDecisions,
   extractOperatorSummary,
@@ -193,5 +194,13 @@ describe("humanizeBlockers", () => {
     expect(lines[0]).toMatch(/success criteria|assumption/i);
     expect(lines.length).toBeGreaterThan(0);
     expect(lines.length).toBeLessThanOrEqual(4);
+  });
+});
+
+describe("OPERATOR_DELIVERABLE_FORMAT", () => {
+  it("requires frontmatter artifact_path to point at the client file", () => {
+    expect(OPERATOR_DELIVERABLE_FORMAT).toMatch(/### Client artifact/);
+    expect(OPERATOR_DELIVERABLE_FORMAT).toMatch(/artifact_path/);
+    expect(OPERATOR_DELIVERABLE_FORMAT).toMatch(/not this inbox memo and not the handoff/);
   });
 });

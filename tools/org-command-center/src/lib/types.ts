@@ -62,6 +62,12 @@ export interface HandoffRecord {
   wireChecklistPath: string;
   licenseBasis: string;
   generationUsed: string;
+  happyPathSpec: string;
+  happyPathStatus: string;
+  operatorBrief: string;
+  nextSteps: string;
+  packsUsed: string[];
+  redlines: { path: string; comment: string }[];
   /** Markdown body after frontmatter — used for operator narrative extraction. */
   body: string;
 }
