@@ -2,7 +2,7 @@ import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { seatMocTitle, writeGraphMocs } from "./vault-graph-sync";
+import { seatMocTitle, upsertGraphFooter, writeGraphMocs } from "./vault-graph-sync";
 
 describe("writeGraphMocs", () => {
   it("writes agency, customer, initiative, and per-initiative seat notes", () => {
@@ -40,5 +40,29 @@ describe("writeGraphMocs", () => {
     expect(seatMocTitle("CEO / Strategist", "Sieger Show Secretary")).toBe(
       "CEO / Strategist — Sieger Show Secretary",
     );
+  });
+});
+
+describe("upsertGraphFooter", () => {
+  it("appends a footer and is idempotent", () => {
+    const body = "---\nphase: \"1\"\n---\n# Brief\n\nHello\n";
+    const links = [
+      "[[Sieger Show Secretary]]",
+      "[[CEO / Strategist — Sieger Show Secretary]]",
+    ];
+    const once = upsertGraphFooter(body, links);
+    const twice = upsertGraphFooter(once, links);
+    expect(once).toContain("<!-- graph:start -->");
+    expect(once).toContain("[[Sieger Show Secretary]]");
+    expect(twice).toBe(once);
+    expect(once.startsWith("---\nphase:")).toBe(true);
+  });
+
+  it("replaces an existing footer when links change", () => {
+    const first = upsertGraphFooter("# A\n", ["[[Old]]"]);
+    const next = upsertGraphFooter(first, ["[[New]]"]);
+    expect(next).toContain("[[New]]");
+    expect(next).not.toContain("[[Old]]");
+    expect(next.split("<!-- graph:start -->")).toHaveLength(2);
   });
 });
