@@ -75,6 +75,10 @@ function handoff(partial: Partial<HandoffRecord> & Pick<HandoffRecord, "filename
     generationUsed: "",
     happyPathSpec: "",
     happyPathStatus: "",
+    operatorBrief: "",
+    nextSteps: "",
+    packsUsed: [],
+    redlines: [],
     body: "",
     ...partial,
   };
@@ -324,3 +328,74 @@ describe("buildScopedOrgGraph customer / initiative", () => {
     expect(g.nodes.some((n) => n.kind === "seat")).toBe(true);
   });
 });
+
+describe("buildScopedOrgGraph seat ego", () => {
+  it("includes spawned IC, related handoff, skill, phase; excludes unrelated same-phase seat", () => {
+    const work = buildOrgWorkGraph({
+      org,
+      handoffs: [
+        handoff({
+          filename: "1-manager-ceo-strategist.md",
+          kind: "manager",
+          position: "ceo-strategist",
+          phase: "1",
+          icsSpawned: ["business-analyst"],
+          packsUsed: ["skills/org/positions/ceo-strategist/SKILL.md"],
+        }),
+        handoff({
+          filename: "1-business-analyst.md",
+          position: "business-analyst",
+          phase: "1",
+        }),
+        handoff({
+          filename: "1-csuite-review.md",
+          kind: "csuite",
+          position: "ceo-strategist",
+          phase: "1",
+        }),
+        handoff({
+          filename: "1-manager-cmo.md",
+          kind: "manager",
+          position: "cmo",
+          phase: "1",
+        }),
+      ],
+      runs: [],
+      inbox: [],
+    });
+    const g = buildScopedOrgGraph({
+      scope: "seat",
+      orgSlug: "velocity-agency",
+      orgName: "Velocity Agency",
+      org,
+      customer: "blacksage-kennels",
+      initiative: "sieger-show-secretary",
+      seat: "ceo-strategist",
+      initiatives: [
+        {
+          customer: "blacksage-kennels",
+          customerName: "Blacksage Kennels",
+          initiative: "sieger-show-secretary",
+          initiativeName: "Sieger Show Secretary",
+          uniqueInAgency: true,
+          work,
+        },
+      ],
+    });
+    const ids = g.nodes.map((n) => n.id);
+    expect(ids.some((id) => id.includes("seat:ceo-strategist"))).toBe(true);
+    expect(ids.some((id) => id.includes("seat:business-analyst"))).toBe(true);
+    expect(ids.some((id) => id.includes("1-business-analyst"))).toBe(true);
+    expect(ids.some((id) => id.includes("1-csuite-review"))).toBe(true);
+    expect(ids.some((id) => nKind(g, id) === "skill")).toBe(true);
+    expect(ids.some((id) => id.includes("seat:cmo"))).toBe(false);
+    expect(g.edges.some((e) => e.kind === "spawned")).toBe(true);
+    expect(g.edges.some((e) => e.kind === "related_handoff")).toBe(true);
+    expect(g.edges.some((e) => e.kind === "reviewed_by")).toBe(true);
+    expect(g.edges.some((e) => e.kind === "uses_skill")).toBe(true);
+  });
+});
+
+function nKind(g: ReturnType<typeof buildScopedOrgGraph>, id: string) {
+  return g.nodes.find((n) => n.id === id)?.kind;
+}

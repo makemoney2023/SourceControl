@@ -49,6 +49,10 @@ export type OrgWorkNode = {
   status?: string;
   phase?: string;
   detail?: string;
+  /** Present on handoff nodes — ICs spawned from this packet. */
+  icsSpawned?: string[];
+  /** Present on handoff nodes — skill pack paths used by this packet. */
+  packsUsed?: string[];
   x: number;
   y: number;
 };
@@ -366,8 +370,179 @@ function buildInitiativeGraph(input: ScopedGraphInput): OrgWorkGraph {
   return finishScopedStructureGraph(nodes, edges);
 }
 
-function buildSeatEgoGraph(_input: ScopedGraphInput): OrgWorkGraph {
-  throw new Error("not implemented");
+function slugFromPath(path: string): string {
+  const parts = path.split(/[/\\]/).filter(Boolean);
+  const last = parts[parts.length - 1] || path;
+  if (/^SKILL\.md$/i.test(last) && parts.length >= 2) {
+    return parts[parts.length - 2]!;
+  }
+  return last.replace(/\.md$/i, "");
+}
+
+function pathLabel(path: string): string {
+  const parts = path.split(/[/\\]/).filter(Boolean);
+  return parts[parts.length - 1] || path;
+}
+
+function buildSeatEgoGraph(input: ScopedGraphInput): OrgWorkGraph {
+  const customerSlug = input.customer ?? "";
+  const initiativeSlug = input.initiative ?? "";
+  const seat = input.seat;
+  const matching = input.initiatives.find(
+    (init) => init.customer === customerSlug && init.initiative === initiativeSlug,
+  );
+  const work = matching?.work;
+  if (!work || !seat) {
+    throw new Error("seat and work are required for scope=seat");
+  }
+
+  const initiativeId = `initiative:${customerSlug}/${initiativeSlug}`;
+  const bySlug = rosterBySlug(input.org.roster);
+  const focusSeat = bySlug.get(seat);
+
+  const keep = new Set<string>();
+  keep.add(seatId(seat));
+
+  for (const n of work.nodes) {
+    if (n.slug === seat) keep.add(n.id);
+  }
+
+  const focusHandoffs = work.nodes.filter((n) => n.kind === "handoff" && n.slug === seat);
+  const seatPhases = new Set<string>();
+  const spawnLinks: { managerHandoffId: string; phase: string; ic: string }[] = [];
+
+  for (const h of focusHandoffs) {
+    if (h.phase) seatPhases.add(h.phase);
+    const spawned = h.icsSpawned ?? [];
+    for (const ic of spawned) {
+      keep.add(seatId(ic));
+      if (h.phase) {
+        spawnLinks.push({ managerHandoffId: h.id, phase: h.phase, ic });
+        for (const n of work.nodes) {
+          if (n.kind === "handoff" && n.slug === ic && n.phase === h.phase) {
+            keep.add(n.id);
+          }
+        }
+      }
+    }
+  }
+
+  for (const n of work.nodes) {
+    if (
+      n.kind === "handoff" &&
+      n.detail === "csuite" &&
+      n.phase &&
+      seatPhases.has(n.phase)
+    ) {
+      keep.add(n.id);
+    }
+  }
+
+  for (const phase of seatPhases) {
+    keep.add(phaseId(phase));
+  }
+
+  if (focusSeat?.reportsTo && bySlug.has(focusSeat.reportsTo)) {
+    keep.add(seatId(focusSeat.reportsTo));
+  }
+
+  const skillPaths = new Set<string>();
+  skillPaths.add(`skills/org/positions/${seat}/SKILL.md`);
+  for (const h of focusHandoffs) {
+    for (const p of h.packsUsed ?? []) {
+      if (p) skillPaths.add(p);
+    }
+  }
+
+  const nodes = new Map<string, OrgWorkNode>();
+  const edges: OrgWorkEdge[] = [];
+  const edgeKeys = new Set<string>();
+
+  const addEdge = (kind: OrgWorkEdgeKind, from: string, to: string) => {
+    if (!nodes.has(from) || !nodes.has(to)) return;
+    const id = `${kind}:${from}->${to}`;
+    if (edgeKeys.has(id)) return;
+    edgeKeys.add(id);
+    edges.push({ id, kind, from, to });
+  };
+
+  const ns = (id: string) => `${initiativeId}:${id}`;
+
+  for (const n of work.nodes) {
+    if (!keep.has(n.id)) continue;
+    const nid = ns(n.id);
+    nodes.set(nid, { ...n, id: nid });
+  }
+
+  const focusSeatNode = work.nodes.find((n) => n.id === seatId(seat));
+  const skillBase = focusSeatNode
+    ? { x: focusSeatNode.x + 1.4, y: focusSeatNode.y + 0.8 }
+    : { x: 0, y: 0 };
+  let skillIndex = 0;
+  const skillNodeIds = new Map<string, string>();
+  for (const path of skillPaths) {
+    const sid = `skill:${slugFromPath(path)}`;
+    const nid = ns(sid);
+    if (nodes.has(nid)) {
+      skillNodeIds.set(path, nid);
+      continue;
+    }
+    nodes.set(nid, {
+      id: nid,
+      kind: "skill",
+      label: pathLabel(path),
+      slug: slugFromPath(path),
+      detail: path,
+      x: skillBase.x + skillIndex * 0.4,
+      y: skillBase.y + skillIndex * 0.35,
+    });
+    skillNodeIds.set(path, nid);
+    skillIndex += 1;
+  }
+
+  for (const e of work.edges) {
+    if (!keep.has(e.from) || !keep.has(e.to)) continue;
+    addEdge(e.kind, ns(e.from), ns(e.to));
+  }
+
+  for (const link of spawnLinks) {
+    addEdge("spawned", ns(seatId(seat)), ns(seatId(link.ic)));
+    for (const n of work.nodes) {
+      if (n.kind === "handoff" && n.slug === link.ic && n.phase === link.phase) {
+        addEdge("related_handoff", ns(link.managerHandoffId), ns(n.id));
+      }
+    }
+  }
+
+  const csuiteHandoffs = work.nodes.filter(
+    (n) => n.kind === "handoff" && n.detail === "csuite" && n.phase && seatPhases.has(n.phase),
+  );
+  for (const h of focusHandoffs) {
+    if (h.detail === "csuite") continue;
+    for (const cs of csuiteHandoffs) {
+      if (cs.phase === h.phase) {
+        addEdge("reviewed_by", ns(h.id), ns(cs.id));
+      }
+    }
+  }
+
+  const focusSeatNs = ns(seatId(seat));
+  for (const [, skillNs] of skillNodeIds) {
+    addEdge("uses_skill", focusSeatNs, skillNs);
+  }
+  for (const h of focusHandoffs) {
+    const packs = h.packsUsed ?? [];
+    for (const p of packs) {
+      const skillNs = skillNodeIds.get(p);
+      if (skillNs) addEdge("uses_skill", ns(h.id), skillNs);
+    }
+  }
+
+  if (focusSeat?.reportsTo && bySlug.has(focusSeat.reportsTo)) {
+    addEdge("reports_to", ns(seatId(seat)), ns(seatId(focusSeat.reportsTo)));
+  }
+
+  return finishScopedStructureGraph(nodes, edges);
 }
 
 /**
@@ -615,6 +790,8 @@ export function buildOrgWorkGraph(input: {
       status: h.status || undefined,
       phase: h.phase || undefined,
       detail: h.kind,
+      icsSpawned: h.icsSpawned?.length ? h.icsSpawned : undefined,
+      packsUsed: h.packsUsed?.length ? h.packsUsed : undefined,
       x: pos.x,
       y: pos.y,
     });
