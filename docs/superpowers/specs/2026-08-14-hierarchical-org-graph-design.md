@@ -29,7 +29,7 @@ Obsidian’s graph shows isolated nodes because vault notes have no wiki links. 
 | 3 | Initiative | That initiative, seats, that initiative’s work (clustered by seat) | Seat → level 4 |
 | 4 | Seat | Ego-network around that seat (see Seat edges) | Work node → open note / seat console; scope stays 4 |
 
-Breadcrumb is the only up-navigation (4 → 3 → 2 → 1). The UI and API refuse skips (Agency cannot open an initiative or seat). Knowledge graph always opens at level 1 for the active agency.
+Breadcrumb is the only up-navigation (4 → 3 → 2 → 1). The UI and API refuse skips (Agency cannot open an initiative or seat). Knowledge graph opens at **level 2 for the active customer** so seats and work edges are visible immediately; the breadcrumb still reaches agency (level 1, structure only). Falls back to agency if that customer is unknown.
 
 v1 ships the active agency only (Velocity Agency). There is no holding-company root above agencies. Superpatch uses this same four-level model when it is the active org; that is not a v1 deliverable.
 

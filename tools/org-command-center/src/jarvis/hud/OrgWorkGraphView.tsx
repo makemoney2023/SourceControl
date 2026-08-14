@@ -10,7 +10,7 @@ import {
   type OrgWorkNode,
   type OrgWorkNodeKind,
 } from "../org-work-graph";
-import { labelKindsForScope } from "./graph-labels";
+import { labelKindsForScope, legendForNodes } from "./graph-labels";
 
 const KIND_RADIUS: Record<OrgWorkNodeKind, number> = {
   agency: 18,
@@ -84,6 +84,7 @@ export function OrgWorkGraphView({
   const svgWidth =
     focus.scope === "customer" || focus.scope === "initiative" ? width * 1.4 : width;
   const labelKinds = useMemo(() => labelKindsForScope(focus.scope), [focus.scope]);
+  const legend = useMemo(() => legendForNodes(graph.nodes), [graph.nodes]);
   const visible = useMemo(
     () => graph.nodes.filter((n) => filter[n.kind]),
     [graph.nodes, filter],
@@ -120,7 +121,7 @@ export function OrgWorkGraphView({
           {graph.stats.edgeCount} links
         </p>
         <div className="j-org-work-legend" aria-label="Graph legend">
-          {graph.legend.map((item) => (
+          {legend.map((item) => (
             <label key={item.kind} className="j-org-work-legend-item">
               <input
                 type="checkbox"

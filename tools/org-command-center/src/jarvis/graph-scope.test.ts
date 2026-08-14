@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   breadcrumbTrail,
+  initialGraphFocus,
   initiativeMocTitle,
   nextGraphFocus,
   parseInitiativeSlug,
@@ -94,6 +95,20 @@ describe("parseInitiativeSlug / moc titles", () => {
         uniqueInAgency: true,
       }),
     ).toBe("Sieger Show Secretary");
+  });
+});
+
+describe("initialGraphFocus", () => {
+  it("opens on the active customer so work nodes load", () => {
+    expect(initialGraphFocus("blacksage-kennels")).toEqual({
+      scope: "customer",
+      customer: "blacksage-kennels",
+    });
+  });
+
+  it("falls back to agency when no customer is selected", () => {
+    expect(initialGraphFocus()).toEqual({ scope: "agency" });
+    expect(initialGraphFocus("")).toEqual({ scope: "agency" });
   });
 });
 

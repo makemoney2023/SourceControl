@@ -53,7 +53,7 @@ import { MissionContextBar } from "./hud/MissionContextBar";
 import { WorkspaceSheet } from "./hud/WorkspaceSheet";
 import { FirstRunTour } from "./hud/FirstRunTour";
 import { OrgWorkGraphView } from "./hud/OrgWorkGraphView";
-import { breadcrumbTrail, type GraphFocus } from "./graph-scope";
+import { breadcrumbTrail, initialGraphFocus, type GraphFocus } from "./graph-scope";
 import type { OrgWorkGraph } from "./org-work-graph";
 import "./hud/theme.css";
 import { OrgTheater } from "./scene/OrgTheater";
@@ -812,13 +812,27 @@ export function SituationRoom() {
   }
 
   async function openGraph() {
+    const focus = initialGraphFocus(snap?.activeProject);
     setDrawer("graph");
-    setGraphFocus({ scope: "agency" });
+    setGraphFocus(focus);
     setOrgWorkGraph(null);
     setGraphStatusError(null);
     try {
-      setOrgWorkGraph(await fetchOrgWorkGraph({ scope: "agency" }));
+      setOrgWorkGraph(await fetchOrgWorkGraph(focus));
     } catch (e) {
+      if (focus.scope !== "agency") {
+        setGraphFocus({ scope: "agency" });
+        try {
+          setOrgWorkGraph(await fetchOrgWorkGraph({ scope: "agency" }));
+          setGraphStatusError(null);
+          return;
+        } catch (agencyErr) {
+          setGraphStatusError(
+            agencyErr instanceof Error ? agencyErr.message : String(agencyErr),
+          );
+          return;
+        }
+      }
       setGraphStatusError(e instanceof Error ? e.message : String(e));
     }
   }

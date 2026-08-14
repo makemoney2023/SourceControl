@@ -12,6 +12,12 @@ export type GraphClickNode = {
   slug?: string;
 };
 
+export function initialGraphFocus(customer?: string): GraphFocus {
+  const slug = customer?.trim();
+  if (!slug) return { scope: "agency" };
+  return { scope: "customer", customer: slug };
+}
+
 export function parseInitiativeSlug(
   slug: string,
 ): { customer: string; initiative: string } | null {

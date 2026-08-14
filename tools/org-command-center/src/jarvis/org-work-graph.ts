@@ -81,7 +81,7 @@ export type OrgWorkGraph = {
   };
 };
 
-const KIND_META: Record<OrgWorkNodeKind, { label: string; color: string }> = {
+export const KIND_META: Record<OrgWorkNodeKind, { label: string; color: string }> = {
   agency: { label: "Agency", color: "#e8e6e3" },
   customer: { label: "Customer", color: "#6ec6ff" },
   initiative: { label: "Initiative", color: "#b388ff" },
