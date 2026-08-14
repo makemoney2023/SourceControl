@@ -1,6 +1,6 @@
 # Super Patch Income Stack™ — Animated Deck
 
-Default surface: **3D scroll experience** (`ExperienceShell`) — fifteen full-viewport Omni video layers that cover one another on scroll, with live HTML typography, GSAP ScrollTrigger, and a vertical scene navigator.
+Default surface: **3D scroll experience** (`ExperienceShell`) — twenty full-viewport scenes that cover one another on scroll, with live HTML typography, GSAP ScrollTrigger, and a vertical scene navigator.
 
 Legacy fallback: **fluid document deck** (`DeckShell`) via `?view=legacy` — high-quality concept plates in aspect-aware frames with live type and per-slide GSAP entrances.
 
@@ -12,6 +12,7 @@ Every plate/video is **text-free**. All type — headlines, body, diagram labels
 |-------|----------|
 | Architecture | Layered DOM + CSS perspective + GSAP ScrollTrigger (no Three.js / R3F) |
 | Spec | `docs/superpowers/specs/2026-08-07-income-stack-3d-experience-design.md` |
+| Gap fill | `docs/superpowers/specs/2026-08-14-income-stack-gap-fill-design.md` |
 | Media map | `src/data/experienceMedia.ts` |
 | Landscape | `public/concepts/omni-chain/16x9/*_omni.mp4` |
 | Portrait | `public/concepts/omni-chain/9x16/*_omni.mp4` |
@@ -22,11 +23,12 @@ Every plate/video is **text-free**. All type — headlines, body, diagram labels
 | Performance | Poster LCP; CLS < 0.1; INP < 200 ms; ≤3 attached videos |
 | Baseline | `docs/baselines/3d-experience/2026-08-07-pre-experience.md` |
 
-Premium V2 groups the story into **Foundation (01–06)**, **Ten Income
-Streams (07–14)**, and **Action (15)**. Chrome reports the active chapter and
-continuous scroll progress; every scene resolves its `motionPreset` into a
-rotation-free handoff and dwell beat. Desktop navigation keeps 44 px pointer
-targets with restrained markers, while compact viewports use a scene selector.
+Premium V2 groups the story into **Full Stack (01–07)**, **Ten Income
+Streams (08–16)**, **Momentum (17–19)**, and **Action (20)**.
+Chrome reports the active chapter and continuous scroll progress; every scene
+resolves its `motionPreset` into a rotation-free handoff and dwell beat.
+Desktop navigation keeps 44 px pointer targets with restrained markers, while
+compact viewports use a scene selector.
 
 Production conversion links are opt-in configuration. Both values must be
 valid HTTPS URLs or the affiliate prompts remain hidden—partial pairs and hash
