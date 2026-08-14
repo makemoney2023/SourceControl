@@ -717,6 +717,82 @@
 [data-theme="jarvis"] .j-output-grid { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(280px, 1.4fr); gap: 12px; min-height: 0; }
 [data-theme="jarvis"] .j-async-state { padding: 14px; color: var(--j-muted); font-size: 12px; }
 
+[data-theme="jarvis"] .j-org-work-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+[data-theme="jarvis"] .j-org-work-crumb-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--j-accent);
+  padding: 2px 4px;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+[data-theme="jarvis"] .j-org-work-crumb-btn[data-active="true"] {
+  color: var(--j-ink);
+  text-decoration: none;
+  cursor: default;
+  font-weight: 600;
+}
+[data-theme="jarvis"] .j-org-work-crumb-sep {
+  color: var(--j-muted);
+}
+[data-theme="jarvis"] .j-org-work-viewport {
+  overflow: auto;
+  max-height: 620px;
+}
+[data-theme="jarvis"] .j-org-work-graph-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 220px);
+  gap: 12px;
+  min-height: 0;
+}
+[data-theme="jarvis"] .j-org-work-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+[data-theme="jarvis"] .j-org-work-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--j-muted);
+}
+[data-theme="jarvis"] .j-org-work-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+[data-theme="jarvis"] .j-org-work-edge {
+  stroke: rgba(63, 212, 190, 0.28);
+  stroke-width: 1.2;
+}
+[data-theme="jarvis"] .j-org-work-node {
+  cursor: pointer;
+}
+[data-theme="jarvis"] .j-org-work-label {
+  fill: var(--j-ink);
+  font-size: 10px;
+  pointer-events: none;
+}
+[data-theme="jarvis"] .j-org-work-info {
+  padding: 8px;
+  border: 1px solid var(--j-panel-border);
+  border-radius: 8px;
+  background: rgba(10, 18, 26, 0.6);
+}
+
 [data-theme="jarvis"] .j-loading-shell { grid-template-rows: auto 1fr; height: 100dvh; }
 [data-theme="jarvis"] .j-loading-header { display: grid; gap: 12px; padding: 18px; }
 [data-theme="jarvis"] .j-loading-stage { display: grid; place-items: center; align-content: center; gap: 18px; }

@@ -49,6 +49,7 @@ import { ThreatRail } from "./hud/ThreatRail";
 import { CommandDeck } from "./hud/CommandDeck";
 import { MissionCommandControls } from "./hud/MissionCommandControls";
 import { OrgWorkGraphView } from "./hud/OrgWorkGraphView";
+import { breadcrumbTrail, type GraphFocus } from "./graph-scope";
 import type { OrgWorkGraph } from "./org-work-graph";
 import "./hud/theme.css";
 import { OrgTheater } from "./scene/OrgTheater";
@@ -229,6 +230,7 @@ export function SituationRoom() {
   const previousReportQuestionsRef = useRef<string[]>([]);
   const [digest, setDigest] = useState<CompanyDigest | null>(null);
   const [orgWorkGraph, setOrgWorkGraph] = useState<OrgWorkGraph | null>(null);
+  const [graphFocus, setGraphFocus] = useState<GraphFocus>({ scope: "agency" });
   const [graphStatusError, setGraphStatusError] = useState<string | null>(null);
   const [artifact, setArtifact] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -779,10 +781,22 @@ export function SituationRoom() {
 
   async function openGraph() {
     setDrawer("graph");
+    setGraphFocus({ scope: "agency" });
     setOrgWorkGraph(null);
     setGraphStatusError(null);
     try {
       setOrgWorkGraph(await fetchOrgWorkGraph({ scope: "agency" }));
+    } catch (e) {
+      setGraphStatusError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  async function onGraphFocus(next: GraphFocus) {
+    setGraphFocus(next);
+    setOrgWorkGraph(null);
+    setGraphStatusError(null);
+    try {
+      setOrgWorkGraph(await fetchOrgWorkGraph(next));
     } catch (e) {
       setGraphStatusError(e instanceof Error ? e.message : String(e));
     }
@@ -2033,7 +2047,18 @@ export function SituationRoom() {
           {orgWorkGraph && (
             <OrgWorkGraphView
               graph={orgWorkGraph}
-              onSelectSeat={(slug) => {
+              focus={graphFocus}
+              crumbs={breadcrumbTrail(graphFocus, {
+                orgName,
+                customerName: customers.find((c) => c.slug === graphFocus.customer)?.name,
+                initiativeName: customers
+                  .find((c) => c.slug === graphFocus.customer)
+                  ?.initiatives.find((i) => i.slug === graphFocus.initiative)?.name,
+                seatTitle: snap.org.roster.find((r) => r.slug === graphFocus.seat)?.title,
+              })}
+              onFocus={(next) => void onGraphFocus(next)}
+              onOpenWork={(slug) => {
+                if (!slug) return;
                 setDrawer(null);
                 void openReport(slug);
               }}

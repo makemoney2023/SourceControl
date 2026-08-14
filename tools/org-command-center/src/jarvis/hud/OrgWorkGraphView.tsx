@@ -1,10 +1,16 @@
 import { useMemo, useState } from "react";
 import {
+  nextGraphFocus,
+  type BreadcrumbCrumb,
+  type GraphFocus,
+} from "../graph-scope";
+import {
   orgWorkNodeColor,
   type OrgWorkGraph,
   type OrgWorkNode,
   type OrgWorkNodeKind,
 } from "../org-work-graph";
+import { labelKindsForScope } from "./graph-labels";
 
 const KIND_RADIUS: Record<OrgWorkNodeKind, number> = {
   agency: 18,
@@ -17,6 +23,7 @@ const KIND_RADIUS: Record<OrgWorkNodeKind, number> = {
   run: 7,
   deliverable: 7,
   artifact: 6,
+  skill: 7,
 };
 
 function project(nodes: OrgWorkNode[], width: number, height: number) {
@@ -46,10 +53,16 @@ function project(nodes: OrgWorkNode[], width: number, height: number) {
 
 export function OrgWorkGraphView({
   graph,
-  onSelectSeat,
+  focus,
+  crumbs,
+  onFocus,
+  onOpenWork,
 }: {
   graph: OrgWorkGraph;
-  onSelectSeat?: (slug: string) => void;
+  focus: GraphFocus;
+  crumbs: BreadcrumbCrumb[];
+  onFocus: (focus: GraphFocus) => void;
+  onOpenWork?: (slug?: string) => void;
 }) {
   const [hover, setHover] = useState<OrgWorkNode | null>(null);
   const [filter, setFilter] = useState<Record<OrgWorkNodeKind, boolean>>({
@@ -63,10 +76,14 @@ export function OrgWorkGraphView({
     deliverable: true,
     artifact: true,
     phase: true,
+    skill: true,
   });
 
   const width = 980;
   const height = 620;
+  const svgWidth =
+    focus.scope === "customer" || focus.scope === "initiative" ? width * 1.4 : width;
+  const labelKinds = useMemo(() => labelKindsForScope(focus.scope), [focus.scope]);
   const visible = useMemo(
     () => graph.nodes.filter((n) => filter[n.kind]),
     [graph.nodes, filter],
@@ -81,6 +98,22 @@ export function OrgWorkGraphView({
 
   return (
     <div className="j-org-work-graph">
+      <nav className="j-org-work-breadcrumb" aria-label="Graph scope">
+        {crumbs.map((crumb, i) => (
+          <span key={`${crumb.scope}-${crumb.label}`} className="j-org-work-crumb">
+            {i > 0 ? <span className="j-org-work-crumb-sep" aria-hidden> / </span> : null}
+            <button
+              type="button"
+              className="j-org-work-crumb-btn"
+              data-active={i === crumbs.length - 1 ? "true" : undefined}
+              onClick={() => onFocus(crumb.focus)}
+            >
+              {crumb.label}
+            </button>
+          </span>
+        ))}
+      </nav>
+
       <div className="j-org-work-graph-meta">
         <p className="j-muted" style={{ margin: 0 }}>
           {graph.stats.seatCount} seats · {graph.stats.workCount} work items ·{" "}
@@ -108,60 +141,65 @@ export function OrgWorkGraphView({
       </div>
 
       <div className="j-org-work-graph-body">
-        <svg
-          className="j-org-work-svg"
-          viewBox={`0 0 ${width} ${height}`}
-          role="img"
-          aria-label="Org work graph"
-        >
-          {edges.map((e) => {
-            const a = byId.get(e.from);
-            const b = byId.get(e.to);
-            if (!a || !b) return null;
-            return (
-              <line
-                key={e.id}
-                x1={a.px}
-                y1={a.py}
-                x2={b.px}
-                y2={b.py}
-                className="j-org-work-edge"
-                data-kind={e.kind}
-              />
-            );
-          })}
-          {mapped.map((n) => {
-            const r = KIND_RADIUS[n.kind];
-            const fill = orgWorkNodeColor(n.kind);
-            return (
-              <g
-                key={n.id}
-                transform={`translate(${n.px},${n.py})`}
-                className="j-org-work-node"
-                data-kind={n.kind}
-                onMouseEnter={() => setHover(n)}
-                onMouseLeave={() => setHover(null)}
-                onClick={() => {
-                  if (n.kind === "seat" && n.slug) onSelectSeat?.(n.slug);
-                  else if (n.slug) onSelectSeat?.(n.slug);
-                }}
-              >
-                <circle r={r} fill={fill} />
-                {n.kind === "seat" ? (
-                  <text y={r + 12} textAnchor="middle" className="j-org-work-label">
-                    {n.label}
-                  </text>
-                ) : null}
-              </g>
-            );
-          })}
-        </svg>
+        <div className="j-org-work-viewport">
+          <svg
+            className="j-org-work-svg"
+            width={svgWidth}
+            viewBox={`0 0 ${width} ${height}`}
+            role="img"
+            aria-label="Org work graph"
+          >
+            {edges.map((e) => {
+              const a = byId.get(e.from);
+              const b = byId.get(e.to);
+              if (!a || !b) return null;
+              return (
+                <line
+                  key={e.id}
+                  x1={a.px}
+                  y1={a.py}
+                  x2={b.px}
+                  y2={b.py}
+                  className="j-org-work-edge"
+                  data-kind={e.kind}
+                />
+              );
+            })}
+            {mapped.map((n) => {
+              const r = KIND_RADIUS[n.kind];
+              const fill = orgWorkNodeColor(n.kind);
+              const showLabel = labelKinds.includes(n.kind);
+              return (
+                <g
+                  key={n.id}
+                  transform={`translate(${n.px},${n.py})`}
+                  className="j-org-work-node"
+                  data-kind={n.kind}
+                  onMouseEnter={() => setHover(n)}
+                  onMouseLeave={() => setHover(null)}
+                  onClick={() => {
+                    const next = nextGraphFocus(focus, n);
+                    if (next === "open-work") onOpenWork?.(n.slug);
+                    else if (next) onFocus(next);
+                  }}
+                >
+                  <circle r={r} fill={fill} />
+                  {showLabel ? (
+                    <text y={r + 12} textAnchor="middle" className="j-org-work-label">
+                      {n.label}
+                    </text>
+                  ) : null}
+                </g>
+              );
+            })}
+          </svg>
+        </div>
 
         <aside className="j-org-work-info" aria-live="polite">
           <p className="j-title">Node info</p>
           {!hover ? (
             <p className="j-muted" style={{ fontSize: 12 }}>
-              Hover a node. Click any node to open that seat.
+              Hover a node. Click to drill down; use the breadcrumb to go up.
             </p>
           ) : (
             <div style={{ display: "grid", gap: 6, fontSize: 12 }}>
@@ -171,7 +209,7 @@ export function OrgWorkGraphView({
                 </span>
                 <strong>{hover.label}</strong>
               </p>
-              {hover.slug ? <p className="j-muted" style={{ margin: 0 }}>Seat · {hover.slug}</p> : null}
+              {hover.slug ? <p className="j-muted" style={{ margin: 0 }}>Slug · {hover.slug}</p> : null}
               {hover.phase ? <p className="j-muted" style={{ margin: 0 }}>Phase · {hover.phase}</p> : null}
               {hover.status ? (
                 <p className="j-muted" style={{ margin: 0 }}>
