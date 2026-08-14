@@ -16,8 +16,8 @@ import {
 } from "./slides";
 
 describe("SLIDES", () => {
-  it("has 15 slides with copy fields", () => {
-    expect(SLIDES).toHaveLength(15);
+  it("has 20 slides with copy fields", () => {
+    expect(SLIDES).toHaveLength(20);
     for (const s of SLIDES) {
       expect(s.eyebrow.length).toBeGreaterThan(0);
       expect(s.headline.length).toBeGreaterThan(0);

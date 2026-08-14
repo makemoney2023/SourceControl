@@ -75,7 +75,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
 
 /** Scene indices 7–14 (0-based 6–13): after Foundation scene 6, before closing. */
 function shouldShowAffiliateCta(activeIndex: number): boolean {
-  return activeIndex >= 6 && activeIndex <= 13;
+  return activeIndex >= 7 && activeIndex <= 18;
 }
 
 function ScrollExploreCue({ compact }: { compact: boolean }) {

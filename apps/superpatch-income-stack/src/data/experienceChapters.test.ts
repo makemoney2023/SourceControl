@@ -2,19 +2,15 @@ import { describe, expect, it } from "vitest";
 import * as SlideData from "./slides";
 
 describe("experienceChapters", () => {
-  it("maps every scene into the three approved chapters", () => {
-    expect(typeof SlideData.chapterForSceneIndex).toBe("function");
-    expect(typeof SlideData.formatSceneCounter).toBe("function");
-    if (
-      typeof SlideData.chapterForSceneIndex !== "function" ||
-      typeof SlideData.formatSceneCounter !== "function"
-    ) {
-      return;
-    }
-
-    expect(SlideData.chapterForSceneIndex(0).label).toBe("Foundation");
-    expect(SlideData.chapterForSceneIndex(6).label).toBe("Ten Income Streams");
-    expect(SlideData.chapterForSceneIndex(14).label).toBe("Action");
-    expect(SlideData.formatSceneCounter(6)).toBe("07 / 15");
+  it("maps every scene into the four approved chapters", () => {
+    expect(SlideData.chapterForSceneIndex(0).id).toBe("full-stack");
+    expect(SlideData.chapterForSceneIndex(6).id).toBe("full-stack");
+    expect(SlideData.chapterForSceneIndex(7).id).toBe("ten-income-streams");
+    expect(SlideData.chapterForSceneIndex(15).id).toBe("ten-income-streams");
+    expect(SlideData.chapterForSceneIndex(16).id).toBe("momentum");
+    expect(SlideData.chapterForSceneIndex(18).id).toBe("momentum");
+    expect(SlideData.chapterForSceneIndex(19).id).toBe("action");
+    expect(SlideData.formatSceneCounter(6)).toBe("07 / 20");
+    expect(SlideData.formatSceneCounter(19)).toBe("20 / 20");
   });
 });
