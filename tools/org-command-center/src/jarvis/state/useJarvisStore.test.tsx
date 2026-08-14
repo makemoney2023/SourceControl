@@ -16,11 +16,18 @@ Object.defineProperty(window, "matchMedia", {
   }),
 });
 
-const { setJarvisState, useJarvisSelection, useJarvisStore } = await import("./useJarvisStore");
+const { getJarvisState, setJarvisState, useJarvisSelection, useJarvisStore } = await import("./useJarvisStore");
 
 beforeEach(() => {
   reduced = false;
-  setJarvisState({ selectedSlug: null, reducedMotion: false, drawerOpen: false });
+  setJarvisState({
+    selectedSlug: null,
+    reducedMotion: false,
+    drawerOpen: false,
+    previewWakeSlug: null,
+    followCam: true,
+    orbiting: false,
+  });
 });
 
 afterEach(cleanup);
@@ -55,6 +62,18 @@ describe("useJarvisSelection", () => {
     await user.click(screen.getByRole("button", { name: "Select CTO" }));
 
     expect(screen.getByRole("status", { name: "Selected seat" }).textContent).toBe("cto");
+  });
+});
+
+describe("wake preview and follow-cam", () => {
+  it("stores a wake preview slug and follow-cam flag", () => {
+    expect(getJarvisState().previewWakeSlug).toBe(null);
+    expect(getJarvisState().followCam).toBe(true);
+    expect(getJarvisState().orbiting).toBe(false);
+    setJarvisState({ previewWakeSlug: "cfo", followCam: false, orbiting: true });
+    expect(getJarvisState().previewWakeSlug).toBe("cfo");
+    expect(getJarvisState().followCam).toBe(false);
+    expect(getJarvisState().orbiting).toBe(true);
   });
 });
 

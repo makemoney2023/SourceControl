@@ -12,6 +12,9 @@ export interface JarvisState {
   bloomEnabled: boolean;
   /** True while a Situation Room drawer/modal is open — hide scene Html labels. */
   drawerOpen: boolean;
+  previewWakeSlug: string | null;
+  followCam: boolean;
+  orbiting: boolean;
 }
 
 type Listener = () => void;
@@ -27,6 +30,9 @@ let state: JarvisState = {
     window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   bloomEnabled: false,
   drawerOpen: false,
+  previewWakeSlug: null,
+  followCam: true,
+  orbiting: false,
 };
 
 const listeners = new Set<Listener>();
@@ -91,6 +97,10 @@ export function useJarvisStore() {
           bloomEnabled: getJarvisState().reducedMotion ? false : bloomEnabled,
         }),
       setDrawerOpen: (drawerOpen: boolean) => setJarvisState({ drawerOpen }),
+      setPreviewWakeSlug: (previewWakeSlug: string | null) =>
+        setJarvisState({ previewWakeSlug }),
+      setFollowCam: (followCam: boolean) => setJarvisState({ followCam }),
+      setOrbiting: (orbiting: boolean) => setJarvisState({ orbiting }),
     }),
     [snap],
   );

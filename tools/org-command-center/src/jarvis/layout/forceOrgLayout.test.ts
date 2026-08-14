@@ -88,6 +88,24 @@ describe("deriveCameraLookAt", () => {
     ]);
   });
 
+  it("uses the home eye when nothing is selected", () => {
+    expect(deriveCameraLookAt(new Map(), null, "floor")).toEqual([0, 6.5, 13, 0, 0, 0]);
+  });
+
+  it("dollies to a follow slug when nothing is selected", () => {
+    const layout = new Map([["cfo", { x: 3, y: 0, z: 0 }]]);
+    expect(deriveCameraLookAt(layout, null, "floor", { followSlug: "cfo" })).toEqual([
+      6.4, 4.2, 7, 3, 0, 0,
+    ]);
+  });
+
+  it("looks at a running centroid from the home eye", () => {
+    const look = deriveCameraLookAt(new Map(), null, "floor", {
+      followCentroid: { x: 1, y: 0, z: 2 },
+    });
+    expect(look).toEqual([0, 6.5, 13, 1, 0, 2]);
+  });
+
   it("preserves mode camera positions outside the floor view", () => {
     const layout = new Map<string, Vec3>([
       ["head-of-research", { x: 3, y: 0.5, z: -2 }],
