@@ -78,4 +78,68 @@ describe("GET/POST /api/project", () => {
     });
     expect(bad.status).toBe(404);
   });
+
+  it("lists only the active org and does not 500 on other orgs' customers", async () => {
+    root = mkdtempSync(join(tmpdir(), "occ-proj-"));
+    mkdirSync(join(root, "projects"), { recursive: true });
+    writeFileSync(
+      join(root, "projects/registry.json"),
+      JSON.stringify({
+        version: 2,
+        active: { org: "superpatch", customer: "affiliates", initiative: "main" },
+        orgs: {
+          superpatch: {
+            name: "Superpatch",
+            customers: {
+              affiliates: {
+                name: "Affiliates",
+                initiatives: {
+                  main: {
+                    name: "main",
+                    businessIdea: "docs/orgs/superpatch/customers/affiliates/initiatives/main/business-idea",
+                    memory: "docs/orgs/superpatch/customers/affiliates/initiatives/main/MEMORY",
+                  },
+                },
+              },
+            },
+          },
+          "velocity-agency": {
+            name: "Velocity",
+            customers: {
+              "passive-grid": {
+                name: "Passive Grid",
+                initiatives: {
+                  main: {
+                    name: "main",
+                    businessIdea: "docs/orgs/velocity-agency/customers/passive-grid/initiatives/main/business-idea",
+                    memory: "docs/orgs/velocity-agency/customers/passive-grid/initiatives/main/MEMORY",
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    );
+    const app = new Hono();
+    registerProjectRoutes(app, root);
+    const res = await app.request("/api/project");
+    expect(res.status).toBe(200);
+    const list = await res.json();
+    expect(list.customers.map((c: { slug: string }) => c.slug).toSorted()).toEqual([
+      "affiliates",
+      "passive-grid",
+    ]);
+    const switched = await app.request("/api/project", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ active: "passive-grid" }),
+    });
+    expect(switched.status).toBe(200);
+    expect((await switched.json()).active).toEqual({
+      org: "velocity-agency",
+      customer: "passive-grid",
+      initiative: "main",
+    });
+  });
 });

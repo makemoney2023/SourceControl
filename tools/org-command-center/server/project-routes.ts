@@ -11,7 +11,6 @@ import {
   getInitiative,
   listCustomers,
   listInitiatives,
-  listProjects,
   loadRegistry,
   memoryRel,
   saveRegistry,
@@ -22,10 +21,14 @@ export function registerProjectRoutes(app: Hono, repoRoot: string): void {
     const reg = loadRegistry(repoRoot);
     const orgSlug = reg.active.org;
     const org = reg.orgs[orgSlug];
-    const customers = listCustomers(reg, orgSlug).map((cust) => ({
-      ...cust,
-      initiatives: listInitiatives(reg, cust.slug, orgSlug),
-    }));
+    const customers = Object.entries(reg.orgs).flatMap(([custOrg, orgEntry]) =>
+      listCustomers(reg, custOrg).map((cust) => ({
+        ...cust,
+        org: custOrg,
+        orgName: orgEntry.name,
+        initiatives: listInitiatives(reg, cust.slug, custOrg),
+      })),
+    );
     const activeResolved = getInitiative(reg);
     return c.json({
       version: 2,
@@ -36,14 +39,19 @@ export function registerProjectRoutes(app: Hono, repoRoot: string): void {
       businessIdeaRel: activeResolved.entry.businessIdea,
       memoryRel: activeResolved.entry.memory,
       customers,
-      // Compat flat list (customers)
-      projects: listProjects(repoRoot).map((p) => {
-        const main = getCustomerMain(reg, p.slug, orgSlug);
-        return {
-          ...p,
-          businessIdea: main.entry.businessIdea,
-          memory: main.entry.memory,
-        };
+      // Compat flat list across orgs (Glance / Workspace switchers).
+      projects: customers.map((p) => {
+        try {
+          const main = getCustomerMain(reg, p.slug, p.org);
+          return {
+            slug: p.slug,
+            name: p.name,
+            businessIdea: main.entry.businessIdea,
+            memory: main.entry.memory,
+          };
+        } catch {
+          return { slug: p.slug, name: p.name };
+        }
       }),
     });
   });
@@ -71,15 +79,24 @@ export function registerProjectRoutes(app: Hono, repoRoot: string): void {
     // Legacy: { active: customerSlug } → that customer's main
     if (body.active?.trim() && !body.customer) {
       const slug = body.active.trim();
+      const ownerOrg =
+        Object.entries(reg.orgs).find(([, entry]) => entry.customers[slug])?.[0] ??
+        null;
+      if (!ownerOrg) {
+        return c.json({ ok: false, error: `Unknown project: ${slug}` }, 404);
+      }
       try {
-        getCustomerMain(reg, slug, reg.active.org || DEFAULT_ORG_SLUG);
+        getCustomerMain(reg, slug, ownerOrg);
       } catch {
         return c.json({ ok: false, error: `Unknown project: ${slug}` }, 404);
       }
+      const firstInitiative =
+        Object.keys(reg.orgs[ownerOrg]!.customers[slug]!.initiatives)[0] ??
+        DEFAULT_INITIATIVE_SLUG;
       reg.active = {
-        org: reg.active.org || DEFAULT_ORG_SLUG,
+        org: ownerOrg,
         customer: slug,
-        initiative: DEFAULT_INITIATIVE_SLUG,
+        initiative: firstInitiative,
       };
       saveRegistry(repoRoot, reg);
       return c.json({

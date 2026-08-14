@@ -183,6 +183,8 @@ export type InitiativeListItem = {
 export type CustomerListItem = {
   slug: string;
   name: string;
+  org?: string;
+  orgName?: string;
   initiatives: InitiativeListItem[];
 };
 

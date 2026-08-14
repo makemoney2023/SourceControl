@@ -1,15 +1,44 @@
 import { MeshReflectorMaterial } from "@react-three/drei";
-import { BackSide } from "three";
+import {
+  BackSide,
+  EdgesGeometry,
+  ExtrudeGeometry,
+  Path,
+  Shape,
+  Vector2,
+} from "three";
 import { IC_RING, MANAGER_RING } from "../layout/forceOrgLayout";
 import { deptColor } from "./dept-color";
+import { htmlPointerRecently } from "./html-pointer-guard";
 
 const TABLE_RADIUS = 9;
 const TABLE_HEIGHT = 0.18;
-const DAIS_RADIUS = 0.7;
-const DAIS_HEIGHT = 0.1;
 const TICK_COUNT = 12;
 const IC_BAND_INNER = IC_RING - 0.45;
 const IC_BAND_OUTER = IC_RING + 0.45;
+
+const lipShape = new Shape();
+lipShape.absarc(0, 0, 9.08, 0, Math.PI * 2, false);
+const lipHole = new Path();
+lipHole.absarc(0, 0, 8.86, 0, Math.PI * 2, true);
+lipShape.holes.push(lipHole);
+const lipGeometry = new ExtrudeGeometry(lipShape, {
+  depth: 0.06,
+  bevelEnabled: true,
+  bevelThickness: 0.035,
+  bevelSize: 0.03,
+  bevelSegments: 2,
+});
+const lipEdges = new EdgesGeometry(lipGeometry, 20);
+
+const daisPoints = [
+  new Vector2(0, 0),
+  new Vector2(0.7, 0),
+  new Vector2(0.7, 0.04),
+  new Vector2(0.62, 0.08),
+  new Vector2(0.58, 0.1),
+  new Vector2(0, 0.1),
+];
 
 export function CommandTable({
   depts,
@@ -25,10 +54,11 @@ export function CommandTable({
     <group
       onClick={(event) => {
         event.stopPropagation();
+        if (htmlPointerRecently()) return;
         onClick?.();
       }}
     >
-      <mesh>
+      <mesh raycast={() => null}>
         <sphereGeometry args={[22, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2]} />
         <meshStandardMaterial color="#05070a" roughness={1} side={BackSide} />
       </mesh>
@@ -50,10 +80,21 @@ export function CommandTable({
         />
       </mesh>
 
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-        <torusGeometry args={[TABLE_RADIUS, 0.05, 12, 96]} />
-        <meshStandardMaterial color="#1a2228" roughness={0.6} metalness={0.35} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} raycast={() => null}>
+        <primitive object={lipGeometry} attach="geometry" />
+        <meshPhysicalMaterial
+          color="#1a2228"
+          roughness={0.38}
+          metalness={0.55}
+          clearcoat={0.55}
+          clearcoatRoughness={0.25}
+          envMapIntensity={0.35}
+        />
       </mesh>
+      <lineSegments rotation={[-Math.PI / 2, 0, 0]} raycast={() => null}>
+        <primitive object={lipEdges} attach="geometry" />
+        <lineBasicMaterial color="#2a343c" transparent opacity={0.55} />
+      </lineSegments>
 
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, 0]}>
         <torusGeometry args={[MANAGER_RING, 0.012, 8, 96]} />
@@ -96,9 +137,14 @@ export function CommandTable({
         );
       })}
 
-      <mesh position={[0, DAIS_HEIGHT / 2, 0]}>
-        <cylinderGeometry args={[DAIS_RADIUS, DAIS_RADIUS, DAIS_HEIGHT, 32]} />
-        <meshStandardMaterial color="#161c22" roughness={0.45} metalness={0.55} />
+      <mesh>
+        <latheGeometry args={[daisPoints, 32]} />
+        <meshStandardMaterial
+          color="#161c22"
+          roughness={0.4}
+          metalness={0.62}
+          envMapIntensity={0.35}
+        />
       </mesh>
     </group>
   );

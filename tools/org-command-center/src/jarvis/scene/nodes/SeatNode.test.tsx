@@ -16,6 +16,7 @@ vi.mock("@react-three/drei", () => ({
 vi.mock("../../state/useJarvisStore", () => ({
   useJarvisStore: () => ({
     drawerOpen: false,
+    selectedSlug: null,
   }),
 }));
 
@@ -36,10 +37,43 @@ describe("SeatNode source contract", () => {
         position={{ x: 0, y: 0, z: 0 }}
         status="idle"
         reducedMotion
+        labelText="CFO"
         onSelect={vi.fn()}
       />,
     );
     expect(screen.getByText("CFO")).toBeTruthy();
+  });
+
+  it("unmounts the rest title when labelText is null", () => {
+    render(
+      <SeatNode
+        seat={{ slug: "cfo", title: "CFO", level: "manager", dept: "finance", reportsTo: "ceo-strategist" }}
+        position={{ x: 0, y: 0, z: 0 }}
+        status="idle"
+        reducedMotion
+        labelText={null}
+        onSelect={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "CFO" })).toBeNull();
+  });
+
+  it("selects the seat when the rest title is clicked", async () => {
+    const user = (await import("@testing-library/user-event")).default.setup();
+    const onSelect = vi.fn();
+    render(
+      <SeatNode
+        seat={{ slug: "cfo", title: "CFO", level: "manager", dept: "finance", reportsTo: "ceo-strategist" }}
+        position={{ x: 0, y: 0, z: 0 }}
+        status="idle"
+        reducedMotion
+        labelText="CFO"
+        onSelect={onSelect}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "CFO" }));
+    expect(onSelect).toHaveBeenCalledWith("cfo");
+    expect(seatSource()).toMatch(/markHtmlPointer/);
   });
 
   it("uses rank silhouettes, dept pinstripe, and a status pip — not a status-washed sphere body", () => {
@@ -49,7 +83,8 @@ describe("SeatNode source contract", () => {
     expect(source).toMatch(/0\.36/);
     expect(source).toMatch(/0\.22/);
     expect(source).toMatch(/cylinderGeometry/);
-    expect(source).toMatch(/#1a2228/);
+    expect(source).toMatch(/seat-materials/);
+    expect(source).toMatch(/ceoBody|managerBody|icBody/);
     expect(source).toMatch(/deptColor/);
     expect(source).toMatch(/STATUS_COLOR/);
     expect(source).not.toMatch(/<sphereGeometry args=\{\[radius/);
@@ -98,5 +133,22 @@ describe("OrgTheater seat wiring", () => {
     const source = theaterSource();
     expect(source).toMatch(/previewWakeSlug/);
     expect(source).toMatch(/<SeatNode[\s\S]*previewWakeSlug/);
+  });
+
+  it("refreshes collision labels from useFrame and yields titles on inspect", () => {
+    const source = theaterSource();
+    expect(source).toMatch(/collideSeatLabels/);
+    expect(source).toMatch(/visibleSeatLabels/);
+    expect(source).toMatch(/labelText/);
+    expect(source).toMatch(/100/);
+    expect(source).toMatch(/useFrame/);
+  });
+});
+
+describe("SeatNode inspect yield", () => {
+  it("gates rest titles on labelText and cues or hover cards on no selection", () => {
+    const source = seatSource();
+    expect(source).toMatch(/labelText/);
+    expect(source).toMatch(/selectedSlug\s*==\s*null|selectedSlug\s*===\s*null|!selectedSlug/);
   });
 });

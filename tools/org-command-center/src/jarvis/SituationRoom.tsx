@@ -1070,6 +1070,26 @@ export function SituationRoom() {
           blockedSeats: digest?.blockedSeats ?? [],
           nextAction: m.nextAction,
         })}
+        customerSlug={snap.activeProject}
+        initiativeSlug={activeInitiative}
+        customerOptions={
+          customers.length
+            ? customers.map((c) => ({
+                slug: c.slug,
+                name: c.orgName ? `${c.orgName} · ${c.name || c.slug}` : c.name || c.slug,
+              }))
+            : projects.map((p) => ({ slug: p.slug, name: p.name || p.slug }))
+        }
+        initiativeOptions={
+          (
+            customers.find((c) => c.slug === snap.activeProject)?.initiatives ?? [
+              { slug: activeInitiative, name: initiativeName },
+            ]
+          ).map((i) => ({ slug: i.slug, name: i.name || i.slug }))
+        }
+        switching={switchingProject}
+        onSwitchCustomer={(slug) => void onSwitchProject(slug)}
+        onSwitchInitiative={(slug) => void onSwitchInitiative(slug)}
         focusActive={Boolean(jarvisFocus && !jarvisFocus.slug)}
         commandSlot={
           <CommandDeck

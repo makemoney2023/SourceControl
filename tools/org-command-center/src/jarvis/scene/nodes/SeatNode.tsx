@@ -11,9 +11,9 @@ import {
 } from "../../status";
 import { useJarvisStore } from "../../state/useJarvisStore";
 import { deptColor } from "../dept-color";
+import { markHtmlPointer } from "../html-pointer-guard";
 import { SCENE_HTML_Z_INDEX_RANGE } from "../sceneHtml";
-
-const BODY = "#1a2228";
+import { ceoBody, icBody, managerBody } from "../seat-materials";
 const GAZE_SCALE = 1.02;
 const HOVER_CARD_MS = 150;
 const PREVIEW_DASHES = 12;
@@ -30,6 +30,7 @@ export function SeatNode({
   ghost,
   reducedMotion,
   previewWakeSlug,
+  labelText,
   onSelect,
   onOpenReport,
 }: {
@@ -44,6 +45,7 @@ export function SeatNode({
   ghost?: boolean;
   reducedMotion: boolean;
   previewWakeSlug?: string | null;
+  labelText?: string | null;
   onSelect: (slug: string) => void;
   onOpenReport?: (slug: string) => void;
 }) {
@@ -53,7 +55,9 @@ export function SeatNode({
   const [hovered, setHovered] = useState(false);
   const [showCard, setShowCard] = useState(false);
   const drawerOpen = useJarvisStore().drawerOpen;
-  const showHtmlLabels = !drawerOpen;
+  const selectedSlug = useJarvisStore().selectedSlug;
+  const showRestTitle = !drawerOpen && typeof labelText === "string";
+  const showCuesAndCards = !drawerOpen && selectedSlug == null;
   const color = STATUS_COLOR[status];
   const isCeo = seat.slug === "ceo-strategist";
   const isMgr = seat.level === "manager";
@@ -121,19 +125,16 @@ export function SeatNode({
           clearHoverCard();
         }}
       >
-        <mesh>
+        <mesh visible={false}>
+          <cylinderGeometry args={[isCeo ? 0.48 : isMgr ? 0.38 : 0.28, isCeo ? 0.48 : isMgr ? 0.38 : 0.28, 0.28, 16]} />
+          <meshBasicMaterial transparent opacity={0} />
+        </mesh>
+        <mesh material={isCeo ? ceoBody : isMgr ? managerBody : icBody}>
           {isCeo ? (
             <cylinderGeometry args={[0.38, 0.38, 0.16, 24]} />
           ) : (
             <boxGeometry args={isMgr ? [0.36, 0.16, 0.28] : [0.22, 0.10, 0.18]} />
           )}
-          <meshStandardMaterial
-            color={BODY}
-            roughness={0.45}
-            metalness={0.55}
-            transparent
-            opacity={dimmed ? 0.18 : ghost ? 0.45 : 0.95}
-          />
         </mesh>
 
         <mesh position={[0, pipY, 0]}>
@@ -202,34 +203,42 @@ export function SeatNode({
         </mesh>
       )}
 
-      {showHtmlLabels && (
+      {showRestTitle && (
         <Html
           distanceFactor={14}
           position={[0, titleY, 0]}
           center
+          pointerEvents="auto"
           zIndexRange={SCENE_HTML_Z_INDEX_RANGE}
         >
-          <div
-            className="j-mono"
-            style={{
-              color: "var(--j-text, #e8e6e0)",
-              fontSize: 11,
-              fontWeight: 600,
-              letterSpacing: "0.04em",
-              pointerEvents: "none",
-              whiteSpace: "nowrap",
+          <button
+            type="button"
+            className="j-mono j-seat-label"
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              markHtmlPointer();
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              markHtmlPointer();
+              onSelect(seat.slug);
+            }}
+            onDoubleClick={(e) => {
+              e.stopPropagation();
+              onOpenReport?.(seat.slug);
             }}
           >
-            {seat.title}
-          </div>
+            {labelText}
+          </button>
         </Html>
       )}
 
-      {showHtmlLabels && visual.cue && !dimmed && (
+      {showCuesAndCards && visual.cue && !dimmed && (
         <Html
           distanceFactor={14}
           position={[0, titleY + 0.14, 0]}
           center
+          pointerEvents="none"
           zIndexRange={SCENE_HTML_Z_INDEX_RANGE}
         >
           <div
@@ -239,7 +248,6 @@ export function SeatNode({
               fontSize: 9,
               fontWeight: 700,
               letterSpacing: "0.1em",
-              pointerEvents: "none",
               textShadow: `0 0 8px ${color}`,
               whiteSpace: "nowrap",
             }}
@@ -249,11 +257,12 @@ export function SeatNode({
         </Html>
       )}
 
-      {showHtmlLabels && showPhase && !dimmed && (
+      {showCuesAndCards && showPhase && !dimmed && (
         <Html
           distanceFactor={14}
           position={[0, -bodyH / 2 - 0.16, 0]}
           center
+          pointerEvents="none"
           zIndexRange={SCENE_HTML_Z_INDEX_RANGE}
         >
           <div
@@ -272,11 +281,12 @@ export function SeatNode({
         </Html>
       )}
 
-      {showHtmlLabels && showCard && (
+      {showCuesAndCards && showCard && (
         <Html
           distanceFactor={12}
           position={[0, titleY + 0.36, 0]}
           center
+          pointerEvents="none"
           zIndexRange={SCENE_HTML_Z_INDEX_RANGE}
         >
           <div

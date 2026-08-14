@@ -124,6 +124,26 @@ describe("Jarvis HUD theme contracts", () => {
     expect(themeCss).toContain("animation: none !important");
   });
 
+  it("layers the Seat console above war-table Html labels", () => {
+    expect(themeCss).toMatch(
+      /\.j-theater-stage\s+\.j-map,[\s\S]*?\.j-theater-stage\s+canvas\s*\{[\s\S]*?z-index:\s*0/,
+    );
+    expect(themeCss).toMatch(/\.j-overlay-stack\s*\{[\s\S]*?z-index:\s*50/);
+    expect(themeCss).toMatch(/\.j-seat-console\s*\{[\s\S]*?isolation:\s*isolate/);
+  });
+
+  it("stages the Seat console at 94% mix with a 180ms Expo.out entrance", () => {
+    expect(themeCss).toMatch(
+      /\.j-seat-console\s*\{[\s\S]*?color-mix\(in oklab,\s*var\(--j-panel\)\s*94%,\s*transparent\)/,
+    );
+    expect(themeCss).toMatch(
+      /\.j-stage-overlay-right\s*\{[\s\S]*?180ms[\s\S]*?cubic-bezier\(0\.16,\s*1,\s*0\.3,\s*1\)/,
+    );
+    expect(themeCss).toMatch(
+      /prefers-reduced-motion: reduce[\s\S]*?\.j-stage-overlay-right[\s\S]*?animation:\s*none/,
+    );
+  });
+
   it("layers modal surfaces above the voice control", () => {
     expect(themeCss).toMatch(/\.j-console-drawer\s*\{[\s\S]*?z-index:\s*20000000/);
     expect(themeCss).toMatch(/\.j-console-drawer-content\s*\{[\s\S]*?z-index:\s*20000001/);
