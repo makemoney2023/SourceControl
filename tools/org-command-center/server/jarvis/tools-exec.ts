@@ -110,10 +110,8 @@ import {
   obsidianConfigured,
   syncVaultGraph,
 } from "../obsidian";
-import {
-  buildScopedOrgGraph,
-  type ScopedInitiativeInput,
-} from "../../src/jarvis/org-work-graph";
+import { buildOrgWorkGraph } from "../../src/jarvis/org-work-graph";
+import { loadInitiativeWork } from "../initiative-work";
 
 export { JarvisExecError } from "./errors";
 
@@ -1322,36 +1320,25 @@ export async function executeIntent(
         const orgSlug = reg.active.org;
         const orgEntry = reg.orgs[orgSlug];
         const customers = orgEntry?.customers ?? {};
-        const nameCounts = new Map<string, number>();
-        for (const customer of Object.values(customers)) {
-          for (const init of Object.values(customer.initiatives)) {
-            nameCounts.set(init.name, (nameCounts.get(init.name) ?? 0) + 1);
-          }
-        }
-        const initiatives: ScopedInitiativeInput[] = [];
+        const initiativeWork = [];
         for (const [customerSlug, customer] of Object.entries(customers)) {
           for (const [initSlug, init] of Object.entries(customer.initiatives)) {
-            initiatives.push({
+            const loaded = loadInitiativeWork(repoRoot, init.businessIdea);
+            const work = buildOrgWorkGraph({
+              org: snap.org,
+              handoffs: loaded.handoffs,
+              runs: loaded.runs,
+              inbox: loaded.inbox,
+            });
+            initiativeWork.push({
               customer: customerSlug,
-              customerName: customer.name,
               initiative: initSlug,
-              initiativeName: init.name,
-              uniqueInAgency: (nameCounts.get(init.name) ?? 0) === 1,
+              work,
             });
           }
         }
-        const graph = buildScopedOrgGraph({
-          scope: "agency",
-          orgSlug,
-          orgName: orgEntry?.name ?? orgSlug,
-          org: snap.org,
-          initiatives,
-        });
-        syncVaultGraph(
-          repoRoot,
-          graph,
-          mocMetaFromRegistry(reg, graph, snap.org.roster),
-        );
+        const meta = mocMetaFromRegistry(reg, initiativeWork, snap.org.roster);
+        syncVaultGraph(repoRoot, meta);
       } catch (err) {
         console.warn("[vault-graph-sync]", err);
       }

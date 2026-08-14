@@ -742,10 +742,34 @@ export function createApi(repoRoot = resolveRepoRoot()) {
       initiatives,
     });
 
-    void Promise.resolve(
-      syncVaultGraph(repoRoot, graph, mocMetaFromRegistry(reg, graph, snap.org.roster)),
-    ).catch((err) => {
-      console.warn("[vault-graph-sync]", err);
+    // Schedule vault sync after the response is sent (OCC is Hono, not Next —
+    // no `after()`). setImmediate keeps the handler off the critical path and
+    // loads each initiative's work inside the deferred try/catch so agency-only
+    // opens still refresh seat/skill/phase MOCs and footers.
+    setImmediate(() => {
+      try {
+        const initiativeWork = [];
+        for (const [customerSlug, customer] of Object.entries(customers)) {
+          for (const [initSlug, init] of Object.entries(customer.initiatives)) {
+            const loaded = loadInitiativeWork(repoRoot, init.businessIdea);
+            const work = buildOrgWorkGraph({
+              org: snap.org,
+              handoffs: loaded.handoffs,
+              runs: loaded.runs,
+              inbox: loaded.inbox,
+            });
+            initiativeWork.push({
+              customer: customerSlug,
+              initiative: initSlug,
+              work,
+            });
+          }
+        }
+        const meta = mocMetaFromRegistry(reg, initiativeWork, snap.org.roster);
+        syncVaultGraph(repoRoot, meta);
+      } catch (err) {
+        console.warn("[vault-graph-sync]", err);
+      }
     });
     return c.json({ ok: true, scope: parsed.scope, graph });
   });

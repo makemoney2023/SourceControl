@@ -16,6 +16,7 @@ export {
 export {
   applyFooters,
   mocMetaFromRegistry,
+  phaseMocTitle,
   seatMocTitle,
   syncVaultGraph,
   upsertGraphFooter,
