@@ -31,6 +31,7 @@ export function SeatNode({
   reducedMotion,
   previewWakeSlug,
   onSelect,
+  onOpenReport,
 }: {
   seat: RosterEntry;
   position: Vec3;
@@ -44,6 +45,7 @@ export function SeatNode({
   reducedMotion: boolean;
   previewWakeSlug?: string | null;
   onSelect: (slug: string) => void;
+  onOpenReport?: (slug: string) => void;
 }) {
   const terminal = useRef<Group>(null);
   const ring = useRef<Mesh>(null);
@@ -100,6 +102,11 @@ export function SeatNode({
         onClick={(e) => {
           e.stopPropagation();
           onSelect(seat.slug);
+        }}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          const slug = seat.slug;
+          onOpenReport?.(slug);
         }}
         onPointerEnter={(e) => {
           e.stopPropagation();

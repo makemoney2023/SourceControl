@@ -30,3 +30,14 @@ export function nextNeedsYouSlug(
   const nextIndex = (index + direction + slugs.length) % slugs.length;
   return slugs[nextIndex] ?? null;
 }
+
+export function glanceKeyAction(
+  key: string,
+  opts: { inputFocused: boolean; dialogOpen: boolean },
+): "escape" | "next" | "prev" | null {
+  if (opts.inputFocused || opts.dialogOpen) return null;
+  if (key === "Escape") return "escape";
+  if (key === "j") return "next";
+  if (key === "k") return "prev";
+  return null;
+}

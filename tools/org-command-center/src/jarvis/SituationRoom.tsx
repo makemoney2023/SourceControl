@@ -31,7 +31,6 @@ import {
   type RunRecord,
   type SituationSnapshot,
 } from "../api/client";
-import { formatActivityLine } from "./activity-ui";
 import { handoffFilePath } from "../lib/project-paths";
 import type { CompanyDigest } from "./company-digest";
 import { Textarea } from "../components/ui/textarea";
@@ -48,6 +47,7 @@ import { SeatConsole } from "./hud/SeatConsole";
 import { ThreatRail } from "./hud/ThreatRail";
 import { CommandDeck } from "./hud/CommandDeck";
 import { glanceStatusLine } from "./hud/glance-status";
+import { glanceKeyAction, needsYouSlugs, nextNeedsYouSlug } from "./hud/needs-you";
 import { MissionCommandControls } from "./hud/MissionCommandControls";
 import { MissionContextBar } from "./hud/MissionContextBar";
 import { WorkspaceSheet } from "./hud/WorkspaceSheet";
@@ -472,6 +472,33 @@ export function SituationRoom() {
   useEffect(() => {
     localStorage.setItem("sr-auto-spawn", autoSpawn ? "1" : "0");
   }, [autoSpawn]);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target;
+      const inputFocused =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        (target instanceof HTMLElement && target.isContentEditable);
+      const dialogOpen =
+        drawer != null ||
+        blockerConfirmation != null ||
+        Boolean(document.querySelector('[role="dialog"]'));
+      const action = glanceKeyAction(event.key, { inputFocused, dialogOpen });
+      if (action === "escape") {
+        selectStoreSlug(null);
+        return;
+      }
+      if (action === "next" || action === "prev") {
+        const slugs = needsYouSlugs(digest?.blockedSeats ?? []);
+        const next = nextNeedsYouSlug(slugs, selectedSlug, action === "next" ? 1 : -1);
+        if (next) selectStoreSlug(next);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [blockerConfirmation, digest, drawer, selectedSlug, selectStoreSlug]);
 
   const selected = useMemo(() => {
     if (!snap || !selectedSlug) return null;
@@ -1010,6 +1037,7 @@ export function SituationRoom() {
   const phaseLabel = `Phase ${m.currentPhase} ${m.currentPhaseName}`;
   const phaseOwnerSlug =
     snap.org.phaseOwners.find((p) => p.phase === m.currentPhase)?.managerOwner ?? null;
+  const blockedSeats = digest?.blockedSeats ?? [];
 
   function onReplayTour() {
     // FirstRunTour lands in Task 7.
@@ -1110,140 +1138,53 @@ export function SituationRoom() {
         {showMap && legacySnap ? (
           <div className="j-theater-stage">
             <div className="j-map" style={{ position: "absolute", inset: 0 }}>
-              <OrgTheater snapshot={legacySnap as never} />
+              <OrgTheater snapshot={legacySnap as never} onOpenReport={openReport} />
             </div>
 
-            <div
-              className="j-overlay-stack j-stage-overlay-left"
-            >
-              <ThreatRail
-                blocked={digest?.blockedSeats ?? []}
-                selectedSlug={selectedSlug}
-                resolvingSlug={resolvingSlug}
-                onSelect={(slug) => {
-                  selectStoreSlug(slug);
-                }}
-                onResolve={(slug) => void onResolveBlocker(slug)}
-                onAnswer={(slug) => void openReport(slug, { focusQuestions: true })}
-              />
-              <aside
-                className="j-hud-panel j-hud-grid"
-                style={{ padding: 10, maxHeight: 220, overflow: "auto" }}
+            {blockedSeats.length > 0 && (
+              <div
+                className="j-overlay-stack j-stage-overlay-left"
               >
-                <p className="j-title">C-Suite</p>
-                <div style={{ display: "grid", gap: 6, marginTop: 8 }}>
-                  {snap.csuite.map((card) => (
-                    <div
-                      key={card.slug}
-                      ref={(el) => {
-                        seatCardRefs.current[card.slug] = el;
-                      }}
-                    >
-                      <CSuiteCardView
-                        card={card}
-                        selected={selectedSlug === card.slug}
-                        jarvisFocused={jarvisFocus?.slug === card.slug}
-                        paused={Boolean(snap.agentStates?.[card.slug]?.paused)}
-                        onOpen={() => selectStoreSlug(card.slug)}
-                        onReport={() => void openReport(card.slug)}
-                        onAnswer={() =>
-                          void openReport(card.slug, { focusQuestions: true })
-                        }
-                        onTogglePause={() =>
-                          void onTogglePause(
-                            card.slug,
-                            Boolean(snap.agentStates?.[card.slug]?.paused),
-                          )
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
-              </aside>
-            </div>
-
-            <div
-              className="j-overlay-stack j-stage-overlay-right"
-            >
-              <SeatConsole
-                report={seatReport}
-                work={selectedWork}
-                loading={consoleLoading}
-                resolving={resolvingSlug === selectedSlug}
-                onClose={() => {
-                  selectStoreSlug(null);
-                  loadedReportSlugRef.current = null;
-                  previousReportQuestionsRef.current = [];
-                  setSeatReport(null);
-                  setReportAnswers({});
-                }}
-                onResolveBlocker={(slug) => void onResolveBlocker(slug)}
-                onAnswerQuestions={(slug) =>
-                  void openReport(slug, { focusQuestions: true })
-                }
-                onOpenArtifact={(path) => {
-                  setArtifact(path);
-                  setDrawer("outputs");
-                }}
-              />
-            </div>
-
-            <div
-              className="j-overlay-stack j-stage-overlay-bottom"
-              style={{
-                left: 12,
-                right: 12,
-                bottom: 12,
-                maxHeight: 88,
-                width: "auto",
-              }}
-            >
-              <section
-                className="j-hud-panel j-hud-grid"
-                style={{ padding: "8px 12px", margin: 0 }}
-              >
-                <p className="j-title" style={{ marginBottom: 4 }}>
-                  Activity
-                </p>
-                <ul
-                  style={{
-                    listStyle: "none",
-                    padding: 0,
-                    margin: 0,
-                    maxHeight: 52,
-                    overflow: "auto",
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: 6,
+                <ThreatRail
+                  blocked={blockedSeats}
+                  selectedSlug={selectedSlug}
+                  resolvingSlug={resolvingSlug}
+                  onSelect={(slug) => {
+                    selectStoreSlug(slug);
                   }}
-                >
-                  {(snap.activity ?? []).slice(0, 10).map((ev, i) => (
-                    <li key={`${ev.at}-${ev.type}-${i}`} style={{ fontSize: 11 }}>
-                      {ev.runId ? (
-                        <button
-                          type="button"
-                          className="j-btn"
-                          style={{ padding: "2px 6px", fontSize: 11 }}
-                          onClick={() => {
-                            setSelectedRunId(ev.runId!);
-                            setDrawer("run");
-                          }}
-                        >
-                          {formatActivityLine(ev)}
-                        </button>
-                      ) : (
-                        <span className="j-muted">{formatActivityLine(ev)}</span>
-                      )}
-                    </li>
-                  ))}
-                  {(snap.activity ?? []).length === 0 && (
-                    <li className="j-muted" style={{ fontSize: 11 }}>
-                      No activity yet — Assign and Run next to start.
-                    </li>
-                  )}
-                </ul>
-              </section>
-            </div>
+                  onResolve={(slug) => void onResolveBlocker(slug)}
+                  onAnswer={(slug) => void openReport(slug, { focusQuestions: true })}
+                />
+              </div>
+            )}
+
+            {selectedSlug && (
+              <div
+                className="j-overlay-stack j-stage-overlay-right"
+              >
+                <SeatConsole
+                  report={seatReport}
+                  work={selectedWork}
+                  loading={consoleLoading}
+                  resolving={resolvingSlug === selectedSlug}
+                  onClose={() => {
+                    selectStoreSlug(null);
+                    loadedReportSlugRef.current = null;
+                    previousReportQuestionsRef.current = [];
+                    setSeatReport(null);
+                    setReportAnswers({});
+                  }}
+                  onResolveBlocker={(slug) => void onResolveBlocker(slug)}
+                  onAnswerQuestions={(slug) =>
+                    void openReport(slug, { focusQuestions: true })
+                  }
+                  onOpenArtifact={(path) => {
+                    setArtifact(path);
+                    setDrawer("outputs");
+                  }}
+                />
+              </div>
+            )}
           </div>
         ) : null}
 

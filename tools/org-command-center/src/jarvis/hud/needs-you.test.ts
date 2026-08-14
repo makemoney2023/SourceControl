@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { needsYouSlugs, nextNeedsYouSlug } from "./needs-you";
+import { glanceKeyAction, needsYouSlugs, nextNeedsYouSlug } from "./needs-you";
 
 describe("needsYou", () => {
   it("orders blocked before needs_input and skips other statuses", () => {
@@ -19,5 +19,28 @@ describe("needsYou", () => {
 
   it("starts at the first slug when nothing is selected", () => {
     expect(nextNeedsYouSlug(["cfo", "pm"], null, 1)).toBe("cfo");
+  });
+});
+
+describe("glanceKeyAction", () => {
+  const clear = { inputFocused: false, dialogOpen: false };
+
+  it("returns null when an input is focused or a dialog is open", () => {
+    expect(glanceKeyAction("Escape", { inputFocused: true, dialogOpen: false })).toBeNull();
+    expect(glanceKeyAction("j", { inputFocused: false, dialogOpen: true })).toBeNull();
+    expect(glanceKeyAction("k", { inputFocused: true, dialogOpen: true })).toBeNull();
+  });
+
+  it("maps Escape to escape when the room is free", () => {
+    expect(glanceKeyAction("Escape", clear)).toBe("escape");
+  });
+
+  it("maps j to next and k to prev", () => {
+    expect(glanceKeyAction("j", clear)).toBe("next");
+    expect(glanceKeyAction("k", clear)).toBe("prev");
+  });
+
+  it("ignores other keys", () => {
+    expect(glanceKeyAction("Enter", clear)).toBeNull();
   });
 });

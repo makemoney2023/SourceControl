@@ -29,7 +29,13 @@ import { PhaseBead } from "./nodes/PhaseBead";
 import { SeatNode } from "./nodes/SeatNode";
 import { ReportEdges } from "./ReportEdges";
 
-function TheaterScene({ snapshot }: { snapshot: TheaterSnap }) {
+function TheaterScene({
+  snapshot,
+  onOpenReport,
+}: {
+  snapshot: TheaterSnap;
+  onOpenReport?: (slug: string) => void;
+}) {
   const {
     mode,
     selectedSlug,
@@ -135,6 +141,7 @@ function TheaterScene({ snapshot }: { snapshot: TheaterSnap }) {
             reducedMotion={reducedMotion}
             previewWakeSlug={previewWakeSlug}
             onSelect={selectSlug}
+            onOpenReport={onOpenReport}
           />
         );
       })}
@@ -184,7 +191,13 @@ function TheaterScene({ snapshot }: { snapshot: TheaterSnap }) {
   );
 }
 
-export function OrgTheater({ snapshot }: { snapshot: TheaterSnap }) {
+export function OrgTheater({
+  snapshot,
+  onOpenReport,
+}: {
+  snapshot: TheaterSnap;
+  onOpenReport?: (slug: string) => void;
+}) {
   return (
     <div
       role="region"
@@ -205,7 +218,7 @@ export function OrgTheater({ snapshot }: { snapshot: TheaterSnap }) {
         gl={{ antialias: true, alpha: false }}
       >
         <Suspense fallback={null}>
-          <TheaterScene snapshot={snapshot} />
+          <TheaterScene snapshot={snapshot} onOpenReport={onOpenReport} />
         </Suspense>
       </Canvas>
     </div>
