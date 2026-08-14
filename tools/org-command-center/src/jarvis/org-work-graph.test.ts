@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { HandoffRecord, OrgRegistry } from "../lib/types";
 import type { RunRecord } from "../lib/runs";
-import { buildOrgWorkGraph, buildPortfolioWorkGraph } from "./org-work-graph";
+import { buildOrgWorkGraph, buildPortfolioWorkGraph, buildScopedOrgGraph } from "./org-work-graph";
 
 const org: OrgRegistry = {
   roster: [
@@ -219,6 +219,40 @@ describe("buildPortfolioWorkGraph", () => {
     expect(g.nodes.filter((n) => n.kind === "initiative")).toHaveLength(3);
     expect(g.nodes.some((n) => n.kind === "work_summary" && n.label.includes("2"))).toBe(true);
     expect(g.nodes.some((n) => n.kind === "seat")).toBe(true);
+    expect(g.edges.some((e) => e.kind === "serves")).toBe(true);
+    expect(g.edges.some((e) => e.kind === "owns")).toBe(true);
+  });
+});
+
+describe("buildScopedOrgGraph agency", () => {
+  it("has agency, customers, initiatives, and no work nodes", () => {
+    const g = buildScopedOrgGraph({
+      scope: "agency",
+      orgSlug: "velocity-agency",
+      orgName: "Velocity Agency",
+      org,
+      initiatives: [
+        {
+          customer: "blacksage-kennels",
+          customerName: "Blacksage Kennels",
+          initiative: "main",
+          initiativeName: "Main",
+          uniqueInAgency: false,
+        },
+        {
+          customer: "blacksage-kennels",
+          customerName: "Blacksage Kennels",
+          initiative: "sieger-show-secretary",
+          initiativeName: "Sieger Show Secretary",
+          uniqueInAgency: true,
+        },
+      ],
+    });
+    expect(g.nodes.some((n) => n.kind === "agency")).toBe(true);
+    expect(g.nodes.filter((n) => n.kind === "customer")).toHaveLength(1);
+    expect(g.nodes.filter((n) => n.kind === "initiative")).toHaveLength(2);
+    expect(g.nodes.some((n) => n.kind === "handoff")).toBe(false);
+    expect(g.nodes.some((n) => n.kind === "seat")).toBe(false);
     expect(g.edges.some((e) => e.kind === "serves")).toBe(true);
     expect(g.edges.some((e) => e.kind === "owns")).toBe(true);
   });

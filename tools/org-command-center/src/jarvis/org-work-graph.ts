@@ -1,5 +1,6 @@
 import type { HandoffRecord, OrgRegistry, RosterEntry } from "../lib/types";
 import type { RunRecord } from "../lib/runs";
+import type { GraphScope } from "./graph-scope";
 import { forceOrgLayout } from "./layout/forceOrgLayout";
 
 export type OrgWorkInboxItem = {
@@ -21,7 +22,8 @@ export type OrgWorkNodeKind =
   | "run"
   | "deliverable"
   | "artifact"
-  | "phase";
+  | "phase"
+  | "skill";
 
 export type OrgWorkEdgeKind =
   | "serves"
@@ -33,7 +35,11 @@ export type OrgWorkEdgeKind =
   | "delivered"
   | "produced"
   | "for_phase"
-  | "owns_phase";
+  | "owns_phase"
+  | "spawned"
+  | "related_handoff"
+  | "reviewed_by"
+  | "uses_skill";
 
 export type OrgWorkNode = {
   id: string;
@@ -82,6 +88,7 @@ const KIND_META: Record<OrgWorkNodeKind, { label: string; color: string }> = {
   deliverable: { label: "Deliverable", color: "#c3e88d" },
   artifact: { label: "Artifact", color: "#c792ea" },
   phase: { label: "Phase", color: "#ff9f6b" },
+  skill: { label: "Skill", color: "#e1bee7" },
 };
 
 export type PortfolioInitiativeInput = {
@@ -102,6 +109,127 @@ export type PortfolioGraphInput = {
   orgName: string;
   initiatives: PortfolioInitiativeInput[];
 };
+
+export type ScopedInitiativeInput = {
+  customer: string;
+  customerName: string;
+  initiative: string;
+  initiativeName: string;
+  uniqueInAgency: boolean;
+  work?: OrgWorkGraph;
+};
+
+export type ScopedGraphInput = {
+  scope: GraphScope;
+  orgSlug: string;
+  orgName: string;
+  org: OrgRegistry;
+  customer?: string;
+  initiative?: string;
+  seat?: string;
+  initiatives: ScopedInitiativeInput[];
+};
+
+export function buildScopedOrgGraph(input: ScopedGraphInput): OrgWorkGraph {
+  if (input.scope === "agency") return buildAgencyGraph(input);
+  if (input.scope === "customer") return buildCustomerGraph(input);
+  if (input.scope === "initiative") return buildInitiativeGraph(input);
+  return buildSeatEgoGraph(input);
+}
+
+function buildAgencyGraph(input: ScopedGraphInput): OrgWorkGraph {
+  const nodes = new Map<string, OrgWorkNode>();
+  const edges: OrgWorkEdge[] = [];
+  const edgeKeys = new Set<string>();
+
+  const addEdge = (kind: OrgWorkEdgeKind, from: string, to: string) => {
+    if (!nodes.has(from) || !nodes.has(to)) return;
+    const id = `${kind}:${from}->${to}`;
+    if (edgeKeys.has(id)) return;
+    edgeKeys.add(id);
+    edges.push({ id, kind, from, to });
+  };
+
+  const agencyId = `agency:${input.orgSlug}`;
+  nodes.set(agencyId, {
+    id: agencyId,
+    kind: "agency",
+    label: input.orgName,
+    slug: input.orgSlug,
+    x: 0,
+    y: 0,
+  });
+
+  const byCustomer = new Map<string, ScopedInitiativeInput[]>();
+  for (const init of input.initiatives) {
+    const list = byCustomer.get(init.customer) ?? [];
+    list.push(init);
+    byCustomer.set(init.customer, list);
+  }
+
+  const customerSlugs = [...byCustomer.keys()];
+  customerSlugs.forEach((customerSlug, ci) => {
+    const inits = byCustomer.get(customerSlug)!;
+    const customerName = inits[0]!.customerName;
+    const customerId = `customer:${customerSlug}`;
+    const cx = (ci - (customerSlugs.length - 1) / 2) * 8;
+    nodes.set(customerId, {
+      id: customerId,
+      kind: "customer",
+      label: customerName,
+      slug: customerSlug,
+      x: cx,
+      y: 3,
+    });
+    addEdge("serves", agencyId, customerId);
+
+    inits.forEach((init, ii) => {
+      const initiativeId = `initiative:${init.customer}/${init.initiative}`;
+      const ix = cx + (ii - (inits.length - 1) / 2) * 3.2;
+      const iy = 6;
+      nodes.set(initiativeId, {
+        id: initiativeId,
+        kind: "initiative",
+        label: init.initiativeName,
+        slug: `${init.customer}/${init.initiative}`,
+        x: ix,
+        y: iy,
+      });
+      addEdge("owns", customerId, initiativeId);
+    });
+  });
+
+  const nodeList = [...nodes.values()];
+  const structureCount = nodeList.filter(
+    (n) => n.kind === "agency" || n.kind === "customer" || n.kind === "initiative",
+  ).length;
+  return {
+    nodes: nodeList,
+    edges,
+    legend: (Object.keys(KIND_META) as OrgWorkNodeKind[]).map((kind) => ({
+      kind,
+      label: KIND_META[kind].label,
+      color: KIND_META[kind].color,
+    })),
+    stats: {
+      seatCount: nodeList.filter((n) => n.kind === "seat").length,
+      workCount: nodeList.length - structureCount,
+      edgeCount: edges.length,
+    },
+  };
+}
+
+function buildCustomerGraph(_input: ScopedGraphInput): OrgWorkGraph {
+  throw new Error("not implemented");
+}
+
+function buildInitiativeGraph(_input: ScopedGraphInput): OrgWorkGraph {
+  throw new Error("not implemented");
+}
+
+function buildSeatEgoGraph(_input: ScopedGraphInput): OrgWorkGraph {
+  throw new Error("not implemented");
+}
 
 /**
  * Agency → customers → initiatives → work (active expanded, others summarized).
