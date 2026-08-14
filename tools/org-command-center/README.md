@@ -1,4 +1,4 @@
-# Org Command Center — Situation Room
+# Situation Room
 
 Glance-first war-table: full-bleed 3D command table with a thin **Glance** bar (customer · initiative · phase, threat-first status line, **Run next** as the only filled CTA, Talk / Brief me, **Command deck**, Intelligence, System). **Threat rail** mounts only when seats are blocked (RESOLVE via `blocker.resolve`; **ANSWER** for `needs_input` / open asks opens the Report Q&A form). **Seat console** opens only while a seat is selected. Portfolio CRUD, spend, progress, auto-spawn, OmniVoice, and follow-cam live in **System → Workspace**. First visit plays a four-step tour (`sr-tour-v1`; replay from System). Voice stack is self-hosted LiveKit + Dialogue Control Plane.
 
@@ -8,7 +8,7 @@ Use the compact **Command deck** control in the Glance bar, or `Cmd+K` / `Ctrl+K
 
 ## Situation Room operation
 
-`SituationRoom` is the canonical Jarvis interface. The organization theater remains its defining workspace; **Ops tables** are an optional supplement under **System**. Workspace toggles never permit both views to be hidden. Floor / Assign / Outputs are not 3D modes — Assign and Outputs stay drawers from Intelligence.
+`SituationRoom` is the canonical Jarvis interface. The organization theater remains its defining workspace; **Ops tables** are an optional supplement under **System**. Workspace toggles never permit both views to be hidden. **Assign** and **Outputs** are Intelligence drawers, not separate 3D modes.
 
 - **Glance bar:** identity + one status sentence from `glanceStatusLine` (top threat headline when blocked, otherwise `mission.nextAction`). **Run next** is the only filled button; hover/focus previews the wake seat. Talk / Brief me stay in the bar. Portfolio CRUD is not in the hero.
 - **Command deck:** open from the Glance bar or `Cmd+K` on macOS / `Ctrl+K` elsewhere. The controller remains mounted when Theater is hidden, so the shortcut also works in Ops-only mode. Search seats and active tasks, use arrow keys and Enter to select, and Escape to close. Selection writes through the canonical Jarvis store, highlights the seat, focuses the theater camera, and opens run detail for run-backed tasks.

@@ -128,4 +128,12 @@ describe("Jarvis HUD theme contracts", () => {
       expect(beads.includes(ch)).toBe(false);
     }
   });
+
+  it("operator README uses Situation Room naming only", () => {
+    const readme = readFileSync(new URL("../../../README.md", import.meta.url), "utf8");
+    expect(readme).not.toContain("Org Command Center");
+    expect(readme).not.toContain("Jarvis Theater");
+    expect(readme).not.toMatch(/Floor\s*\/\s*Assign/);
+    expect(readme).not.toMatch(/\bFloor\b[^.\n]{0,40}\bmode/i);
+  });
 });
