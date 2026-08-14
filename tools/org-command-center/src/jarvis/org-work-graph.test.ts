@@ -257,3 +257,70 @@ describe("buildScopedOrgGraph agency", () => {
     expect(g.edges.some((e) => e.kind === "owns")).toBe(true);
   });
 });
+
+describe("buildScopedOrgGraph customer / initiative", () => {
+  it("customer includes work from every initiative under that customer only", () => {
+    const sieger = buildOrgWorkGraph({ org, handoffs: [], runs: [], inbox: [] });
+    const g = buildScopedOrgGraph({
+      scope: "customer",
+      orgSlug: "velocity-agency",
+      orgName: "Velocity Agency",
+      org,
+      customer: "blacksage-kennels",
+      initiatives: [
+        {
+          customer: "blacksage-kennels",
+          customerName: "Blacksage Kennels",
+          initiative: "sieger-show-secretary",
+          initiativeName: "Sieger Show Secretary",
+          uniqueInAgency: true,
+          work: sieger,
+        },
+        {
+          customer: "passive-grid",
+          customerName: "Passive Grid",
+          initiative: "main",
+          initiativeName: "Main",
+          uniqueInAgency: false,
+          work: sieger,
+        },
+      ],
+    });
+    expect(g.nodes.some((n) => n.kind === "seat")).toBe(true);
+    expect(g.nodes.some((n) => n.id.includes("passive-grid"))).toBe(false);
+    expect(g.nodes.some((n) => n.kind === "initiative" && n.slug === "blacksage-kennels/sieger-show-secretary")).toBe(true);
+  });
+
+  it("initiative excludes other initiatives", () => {
+    const work = buildOrgWorkGraph({ org, handoffs: [], runs: [], inbox: [] });
+    const g = buildScopedOrgGraph({
+      scope: "initiative",
+      orgSlug: "velocity-agency",
+      orgName: "Velocity Agency",
+      org,
+      customer: "blacksage-kennels",
+      initiative: "sieger-show-secretary",
+      initiatives: [
+        {
+          customer: "blacksage-kennels",
+          customerName: "Blacksage Kennels",
+          initiative: "sieger-show-secretary",
+          initiativeName: "Sieger Show Secretary",
+          uniqueInAgency: true,
+          work,
+        },
+        {
+          customer: "blacksage-kennels",
+          customerName: "Blacksage Kennels",
+          initiative: "main",
+          initiativeName: "Main",
+          uniqueInAgency: false,
+          work,
+        },
+      ],
+    });
+    expect(g.nodes.filter((n) => n.kind === "initiative")).toHaveLength(1);
+    expect(g.nodes.some((n) => n.slug === "blacksage-kennels/main")).toBe(false);
+    expect(g.nodes.some((n) => n.kind === "seat")).toBe(true);
+  });
+});

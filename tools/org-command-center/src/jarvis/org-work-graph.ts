@@ -219,12 +219,151 @@ function buildAgencyGraph(input: ScopedGraphInput): OrgWorkGraph {
   };
 }
 
-function buildCustomerGraph(_input: ScopedGraphInput): OrgWorkGraph {
-  throw new Error("not implemented");
+function attachNamespacedWork(
+  nodes: Map<string, OrgWorkNode>,
+  addEdge: (kind: OrgWorkEdgeKind, from: string, to: string) => void,
+  initiativeId: string,
+  offsetX: number,
+  offsetY: number,
+  work: OrgWorkGraph,
+) {
+  for (const n of work.nodes) {
+    const nid = `${initiativeId}:${n.id}`;
+    nodes.set(nid, {
+      ...n,
+      id: nid,
+      x: n.x * 0.45 + offsetX,
+      y: n.y * 0.45 + offsetY,
+    });
+    if (n.kind === "seat") {
+      addEdge("runs", initiativeId, nid);
+    }
+  }
+  for (const e of work.edges) {
+    addEdge(e.kind, `${initiativeId}:${e.from}`, `${initiativeId}:${e.to}`);
+  }
 }
 
-function buildInitiativeGraph(_input: ScopedGraphInput): OrgWorkGraph {
-  throw new Error("not implemented");
+function finishScopedStructureGraph(
+  nodes: Map<string, OrgWorkNode>,
+  edges: OrgWorkEdge[],
+): OrgWorkGraph {
+  const nodeList = [...nodes.values()];
+  const structureCount = nodeList.filter(
+    (n) => n.kind === "agency" || n.kind === "customer" || n.kind === "initiative",
+  ).length;
+  return {
+    nodes: nodeList,
+    edges,
+    legend: (Object.keys(KIND_META) as OrgWorkNodeKind[]).map((kind) => ({
+      kind,
+      label: KIND_META[kind].label,
+      color: KIND_META[kind].color,
+    })),
+    stats: {
+      seatCount: nodeList.filter((n) => n.kind === "seat").length,
+      workCount: nodeList.length - structureCount,
+      edgeCount: edges.length,
+    },
+  };
+}
+
+function buildCustomerGraph(input: ScopedGraphInput): OrgWorkGraph {
+  const nodes = new Map<string, OrgWorkNode>();
+  const edges: OrgWorkEdge[] = [];
+  const edgeKeys = new Set<string>();
+
+  const addEdge = (kind: OrgWorkEdgeKind, from: string, to: string) => {
+    if (!nodes.has(from) || !nodes.has(to)) return;
+    const id = `${kind}:${from}->${to}`;
+    if (edgeKeys.has(id)) return;
+    edgeKeys.add(id);
+    edges.push({ id, kind, from, to });
+  };
+
+  const customerSlug = input.customer ?? "";
+  const matching = input.initiatives.filter((init) => init.customer === customerSlug);
+  const customerName = matching[0]?.customerName ?? customerSlug;
+  const customerId = `customer:${customerSlug}`;
+  nodes.set(customerId, {
+    id: customerId,
+    kind: "customer",
+    label: customerName,
+    slug: customerSlug,
+    x: 0,
+    y: 0,
+  });
+
+  matching.forEach((init, ii) => {
+    const initiativeId = `initiative:${init.customer}/${init.initiative}`;
+    const ix = (ii - (matching.length - 1) / 2) * 3.2;
+    const iy = 3;
+    nodes.set(initiativeId, {
+      id: initiativeId,
+      kind: "initiative",
+      label: init.initiativeName,
+      slug: `${init.customer}/${init.initiative}`,
+      x: ix,
+      y: iy,
+    });
+    addEdge("owns", customerId, initiativeId);
+
+    if (init.work) {
+      attachNamespacedWork(nodes, addEdge, initiativeId, ix, iy + 4, init.work);
+    }
+  });
+
+  return finishScopedStructureGraph(nodes, edges);
+}
+
+function buildInitiativeGraph(input: ScopedGraphInput): OrgWorkGraph {
+  const nodes = new Map<string, OrgWorkNode>();
+  const edges: OrgWorkEdge[] = [];
+  const edgeKeys = new Set<string>();
+
+  const addEdge = (kind: OrgWorkEdgeKind, from: string, to: string) => {
+    if (!nodes.has(from) || !nodes.has(to)) return;
+    const id = `${kind}:${from}->${to}`;
+    if (edgeKeys.has(id)) return;
+    edgeKeys.add(id);
+    edges.push({ id, kind, from, to });
+  };
+
+  const customerSlug = input.customer ?? "";
+  const initiativeSlug = input.initiative ?? "";
+  const matching = input.initiatives.filter(
+    (init) => init.customer === customerSlug && init.initiative === initiativeSlug,
+  );
+  const init = matching[0];
+  const customerName = init?.customerName ?? customerSlug;
+  const customerId = `customer:${customerSlug}`;
+  nodes.set(customerId, {
+    id: customerId,
+    kind: "customer",
+    label: customerName,
+    slug: customerSlug,
+    x: 0,
+    y: 0,
+  });
+
+  const initiativeId = `initiative:${customerSlug}/${initiativeSlug}`;
+  const ix = 0;
+  const iy = 3;
+  nodes.set(initiativeId, {
+    id: initiativeId,
+    kind: "initiative",
+    label: init?.initiativeName ?? initiativeSlug,
+    slug: `${customerSlug}/${initiativeSlug}`,
+    x: ix,
+    y: iy,
+  });
+  addEdge("owns", customerId, initiativeId);
+
+  if (init?.work) {
+    attachNamespacedWork(nodes, addEdge, initiativeId, ix, iy + 4, init.work);
+  }
+
+  return finishScopedStructureGraph(nodes, edges);
 }
 
 function buildSeatEgoGraph(_input: ScopedGraphInput): OrgWorkGraph {
