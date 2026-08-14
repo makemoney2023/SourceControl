@@ -38,6 +38,9 @@ vi.mock("../state/useJarvisStore", () => ({
     selectPhase: vi.fn(),
     selectArtifact: vi.fn(),
     setBeam: vi.fn(),
+    followCam: true,
+    orbiting: false,
+    setOrbiting: vi.fn(),
   }),
 }));
 
@@ -60,6 +63,15 @@ describe("OrgTheater accessibility", () => {
     expect(source).not.toMatch(/EffectComposer/);
     expect(source).toMatch(/CommandTable/);
     expect(source).toMatch(/ambientLight/);
+  });
+
+  it("follows running seats only when idle and not orbiting", () => {
+    const source = readFileSync("src/jarvis/scene/OrgTheater.tsx", "utf8");
+    expect(source).toMatch(/followCam && !selectedSlug && !orbiting && !reducedMotion/);
+    expect(source).toMatch(/followSlug/);
+    expect(source).toMatch(/followCentroid/);
+    expect(source).toMatch(/onStart=\{.*setOrbiting\(true\)/);
+    expect(source).toMatch(/setOrbiting\(false\)/);
   });
 
   it("does not let decorative table meshes steal empty-table clicks", () => {

@@ -17,7 +17,7 @@ type TheaterSnap = Pick<
 > & {
   models?: SituationSnapshot["models"];
 };
-import { deriveCameraLookAt, forceOrgLayout } from "../layout/forceOrgLayout";
+import { deriveCameraLookAt, forceOrgLayout, type Vec3 } from "../layout/forceOrgLayout";
 import { indexProductionArtifacts } from "../artifacts";
 import { seatWorkContext } from "../seat-work-context";
 import { useJarvisStore } from "../state/useJarvisStore";
@@ -28,6 +28,34 @@ import { ArtifactPlaque } from "./nodes/ArtifactPlaque";
 import { PhaseBead } from "./nodes/PhaseBead";
 import { SeatNode } from "./nodes/SeatNode";
 import { ReportEdges } from "./ReportEdges";
+
+function runningSeatSlugs(snapshot: TheaterSnap): string[] {
+  const args = {
+    handoffs: snapshot.handoffs,
+    runs: snapshot.runs,
+    sessions: snapshot.sessions,
+    claimedFiles: snapshot.claimed,
+    queueFiles: snapshot.queue,
+    agentStates: snapshot.agentStates,
+  };
+  return snapshot.org.roster
+    .filter((seat) => seatWorkContext(seat.slug, args).status === "running")
+    .map((seat) => seat.slug);
+}
+
+function followCentroidOf(slugs: string[], layout: Map<string, Vec3>): Vec3 | null {
+  const pts = slugs.flatMap((slug) => {
+    const point = layout.get(slug);
+    return point ? [point] : [];
+  });
+  if (!pts.length) return null;
+  const n = pts.length;
+  return {
+    x: pts.reduce((sum, point) => sum + point.x, 0) / n,
+    y: pts.reduce((sum, point) => sum + point.y, 0) / n,
+    z: pts.reduce((sum, point) => sum + point.z, 0) / n,
+  };
+}
 
 function TheaterScene({
   snapshot,
@@ -44,10 +72,13 @@ function TheaterScene({
     beamActive,
     reducedMotion,
     previewWakeSlug,
+    followCam,
+    orbiting,
     selectSlug,
     selectPhase,
     selectArtifact,
     setBeam,
+    setOrbiting,
   } = useJarvisStore();
 
   const layout = useMemo(
@@ -78,12 +109,21 @@ function TheaterScene({
   useEffect(() => {
     const c = controls.current;
     if (!c) return;
+    if (orbiting && !selectedSlug) return;
     const run = async () => {
-      const lookAt = deriveCameraLookAt(layout, selectedSlug, mode);
+      const canFollow = followCam && !selectedSlug && !orbiting && !reducedMotion;
+      const running = canFollow ? runningSeatSlugs(snapshot) : [];
+      const followOpts =
+        running.length === 1
+          ? { followSlug: running[0] }
+          : running.length > 1
+            ? { followCentroid: followCentroidOf(running, layout) }
+            : undefined;
+      const lookAt = deriveCameraLookAt(layout, selectedSlug, mode, followOpts);
       await c.setLookAt(...lookAt, !reducedMotion);
     };
     void run();
-  }, [layout, mode, reducedMotion, selectedSlug]);
+  }, [followCam, layout, mode, orbiting, reducedMotion, selectedSlug, snapshot]);
 
   return (
     <>
@@ -99,7 +139,10 @@ function TheaterScene({
       <directionalLight position={[-4, 3, -6]} intensity={0.35} color="#9bb8c4" />
       <CommandTable
         depts={[...new Set(snapshot.org.roster.map((r) => r.dept))].sort()}
-        onClick={() => selectSlug(null)}
+        onClick={() => {
+          selectSlug(null);
+          setOrbiting(false);
+        }}
       />
 
       <ReportEdges roster={snapshot.org.roster} layout={layout} />
@@ -186,7 +229,13 @@ function TheaterScene({
       )}
 
       <ContactShadows opacity={0.35} scale={16} blur={2.5} far={8} />
-      <CameraControls ref={controls} makeDefault minDistance={4} maxDistance={22} />
+      <CameraControls
+        ref={controls}
+        makeDefault
+        minDistance={4}
+        maxDistance={22}
+        onStart={() => setOrbiting(true)}
+      />
     </>
   );
 }

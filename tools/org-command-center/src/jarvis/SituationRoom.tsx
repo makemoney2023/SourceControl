@@ -51,6 +51,7 @@ import { glanceKeyAction, needsYouSlugs, nextNeedsYouSlug } from "./hud/needs-yo
 import { MissionCommandControls } from "./hud/MissionCommandControls";
 import { MissionContextBar } from "./hud/MissionContextBar";
 import { WorkspaceSheet } from "./hud/WorkspaceSheet";
+import { FirstRunTour } from "./hud/FirstRunTour";
 import { OrgWorkGraphView } from "./hud/OrgWorkGraphView";
 import type { OrgWorkGraph } from "./org-work-graph";
 import "./hud/theme.css";
@@ -217,6 +218,7 @@ export function SituationRoom() {
   const [autoSpawn, setAutoSpawn] = useState(
     () => localStorage.getItem("sr-auto-spawn") === "1",
   );
+  const [tourNonce, setTourNonce] = useState(0);
   const [chatLog, setChatLog] = useState<{ role: "user" | "assistant"; content: string }[]>(
     [],
   );
@@ -474,6 +476,12 @@ export function SituationRoom() {
   }, [autoSpawn]);
 
   useEffect(() => {
+    if (localStorage.getItem("sr-follow-cam") === "0") {
+      setJarvisState({ followCam: false });
+    }
+  }, []);
+
+  useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       const target = event.target;
       const inputFocused =
@@ -487,7 +495,7 @@ export function SituationRoom() {
         Boolean(document.querySelector('[role="dialog"]'));
       const action = glanceKeyAction(event.key, { inputFocused, dialogOpen });
       if (action === "escape") {
-        selectStoreSlug(null);
+        setJarvisState({ selectedSlug: null, orbiting: false });
         return;
       }
       if (action === "next" || action === "prev") {
@@ -1040,7 +1048,18 @@ export function SituationRoom() {
   const blockedSeats = digest?.blockedSeats ?? [];
 
   function onReplayTour() {
-    // FirstRunTour lands in Task 7.
+    localStorage.removeItem("sr-tour-v1");
+    setTourNonce((n) => n + 1);
+  }
+
+  function onToggleFollowCam(next: boolean) {
+    jarvisStore.setFollowCam(next);
+    if (next) localStorage.removeItem("sr-follow-cam");
+    else localStorage.setItem("sr-follow-cam", "0");
+  }
+
+  function onFrameCompany() {
+    setJarvisState({ selectedSlug: null, orbiting: false });
   }
 
   return (
@@ -1068,6 +1087,7 @@ export function SituationRoom() {
             onSelectSeat={(slug) => {
               selectStoreSlug(slug);
             }}
+            onFrameCompany={onFrameCompany}
             onSelectRun={(runId) => {
               setSelectedRunId(runId);
               setDrawer("run");
@@ -1102,12 +1122,18 @@ export function SituationRoom() {
             onRoutines={() => setDrawer("routines")}
             onToggleTheater={onSetTheater}
             onToggleOps={onSetOpsTables}
-            onToggleFollowCam={jarvisStore.setFollowCam}
+            onToggleFollowCam={onToggleFollowCam}
             onReplayTour={onReplayTour}
+            onFrameCompany={onFrameCompany}
             onWorkspace={() => setDrawer("workspace")}
             onRefresh={() => void reload(true)}
           />
         }
+      />
+      <FirstRunTour
+        key={tourNonce}
+        hasThreats={blockedSeats.length > 0}
+        onDone={() => {}}
       />
       {actionError && (
         <p className="j-error" style={{ margin: 0 }}>
@@ -1385,7 +1411,7 @@ export function SituationRoom() {
             onToggleAutoSpawn={setAutoSpawn}
             lastUpdated={lastUpdated}
             followCam={jarvisStore.followCam}
-            onToggleFollowCam={jarvisStore.setFollowCam}
+            onToggleFollowCam={onToggleFollowCam}
             onReplayTour={onReplayTour}
           />
         </Drawer>

@@ -240,6 +240,26 @@ describe("CommandDeck", () => {
     expect(onSelectRun).toHaveBeenCalledWith("run-only");
   });
 
+  it("frames the company from the camera group", async () => {
+    const user = userEvent.setup();
+    const onFrameCompany = vi.fn();
+    render(
+      <div data-theme="jarvis">
+        <CommandDeck
+          roster={roster}
+          tasks={tasks}
+          onSelectSeat={vi.fn()}
+          onSelectRun={vi.fn()}
+          onFrameCompany={onFrameCompany}
+        />
+      </div>,
+    );
+    await user.click(screen.getByRole("button", { name: /command deck/i }));
+    await user.click(screen.getByRole("option", { name: /frame company/i }));
+    expect(onFrameCompany).toHaveBeenCalledOnce();
+    expect(screen.queryByRole("dialog", { name: "Command deck" })).toBeNull();
+  });
+
   it("shows an empty state when no result matches", async () => {
     const user = userEvent.setup();
     renderDeck();

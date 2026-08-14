@@ -19,6 +19,7 @@ export function CommandDeck({
   onSelectSeat,
   onSelectRun,
   onSelectTaskContext,
+  onFrameCompany,
   showTrigger = true,
 }: {
   roster: RosterEntry[];
@@ -27,6 +28,7 @@ export function CommandDeck({
   onSelectSeat: (slug: string) => void;
   onSelectRun: (runId: string) => void;
   onSelectTaskContext?: (task: OrgTask) => void;
+  onFrameCompany?: () => void;
   showTrigger?: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -88,6 +90,19 @@ export function CommandDeck({
         />
         <CommandList>
           <CommandEmpty>No seats or active tasks found.</CommandEmpty>
+          {onFrameCompany ? (
+            <CommandGroup heading="Camera">
+              <CommandItem
+                value="frame company"
+                onSelect={() => {
+                  onFrameCompany();
+                  setOpen(false);
+                }}
+              >
+                Frame company
+              </CommandItem>
+            </CommandGroup>
+          ) : null}
           <CommandGroup heading="Seats">
             {roster.map((seat) => (
               <CommandItem

@@ -35,6 +35,7 @@ type Props = {
   onToggleOps: (next: boolean) => void;
   onToggleFollowCam: (next: boolean) => void;
   onReplayTour: () => void;
+  onFrameCompany?: () => void;
   onWorkspace: () => void;
   onRefresh: () => void;
 };
@@ -113,6 +114,9 @@ export function MissionCommandControls(props: Props) {
               Follow running seats
             </DropdownMenuCheckboxItem>
             <DropdownMenuSeparator />
+            {props.onFrameCompany ? (
+              <DropdownMenuItem onSelect={props.onFrameCompany}>Frame company</DropdownMenuItem>
+            ) : null}
             <DropdownMenuItem onSelect={props.onReplayTour}>Replay tour</DropdownMenuItem>
             <DropdownMenuItem disabled={props.refreshing} onSelect={props.onRefresh}>
               {props.refreshing ? "Refreshing…" : "Refresh"}
