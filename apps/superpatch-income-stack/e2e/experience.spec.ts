@@ -16,9 +16,9 @@ async function jumpToScene(page: Page, sceneNumber: number) {
     const button = desktopNav.getByRole("button", {
       name: new RegExp(`Scene ${sceneNumber}:`),
     });
-    // 20-step rail can keep later markers outside the layout viewport;
-    // DOM click still activates the step without Playwright actionability.
-    await button.evaluate((el: HTMLButtonElement) => el.click());
+    // Scroll the rail list so the marker is in the layout viewport, then real click.
+    await button.scrollIntoViewIfNeeded();
+    await button.click();
     return;
   }
 
@@ -69,17 +69,23 @@ test.describe("Income Stack 3D experience", () => {
   });
 
   test("sound stays off until opt-in", async ({ page }) => {
-    await page.goto("/");
-    const toggle = page.locator("[data-sound-toggle]");
-    await expect(toggle).toHaveAttribute("aria-pressed", "false");
-    await expect(toggle).toHaveAccessibleName("Enable audio");
-    await expect(async () => {
-      if ((await toggle.getAttribute("aria-pressed")) !== "true") {
-        await toggle.click({ force: true });
+    // Parallel workers share GPU with the live WebGL hero; reduced-motion uses the
+    // poster path so the audio chrome click stays actionable without force/retries.
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.addInitScript(() => {
+      try {
+        localStorage.setItem("sp-income-stack:sound:v1", "off");
+      } catch {
+        /* ignore */
       }
-      await expect(toggle).toHaveAttribute("aria-pressed", "true");
-    }).toPass({ timeout: 8_000 });
-    await expect(toggle).toHaveAccessibleName("Mute audio");
+    });
+    await page.goto("/");
+    const toggle = page.getByRole("button", { name: "Enable audio" });
+    await expect(toggle).toHaveAttribute("aria-pressed", "false");
+    await toggle.click();
+    await expect(
+      page.getByRole("button", { name: "Mute audio" }),
+    ).toHaveAttribute("aria-pressed", "true");
   });
 
   test("closing CTAs and disclosure remain available", async ({ page }) => {
@@ -152,7 +158,6 @@ test.describe("Income Stack 3D experience", () => {
   }) => {
     await page.goto("/");
     const results = await new AxeBuilder({ page })
-      .exclude(".hero3d-canvas-host")
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
       .analyze();
     const severe = results.violations.filter((v) =>

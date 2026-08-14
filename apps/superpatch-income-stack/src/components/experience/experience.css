@@ -136,10 +136,15 @@
 
 .experience-navigator {
   position: fixed;
-  top: 50%;
+  top: 1rem;
+  bottom: 1rem;
   right: 0.55rem;
   z-index: 46;
-  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Keep all 20 step targets user-reachable inside short viewports. */
+  overflow: hidden;
 }
 
 .experience-nav-list {
@@ -149,6 +154,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
 
 .experience-nav-step {
@@ -299,7 +308,7 @@
   position: fixed;
   right: calc(var(--scene-rail) + var(--safe-right));
   bottom: calc(1.25rem + var(--safe-bottom));
-  z-index: 46;
+  z-index: 60;
 }
 
 .ui-btn {

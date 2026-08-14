@@ -124,6 +124,9 @@ export function Hero3dCanvas({
       className="hero3d-canvas-host"
       data-hero3d-canvas
       data-quality-tier={config.tier}
+      // Decorative media plane (same contract as scene videos / empty-alt posters);
+      // narrative copy lives in the scene overlay, not the WebGL host.
+      aria-hidden="true"
       style={{ width: "100%", height: "100%", touchAction: "none" }}
       onPointerLeave={() => setFocusIndex(null)}
     >
@@ -151,7 +154,6 @@ export function Hero3dCanvas({
           gl.domElement.style.userSelect = "none";
         }}
         style={{ width: "100%", height: "100%", display: "block" }}
-        aria-label="Income Stack cinematic metallic plate preview"
       >
         <CanvasSizeSync width={width} height={height} />
         <PhotorealStackScene
