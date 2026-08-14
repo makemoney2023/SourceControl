@@ -70,6 +70,7 @@ import {
 } from "../src/jarvis/org-work-graph";
 import { loadInitiativeWork } from "./initiative-work";
 import { parseOrgWorkGraphQuery } from "./org-work-graph-query";
+import { mocMetaFromRegistry, syncVaultGraph } from "./obsidian/vault-graph-sync";
 
 export function createApi(repoRoot = resolveRepoRoot()) {
   loadDotenv({ path: resolve(repoRoot, ".env.local") });
@@ -741,7 +742,11 @@ export function createApi(repoRoot = resolveRepoRoot()) {
       initiatives,
     });
 
-    // sync hooked in Task 11
+    void Promise.resolve(
+      syncVaultGraph(repoRoot, graph, mocMetaFromRegistry(reg, graph, snap.org.roster)),
+    ).catch((err) => {
+      console.warn("[vault-graph-sync]", err);
+    });
     return c.json({ ok: true, scope: parsed.scope, graph });
   });
 

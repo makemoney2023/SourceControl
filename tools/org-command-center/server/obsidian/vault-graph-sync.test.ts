@@ -1,8 +1,13 @@
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { seatMocTitle, upsertGraphFooter, writeGraphMocs } from "./vault-graph-sync";
+import {
+  seatMocTitle,
+  syncVaultGraph,
+  upsertGraphFooter,
+  writeGraphMocs,
+} from "./vault-graph-sync";
 
 describe("writeGraphMocs", () => {
   it("writes agency, customer, initiative, and per-initiative seat notes", () => {
@@ -64,5 +69,57 @@ describe("upsertGraphFooter", () => {
     expect(next).toContain("[[New]]");
     expect(next).not.toContain("[[Old]]");
     expect(next.split("<!-- graph:start -->")).toHaveLength(2);
+  });
+});
+
+describe("syncVaultGraph", () => {
+  it("syncVaultGraph writes MOCs and a footer on an existing handoff", () => {
+    const root = mkdtempSync(join(tmpdir(), "vault-sync-"));
+    const handoffAbs = join(
+      root,
+      "memorybank/org/velocity-agency/c/i/HANDOFFS/1-manager-ceo-strategist.md",
+    );
+    mkdirSync(dirname(handoffAbs), { recursive: true });
+    writeFileSync(handoffAbs, "# Brief\n");
+    const result = syncVaultGraph(
+      root,
+      {
+        nodes: [
+          {
+            id: "handoff:1-manager-ceo-strategist.md",
+            kind: "handoff",
+            label: "1-manager-ceo-strategist",
+            slug: "ceo-strategist",
+            x: 0,
+            y: 0,
+          },
+        ],
+        edges: [],
+        legend: [],
+        stats: { seatCount: 0, workCount: 1, edgeCount: 0 },
+      },
+      {
+        orgName: "Velocity Agency",
+        customers: [
+          {
+            name: "C",
+            initiatives: [
+              {
+                title: "I",
+                seats: [
+                  {
+                    title: "CEO / Strategist",
+                    links: ["[[1-manager-ceo-strategist]]"],
+                    handoffAbsPaths: [handoffAbs],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    );
+    expect(result.footers).toBe(1);
+    expect(readFileSync(handoffAbs, "utf8")).toContain("<!-- graph:start -->");
   });
 });

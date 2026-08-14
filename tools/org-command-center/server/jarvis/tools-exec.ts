@@ -106,8 +106,14 @@ import {
   ensureVentureVaultSourceOfTruth,
   getServerInfo,
   inspectVentureVaultSourceOfTruth,
+  mocMetaFromRegistry,
   obsidianConfigured,
+  syncVaultGraph,
 } from "../obsidian";
+import {
+  buildScopedOrgGraph,
+  type ScopedInitiativeInput,
+} from "../../src/jarvis/org-work-graph";
 
 export { JarvisExecError } from "./errors";
 
@@ -1310,6 +1316,44 @@ export async function executeIntent(
           result.errors.join("; ") || "vault source-of-truth layout failed",
           "validation_error",
         );
+      }
+      try {
+        const reg = loadRegistry(repoRoot);
+        const orgSlug = reg.active.org;
+        const orgEntry = reg.orgs[orgSlug];
+        const customers = orgEntry?.customers ?? {};
+        const nameCounts = new Map<string, number>();
+        for (const customer of Object.values(customers)) {
+          for (const init of Object.values(customer.initiatives)) {
+            nameCounts.set(init.name, (nameCounts.get(init.name) ?? 0) + 1);
+          }
+        }
+        const initiatives: ScopedInitiativeInput[] = [];
+        for (const [customerSlug, customer] of Object.entries(customers)) {
+          for (const [initSlug, init] of Object.entries(customer.initiatives)) {
+            initiatives.push({
+              customer: customerSlug,
+              customerName: customer.name,
+              initiative: initSlug,
+              initiativeName: init.name,
+              uniqueInAgency: (nameCounts.get(init.name) ?? 0) === 1,
+            });
+          }
+        }
+        const graph = buildScopedOrgGraph({
+          scope: "agency",
+          orgSlug,
+          orgName: orgEntry?.name ?? orgSlug,
+          org: snap.org,
+          initiatives,
+        });
+        syncVaultGraph(
+          repoRoot,
+          graph,
+          mocMetaFromRegistry(reg, graph, snap.org.roster),
+        );
+      } catch (err) {
+        console.warn("[vault-graph-sync]", err);
       }
       return result;
     }

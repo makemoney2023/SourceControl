@@ -123,9 +123,9 @@ Example: “Queue phase 2 research” → summary → “Confirm?” → “yes�
 
 ## Knowledge graph (org work + Graphify)
 
-**Situation Room → Intelligence → Knowledge graph** shows the **portfolio org-work graph** by default (`GET /api/org-work-graph?scope=portfolio`): Velocity Agency → customers → initiatives → work (active initiative expanded; others summarized). Use `scope=initiative` for the single-active work graph. Click a seat node to open that seat’s report.
-
-**Graphify** remains a separate local code/docs graph for agents (query instead of grepping). It is not what the Knowledge graph menu renders.
+Knowledge graph (Intelligence menu) is the live org graph: Agency → Customer → Initiative → Seat.
+Obsidian edges come from generated `memorybank/org/GRAPH/` notes plus work-note footers.
+Graphify (`graph.html`) remains the code/AST map for Jarvis `graph.*` tools.
 
 ```bash
 # Install CLI (once)
@@ -199,7 +199,7 @@ graphify cluster-only graphify-out --graph graphify-out/graph.json --no-label
 |------|---------|
 | Mission strip | NOW phase, %, Run next primary, Talk / Brief me, Assign / Outputs, Intelligence / System menus |
 | Theater | Canonical org graph, seat status, command deck, camera focus, threat and seat overlays |
-| Knowledge graph | Intelligence menu → live org-work graph (all roster seats, handoffs, runs, deliverables, artifacts; click opens seat report). Graphify CLI remains for code RAG only. |
+| Knowledge graph | Intelligence menu → live org graph (Agency → Customer → Initiative → Seat). Obsidian edges from `memorybank/org/GRAPH/` MOCs + work-note footers. Graphify CLI remains the code/AST map. |
 | Floating Talk | LiveKit mic session (Ollama + Whisper + Kokoro TTS) |
 | Seat Report / Seat console | Same business-conversation layout for every role: What happened → Why it matters → Next steps → What we need from you → What’s stuck. `/api/seat-report` returns the deterministic brief immediately, then Grok rewrites in the background (UI soft-polls until ready). Voice `seat.report` awaits up to `JARVIS_SEAT_BRIEF_TIMEOUT_MS` (default 4s) then falls back. Model: `JARVIS_SEAT_BRIEF_MODEL` / `JARVIS_BRAIN_MODEL` (default `grok-4.5`) via Cursor SDK + `CURSOR_API_KEY`. Cached by seat + content hash. |
 | Threat rail / company digest | Blocked + needs-input seats show roster **title**, plain status (**Needs your input** / **Stuck**), and humanized reasons (process noise like “peer help: none” dropped). On every `/api/company-digest`, `digest.get`, and `blocker.list`, OCC batch-rewrites threat headlines with the same Cursor Grok path (`JARVIS_THREAT_BRIEF_MODEL` → seat/brain model, default `grok-4.5`), cached by threat content hash. |

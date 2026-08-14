@@ -13,3 +13,11 @@ export {
   vaultRootForInitiative,
   VAULT_IDEA_LINKS,
 } from "./vault-sot";
+export {
+  applyFooters,
+  mocMetaFromRegistry,
+  seatMocTitle,
+  syncVaultGraph,
+  upsertGraphFooter,
+  writeGraphMocs,
+} from "./vault-graph-sync";
