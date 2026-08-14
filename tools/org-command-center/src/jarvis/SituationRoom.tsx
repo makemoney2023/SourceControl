@@ -782,7 +782,7 @@ export function SituationRoom() {
     setOrgWorkGraph(null);
     setGraphStatusError(null);
     try {
-      setOrgWorkGraph(await fetchOrgWorkGraph());
+      setOrgWorkGraph(await fetchOrgWorkGraph({ scope: "agency" }));
     } catch (e) {
       setGraphStatusError(e instanceof Error ? e.message : String(e));
     }

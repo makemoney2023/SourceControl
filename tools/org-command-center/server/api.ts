@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { config as loadDotenv } from "dotenv";
 import { Hono } from "hono";
@@ -65,9 +65,11 @@ import { writeCsuiteDraft } from "./write-csuite-draft";
 import { graphifyStatus } from "./jarvis/graphify-query";
 import {
   buildOrgWorkGraph,
-  buildPortfolioWorkGraph,
-  type PortfolioInitiativeInput,
+  buildScopedOrgGraph,
+  type ScopedInitiativeInput,
 } from "../src/jarvis/org-work-graph";
+import { loadInitiativeWork } from "./initiative-work";
+import { parseOrgWorkGraphQuery } from "./org-work-graph-query";
 
 export function createApi(repoRoot = resolveRepoRoot()) {
   loadDotenv({ path: resolve(repoRoot, ".env.local") });
@@ -659,58 +661,88 @@ export function createApi(repoRoot = resolveRepoRoot()) {
   });
 
   app.get("/api/org-work-graph", (c) => {
-    const scope = (c.req.query("scope") || "portfolio").toLowerCase();
-    const snap = loadSnapshot(repoRoot);
-    const inbox = listReviewInbox(repoRoot);
-    const activeWork = buildOrgWorkGraph({
-      org: snap.org,
-      handoffs: snap.handoffs,
-      runs: snap.runs,
-      inbox,
-    });
-
-    if (scope === "initiative") {
-      return c.json({ ok: true, scope: "initiative", graph: activeWork });
+    const parsed = parseOrgWorkGraphQuery(new URL(c.req.url, "http://local"));
+    if ("error" in parsed) {
+      return c.json({ ok: false, error: parsed.error }, 404);
     }
 
+    const snap = loadSnapshot(repoRoot);
     const reg = loadRegistry(repoRoot);
     const orgSlug = reg.active.org;
     const orgEntry = reg.orgs[orgSlug];
-    const initiatives: PortfolioInitiativeInput[] = [];
-    for (const [customerSlug, customer] of Object.entries(orgEntry?.customers ?? {})) {
+    const customers = orgEntry?.customers ?? {};
+
+    if (parsed.customer && !customers[parsed.customer]) {
+      return c.json({ ok: false, error: "unknown customer" }, 404);
+    }
+    if (parsed.customer && parsed.initiative) {
+      const cust = customers[parsed.customer];
+      if (!cust?.initiatives[parsed.initiative]) {
+        return c.json({ ok: false, error: "unknown initiative" }, 404);
+      }
+    }
+    if (parsed.seat) {
+      const rosterSlugs = new Set(snap.org.roster.map((r) => r.slug));
+      if (!rosterSlugs.has(parsed.seat)) {
+        return c.json({ ok: false, error: "unknown seat" }, 404);
+      }
+    }
+
+    const nameCounts = new Map<string, number>();
+    for (const customer of Object.values(customers)) {
+      for (const init of Object.values(customer.initiatives)) {
+        nameCounts.set(init.name, (nameCounts.get(init.name) ?? 0) + 1);
+      }
+    }
+
+    const needWork =
+      parsed.scope === "customer" ||
+      parsed.scope === "initiative" ||
+      parsed.scope === "seat";
+
+    const initiatives: ScopedInitiativeInput[] = [];
+    for (const [customerSlug, customer] of Object.entries(customers)) {
       for (const [initSlug, init] of Object.entries(customer.initiatives)) {
-        const isActive =
-          reg.active.customer === customerSlug && reg.active.initiative === initSlug;
-        const handoffsAbs = join(repoRoot, init.businessIdea, "HANDOFFS");
-        const runsAbs = join(repoRoot, init.businessIdea, "DISPATCH", "runs");
-        let workCount = 0;
-        if (existsSync(handoffsAbs)) {
-          workCount += readdirSync(handoffsAbs).filter(
-            (n) => n.endsWith(".md") && n !== "README.md",
-          ).length;
-        }
-        if (existsSync(runsAbs)) {
-          workCount += readdirSync(runsAbs).filter((n) => n.endsWith(".json")).length;
+        const uniqueInAgency = (nameCounts.get(init.name) ?? 0) === 1;
+        const loadThis =
+          needWork &&
+          (parsed.scope === "customer"
+            ? customerSlug === parsed.customer
+            : customerSlug === parsed.customer && initSlug === parsed.initiative);
+        let work: ReturnType<typeof buildOrgWorkGraph> | undefined;
+        if (loadThis) {
+          const loaded = loadInitiativeWork(repoRoot, init.businessIdea);
+          work = buildOrgWorkGraph({
+            org: snap.org,
+            handoffs: loaded.handoffs,
+            runs: loaded.runs,
+            inbox: loaded.inbox,
+          });
         }
         initiatives.push({
-          org: orgSlug,
           customer: customerSlug,
           customerName: customer.name,
           initiative: initSlug,
           initiativeName: init.name,
-          isActive,
-          workCount,
-          workGraph: isActive ? activeWork : undefined,
+          uniqueInAgency,
+          work,
         });
       }
     }
 
-    const graph = buildPortfolioWorkGraph({
+    const graph = buildScopedOrgGraph({
+      scope: parsed.scope,
       orgSlug,
       orgName: orgEntry?.name ?? orgSlug,
+      org: snap.org,
+      customer: parsed.customer,
+      initiative: parsed.initiative,
+      seat: parsed.seat,
       initiatives,
     });
-    return c.json({ ok: true, scope: "portfolio", graph });
+
+    // sync hooked in Task 11
+    return c.json({ ok: true, scope: parsed.scope, graph });
   });
 
   app.get("/api/graphify/view", (c) => {
