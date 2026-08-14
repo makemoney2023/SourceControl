@@ -47,7 +47,10 @@ import { QuickAssign } from "./hud/QuickAssign";
 import { SeatConsole } from "./hud/SeatConsole";
 import { ThreatRail } from "./hud/ThreatRail";
 import { CommandDeck } from "./hud/CommandDeck";
+import { glanceStatusLine } from "./hud/glance-status";
 import { MissionCommandControls } from "./hud/MissionCommandControls";
+import { MissionContextBar } from "./hud/MissionContextBar";
+import { WorkspaceSheet } from "./hud/WorkspaceSheet";
 import { OrgWorkGraphView } from "./hud/OrgWorkGraphView";
 import type { OrgWorkGraph } from "./org-work-graph";
 import "./hud/theme.css";
@@ -95,7 +98,8 @@ type Drawer =
   | "routines"
   | "digest"
   | "graph"
-  | "alerts";
+  | "alerts"
+  | "workspace";
 
 type BlockerConfirmationRequest = {
   seat: string;
@@ -995,6 +999,21 @@ export function SituationRoom() {
   }
 
   const m = snap.mission;
+  const customerName =
+    customers.find((c) => c.slug === snap.activeProject)?.name ||
+    projects.find((p) => p.slug === snap.activeProject)?.name ||
+    snap.activeProject;
+  const initiativeName =
+    customers
+      .find((c) => c.slug === snap.activeProject)
+      ?.initiatives.find((i) => i.slug === activeInitiative)?.name || activeInitiative;
+  const phaseLabel = `Phase ${m.currentPhase} ${m.currentPhaseName}`;
+  const phaseOwnerSlug =
+    snap.org.phaseOwners.find((p) => p.phase === m.currentPhase)?.managerOwner ?? null;
+
+  function onReplayTour() {
+    // FirstRunTour lands in Task 7.
+  }
 
   return (
     <div
@@ -1002,385 +1021,77 @@ export function SituationRoom() {
       className="j-shell j-situation-shell"
     >
       <JarvisFocusListener onFocus={onJarvisFocus} />
-      {/* Mission strip */}
-      <header
-        className="j-hud-panel j-hud-grid j-mission-header"
-        data-jarvis-focus={jarvisFocus && !jarvisFocus.slug ? "true" : undefined}
-        style={{ padding: 16 }}
-      >
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 16, justifyItems: "flex-start" }}>
-          <div style={{ flex: "1 1 280px" }}>
-            <p className="j-title">Situation Room</p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 6 }}>
-              <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-agency">
-                Agency
-              </label>
-              <select
-                id="sr-agency"
-                className="j-select"
-                disabled
-                value="velocity-agency"
-                style={{ minWidth: 140 }}
-              >
-                <option value="velocity-agency">{orgName}</option>
-              </select>
-              <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-project">
-                Customer
-              </label>
-              <select
-                id="sr-project"
-                className="j-select"
-                disabled={switchingProject || creatingVenture || creatingInitiative || projects.length === 0}
-                value={snap.activeProject}
-                onChange={(e) => void onSwitchProject(e.target.value)}
-                style={{ minWidth: 160 }}
-              >
-                {(customers.length
-                  ? customers
-                  : projects.length
-                    ? projects
-                    : [{ slug: snap.activeProject, name: snap.activeProject }]
-                ).map((p) => (
-                  <option key={p.slug} value={p.slug}>
-                    {p.name || p.slug}
-                  </option>
-                ))}
-              </select>
-              <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-initiative">
-                Initiative
-              </label>
-              <select
-                id="sr-initiative"
-                className="j-select"
-                disabled={switchingProject || creatingInitiative}
-                value={activeInitiative}
-                onChange={(e) => void onSwitchInitiative(e.target.value)}
-                style={{ minWidth: 140 }}
-              >
-                {(
-                  customers.find((c) => c.slug === snap.activeProject)?.initiatives ?? [
-                    { slug: activeInitiative, name: activeInitiative },
-                  ]
-                ).map((i) => (
-                  <option key={i.slug} value={i.slug}>
-                    {i.name || i.slug}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                className="j-btn"
-                data-active="true"
-                disabled={creatingInitiative || creatingVenture}
-                onClick={() => {
-                  setShowNewInitiative((v) => !v);
-                  setShowNewVenture(false);
-                  setActionError(null);
-                }}
-              >
-                Add initiative
-              </button>
-              <button
-                type="button"
-                className="j-btn"
-                disabled={creatingVenture || creatingInitiative}
-                onClick={() => {
-                  setShowNewVenture((v) => !v);
-                  setShowNewInitiative(false);
-                  setActionError(null);
-                }}
-              >
-                Add customer
-              </button>
-            </div>
-            {showNewInitiative && (
-              <div
-                className="j-glass"
-                style={{
-                  marginBottom: 10,
-                  padding: 12,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 8,
-                  maxWidth: 420,
-                }}
-              >
-                <p className="j-muted" style={{ margin: 0, fontSize: 12 }}>
-                  New initiative under {snap.activeProject}: full workspace + Sources context, then switch.
-                </p>
-                <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-init-name">
-                  Initiative name
-                </label>
-                <input
-                  id="sr-init-name"
-                  className="j-input"
-                  placeholder="e.g. Web Design"
-                  value={newInitiativeName}
-                  onChange={(e) => {
-                    setNewInitiativeName(e.target.value);
-                    if (
-                      !newInitiativeSlug ||
-                      newInitiativeSlug === slugPreviewFromName(newInitiativeName)
-                    ) {
-                      setNewInitiativeSlug(slugPreviewFromName(e.target.value));
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") void onCreateInitiative();
-                  }}
-                />
-                <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-init-slug">
-                  Slug
-                </label>
-                <input
-                  id="sr-init-slug"
-                  className="j-input"
-                  placeholder="web-design"
-                  value={newInitiativeSlug}
-                  onChange={(e) => setNewInitiativeSlug(e.target.value)}
-                />
-                <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-init-context">
-                  Business context (optional)
-                </label>
-                <Textarea
-                  id="sr-init-context"
-                  className="j-textarea"
-                  placeholder="Operator notes — goals, constraints, source material summary…"
-                  rows={3}
-                  value={newInitiativeContext}
-                  onChange={(e) => setNewInitiativeContext(e.target.value)}
-                />
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button
-                    type="button"
-                    className="j-btn"
-                    data-active="true"
-                    disabled={!newInitiativeName.trim() || creatingInitiative}
-                    onClick={() => void onCreateInitiative()}
-                  >
-                    {creatingInitiative ? "Creating…" : "Create & switch"}
-                  </button>
-                  <button
-                    type="button"
-                    className="j-btn"
-                    disabled={creatingInitiative}
-                    onClick={() => {
-                      setShowNewInitiative(false);
-                      setNewInitiativeName("");
-                      setNewInitiativeSlug("");
-                      setNewInitiativeContext("");
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-            {showNewVenture && (
-              <div
-                className="j-glass"
-                style={{
-                  marginBottom: 10,
-                  padding: 12,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 8,
-                  maxWidth: 420,
-                }}
-              >
-                <p className="j-muted" style={{ margin: 0, fontSize: 12 }}>
-                  New customer under {orgName} with a default main initiative.
-                </p>
-                <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-new-name">
-                  Customer name
-                </label>
-                <input
-                  id="sr-new-name"
-                  className="j-input"
-                  placeholder="e.g. Blacksage Kennels"
-                  value={newVentureName}
-                  onChange={(e) => {
-                    setNewVentureName(e.target.value);
-                    if (!newVentureSlug || newVentureSlug === slugPreviewFromName(newVentureName)) {
-                      setNewVentureSlug(slugPreviewFromName(e.target.value));
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") void onCreateCustomer();
-                  }}
-                />
-                <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-new-slug">
-                  Slug (folder id)
-                </label>
-                <input
-                  id="sr-new-slug"
-                  className="j-input"
-                  placeholder="blacksage-kennels"
-                  value={newVentureSlug}
-                  onChange={(e) => setNewVentureSlug(e.target.value)}
-                />
-                <label className="j-muted" style={{ fontSize: 12 }} htmlFor="sr-new-context">
-                  Business context (optional)
-                </label>
-                <Textarea
-                  id="sr-new-context"
-                  className="j-textarea"
-                  placeholder="Operator notes for agents — market, constraints, priorities…"
-                  rows={3}
-                  value={newVentureContext}
-                  onChange={(e) => setNewVentureContext(e.target.value)}
-                />
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button
-                    type="button"
-                    className="j-btn"
-                    data-active="true"
-                    disabled={!newVentureName.trim() || creatingVenture}
-                    onClick={() => void onCreateCustomer()}
-                  >
-                    {creatingVenture ? "Creating…" : "Create & switch"}
-                  </button>
-                  <button
-                    type="button"
-                    className="j-btn"
-                    disabled={creatingVenture}
-                    onClick={() => {
-                      setShowNewVenture(false);
-                      setNewVentureName("");
-                      setNewVentureSlug("");
-                      setNewVentureContext("");
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-            <h1 className="j-heading">{m.idea || "Virtual Company"}</h1>
-            <p style={{ margin: "8px 0 0", fontSize: 28, fontWeight: 600, letterSpacing: "-0.03em" }}>
-              NOW · Phase {m.currentPhase} {m.currentPhaseName}{" "}
-              <span className="j-chip" data-tone={m.currentStatus === "🔄" ? "warn" : "ok"}>
-                {m.currentStatus}
-              </span>
-              {m.hardGate && (
-                <span className="j-chip" data-tone="warn" style={{ marginLeft: 6 }}>
-                  hard gate
-                </span>
-              )}
-            </p>
-            <p className="j-muted" style={{ marginTop: 6 }}>
-              {m.nextAction}
-            </p>
-          </div>
-          <div style={{ width: 88, textAlign: "center" }}>
-            <div
-              style={{
-                width: 88,
-                height: 88,
-                borderRadius: "50%",
-                border: "4px solid var(--j-accent)",
-                display: "grid",
-                placeItems: "center",
-                fontSize: 22,
-                fontWeight: 700,
-              }}
-            >
-              {m.progressPct}%
-            </div>
-            <p className="j-muted" style={{ marginTop: 4 }}>
-              {m.done} done · {m.active} active · {m.pending} pending
-            </p>
-            <p className="j-muted" style={{ marginTop: 2 }}>
-              Spend ${((m.spendUsd ?? 0) as number).toFixed(4)}
-            </p>
-          </div>
-          <div style={{ flex: "1 1 220px" }}>
-            <p className="j-muted">
-              Threats {digest?.blockedSeats.length ?? m.blockerCount}
-              {m.openQuestions[0] ? ` · ${m.openQuestions[0]}` : ""}
-            </p>
-            {m.latestDecision && (
-              <p className="j-muted" style={{ marginTop: 4 }}>
-                Decision: {m.latestDecision}
-              </p>
-            )}
-            {m.parallelTracks.length > 0 && (
-              <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 6 }}>
-                {m.parallelTracks.map((t) => (
-                  <span key={t} className="j-chip">
-                    {t}
-                  </span>
-                ))}
-              </div>
-            )}
-            <MissionCommandControls
-              showTheater={showMap}
-              opsMode={opsMode}
-              alertCount={(snap.alerts ?? []).filter((a) => !a.acked).length}
-              refreshing={refreshing}
-              lastUpdated={lastUpdated}
-              onTalk={requestTalkConnect}
-              onBriefMission={() => void onBriefMe("mission")}
-              onBriefSeat={() => void onBriefMe("seat")}
-              onBriefDigest={() => void onBriefMe("digest")}
-              onAssign={() => setDrawer("assign")}
-              onOutputs={() => setDrawer("outputs")}
-              onLegacyVoice={() => setDrawer("chat")}
-              onRunNext={() => void onSpawn({ wakeReason: "run_next" })}
-              onRuns={() => setDrawer("run")}
-              onDigest={() => void openDigest()}
-              onGraph={() => void openGraph()}
-              onAlerts={() => setDrawer("alerts")}
-              onRoutines={() => setDrawer("routines")}
-              onToggleTheater={onSetTheater}
-              onToggleOps={onSetOpsTables}
-              onRefresh={() => void reload(true)}
-            />
-            {actionError && (
-              <p className="j-error" style={{ marginTop: 8 }}>
-                {actionError}
-              </p>
-            )}
-            <p className="j-muted" style={{ marginTop: 6 }}>
-              OmniVoice {voiceOk == null ? "…" : voiceOk ? "online" : "offline (browser TTS fallback)"}
-              {" · "}
-              <label>
-                <input
-                  type="checkbox"
-                  checked={autoSpawn}
-                  onChange={(e) => setAutoSpawn(e.target.checked)}
-                />{" "}
-                Auto-spawn on queue
-              </label>
-            </p>
-          </div>
-        </div>
-      </header>
+      <MissionContextBar
+        customerName={customerName}
+        initiativeName={initiativeName}
+        phaseLabel={phaseLabel}
+        ideaName={m.idea || "Virtual Company"}
+        statusLine={glanceStatusLine({
+          blockedSeats: digest?.blockedSeats ?? [],
+          nextAction: m.nextAction,
+        })}
+        focusActive={Boolean(jarvisFocus && !jarvisFocus.slug)}
+        commandSlot={
+          <CommandDeck
+            roster={snap.org.roster}
+            tasks={snap.tasks}
+            runs={snap.runs ?? []}
+            showTrigger
+            onSelectSeat={(slug) => {
+              selectStoreSlug(slug);
+            }}
+            onSelectRun={(runId) => {
+              setSelectedRunId(runId);
+              setDrawer("run");
+            }}
+            onSelectTaskContext={(task) => {
+              if (task.phase) jarvisStore.selectPhase(task.phase);
+            }}
+          />
+        }
+        controls={
+          <MissionCommandControls
+            showTheater={showMap}
+            opsMode={opsMode}
+            followCam={jarvisStore.followCam}
+            alertCount={(snap.alerts ?? []).filter((a) => !a.acked).length}
+            refreshing={refreshing}
+            lastUpdated={lastUpdated}
+            onTalk={requestTalkConnect}
+            onBriefMission={() => void onBriefMe("mission")}
+            onBriefSeat={() => void onBriefMe("seat")}
+            onBriefDigest={() => void onBriefMe("digest")}
+            onAssign={() => setDrawer("assign")}
+            onOutputs={() => setDrawer("outputs")}
+            onLegacyVoice={() => setDrawer("chat")}
+            onRunNext={() => void onSpawn({ wakeReason: "run_next" })}
+            onPreviewWakeStart={() => jarvisStore.setPreviewWakeSlug(phaseOwnerSlug)}
+            onPreviewWakeEnd={() => jarvisStore.setPreviewWakeSlug(null)}
+            onRuns={() => setDrawer("run")}
+            onDigest={() => void openDigest()}
+            onGraph={() => void openGraph()}
+            onAlerts={() => setDrawer("alerts")}
+            onRoutines={() => setDrawer("routines")}
+            onToggleTheater={onSetTheater}
+            onToggleOps={onSetOpsTables}
+            onToggleFollowCam={jarvisStore.setFollowCam}
+            onReplayTour={onReplayTour}
+            onWorkspace={() => setDrawer("workspace")}
+            onRefresh={() => void reload(true)}
+          />
+        }
+      />
+      {actionError && (
+        <p className="j-error" style={{ margin: 0 }}>
+          {actionError}
+        </p>
+      )}
 
       {error && (
         <p className="j-glass j-error" style={{ padding: 10, margin: 0 }}>
           {error}
         </p>
       )}
-
-      <div className={showMap ? "j-command-launch" : undefined}>
-        <CommandDeck
-          roster={snap.org.roster}
-          tasks={snap.tasks}
-          runs={snap.runs ?? []}
-          showTrigger={showMap}
-          onSelectSeat={(slug) => {
-            selectStoreSlug(slug);
-          }}
-          onSelectRun={(runId) => {
-            setSelectedRunId(runId);
-            setDrawer("run");
-          }}
-          onSelectTaskContext={(task) => {
-            if (task.phase) jarvisStore.selectPhase(task.phase);
-          }}
-        />
-      </div>
 
       <div
         className="j-workspace-stack"
@@ -1659,6 +1370,86 @@ export function SituationRoom() {
       </div>
 
       {/* Drawers */}
+      {drawer === "workspace" && (
+        <Drawer onClose={() => setDrawer(null)} title="Workspace">
+          <WorkspaceSheet
+            orgName={orgName}
+            activeProject={snap.activeProject}
+            activeInitiative={activeInitiative}
+            customers={customers}
+            projects={projects}
+            switchingProject={switchingProject}
+            creatingVenture={creatingVenture}
+            creatingInitiative={creatingInitiative}
+            showNewVenture={showNewVenture}
+            showNewInitiative={showNewInitiative}
+            newVentureName={newVentureName}
+            newVentureSlug={newVentureSlug}
+            newVentureContext={newVentureContext}
+            newInitiativeName={newInitiativeName}
+            newInitiativeSlug={newInitiativeSlug}
+            newInitiativeContext={newInitiativeContext}
+            onSwitchProject={(slug) => void onSwitchProject(slug)}
+            onSwitchInitiative={(slug) => void onSwitchInitiative(slug)}
+            onToggleNewVenture={() => {
+              setShowNewVenture((v) => !v);
+              setShowNewInitiative(false);
+              setActionError(null);
+            }}
+            onToggleNewInitiative={() => {
+              setShowNewInitiative((v) => !v);
+              setShowNewVenture(false);
+              setActionError(null);
+            }}
+            onNewVentureNameChange={(value) => {
+              setNewVentureName(value);
+              if (!newVentureSlug || newVentureSlug === slugPreviewFromName(newVentureName)) {
+                setNewVentureSlug(slugPreviewFromName(value));
+              }
+            }}
+            onNewVentureSlugChange={setNewVentureSlug}
+            onNewVentureContextChange={setNewVentureContext}
+            onNewInitiativeNameChange={(value) => {
+              setNewInitiativeName(value);
+              if (
+                !newInitiativeSlug ||
+                newInitiativeSlug === slugPreviewFromName(newInitiativeName)
+              ) {
+                setNewInitiativeSlug(slugPreviewFromName(value));
+              }
+            }}
+            onNewInitiativeSlugChange={setNewInitiativeSlug}
+            onNewInitiativeContextChange={setNewInitiativeContext}
+            onCreateCustomer={() => void onCreateCustomer()}
+            onCreateInitiative={() => void onCreateInitiative()}
+            onCancelNewVenture={() => {
+              setShowNewVenture(false);
+              setNewVentureName("");
+              setNewVentureSlug("");
+              setNewVentureContext("");
+            }}
+            onCancelNewInitiative={() => {
+              setShowNewInitiative(false);
+              setNewInitiativeName("");
+              setNewInitiativeSlug("");
+              setNewInitiativeContext("");
+            }}
+            progressPct={m.progressPct}
+            done={m.done}
+            active={m.active}
+            pending={m.pending}
+            spendUsd={(m.spendUsd ?? 0) as number}
+            voiceOk={voiceOk}
+            autoSpawn={autoSpawn}
+            onToggleAutoSpawn={setAutoSpawn}
+            lastUpdated={lastUpdated}
+            followCam={jarvisStore.followCam}
+            onToggleFollowCam={jarvisStore.setFollowCam}
+            onReplayTour={onReplayTour}
+          />
+        </Drawer>
+      )}
+
       {drawer === "assign" && (
         <Drawer onClose={() => setDrawer(null)} title="Assign">
           <QuickAssign

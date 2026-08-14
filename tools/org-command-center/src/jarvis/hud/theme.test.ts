@@ -51,10 +51,11 @@ describe("Jarvis HUD theme contracts", () => {
   });
 
   it("uses form-control classes for the new idea fields", () => {
-    expect(situationRoom).toMatch(/id="sr-project"\s+className="j-select"/);
-    expect(situationRoom).toMatch(/id="sr-new-name"\s+className="j-input"/);
-    expect(situationRoom).toMatch(/id="sr-new-slug"\s+className="j-input"/);
-    expect(situationRoom).toMatch(/id="sr-new-context"\s+className="j-textarea"/);
+    const workspaceSheet = readFileSync(new URL("./WorkspaceSheet.tsx", import.meta.url), "utf8");
+    expect(workspaceSheet).toMatch(/id="sr-project"\s+className="j-select"/);
+    expect(workspaceSheet).toMatch(/id="sr-new-name"\s+className="j-input"/);
+    expect(workspaceSheet).toMatch(/id="sr-new-slug"\s+className="j-input"/);
+    expect(workspaceSheet).toMatch(/id="sr-new-context"\s+className="j-textarea"/);
   });
 
   it("exposes pressed state for workspace view toggles", () => {

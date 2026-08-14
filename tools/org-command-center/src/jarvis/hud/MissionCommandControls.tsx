@@ -12,6 +12,7 @@ import {
 type Props = {
   showTheater: boolean;
   opsMode: boolean;
+  followCam: boolean;
   alertCount: number;
   refreshing: boolean;
   lastUpdated: string | null;
@@ -23,6 +24,8 @@ type Props = {
   onOutputs: () => void;
   onLegacyVoice: () => void;
   onRunNext: () => void;
+  onPreviewWakeStart: () => void;
+  onPreviewWakeEnd: () => void;
   onRuns: () => void;
   onDigest: () => void;
   onGraph: () => void;
@@ -30,6 +33,9 @@ type Props = {
   onRoutines: () => void;
   onToggleTheater: (next: boolean) => void;
   onToggleOps: (next: boolean) => void;
+  onToggleFollowCam: (next: boolean) => void;
+  onReplayTour: () => void;
+  onWorkspace: () => void;
   onRefresh: () => void;
 };
 
@@ -37,11 +43,17 @@ export function MissionCommandControls(props: Props) {
   return (
     <div className="j-mission-controls">
       <div className="j-primary-actions">
-        <button type="button" className="j-btn j-btn-primary" onClick={props.onRunNext}>
+        <button
+          type="button"
+          className="j-btn j-btn-primary"
+          onClick={props.onRunNext}
+          onMouseEnter={props.onPreviewWakeStart}
+          onMouseLeave={props.onPreviewWakeEnd}
+          onFocus={props.onPreviewWakeStart}
+          onBlur={props.onPreviewWakeEnd}
+        >
           Run next
         </button>
-        <button type="button" className="j-btn" onClick={props.onAssign}>Assign</button>
-        <button type="button" className="j-btn" onClick={props.onOutputs}>Outputs</button>
       </div>
 
       <div className="j-voice-cluster" role="group" aria-label="Voice and intelligence">
@@ -57,6 +69,9 @@ export function MissionCommandControls(props: Props) {
           </DropdownMenuTrigger>
           <DropdownMenuContent aria-label="Intelligence controls">
             <DropdownMenuLabel>Intelligence</DropdownMenuLabel>
+            <DropdownMenuItem onSelect={props.onAssign}>Assign</DropdownMenuItem>
+            <DropdownMenuItem onSelect={props.onOutputs}>Outputs</DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={props.onBriefSeat}>Brief CEO</DropdownMenuItem>
             <DropdownMenuItem onSelect={props.onBriefDigest}>Brief digest</DropdownMenuItem>
             <DropdownMenuItem onSelect={props.onLegacyVoice}>Legacy voice</DropdownMenuItem>
@@ -73,6 +88,7 @@ export function MissionCommandControls(props: Props) {
           </DropdownMenuTrigger>
           <DropdownMenuContent aria-label="System controls">
             <DropdownMenuLabel>Workspace</DropdownMenuLabel>
+            <DropdownMenuItem onSelect={props.onWorkspace}>Workspace…</DropdownMenuItem>
             <DropdownMenuItem onSelect={props.onRuns}>Runs</DropdownMenuItem>
             <DropdownMenuItem onSelect={props.onRoutines}>Routines</DropdownMenuItem>
             <DropdownMenuCheckboxItem
@@ -89,7 +105,15 @@ export function MissionCommandControls(props: Props) {
             >
               Ops tables
             </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              aria-label="Follow running seats"
+              checked={props.followCam}
+              onCheckedChange={props.onToggleFollowCam}
+            >
+              Follow running seats
+            </DropdownMenuCheckboxItem>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={props.onReplayTour}>Replay tour</DropdownMenuItem>
             <DropdownMenuItem disabled={props.refreshing} onSelect={props.onRefresh}>
               {props.refreshing ? "Refreshing…" : "Refresh"}
             </DropdownMenuItem>

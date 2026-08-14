@@ -9,6 +9,7 @@
   --j-warn: #e0a04a;
   --j-danger: #e06060;
   --j-ok: #4ecf8a;
+  --j-radius: 4px;
   --j-glass: blur(14px);
   --color-bg: var(--j-bg);
   --color-surface: var(--j-panel);
@@ -74,7 +75,7 @@
   border: 1px solid var(--j-panel-border);
   background: rgba(63, 212, 190, 0.12);
   color: var(--j-ink);
-  border-radius: 6px;
+  border-radius: var(--j-radius);
   padding: 6px 12px;
   font-size: 12px;
   cursor: pointer;
@@ -264,7 +265,7 @@
   border: 1px solid var(--j-panel-border);
   backdrop-filter: var(--j-glass);
   -webkit-backdrop-filter: var(--j-glass);
-  border-radius: 2px;
+  border-radius: var(--j-radius);
   box-shadow:
     0 0 28px rgba(63, 212, 190, 0.1),
     inset 0 0 0 1px rgba(63, 212, 190, 0.08);
@@ -675,12 +676,45 @@
 
 [data-theme="jarvis"].j-situation-shell {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
   height: 100dvh;
 }
 
-[data-theme="jarvis"] .j-mission-header { padding: 16px; }
-[data-theme="jarvis"] .j-mission-controls { display: grid; gap: 8px; margin-top: 12px; }
+[data-theme="jarvis"] .j-mission-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+}
+[data-theme="jarvis"] .j-mission-header .j-heading { font-size: 16px; margin: 2px 0 0; }
+[data-theme="jarvis"] .j-glance-identity { min-width: min(280px, 100%); }
+[data-theme="jarvis"] .j-glance-meta,
+[data-theme="jarvis"] .j-glance-status { margin: 4px 0 0; }
+[data-theme="jarvis"] .j-glance-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+[data-theme="jarvis"] .j-mission-controls { display: grid; gap: 8px; margin-top: 0; }
+[data-theme="jarvis"] .j-workspace-sheet { display: grid; gap: 18px; }
+[data-theme="jarvis"] .j-workspace-section { display: grid; gap: 10px; }
+[data-theme="jarvis"] .j-workspace-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+[data-theme="jarvis"] .j-workspace-form { display: grid; gap: 8px; padding: 12px; }
+[data-theme="jarvis"] .j-workspace-form > .j-muted { margin: 0; }
+[data-theme="jarvis"] .j-workspace-form-actions { display: flex; gap: 8px; }
+[data-theme="jarvis"] .j-workspace-status { display: grid; gap: 6px; margin: 0; }
+[data-theme="jarvis"] .j-workspace-status > div { display: grid; grid-template-columns: 88px 1fr; gap: 8px; }
+[data-theme="jarvis"] .j-workspace-status dt { color: var(--j-muted); font-size: 12px; }
+[data-theme="jarvis"] .j-workspace-status dd { margin: 0; }
+[data-theme="jarvis"] .j-workspace-check { display: flex; align-items: center; gap: 8px; font-size: 12px; }
 [data-theme="jarvis"] .j-primary-actions,
 [data-theme="jarvis"] .j-voice-cluster,
 [data-theme="jarvis"] .j-control-menus { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -766,8 +800,7 @@
     grid-template-rows: minmax(620px, auto) !important;
   }
   [data-theme="jarvis"] .j-mission-header { padding: 10px; overflow: visible; }
-  [data-theme="jarvis"] .j-mission-header > div { gap: 9px !important; }
-  [data-theme="jarvis"] .j-mission-header h1 { font-size: 19px; }
+  [data-theme="jarvis"] .j-mission-header .j-heading { font-size: 16px; }
   [data-theme="jarvis"] .j-primary-actions,
   [data-theme="jarvis"] .j-voice-cluster,
   [data-theme="jarvis"] .j-control-menus { flex-wrap: nowrap; overflow-x: auto; padding-block: 2px; }
