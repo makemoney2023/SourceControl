@@ -15,8 +15,8 @@ export type CameraLookAt = [
   targetZ: number,
 ];
 
-const MANAGER_RING = 3.6;
-const IC_RING = 6.2;
+export const MANAGER_RING = 3.6;
+export const IC_RING = 6.2;
 const DEPT_Y_STEP = 0.35;
 
 const MODE_CAMERA: Record<"floor" | "assign" | "outputs", CameraLookAt> = {

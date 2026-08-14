@@ -16,7 +16,7 @@ vi.mock("@react-three/drei", () => ({
   CameraControls: () => null,
   ContactShadows: () => null,
   Html: () => null,
-  Stars: () => null,
+  MeshReflectorMaterial: () => null,
 }));
 
 vi.mock("@react-three/postprocessing", () => ({
@@ -54,8 +54,11 @@ describe("OrgTheater accessibility", () => {
     expect(region.querySelector("canvas")?.getAttribute("aria-hidden")).toBe("true");
   });
 
-  it("stops starfield motion when reduced motion is active", () => {
+  it("does not mount a starfield or bloom composer", () => {
     const source = readFileSync("src/jarvis/scene/OrgTheater.tsx", "utf8");
-    expect(source).toContain("speed={reducedMotion ? 0 : 0.2}");
+    expect(source).not.toMatch(/<Stars\b/);
+    expect(source).not.toMatch(/EffectComposer/);
+    expect(source).toMatch(/CommandTable/);
+    expect(source).toMatch(/ambientLight/);
   });
 });

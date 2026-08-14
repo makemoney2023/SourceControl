@@ -1,6 +1,5 @@
-import { CameraControls, ContactShadows, Stars } from "@react-three/drei";
+import { CameraControls, ContactShadows } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import type { SituationSnapshot } from "../../api/client";
 
@@ -23,6 +22,7 @@ import { indexProductionArtifacts } from "../artifacts";
 import { seatWorkContext } from "../seat-work-context";
 import { useJarvisStore } from "../state/useJarvisStore";
 import { isSeatDimmed } from "../status";
+import { CommandTable } from "./CommandTable";
 import { PacketBeam } from "./effects/PacketBeam";
 import { ArtifactPlaque } from "./nodes/ArtifactPlaque";
 import { PhaseBead } from "./nodes/PhaseBead";
@@ -37,7 +37,6 @@ function TheaterScene({ snapshot }: { snapshot: TheaterSnap }) {
     selectedArtifact,
     beamActive,
     reducedMotion,
-    bloomEnabled,
     selectSlug,
     selectPhase,
     selectArtifact,
@@ -82,24 +81,19 @@ function TheaterScene({ snapshot }: { snapshot: TheaterSnap }) {
   return (
     <>
       <color attach="background" args={["#070b10"]} />
-      <ambientLight intensity={0.35} />
-      <directionalLight position={[6, 10, 4]} intensity={1.1} color="#b8fff0" />
-      <pointLight position={[0, 3, 0]} intensity={0.6} color="#3fd4be" />
-      <Stars radius={40} depth={30} count={reducedMotion ? 80 : 220} factor={2} fade speed={reducedMotion ? 0 : 0.2} />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]}>
-        <circleGeometry args={[9, 64]} />
-        <meshStandardMaterial
-          color="#0c1418"
-          emissive="#0a2a26"
-          emissiveIntensity={0.25}
-          transparent
-          opacity={0.9}
-        />
-      </mesh>
-      <mesh position={[0, 0.05, 0]}>
-        <cylinderGeometry args={[0.55, 0.7, 0.12, 32]} />
-        <meshStandardMaterial color="#1a3a36" emissive="#3fd4be" emissiveIntensity={0.35} />
-      </mesh>
+      <fog attach="fog" args={["#070b10", 14, 28]} />
+      <ambientLight intensity={0.28} color="#e8e6e0" />
+      <directionalLight
+        position={[6, 10, 4]}
+        intensity={0.95}
+        color="#f2f0e8"
+        castShadow
+      />
+      <directionalLight position={[-4, 3, -6]} intensity={0.35} color="#9bb8c4" />
+      <CommandTable
+        depts={[...new Set(snapshot.org.roster.map((r) => r.dept))].sort()}
+        onClick={() => selectSlug(null)}
+      />
 
       <ReportEdges roster={snapshot.org.roster} layout={layout} />
 
@@ -184,12 +178,6 @@ function TheaterScene({ snapshot }: { snapshot: TheaterSnap }) {
 
       <ContactShadows opacity={0.35} scale={16} blur={2.5} far={8} />
       <CameraControls ref={controls} makeDefault minDistance={4} maxDistance={22} />
-      {bloomEnabled && !reducedMotion && (
-        <EffectComposer>
-          <Bloom intensity={0.45} luminanceThreshold={0.35} mipmapBlur />
-          <Vignette eskil={false} offset={0.25} darkness={0.55} />
-        </EffectComposer>
-      )}
     </>
   );
 }
@@ -211,6 +199,7 @@ export function OrgTheater({ snapshot }: { snapshot: TheaterSnap }) {
         style={{ position: "absolute", inset: 0 }}
         camera={{ position: [0, 6, 12], fov: 45 }}
         dpr={[1, 1.75]}
+        shadows
         gl={{ antialias: true, alpha: false }}
       >
         <Suspense fallback={null}>
