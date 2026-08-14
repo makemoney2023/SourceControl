@@ -1,5 +1,6 @@
 import type { HandoffRecord, OrgRegistry, RosterEntry } from "../lib/types";
 import type { RunRecord } from "../lib/runs";
+import type { GraphScope } from "./graph-scope";
 import { forceOrgLayout } from "./layout/forceOrgLayout";
 
 export type OrgWorkInboxItem = {
@@ -21,7 +22,8 @@ export type OrgWorkNodeKind =
   | "run"
   | "deliverable"
   | "artifact"
-  | "phase";
+  | "phase"
+  | "skill";
 
 export type OrgWorkEdgeKind =
   | "serves"
@@ -33,7 +35,11 @@ export type OrgWorkEdgeKind =
   | "delivered"
   | "produced"
   | "for_phase"
-  | "owns_phase";
+  | "owns_phase"
+  | "spawned"
+  | "related_handoff"
+  | "reviewed_by"
+  | "uses_skill";
 
 export type OrgWorkNode = {
   id: string;
@@ -43,6 +49,10 @@ export type OrgWorkNode = {
   status?: string;
   phase?: string;
   detail?: string;
+  /** Present on handoff nodes — ICs spawned from this packet. */
+  icsSpawned?: string[];
+  /** Present on handoff nodes — skill pack paths used by this packet. */
+  packsUsed?: string[];
   x: number;
   y: number;
 };
@@ -82,6 +92,7 @@ const KIND_META: Record<OrgWorkNodeKind, { label: string; color: string }> = {
   deliverable: { label: "Deliverable", color: "#c3e88d" },
   artifact: { label: "Artifact", color: "#c792ea" },
   phase: { label: "Phase", color: "#ff9f6b" },
+  skill: { label: "Skill", color: "#e1bee7" },
 };
 
 export type PortfolioInitiativeInput = {
@@ -102,6 +113,437 @@ export type PortfolioGraphInput = {
   orgName: string;
   initiatives: PortfolioInitiativeInput[];
 };
+
+export type ScopedInitiativeInput = {
+  customer: string;
+  customerName: string;
+  initiative: string;
+  initiativeName: string;
+  uniqueInAgency: boolean;
+  work?: OrgWorkGraph;
+};
+
+export type ScopedGraphInput = {
+  scope: GraphScope;
+  orgSlug: string;
+  orgName: string;
+  org: OrgRegistry;
+  customer?: string;
+  initiative?: string;
+  seat?: string;
+  initiatives: ScopedInitiativeInput[];
+};
+
+export function buildScopedOrgGraph(input: ScopedGraphInput): OrgWorkGraph {
+  if (input.scope === "agency") return buildAgencyGraph(input);
+  if (input.scope === "customer") return buildCustomerGraph(input);
+  if (input.scope === "initiative") return buildInitiativeGraph(input);
+  return buildSeatEgoGraph(input);
+}
+
+function buildAgencyGraph(input: ScopedGraphInput): OrgWorkGraph {
+  const nodes = new Map<string, OrgWorkNode>();
+  const edges: OrgWorkEdge[] = [];
+  const edgeKeys = new Set<string>();
+
+  const addEdge = (kind: OrgWorkEdgeKind, from: string, to: string) => {
+    if (!nodes.has(from) || !nodes.has(to)) return;
+    const id = `${kind}:${from}->${to}`;
+    if (edgeKeys.has(id)) return;
+    edgeKeys.add(id);
+    edges.push({ id, kind, from, to });
+  };
+
+  const agencyId = `agency:${input.orgSlug}`;
+  nodes.set(agencyId, {
+    id: agencyId,
+    kind: "agency",
+    label: input.orgName,
+    slug: input.orgSlug,
+    x: 0,
+    y: 0,
+  });
+
+  const byCustomer = new Map<string, ScopedInitiativeInput[]>();
+  for (const init of input.initiatives) {
+    const list = byCustomer.get(init.customer) ?? [];
+    list.push(init);
+    byCustomer.set(init.customer, list);
+  }
+
+  const customerSlugs = [...byCustomer.keys()];
+  customerSlugs.forEach((customerSlug, ci) => {
+    const inits = byCustomer.get(customerSlug)!;
+    const customerName = inits[0]!.customerName;
+    const customerId = `customer:${customerSlug}`;
+    const cx = (ci - (customerSlugs.length - 1) / 2) * 8;
+    nodes.set(customerId, {
+      id: customerId,
+      kind: "customer",
+      label: customerName,
+      slug: customerSlug,
+      x: cx,
+      y: 3,
+    });
+    addEdge("serves", agencyId, customerId);
+
+    inits.forEach((init, ii) => {
+      const initiativeId = `initiative:${init.customer}/${init.initiative}`;
+      const ix = cx + (ii - (inits.length - 1) / 2) * 3.2;
+      const iy = 6;
+      nodes.set(initiativeId, {
+        id: initiativeId,
+        kind: "initiative",
+        label: init.initiativeName,
+        slug: `${init.customer}/${init.initiative}`,
+        x: ix,
+        y: iy,
+      });
+      addEdge("owns", customerId, initiativeId);
+    });
+  });
+
+  const nodeList = [...nodes.values()];
+  const structureCount = nodeList.filter(
+    (n) => n.kind === "agency" || n.kind === "customer" || n.kind === "initiative",
+  ).length;
+  return {
+    nodes: nodeList,
+    edges,
+    legend: (Object.keys(KIND_META) as OrgWorkNodeKind[]).map((kind) => ({
+      kind,
+      label: KIND_META[kind].label,
+      color: KIND_META[kind].color,
+    })),
+    stats: {
+      seatCount: nodeList.filter((n) => n.kind === "seat").length,
+      workCount: nodeList.length - structureCount,
+      edgeCount: edges.length,
+    },
+  };
+}
+
+function attachNamespacedWork(
+  nodes: Map<string, OrgWorkNode>,
+  addEdge: (kind: OrgWorkEdgeKind, from: string, to: string) => void,
+  initiativeId: string,
+  offsetX: number,
+  offsetY: number,
+  work: OrgWorkGraph,
+) {
+  for (const n of work.nodes) {
+    const nid = `${initiativeId}:${n.id}`;
+    nodes.set(nid, {
+      ...n,
+      id: nid,
+      x: n.x * 0.45 + offsetX,
+      y: n.y * 0.45 + offsetY,
+    });
+    if (n.kind === "seat") {
+      addEdge("runs", initiativeId, nid);
+    }
+  }
+  for (const e of work.edges) {
+    addEdge(e.kind, `${initiativeId}:${e.from}`, `${initiativeId}:${e.to}`);
+  }
+}
+
+function finishScopedStructureGraph(
+  nodes: Map<string, OrgWorkNode>,
+  edges: OrgWorkEdge[],
+): OrgWorkGraph {
+  const nodeList = [...nodes.values()];
+  const structureCount = nodeList.filter(
+    (n) => n.kind === "agency" || n.kind === "customer" || n.kind === "initiative",
+  ).length;
+  return {
+    nodes: nodeList,
+    edges,
+    legend: (Object.keys(KIND_META) as OrgWorkNodeKind[]).map((kind) => ({
+      kind,
+      label: KIND_META[kind].label,
+      color: KIND_META[kind].color,
+    })),
+    stats: {
+      seatCount: nodeList.filter((n) => n.kind === "seat").length,
+      workCount: nodeList.length - structureCount,
+      edgeCount: edges.length,
+    },
+  };
+}
+
+function buildCustomerGraph(input: ScopedGraphInput): OrgWorkGraph {
+  const nodes = new Map<string, OrgWorkNode>();
+  const edges: OrgWorkEdge[] = [];
+  const edgeKeys = new Set<string>();
+
+  const addEdge = (kind: OrgWorkEdgeKind, from: string, to: string) => {
+    if (!nodes.has(from) || !nodes.has(to)) return;
+    const id = `${kind}:${from}->${to}`;
+    if (edgeKeys.has(id)) return;
+    edgeKeys.add(id);
+    edges.push({ id, kind, from, to });
+  };
+
+  const customerSlug = input.customer ?? "";
+  const matching = input.initiatives.filter((init) => init.customer === customerSlug);
+  const customerName = matching[0]?.customerName ?? customerSlug;
+  const customerId = `customer:${customerSlug}`;
+  nodes.set(customerId, {
+    id: customerId,
+    kind: "customer",
+    label: customerName,
+    slug: customerSlug,
+    x: 0,
+    y: 0,
+  });
+
+  matching.forEach((init, ii) => {
+    const initiativeId = `initiative:${init.customer}/${init.initiative}`;
+    const ix = (ii - (matching.length - 1) / 2) * 3.2;
+    const iy = 3;
+    nodes.set(initiativeId, {
+      id: initiativeId,
+      kind: "initiative",
+      label: init.initiativeName,
+      slug: `${init.customer}/${init.initiative}`,
+      x: ix,
+      y: iy,
+    });
+    addEdge("owns", customerId, initiativeId);
+
+    if (init.work) {
+      attachNamespacedWork(nodes, addEdge, initiativeId, ix, iy + 4, init.work);
+    }
+  });
+
+  return finishScopedStructureGraph(nodes, edges);
+}
+
+function buildInitiativeGraph(input: ScopedGraphInput): OrgWorkGraph {
+  const nodes = new Map<string, OrgWorkNode>();
+  const edges: OrgWorkEdge[] = [];
+  const edgeKeys = new Set<string>();
+
+  const addEdge = (kind: OrgWorkEdgeKind, from: string, to: string) => {
+    if (!nodes.has(from) || !nodes.has(to)) return;
+    const id = `${kind}:${from}->${to}`;
+    if (edgeKeys.has(id)) return;
+    edgeKeys.add(id);
+    edges.push({ id, kind, from, to });
+  };
+
+  const customerSlug = input.customer ?? "";
+  const initiativeSlug = input.initiative ?? "";
+  const matching = input.initiatives.filter(
+    (init) => init.customer === customerSlug && init.initiative === initiativeSlug,
+  );
+  const init = matching[0];
+  const customerName = init?.customerName ?? customerSlug;
+  const customerId = `customer:${customerSlug}`;
+  nodes.set(customerId, {
+    id: customerId,
+    kind: "customer",
+    label: customerName,
+    slug: customerSlug,
+    x: 0,
+    y: 0,
+  });
+
+  const initiativeId = `initiative:${customerSlug}/${initiativeSlug}`;
+  const ix = 0;
+  const iy = 3;
+  nodes.set(initiativeId, {
+    id: initiativeId,
+    kind: "initiative",
+    label: init?.initiativeName ?? initiativeSlug,
+    slug: `${customerSlug}/${initiativeSlug}`,
+    x: ix,
+    y: iy,
+  });
+  addEdge("owns", customerId, initiativeId);
+
+  if (init?.work) {
+    attachNamespacedWork(nodes, addEdge, initiativeId, ix, iy + 4, init.work);
+  }
+
+  return finishScopedStructureGraph(nodes, edges);
+}
+
+function slugFromPath(path: string): string {
+  const parts = path.split(/[/\\]/).filter(Boolean);
+  const last = parts[parts.length - 1] || path;
+  if (/^SKILL\.md$/i.test(last) && parts.length >= 2) {
+    return parts[parts.length - 2]!;
+  }
+  return last.replace(/\.md$/i, "");
+}
+
+function pathLabel(path: string): string {
+  const parts = path.split(/[/\\]/).filter(Boolean);
+  return parts[parts.length - 1] || path;
+}
+
+function buildSeatEgoGraph(input: ScopedGraphInput): OrgWorkGraph {
+  const customerSlug = input.customer ?? "";
+  const initiativeSlug = input.initiative ?? "";
+  const seat = input.seat;
+  const matching = input.initiatives.find(
+    (init) => init.customer === customerSlug && init.initiative === initiativeSlug,
+  );
+  const work = matching?.work;
+  if (!work || !seat) {
+    throw new Error("seat and work are required for scope=seat");
+  }
+
+  const initiativeId = `initiative:${customerSlug}/${initiativeSlug}`;
+  const bySlug = rosterBySlug(input.org.roster);
+  const focusSeat = bySlug.get(seat);
+
+  const keep = new Set<string>();
+  keep.add(seatId(seat));
+
+  for (const n of work.nodes) {
+    if (n.slug === seat) keep.add(n.id);
+  }
+
+  const focusHandoffs = work.nodes.filter((n) => n.kind === "handoff" && n.slug === seat);
+  const seatPhases = new Set<string>();
+  const spawnLinks: { managerHandoffId: string; phase: string; ic: string }[] = [];
+
+  for (const h of focusHandoffs) {
+    if (h.phase) seatPhases.add(h.phase);
+    const spawned = h.icsSpawned ?? [];
+    for (const ic of spawned) {
+      keep.add(seatId(ic));
+      if (h.phase) {
+        spawnLinks.push({ managerHandoffId: h.id, phase: h.phase, ic });
+        for (const n of work.nodes) {
+          if (n.kind === "handoff" && n.slug === ic && n.phase === h.phase) {
+            keep.add(n.id);
+          }
+        }
+      }
+    }
+  }
+
+  for (const n of work.nodes) {
+    if (
+      n.kind === "handoff" &&
+      n.detail === "csuite" &&
+      n.phase &&
+      seatPhases.has(n.phase)
+    ) {
+      keep.add(n.id);
+    }
+  }
+
+  for (const phase of seatPhases) {
+    keep.add(phaseId(phase));
+  }
+
+  if (focusSeat?.reportsTo && bySlug.has(focusSeat.reportsTo)) {
+    keep.add(seatId(focusSeat.reportsTo));
+  }
+
+  const skillPaths = new Set<string>();
+  skillPaths.add(`skills/org/positions/${seat}/SKILL.md`);
+  for (const h of focusHandoffs) {
+    for (const p of h.packsUsed ?? []) {
+      if (p) skillPaths.add(p);
+    }
+  }
+
+  const nodes = new Map<string, OrgWorkNode>();
+  const edges: OrgWorkEdge[] = [];
+  const edgeKeys = new Set<string>();
+
+  const addEdge = (kind: OrgWorkEdgeKind, from: string, to: string) => {
+    if (!nodes.has(from) || !nodes.has(to)) return;
+    const id = `${kind}:${from}->${to}`;
+    if (edgeKeys.has(id)) return;
+    edgeKeys.add(id);
+    edges.push({ id, kind, from, to });
+  };
+
+  const ns = (id: string) => `${initiativeId}:${id}`;
+
+  for (const n of work.nodes) {
+    if (!keep.has(n.id)) continue;
+    const nid = ns(n.id);
+    nodes.set(nid, { ...n, id: nid });
+  }
+
+  const focusSeatNode = work.nodes.find((n) => n.id === seatId(seat));
+  const skillBase = focusSeatNode
+    ? { x: focusSeatNode.x + 1.4, y: focusSeatNode.y + 0.8 }
+    : { x: 0, y: 0 };
+  let skillIndex = 0;
+  const skillNodeIds = new Map<string, string>();
+  for (const path of skillPaths) {
+    const sid = `skill:${slugFromPath(path)}`;
+    const nid = ns(sid);
+    if (nodes.has(nid)) {
+      skillNodeIds.set(path, nid);
+      continue;
+    }
+    nodes.set(nid, {
+      id: nid,
+      kind: "skill",
+      label: pathLabel(path),
+      slug: slugFromPath(path),
+      detail: path,
+      x: skillBase.x + skillIndex * 0.4,
+      y: skillBase.y + skillIndex * 0.35,
+    });
+    skillNodeIds.set(path, nid);
+    skillIndex += 1;
+  }
+
+  for (const e of work.edges) {
+    if (!keep.has(e.from) || !keep.has(e.to)) continue;
+    addEdge(e.kind, ns(e.from), ns(e.to));
+  }
+
+  for (const link of spawnLinks) {
+    addEdge("spawned", ns(seatId(seat)), ns(seatId(link.ic)));
+    for (const n of work.nodes) {
+      if (n.kind === "handoff" && n.slug === link.ic && n.phase === link.phase) {
+        addEdge("related_handoff", ns(link.managerHandoffId), ns(n.id));
+      }
+    }
+  }
+
+  const csuiteHandoffs = work.nodes.filter(
+    (n) => n.kind === "handoff" && n.detail === "csuite" && n.phase && seatPhases.has(n.phase),
+  );
+  for (const h of focusHandoffs) {
+    if (h.detail === "csuite") continue;
+    for (const cs of csuiteHandoffs) {
+      if (cs.phase === h.phase) {
+        addEdge("reviewed_by", ns(h.id), ns(cs.id));
+      }
+    }
+  }
+
+  const focusSeatNs = ns(seatId(seat));
+  for (const [, skillNs] of skillNodeIds) {
+    addEdge("uses_skill", focusSeatNs, skillNs);
+  }
+  for (const h of focusHandoffs) {
+    const packs = h.packsUsed ?? [];
+    for (const p of packs) {
+      const skillNs = skillNodeIds.get(p);
+      if (skillNs) addEdge("uses_skill", ns(h.id), skillNs);
+    }
+  }
+
+  if (focusSeat?.reportsTo && bySlug.has(focusSeat.reportsTo)) {
+    addEdge("reports_to", ns(seatId(seat)), ns(seatId(focusSeat.reportsTo)));
+  }
+
+  return finishScopedStructureGraph(nodes, edges);
+}
 
 /**
  * Agency → customers → initiatives → work (active expanded, others summarized).
@@ -348,6 +790,8 @@ export function buildOrgWorkGraph(input: {
       status: h.status || undefined,
       phase: h.phase || undefined,
       detail: h.kind,
+      icsSpawned: h.icsSpawned?.length ? h.icsSpawned : undefined,
+      packsUsed: h.packsUsed?.length ? h.packsUsed : undefined,
       x: pos.x,
       y: pos.y,
     });

@@ -90,6 +90,25 @@ generation_used: local/flux-2-dev
     expect(h.generationUsed).toBe("local/flux-2-dev");
   });
 
+  it("parses happy_path_spec and happy_path_status", () => {
+    const h = parseHandoff(
+      "17-verifier.md",
+      `---
+phase: "17"
+position: verifier
+verdict: pass
+happy_path_status: pass
+happy_path_spec: apps/sieger-show-secretary/e2e/happy-path.spec.ts
+---
+# Verifier
+`,
+    );
+    expect(h.happyPathStatus).toBe("pass");
+    expect(h.happyPathSpec).toBe(
+      "apps/sieger-show-secretary/e2e/happy-path.spec.ts",
+    );
+  });
+
   it("extracts asks, blockers, recommendation, escalation tags", () => {
     const h = parseHandoff(
       "2-manager-head-of-research.md",
@@ -112,6 +131,74 @@ escalation_tags: [evidence, spend]
     expect(h.escalationTags).toEqual(["evidence", "spend"]);
     expect(h.asks[0]).toMatch(/ICP/);
     expect(h.blockers[0]).toMatch(/Pricing/);
+  });
+
+  it("extracts operator brief, next steps, and packs used", () => {
+    const h = parseHandoff(
+      "5-product-manager.md",
+      `---
+phase: "5"
+position: product-manager
+---
+# Handoff
+
+## Operator brief (plain English)
+We drafted the PRD slice.
+
+## Next steps
+1. Head of Product — merge.
+2. Operator — name first-show rulebook.
+
+## Packs used
+| Pack | Decision tied to pack |
+|------|------------------------|
+| \`skills/community/awesome-claude-corporate-skills/09-product-management/prd-writer/SKILL.md\` | Structured PRD |
+`,
+    );
+    expect(h.operatorBrief).toMatch(/PRD slice/);
+    expect(h.nextSteps).toMatch(/rulebook/);
+    expect(h.packsUsed).toEqual([
+      "skills/community/awesome-claude-corporate-skills/09-product-management/prd-writer/SKILL.md",
+    ]);
+  });
+
+  it("parses Redlines table into redlines", () => {
+    const h = parseHandoff(
+      "5-csuite-review.md",
+      `---
+phase: "5"
+verdict: revise
+---
+# C-suite review
+
+## Redlines
+| path | comment |
+|------|---------|
+| 05-prd.md#US-014 | Acceptance does not mention offline queue flush |
+`,
+    );
+    expect(h.redlines).toEqual([
+      {
+        path: "05-prd.md#US-014",
+        comment: "Acceptance does not mention offline queue flush",
+      },
+    ]);
+  });
+
+  it("parses ics_spawned list", () => {
+    const h = parseHandoff(
+      "1-manager-ceo-strategist.md",
+      `---
+phase: "1"
+position: ceo-strategist
+ics_spawned:
+  - business-analyst
+  - market-research-analyst
+---
+# Brief
+`,
+    );
+    expect(h.icsSpawned).toEqual(["business-analyst", "market-research-analyst"]);
   });
 });
 

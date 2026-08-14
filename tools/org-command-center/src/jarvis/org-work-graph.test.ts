@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { HandoffRecord, OrgRegistry } from "../lib/types";
 import type { RunRecord } from "../lib/runs";
-import { buildOrgWorkGraph, buildPortfolioWorkGraph } from "./org-work-graph";
+import { buildOrgWorkGraph, buildPortfolioWorkGraph, buildScopedOrgGraph } from "./org-work-graph";
 
 const org: OrgRegistry = {
   roster: [
@@ -51,6 +51,7 @@ function handoff(partial: Partial<HandoffRecord> & Pick<HandoffRecord, "filename
     kind: "ic",
     phase: "1",
     position: "business-analyst",
+    icsSpawned: [],
     reportsTo: "head-of-product",
     status: "done",
     verdictForManager: "",
@@ -72,6 +73,12 @@ function handoff(partial: Partial<HandoffRecord> & Pick<HandoffRecord, "filename
     wireChecklistPath: "",
     licenseBasis: "",
     generationUsed: "",
+    happyPathSpec: "",
+    happyPathStatus: "",
+    operatorBrief: "",
+    nextSteps: "",
+    packsUsed: [],
+    redlines: [],
     body: "",
     ...partial,
   };
@@ -220,3 +227,175 @@ describe("buildPortfolioWorkGraph", () => {
     expect(g.edges.some((e) => e.kind === "owns")).toBe(true);
   });
 });
+
+describe("buildScopedOrgGraph agency", () => {
+  it("has agency, customers, initiatives, and no work nodes", () => {
+    const g = buildScopedOrgGraph({
+      scope: "agency",
+      orgSlug: "velocity-agency",
+      orgName: "Velocity Agency",
+      org,
+      initiatives: [
+        {
+          customer: "blacksage-kennels",
+          customerName: "Blacksage Kennels",
+          initiative: "main",
+          initiativeName: "Main",
+          uniqueInAgency: false,
+        },
+        {
+          customer: "blacksage-kennels",
+          customerName: "Blacksage Kennels",
+          initiative: "sieger-show-secretary",
+          initiativeName: "Sieger Show Secretary",
+          uniqueInAgency: true,
+        },
+      ],
+    });
+    expect(g.nodes.some((n) => n.kind === "agency")).toBe(true);
+    expect(g.nodes.filter((n) => n.kind === "customer")).toHaveLength(1);
+    expect(g.nodes.filter((n) => n.kind === "initiative")).toHaveLength(2);
+    expect(g.nodes.some((n) => n.kind === "handoff")).toBe(false);
+    expect(g.nodes.some((n) => n.kind === "seat")).toBe(false);
+    expect(g.edges.some((e) => e.kind === "serves")).toBe(true);
+    expect(g.edges.some((e) => e.kind === "owns")).toBe(true);
+  });
+});
+
+describe("buildScopedOrgGraph customer / initiative", () => {
+  it("customer includes work from every initiative under that customer only", () => {
+    const sieger = buildOrgWorkGraph({ org, handoffs: [], runs: [], inbox: [] });
+    const g = buildScopedOrgGraph({
+      scope: "customer",
+      orgSlug: "velocity-agency",
+      orgName: "Velocity Agency",
+      org,
+      customer: "blacksage-kennels",
+      initiatives: [
+        {
+          customer: "blacksage-kennels",
+          customerName: "Blacksage Kennels",
+          initiative: "sieger-show-secretary",
+          initiativeName: "Sieger Show Secretary",
+          uniqueInAgency: true,
+          work: sieger,
+        },
+        {
+          customer: "passive-grid",
+          customerName: "Passive Grid",
+          initiative: "main",
+          initiativeName: "Main",
+          uniqueInAgency: false,
+          work: sieger,
+        },
+      ],
+    });
+    expect(g.nodes.some((n) => n.kind === "seat")).toBe(true);
+    expect(g.nodes.some((n) => n.id.includes("passive-grid"))).toBe(false);
+    expect(g.nodes.some((n) => n.kind === "initiative" && n.slug === "blacksage-kennels/sieger-show-secretary")).toBe(true);
+  });
+
+  it("initiative excludes other initiatives", () => {
+    const work = buildOrgWorkGraph({ org, handoffs: [], runs: [], inbox: [] });
+    const g = buildScopedOrgGraph({
+      scope: "initiative",
+      orgSlug: "velocity-agency",
+      orgName: "Velocity Agency",
+      org,
+      customer: "blacksage-kennels",
+      initiative: "sieger-show-secretary",
+      initiatives: [
+        {
+          customer: "blacksage-kennels",
+          customerName: "Blacksage Kennels",
+          initiative: "sieger-show-secretary",
+          initiativeName: "Sieger Show Secretary",
+          uniqueInAgency: true,
+          work,
+        },
+        {
+          customer: "blacksage-kennels",
+          customerName: "Blacksage Kennels",
+          initiative: "main",
+          initiativeName: "Main",
+          uniqueInAgency: false,
+          work,
+        },
+      ],
+    });
+    expect(g.nodes.filter((n) => n.kind === "initiative")).toHaveLength(1);
+    expect(g.nodes.some((n) => n.slug === "blacksage-kennels/main")).toBe(false);
+    expect(g.nodes.some((n) => n.kind === "seat")).toBe(true);
+  });
+});
+
+describe("buildScopedOrgGraph seat ego", () => {
+  it("includes spawned IC, related handoff, skill, phase; excludes unrelated same-phase seat", () => {
+    const work = buildOrgWorkGraph({
+      org,
+      handoffs: [
+        handoff({
+          filename: "1-manager-ceo-strategist.md",
+          kind: "manager",
+          position: "ceo-strategist",
+          phase: "1",
+          icsSpawned: ["business-analyst"],
+          packsUsed: ["skills/org/positions/ceo-strategist/SKILL.md"],
+        }),
+        handoff({
+          filename: "1-business-analyst.md",
+          position: "business-analyst",
+          phase: "1",
+        }),
+        handoff({
+          filename: "1-csuite-review.md",
+          kind: "csuite",
+          position: "ceo-strategist",
+          phase: "1",
+        }),
+        handoff({
+          filename: "1-manager-cmo.md",
+          kind: "manager",
+          position: "cmo",
+          phase: "1",
+        }),
+      ],
+      runs: [],
+      inbox: [],
+    });
+    const g = buildScopedOrgGraph({
+      scope: "seat",
+      orgSlug: "velocity-agency",
+      orgName: "Velocity Agency",
+      org,
+      customer: "blacksage-kennels",
+      initiative: "sieger-show-secretary",
+      seat: "ceo-strategist",
+      initiatives: [
+        {
+          customer: "blacksage-kennels",
+          customerName: "Blacksage Kennels",
+          initiative: "sieger-show-secretary",
+          initiativeName: "Sieger Show Secretary",
+          uniqueInAgency: true,
+          work,
+        },
+      ],
+    });
+    const ids = g.nodes.map((n) => n.id);
+    expect(ids.some((id) => id.includes("seat:ceo-strategist"))).toBe(true);
+    expect(ids.some((id) => id.includes("seat:business-analyst"))).toBe(true);
+    expect(ids.some((id) => id.includes("1-business-analyst"))).toBe(true);
+    expect(ids.some((id) => id.includes("1-csuite-review"))).toBe(true);
+    expect(ids.some((id) => nKind(g, id) === "skill")).toBe(true);
+    expect(ids.some((id) => id.includes("seat:cmo"))).toBe(false);
+    expect(g.edges.some((e) => e.kind === "spawned")).toBe(true);
+    expect(g.edges.some((e) => e.kind === "related_handoff")).toBe(true);
+    expect(g.edges.some((e) => e.kind === "reviewed_by")).toBe(true);
+    expect(g.edges.some((e) => e.kind === "uses_skill")).toBe(true);
+  });
+});
+
+function nKind(g: ReturnType<typeof buildScopedOrgGraph>, id: string) {
+  return g.nodes.find((n) => n.id === id)?.kind;
+}

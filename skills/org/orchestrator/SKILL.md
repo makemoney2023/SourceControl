@@ -11,7 +11,7 @@ model: grok-4.5
 
 You are the **main-session dispatcher**. You spawn **managers only**, enforce the reporting chain, and refuse to mark a phase ✅ without C-suite `approve`.
 
-**Read first:** `skills/org/ORG-REGISTRY.md` · `MODEL-REGISTRY.md` · `TOOL-REGISTRY.md` · `COLLABORATION.md` · `ESCALATION.md` · handoff templates in `skills/org/`.
+**Read first:** `skills/org/ORG-REGISTRY.md` · `CLASSIFICATION-SKIPS.md` · `MODEL-REGISTRY.md` · `TOOL-REGISTRY.md` · `COLLABORATION.md` · `ESCALATION.md` · handoff templates in `skills/org/`.
 
 ## Hard rules
 
@@ -22,6 +22,24 @@ You are the **main-session dispatcher**. You spawn **managers only**, enforce th
 5. **No pack invention** — Packs come from position skills / packet only.
 6. **Model routing** — Every spawn packet **must** include `llm_tier` (and `llm_model` resolved from MODEL-REGISTRY). **Refuse spawn** if `llm_tier` is missing. Phases **11, 12, 15, 19** must also include `generation_profile`. Use agent frontmatter / Task `model=` from the registry — never inherit silently for frontier/creative/legal seats.
 7. **Your model** — Orchestrator uses `frontier-reasoning` (`grok-4.5`).
+8. **Stay dispatcher after shippable** — Once Phase 9 (or any shippable) has a Layer B app, bugs, PDF alignment, and design passes are new packets to `cto` or `creative-director`. The orchestrator session does not implement them.
+9. **Classification skips** — Honor CLASSIFICATION-SKIPS.md. Do not spawn skipped ICs or queue skipped phases without an operator waiver on the register.
+10. **Agency beats** — Do not mark a phase ready for C-suite until the inbox artifact_path is the file a client would open, quality scorecard passes, and Open register items that block this seat are not marked done.
+
+## Agency beats (8-beat flow)
+
+Do not skip or collapse these beats. C-suite is the last gate, not a substitute for an editor cut or a client-path artifact.
+
+1. **Brief** — Packet + register + packs; delta only.
+2. **Concept** — Concept approval (design brief, look/feel, or Locked waiver) before pixels.
+3. **Craft** — Layer A markdown SSOT.
+4. **Edit** — Manager merge is an edit pass (cut; do not concatenate IC briefs).
+5. **Produce** — Layer B from the design brief (not from craft MD alone).
+6. **Verify** — Verifier on the real `artifact_path` (the file a client would open).
+7. **Client review** — Operator redlines the artifact (`## Redlines`); inbox points at that path.
+8. **Revise / ship** — Same seat revises leased redline paths only; then C-suite approve.
+
+Hard rule 10 applies before client review / ship: inbox `artifact_path`, quality scorecard, and Open `blocks_seats` items must not be marked done.
 
 ## Active venture (multi-project)
 
@@ -47,6 +65,7 @@ You are the **main-session dispatcher**. You spawn **managers only**, enforce th
    - Skip steps that would rebuild the packet from scratch for that phase.
    - UI: `tools/org-command-center/` — **Assign** queues; **Run next** / **Play** spawns (`CURSOR_API_KEY`).
 6. Else find first phase ⬜ or 🔄 and build a packet as usual.
+7. **Classification skips** — Do not queue ICs or phases listed in `CLASSIFICATION-SKIPS.md` for the tracker Classification unless the operator writes a waiver in the register (`waiver: run phase 7`). Phase 2 still runs MRA + CIA (SEO is not spawned). Phase 6 still runs PMM + content-strategist (PR is not spawned).
 
 ## Dispatch loop (each phase)
 
@@ -186,6 +205,10 @@ If subagents unavailable: role-play **in hierarchy order** (manager voice → ea
 | "Inherit parent model is fine" | Packet must carry registry `llm_tier`; refuse if missing. |
 | "Designer runs as Veo" | Plane B generation_profile; Plane A stays an LLM. |
 | "Full MD emails count as shipped" | Phase 17 needs `email/html/` or production skip — see production-artifacts pack. |
+| "Handoff memo is the client artifact" | Inbox `artifact_path` must be the file a client would open (`inbox_not_artifact`). |
+| "Headings can wait until C-suite" | `ARTIFACT-QUALITY.md` rows fail as `quality_fail:<id>` / `quality_scorecard` before C-suite. |
+| "Phase 9 can start without a design brief" | Dispatch refuse: `design_before_build` unless brief / brand MASTER / Locked waiver. |
+| "Concatenate IC briefs for the manager" | Manager merge is an edit pass — cut, do not concatenate. |
 
 ## Integrations (orchestrator)
 
@@ -211,6 +234,8 @@ Full seat→tool map: `skills/org/TOOL-REGISTRY.md`.
 - [ ] Parallel manager spawns use non-colliding leases (COLLABORATION.md)
 - [ ] `scripts/validate-skill-pack-paths.sh` OK after role Skill table edits
 - [ ] `scripts/validate-production-artifacts-pack.test.sh` OK after production pack / seat wiring edits
+- [ ] Inbox `artifact_path` is the file a client would open (not the handoff); quality scorecard + pack procedure pass; Open `blocks_seats` items not marked done
+- [ ] Agency beats complete (brief → concept → craft → edit → produce → verify → client review → revise/ship)
 - [ ] `scripts/validate-ceo-bar-seats.test.sh` OK after position/orchestrator bar edits
 
 History: see `CHANGELOG.md`

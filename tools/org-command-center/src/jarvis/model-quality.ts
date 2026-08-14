@@ -26,6 +26,10 @@ export function assessHandoffModelQuality(
     String(handoff.fallbackApplied).toLowerCase() === "true" ||
     String(handoff.fallbackApplied).toLowerCase() === "yes"
   ) {
+    const expectedTier = expected?.llmTier ?? "";
+    if (expectedTier === "creative-language" || expectedTier === "frontier-reasoning") {
+      return { ok: false, detail: "fallback_applied" };
+    }
     return { ok: true, detail: "fallback_applied — review why" };
   }
   return { ok: true, detail: "ok" };

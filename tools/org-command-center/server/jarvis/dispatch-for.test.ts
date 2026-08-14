@@ -159,6 +159,133 @@ describe("buildQueueForPacket", () => {
     expect(input.require_inbox).toBe(true);
     expect(input.require_ic_handoff).toBeUndefined();
   });
+
+  it("throws skipped_ic when preferred_ic is skipped for Internal classification", () => {
+    repo = tempRepo();
+    writeFileSync(
+      join(repo, "skills/org/CLASSIFICATION-SKIPS.md"),
+      `# Classification → skipped ICs and phases
+
+| Match | Skip ICs | Skip phases |
+|-------|----------|-------------|
+| internal | seo-manager, pr-manager | 7, 13, 16, 18, 19 |
+`,
+    );
+    writeFileSync(
+      join(repo, BIZ_IDEA, "RUNBOOK-TRACKER.md"),
+      readFileSync(join(FIXTURES, "sample-tracker.md"), "utf8").replace(
+        "**Classification:** Software",
+        "**Classification:** Internal (+ SaaS-optional)",
+      ),
+    );
+    try {
+      buildQueueForPacket(repo, {
+        position: "cmo",
+        goal: "SEO plan",
+        phase: "2",
+        preferred_ic: "seo-manager",
+      });
+      expect.fail("expected skipped_ic");
+    } catch (err) {
+      expect(err).toBeInstanceOf(JarvisExecError);
+      expect((err as JarvisExecError).code).toBe("skipped_ic");
+    }
+  });
+
+  it("throws skipped_phase when phase is skipped for Internal classification", () => {
+    repo = tempRepo();
+    writeFileSync(
+      join(repo, "skills/org/CLASSIFICATION-SKIPS.md"),
+      `# Classification → skipped ICs and phases
+
+| Match | Skip ICs | Skip phases |
+|-------|----------|-------------|
+| internal | seo-manager, pr-manager | 7, 13, 16, 18, 19 |
+`,
+    );
+    writeFileSync(
+      join(repo, BIZ_IDEA, "RUNBOOK-TRACKER.md"),
+      readFileSync(join(FIXTURES, "sample-tracker.md"), "utf8").replace(
+        "**Classification:** Software",
+        "**Classification:** Internal (+ SaaS-optional)",
+      ),
+    );
+    try {
+      buildQueueForPacket(repo, {
+        position: "cmo",
+        goal: "Technical SEO",
+        phase: "7",
+      });
+      expect.fail("expected skipped_phase");
+    } catch (err) {
+      expect(err).toBeInstanceOf(JarvisExecError);
+      expect((err as JarvisExecError).code).toBe("skipped_phase");
+    }
+  });
+
+  it("does not skip when CLASSIFICATION-SKIPS.md is missing", () => {
+    repo = tempRepo();
+    writeFileSync(
+      join(repo, BIZ_IDEA, "RUNBOOK-TRACKER.md"),
+      readFileSync(join(FIXTURES, "sample-tracker.md"), "utf8").replace(
+        "**Classification:** Software",
+        "**Classification:** Internal (+ SaaS-optional)",
+      ),
+    );
+    const input = buildQueueForPacket(repo, {
+      position: "cmo",
+      goal: "SEO plan",
+      phase: "2",
+      preferred_ic: "seo-manager",
+    });
+    expect(input.preferred_ic).toBe("seo-manager");
+  });
+
+  it("throws design_before_build for phase 9 without design brief or waiver", () => {
+    repo = tempRepo();
+    mkdirSync(join(repo, "docs/projects/passive-grid/MEMORY"), { recursive: true });
+    writeFileSync(
+      join(repo, "docs/projects/passive-grid/MEMORY/decisions.md"),
+      `# Decisions
+## Locked
+| id | decision | asked_as |
+|----|----------|----------|
+| X1 | Unrelated lock | |
+`,
+    );
+    try {
+      buildQueueForPacket(repo, {
+        position: "creative-director",
+        goal: "Build production",
+        phase: "9",
+      });
+      expect.fail("expected design_before_build");
+    } catch (err) {
+      expect(err).toBeInstanceOf(JarvisExecError);
+      expect((err as JarvisExecError).code).toBe("design_before_build");
+    }
+  });
+
+  it("allows phase 9 when Locked register has a design-before-build waiver", () => {
+    repo = tempRepo();
+    mkdirSync(join(repo, "docs/projects/passive-grid/MEMORY"), { recursive: true });
+    writeFileSync(
+      join(repo, "docs/projects/passive-grid/MEMORY/decisions.md"),
+      `# Decisions
+## Locked
+| id | decision | asked_as |
+|----|----------|----------|
+| W1 | design before build waived for this slice | |
+`,
+    );
+    const input = buildQueueForPacket(repo, {
+      position: "creative-director",
+      goal: "Build production",
+      phase: "9",
+    });
+    expect(input.phase).toBe("9");
+    expect(input.position).toBe("creative-director");
+  });
 });
 
 describe("previewQueueFor", () => {

@@ -44,4 +44,24 @@ describe("review inbox", () => {
     expect(items[0].position).toBe("cmo");
     expect(items[0].status).toBe("pending_review");
   });
+
+  it("exposes artifact_path from inbox frontmatter", () => {
+    const root = tempRepo();
+    const dir = join(root, BIZ_IDEA, "REVIEW", "inbox");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      join(dir, "5-hop.md"),
+      `---
+status: pending_review
+position: head-of-product
+phase: "5"
+artifact_path: ${BIZ_IDEA}/05-prd.md
+---
+# Inbox
+`,
+      "utf8",
+    );
+    const items = listReviewInbox(root);
+    expect(items[0].artifact_path).toBe(`${BIZ_IDEA}/05-prd.md`);
+  });
 });

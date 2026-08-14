@@ -392,6 +392,9 @@ export const OPERATOR_DELIVERABLE_FORMAT = [
   "- 3–5 numbered steps. Each step names who acts (operator, CEO, CFO, research, …) and the concrete ask.",
   "- End with any blocking questions the operator must answer before the next phase.",
   "",
+  "### Client artifact",
+  "- Frontmatter artifact_path must point at the file the operator should open (PRD, app README, PDF, pocket card) — not this inbox memo and not the handoff.",
+  "",
   "IC handoffs, manager briefs, and C-suite reviews must use the same three sections.",
   "Situation Room reads these sections directly — missing Operator brief means a weak report.",
 ].join("\n");

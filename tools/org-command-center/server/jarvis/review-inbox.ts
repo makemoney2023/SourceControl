@@ -10,6 +10,7 @@ export type ReviewInboxItem = {
   phase?: string;
   goal?: string;
   created?: string;
+  artifact_path?: string;
   mtimeMs: number;
 };
 
@@ -116,6 +117,7 @@ export function listReviewInbox(repoRoot: string): ReviewInboxItem[] {
       phase: fm.phase,
       goal: fm.goal,
       created: fm.created,
+      artifact_path: fm.artifact_path || undefined,
       mtimeMs: st.mtimeMs,
     });
   }

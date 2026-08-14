@@ -1,9 +1,16 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { ManagerPacket } from "../../src/lib/types";
 import { evaluateRunAcceptance } from "./run-acceptance";
+
+const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "../../src/lib/fixtures");
+const SAMPLE_MODEL_REGISTRY = readFileSync(
+  join(FIXTURES, "sample-model-registry.md"),
+  "utf8",
+);
 
 const BIZ_IDEA = "docs/projects/passive-grid/business-idea";
 
@@ -72,6 +79,17 @@ function writeHandoff(root: string, filename: string, content: string) {
   const dir = join(root, BIZ_IDEA, "HANDOFFS");
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, filename), content, "utf8");
+}
+
+function writePrdArtifact(root: string): string {
+  const rel = `${BIZ_IDEA}/05-prd.md`;
+  writeFileSync(join(root, rel), "# PRD\n", "utf8");
+  return rel;
+}
+
+function writeModelRegistry(root: string) {
+  mkdirSync(join(root, "skills/org"), { recursive: true });
+  writeFileSync(join(root, "skills/org/MODEL-REGISTRY.md"), SAMPLE_MODEL_REGISTRY, "utf8");
 }
 
 describe("evaluateRunAcceptance", () => {
@@ -384,6 +402,534 @@ generation_used: fal/flux-2-max
     expect(missing.ok).toBe(false);
     expect(missing.missing).toContain("verifier_handoff");
 
+    const specRel = "apps/sieger-show-secretary/e2e/happy-path.spec.ts";
+    mkdirSync(join(root, "apps/sieger-show-secretary/e2e"), { recursive: true });
+    writeFileSync(join(root, specRel), "test('happy path', () => {});", "utf8");
+    writeHandoff(
+      root,
+      "17-verifier.md",
+      `---
+phase: "17"
+position: verifier
+verdict: pass
+happy_path_status: pass
+happy_path_spec: ${specRel}
+---
+`,
+    );
+    const ok = evaluateRunAcceptance(root, { runId: "r1", packet });
+    expect(ok.ok).toBe(true);
+  });
+
+  it("missing reference_blocked:O2 when PM is done and O2 blocks product-manager", () => {
+    const root = tempRepo();
+    mkdirSync(join(root, "docs/projects/passive-grid/MEMORY"), { recursive: true });
+    writeFileSync(
+      join(root, "docs/projects/passive-grid/MEMORY/decisions.md"),
+      `# Decisions
+## Open
+| id | question | owner | blocks_seats |
+|----|----------|-------|--------------|
+| O2 | Gold approved ADRK critique PDF | operator | product-manager, tech-lead, brand-designer |
+`,
+    );
+    writeHandoff(
+      root,
+      "5-product-manager.md",
+      `---
+phase: "5"
+position: product-manager
+status: done
+---
+## Operator brief (plain English)
+Drafted the PRD slice.
+`,
+    );
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-ref-o2",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "product-manager",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: false,
+      },
+    });
+    expect(result.ok).toBe(false);
+    expect(result.missing).toContain("reference_blocked:O2");
+  });
+
+  it("missing reask:O1 when handoff re-asks a locked register item", () => {
+    const root = tempRepo();
+    writeInbox(root, "5-hop.md", {
+      status: "pending_review",
+      position: "head-of-product",
+      phase: "5",
+      goal: "PRD",
+      runId: "run-5",
+      artifact_path: writePrdArtifact(root),
+    });
+    mkdirSync(join(root, "docs/projects/passive-grid/MEMORY"), { recursive: true });
+    writeFileSync(
+      join(root, "docs/projects/passive-grid/MEMORY/decisions.md"),
+      `# Decisions
+## Locked
+| id | decision | asked_as |
+| O1 | First-show rulebook = ADRK | which rulebook, first-show rulebook |
+`,
+    );
+    writeHandoff(
+      root,
+      "5-manager-head-of-product.md",
+      `---
+phase: "5"
+position: head-of-product
+status: done
+---
+## Operator brief (plain English)
+Merged the PRD.
+
+## Next steps
+1. Operator — which rulebook governs the first deployment?
+`,
+    );
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-5",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "head-of-product",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: true,
+      },
+    });
+    expect(result.ok).toBe(false);
+    expect(result.missing).toContain("reask:O1");
+  });
+
+  it("missing brief_echo when manager brief copies the IC operator brief", () => {
+    const root = tempRepo();
+    writeInbox(root, "5-hop.md", {
+      status: "pending_review",
+      position: "head-of-product",
+      phase: "5",
+      goal: "PRD",
+      runId: "run-5b",
+      artifact_path: writePrdArtifact(root),
+    });
+    const story =
+      "We finished the product requirements for Sieger Show Secretary the software that turns a judge spoken ringside critique into an approved PDF emailed to the dog owner with multi-show login and four selectable rulebooks.";
+    writeHandoff(
+      root,
+      "5-product-manager.md",
+      `---
+phase: "5"
+position: product-manager
+status: done
+---
+## Operator brief (plain English)
+${story}
+`,
+    );
+    writeHandoff(
+      root,
+      "5-manager-head-of-product.md",
+      `---
+phase: "5"
+position: head-of-product
+status: done
+---
+## Operator brief (plain English)
+${story}
+`,
+    );
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-5b",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "head-of-product",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: true,
+      },
+    });
+    expect(result.ok).toBe(false);
+    expect(result.missing.some((m) => m.startsWith("brief_echo:"))).toBe(true);
+  });
+
+  it("missing pack_not_allowed:prd-writer when IC cites a pack outside the seat table", () => {
+    const root = tempRepo();
+    writeInbox(root, "5-pm.md", {
+      status: "pending_review",
+      position: "product-manager",
+      phase: "5",
+      goal: "PRD",
+      runId: "run-5c",
+      artifact_path: writePrdArtifact(root),
+    });
+    mkdirSync(join(root, "skills/org/positions/product-manager"), {
+      recursive: true,
+    });
+    writeFileSync(
+      join(root, "skills/org/positions/product-manager/SKILL.md"),
+      `# Product Manager
+
+## Skill packs
+Read each pack's \`SKILL.md\` before use. Do not load packs outside this list unless the orchestrator expands scope.
+
+| Pack path | Use for |
+|-----------|---------|
+| \`skills/community/awesome-claude-corporate-skills/09-product-management/feature-spec/\` | Feature specs |
+| \`skills/community/awesome-claude-corporate-skills/09-product-management/roadmap-builder/\` | Roadmap |
+| \`skills/community/business-analysis-skills/skills/moscow-prioritisation/\` | MoSCoW |
+`,
+    );
+    writeHandoff(
+      root,
+      "5-product-manager.md",
+      `---
+phase: "5"
+position: product-manager
+status: done
+---
+## Operator brief (plain English)
+Drafted the PRD slice.
+
+## Packs used
+| Pack | Decision tied to pack |
+|------|------------------------|
+| \`skills/community/awesome-claude-corporate-skills/09-product-management/prd-writer/SKILL.md\` | Structured PRD |
+`,
+    );
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-5c",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "product-manager",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: true,
+      },
+    });
+    expect(result.ok).toBe(false);
+    expect(result.missing).toContain("pack_not_allowed:prd-writer");
+  });
+
+  it("missing packs_used_missing when IC/manager handoff is ≥20 lines with empty Packs used", () => {
+    const root = tempRepo();
+    writeInbox(root, "5-pm.md", {
+      status: "pending_review",
+      position: "product-manager",
+      phase: "5",
+      goal: "PRD",
+      runId: "run-5d",
+      artifact_path: writePrdArtifact(root),
+    });
+    mkdirSync(join(root, "skills/org/positions/product-manager"), {
+      recursive: true,
+    });
+    writeFileSync(
+      join(root, "skills/org/positions/product-manager/SKILL.md"),
+      `# Product Manager\n`,
+    );
+    const longBody = [
+      "## Operator brief (plain English)",
+      "Drafted the PRD slice.",
+      ...Array.from({ length: 22 }, (_, i) => `Detail line ${i + 1}.`),
+      "",
+      "## Packs used",
+      "| Pack | Decision tied to pack |",
+      "|------|------------------------|",
+    ].join("\n");
+    writeHandoff(
+      root,
+      "5-product-manager.md",
+      `---
+phase: "5"
+position: product-manager
+status: done
+---
+${longBody}
+`,
+    );
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-5d",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "product-manager",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: true,
+      },
+    });
+    expect(result.missing).toContain("packs_used_missing");
+  });
+
+  it("does not flag packs_used_missing when IC/manager body is a skip stub under 20 lines", () => {
+    const root = tempRepo();
+    writeInbox(root, "5-pm.md", {
+      status: "pending_review",
+      position: "product-manager",
+      phase: "5",
+      goal: "PRD",
+      runId: "run-5e",
+      artifact_path: writePrdArtifact(root),
+    });
+    mkdirSync(join(root, "skills/org/positions/product-manager"), {
+      recursive: true,
+    });
+    writeFileSync(
+      join(root, "skills/org/positions/product-manager/SKILL.md"),
+      `# Product Manager\n`,
+    );
+    writeHandoff(
+      root,
+      "5-product-manager.md",
+      `---
+phase: "5"
+position: product-manager
+status: done
+---
+## Operator brief (plain English)
+Skipped — no PRD work this slice.
+
+## Packs used
+| Pack | Decision tied to pack |
+|------|------------------------|
+`,
+    );
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-5e",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "product-manager",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: true,
+      },
+    });
+    expect(result.missing).not.toContain("packs_used_missing");
+  });
+
+  it("missing csuite_no_new_risk when review has no new-risk section", () => {
+    const root = tempRepo();
+    writeHandoff(
+      root,
+      "3-csuite-review.md",
+      `---
+phase: "3"
+position: ceo-strategist
+verdict: approve
+---
+## Operator brief (plain English)
+Strategy holds. Advance the market brief.
+
+## Scorecard (from ORG-REGISTRY)
+| Criterion | Pass? | Notes |
+|-----------|-------|-------|
+| Direction | yes | Clear |
+`,
+    );
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-3",
+      packet: {
+        ...basePacket,
+        phase: "3",
+        position: "ceo-strategist",
+        goal: "C-suite review",
+        preferred_ic: undefined,
+        require_inbox: false,
+        require_ic_handoff: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.missing).toContain("csuite_no_new_risk");
+  });
+
+  it("missing pack_procedure:feature-spec when PM cites feature-spec and 05-prd.md lacks User stories", () => {
+    const root = tempRepo();
+    mkdirSync(join(root, "skills/org/positions/product-manager"), {
+      recursive: true,
+    });
+    writeFileSync(
+      join(root, "skills/org/PACK-PROCEDURES.md"),
+      `# Pack procedures
+
+| pack | required_headings |
+|------|-------------------|
+| skills/community/awesome-claude-corporate-skills/09-product-management/feature-spec | User stories, Functional requirements |
+`,
+      "utf8",
+    );
+    writeFileSync(
+      join(root, "skills/org/ARTIFACT-QUALITY.md"),
+      `# Artifact quality (structural)
+
+| id | phase | artifact | must_contain_headings |
+|----|-------|----------|------------------------|
+| q5-prd | 5 | 05-prd.md | Personas |
+`,
+      "utf8",
+    );
+    writeFileSync(
+      join(root, "skills/org/positions/product-manager/SKILL.md"),
+      `# Product Manager
+
+## Skill packs
+| Pack path | Use for |
+|-----------|---------|
+| \`skills/community/awesome-claude-corporate-skills/09-product-management/feature-spec/\` | Feature specs |
+`,
+      "utf8",
+    );
+    writeFileSync(
+      join(root, BIZ_IDEA, "05-prd.md"),
+      `# PRD\n## Personas\n## Functional requirements\n`,
+      "utf8",
+    );
+    writeHandoff(
+      root,
+      "5-product-manager.md",
+      `---
+phase: "5"
+position: product-manager
+status: done
+---
+## Operator brief (plain English)
+Drafted the PRD slice.
+
+## Packs used
+| Pack | Decision tied to pack |
+|------|------------------------|
+| \`skills/community/awesome-claude-corporate-skills/09-product-management/feature-spec/SKILL.md\` | Feature spec headings |
+`,
+    );
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-proc-5",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "product-manager",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.missing).toContain("pack_procedure:feature-spec");
+  });
+
+  it("missing quality_fail:q5-prd when 05-prd.md lacks MoSCoW", () => {
+    const root = tempRepo();
+    mkdirSync(join(root, "skills/org"), { recursive: true });
+    writeFileSync(
+      join(root, "skills/org/ARTIFACT-QUALITY.md"),
+      `# Artifact quality (structural)
+
+| id | phase | artifact | must_contain_headings |
+|----|-------|----------|------------------------|
+| q5-prd | 5 | 05-prd.md | Personas, MoSCoW, User stories, NOT doing |
+`,
+      "utf8",
+    );
+    writeFileSync(
+      join(root, BIZ_IDEA, "05-prd.md"),
+      `# PRD\n## Personas\n## User stories\n## NOT doing\n`,
+      "utf8",
+    );
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-q5",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "head-of-product",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_inbox: false,
+        require_ic_handoff: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.missing).toContain("quality_fail:q5-prd");
+  });
+
+  it("skips quality_scorecard when manager handoff is blocked", () => {
+    const root = tempRepo();
+    mkdirSync(join(root, "skills/org"), { recursive: true });
+    writeFileSync(
+      join(root, "skills/org/ARTIFACT-QUALITY.md"),
+      `# Artifact quality (structural)
+
+| id | phase | artifact | must_contain_headings |
+|----|-------|----------|------------------------|
+| q5-prd | 5 | 05-prd.md | Personas, MoSCoW, User stories, NOT doing |
+`,
+      "utf8",
+    );
+    writeHandoff(
+      root,
+      "5-manager-head-of-product.md",
+      `---
+phase: "5"
+position: head-of-product
+status: blocked
+---
+## Operator brief (plain English)
+Blocked on operator input.
+`,
+    );
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-q5-blocked",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "head-of-product",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_inbox: false,
+        require_ic_handoff: false,
+      },
+    });
+
+    expect(result.missing).not.toContain("quality_scorecard");
+    expect(result.missing).not.toContain("quality_fail:q5-prd");
+  });
+
+  it("missing happy_path_spec when verifier pass has no spec path", () => {
+    const root = tempRepo();
+    const packet: ManagerPacket = {
+      ...basePacket,
+      phase: "17",
+      require_inbox: false,
+      require_ic_handoff: false,
+      require_production: false,
+    };
     writeHandoff(
       root,
       "17-verifier.md",
@@ -394,7 +940,306 @@ verdict: pass
 ---
 `,
     );
-    const ok = evaluateRunAcceptance(root, { runId: "r1", packet });
-    expect(ok.ok).toBe(true);
+
+    const result = evaluateRunAcceptance(root, { runId: "r1", packet });
+    expect(result.ok).toBe(false);
+    expect(result.missing).toContain("happy_path_spec");
+  });
+
+  it("missing inbox_not_artifact when require_inbox and inbox lacks artifact_path", () => {
+    const root = tempRepo();
+    writeInbox(root, "5-hop.md", {
+      status: "pending_review",
+      position: "head-of-product",
+      phase: "5",
+      goal: "PRD",
+      runId: "run-art-missing",
+    });
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-art-missing",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "head-of-product",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: true,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.missing).toContain("inbox_not_artifact");
+  });
+
+  it("does not flag inbox_not_artifact when artifact_path points at a real 05-prd.md", () => {
+    const root = tempRepo();
+    const prdRel = `${BIZ_IDEA}/05-prd.md`;
+    writeFileSync(join(root, prdRel), "# PRD\n", "utf8");
+    writeInbox(root, "5-hop.md", {
+      status: "pending_review",
+      position: "head-of-product",
+      phase: "5",
+      goal: "PRD",
+      runId: "run-art-ok",
+      artifact_path: prdRel,
+    });
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-art-ok",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "head-of-product",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: true,
+      },
+    });
+
+    expect(result.missing).not.toContain("inbox_not_artifact");
+  });
+
+  it("missing inbox_not_artifact when artifact_path is the inbox filename", () => {
+    const root = tempRepo();
+    writeInbox(root, "5-hop.md", {
+      status: "pending_review",
+      position: "head-of-product",
+      phase: "5",
+      goal: "PRD",
+      runId: "run-art-self",
+      artifact_path: "5-hop.md",
+    });
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-art-self",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "head-of-product",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: true,
+      },
+    });
+
+    expect(result.missing).toContain("inbox_not_artifact");
+  });
+
+  it("missing inbox_not_artifact when artifact_path ends with HANDOFFS/", () => {
+    const root = tempRepo();
+    writeInbox(root, "5-hop.md", {
+      status: "pending_review",
+      position: "head-of-product",
+      phase: "5",
+      goal: "PRD",
+      runId: "run-art-handoffs",
+      artifact_path: `${BIZ_IDEA}/HANDOFFS/`,
+    });
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-art-handoffs",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "head-of-product",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: true,
+      },
+    });
+
+    expect(result.missing).toContain("inbox_not_artifact");
+  });
+
+  it("missing inbox_not_artifact when artifact_path file is missing on disk", () => {
+    const root = tempRepo();
+    writeInbox(root, "5-hop.md", {
+      status: "pending_review",
+      position: "head-of-product",
+      phase: "5",
+      goal: "PRD",
+      runId: "run-art-gone",
+      artifact_path: `${BIZ_IDEA}/05-prd.md`,
+    });
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-art-gone",
+      packet: {
+        ...basePacket,
+        phase: "5",
+        position: "head-of-product",
+        goal: "PRD",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: true,
+      },
+    });
+
+    expect(result.missing).toContain("inbox_not_artifact");
+  });
+
+  it("does not enforce artifact_path on phase 0 inbox", () => {
+    const root = tempRepo();
+    writeInbox(root, "0-cfo.md", {
+      status: "pending_review",
+      position: "cfo",
+      phase: "0",
+      goal: "Intake numbers",
+      runId: "run-p0",
+    });
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-p0",
+      packet: {
+        ...basePacket,
+        phase: "0",
+        position: "cfo",
+        goal: "Intake numbers",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: true,
+      },
+    });
+
+    expect(result.missing).not.toContain("inbox_not_artifact");
+    expect(result.ok).toBe(true);
+  });
+
+  it("phase 6 accepts 06-gtm-plan.md without 06-enablement steward card", () => {
+    const root = tempRepo();
+    const gtmRel = `${BIZ_IDEA}/06-gtm-plan.md`;
+    writeFileSync(join(root, gtmRel), "# GTM\n", "utf8");
+    writeInbox(root, "6-cmo.md", {
+      status: "pending_review",
+      position: "cmo",
+      phase: "6",
+      goal: "GTM plan",
+      runId: "run-p6",
+      artifact_path: gtmRel,
+    });
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-p6",
+      packet: {
+        ...basePacket,
+        phase: "6",
+        position: "cmo",
+        goal: "GTM plan",
+        preferred_ic: undefined,
+        require_ic_handoff: false,
+        require_inbox: true,
+      },
+    });
+
+    expect(result.missing).not.toContain("inbox_not_artifact");
+  });
+
+  it("missing model_tier when handoff tier does not match registry", () => {
+    const root = tempRepo();
+    writeModelRegistry(root);
+    writeHandoff(
+      root,
+      "6-creative-director.md",
+      `---
+phase: "6"
+position: creative-director
+status: done
+llm_tier: fast-ops
+generation_profile: none
+fallback_applied: false
+---
+# Creative director
+`,
+    );
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-tier",
+      packet: {
+        ...basePacket,
+        phase: "6",
+        position: "creative-director",
+        goal: "GTM copy",
+        preferred_ic: undefined,
+        require_inbox: false,
+        require_ic_handoff: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.missing).toContain("model_tier");
+  });
+
+  it("missing model_tier when creative-language seat set fallback_applied true", () => {
+    const root = tempRepo();
+    writeModelRegistry(root);
+    writeHandoff(
+      root,
+      "6-creative-director.md",
+      `---
+phase: "6"
+position: creative-director
+status: done
+llm_tier: creative-language
+generation_profile: none
+fallback_applied: true
+---
+# Creative director
+`,
+    );
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-fallback",
+      packet: {
+        ...basePacket,
+        phase: "6",
+        position: "creative-director",
+        goal: "GTM copy",
+        preferred_ic: undefined,
+        require_inbox: false,
+        require_ic_handoff: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.missing).toContain("model_tier");
+  });
+
+  it("skips model_tier when MODEL-REGISTRY.md is absent", () => {
+    const root = tempRepo();
+    writeHandoff(
+      root,
+      "6-creative-director.md",
+      `---
+phase: "6"
+position: creative-director
+status: done
+llm_tier: creative-language
+generation_profile: none
+fallback_applied: true
+---
+# Creative director
+`,
+    );
+
+    const result = evaluateRunAcceptance(root, {
+      runId: "run-skip-registry",
+      packet: {
+        ...basePacket,
+        phase: "6",
+        position: "creative-director",
+        goal: "GTM copy",
+        preferred_ic: undefined,
+        require_inbox: false,
+        require_ic_handoff: false,
+      },
+    });
+
+    expect(result.missing).not.toContain("model_tier");
+    expect(result.ok).toBe(true);
   });
 });

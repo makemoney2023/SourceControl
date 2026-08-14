@@ -131,6 +131,8 @@ ceo-strategist
 | 21 | ceo-strategist | — | ceo-strategist | — | Exec summary + launch checklist + `exec/21-executive-summary.docx` (or skip); production_status set; **Verifier pass?** |
 | 22 | ceo-strategist | head-of-data, cmo, paid-media-manager (on demand) | ceo-strategist | — | Cadence entry with actions |
 
+Classification may drop ICs/phases — see CLASSIFICATION-SKIPS.md.
+
 **Hard C-suite gates** (full review, not rubber-stamp): Phases **3, 6, 10, 14, 19, 21**.
 
 ## Parallel tracks (post Phase 10)

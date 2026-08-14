@@ -6,7 +6,7 @@ import {
 } from "../src/lib/file-preview";
 import { loadSeatOutputPaths, mergeUniquePaths } from "../src/lib/seat-outputs";
 import type { HandoffRecord } from "../src/lib/types";
-import { activeProjectSlug, businessIdeaRel } from "./paths";
+import { activeArtifactSlug, businessIdeaRel } from "./paths";
 
 const DISCOVER_EXTS = new Set([
   "html",
@@ -38,7 +38,7 @@ export function discoverSeatProductionFiles(
   position: string,
   opts?: { ventureSlug?: string; businessIdeaRel?: string },
 ): string[] {
-  const ventureSlug = opts?.ventureSlug ?? activeProjectSlug(repoRoot);
+  const ventureSlug = opts?.ventureSlug ?? activeArtifactSlug(repoRoot);
   const biz = opts?.businessIdeaRel ?? businessIdeaRel(repoRoot);
   const leases = loadSeatOutputPaths(repoRoot, position, {
     ventureSlug,
@@ -84,7 +84,7 @@ export function enrichHandoffsWithSeatOutputs(
   repoRoot: string,
   handoffs: HandoffRecord[],
 ): HandoffRecord[] {
-  const ventureSlug = activeProjectSlug(repoRoot);
+  const ventureSlug = activeArtifactSlug(repoRoot);
   const biz = businessIdeaRel(repoRoot);
   const cache = new Map<string, string[]>();
   return handoffs.map((h) => {

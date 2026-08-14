@@ -3,12 +3,9 @@ import { parseModelRegistry, parseOrgRegistry } from "../../src/lib/parse-regist
 import { parseTracker } from "../../src/lib/parse-tracker";
 import { validateManagerPacket } from "../../src/lib/validate-packet";
 import type { ManagerPacketInput } from "../../src/lib/types";
+import { loadSeatOutputPaths, mergeUniquePaths } from "../../src/lib/seat-outputs";
 import {
-  loadSeatOutputPaths,
-  mergeUniquePaths,
-} from "../../src/lib/seat-outputs";
-import {
-  activeProjectSlug,
+  activeArtifactSlug,
   assertReadable,
   businessIdeaFile,
   businessIdeaRel,
@@ -16,6 +13,7 @@ import {
 } from "../paths";
 import { queueValidatedDispatch } from "../queue-validated-dispatch";
 import { loadSnapshot } from "../snapshot";
+import { assertClassificationAndDesignGates } from "./dispatch-gates";
 import { JarvisExecError } from "./errors";
 import { resolveSeatSlug } from "./resolve-seat";
 
@@ -205,8 +203,14 @@ export function buildQueueForPacket(repoRoot: string, args: QueueForArgs): Manag
     ? resolveSeatSlug(rawPreferredIc, org.roster) ?? rawPreferredIc
     : undefined;
 
+  assertClassificationAndDesignGates(repoRoot, {
+    phase,
+    preferred_ic,
+    classification: tracker.classification,
+  });
+
   const seatOutputs = loadSeatOutputPaths(repoRoot, position, {
-    ventureSlug: activeProjectSlug(repoRoot),
+    ventureSlug: activeArtifactSlug(repoRoot),
     businessIdeaRel: businessIdeaRel(repoRoot),
   });
   const handoff = businessIdeaFile(

@@ -15,6 +15,13 @@ Copy to `docs/projects/<active>/business-idea/HANDOFFS/<phase>-<slug>.md` before
 7. Handoff is not a ≤20-line stub when the phase changed user-visible craft.
 8. On shippable phases (**4B, 9, 9B, 11, 12, 14, 15, 17, 19, 21**): `production_status` set; if `complete`, `production_paths` lists real Layer B files (see `packs/production-artifacts`, including Office `.docx`/`.pptx`/`.xlsx`).
 9. When Layer B includes designed visuals/HTML: **Design brief** exists (`design_brief_path`) citing required design packs (e.g. `email-design` before email HTML/headers). Reject “craft → pixels” with no brief.
+10. Operator brief Jaccard vs any other same-phase handoff is ≤ 0.35 (OCC: `brief_echo`).
+11. Next steps / Asks do not contain Locked `asked_as` tokens (OCC: `reask:<id>`).
+12. Packs used ⊆ position SKILL.md Skill packs table (+ handoff templates).
+13. Quality scorecard: when `ARTIFACT-QUALITY.md` has a row for this phase, the leased artifact contains every listed heading (`quality_fail:<id>`; missing file = `quality_scorecard`).
+14. Pack procedure: every used pack that appears in `PACK-PROCEDURES.md` has those required headings in leased artifacts (`pack_procedure:<slug>`).
+15. Design before build + client path: Phase 9 (and design-led Layer B) has a Design brief or Locked waiver (`design_before_build`). Inbox `artifact_path` is the file a client would open — not this handoff (`inbox_not_artifact`).
+16. Reference + model: Open register items whose `blocks_seats` include this seat are not marked done (`reference_blocked:<id>`). `llm_tier` matches MODEL-REGISTRY; `fallback_applied` on creative/frontier is a fail (`model_tier`).
 
 Exception: pure skip handoffs (e.g. Phase 15 skip) may be short if they only record the skip reason.
 
@@ -32,6 +39,8 @@ verdict: pass | fail
 llm_tier: strong-general
 llm_model: "<used>"
 generation_profile: none
+happy_path_status: pass | fail | skipped
+happy_path_spec: "apps/<venture>/e2e/happy-path.spec.ts"
 ---
 ```
 
@@ -70,7 +79,10 @@ skip_reason: ""
 # Handoff — <Title> → <Manager>
 
 ## Operator brief (plain English)
-3–5 short sentences a non-technical operator can understand: what you did, what it means, and whether work can continue. No runIds, no scorecard tables, no path laundry lists here. (Alias: `## In plain English`.)
+Max **5 sentences** that are a **delta**: what this seat uniquely produced, one decision, whether work can continue.
+Do **not** restate the product one-liner or locked register rows.
+Do **not** re-ask a Locked id. At most one new Open question, and only if it is absent from MEMORY/decisions.md.
+No runIds, no scorecard tables, no path laundry lists here. (Alias: `## In plain English`.)
 
 ## What we found
 - Up to 5 load-bearing facts or labeled assumptions

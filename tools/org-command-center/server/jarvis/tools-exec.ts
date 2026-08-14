@@ -106,8 +106,12 @@ import {
   ensureVentureVaultSourceOfTruth,
   getServerInfo,
   inspectVentureVaultSourceOfTruth,
+  mocMetaFromRegistry,
   obsidianConfigured,
+  syncVaultGraph,
 } from "../obsidian";
+import { buildOrgWorkGraph } from "../../src/jarvis/org-work-graph";
+import { loadInitiativeWork } from "../initiative-work";
 
 export { JarvisExecError } from "./errors";
 
@@ -1310,6 +1314,33 @@ export async function executeIntent(
           result.errors.join("; ") || "vault source-of-truth layout failed",
           "validation_error",
         );
+      }
+      try {
+        const reg = loadRegistry(repoRoot);
+        const orgSlug = reg.active.org;
+        const orgEntry = reg.orgs[orgSlug];
+        const customers = orgEntry?.customers ?? {};
+        const initiativeWork = [];
+        for (const [customerSlug, customer] of Object.entries(customers)) {
+          for (const [initSlug, init] of Object.entries(customer.initiatives)) {
+            const loaded = loadInitiativeWork(repoRoot, init.businessIdea);
+            const work = buildOrgWorkGraph({
+              org: snap.org,
+              handoffs: loaded.handoffs,
+              runs: loaded.runs,
+              inbox: loaded.inbox,
+            });
+            initiativeWork.push({
+              customer: customerSlug,
+              initiative: initSlug,
+              work,
+            });
+          }
+        }
+        const meta = mocMetaFromRegistry(reg, initiativeWork, snap.org.roster);
+        syncVaultGraph(repoRoot, meta);
+      } catch (err) {
+        console.warn("[vault-graph-sync]", err);
       }
       return result;
     }

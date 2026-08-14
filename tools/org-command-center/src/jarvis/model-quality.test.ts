@@ -8,6 +8,7 @@ function h(partial: Partial<HandoffRecord>): HandoffRecord {
     kind: "ic",
     phase: "2",
     position: "market-research-analyst",
+    icsSpawned: [],
     reportsTo: "head-of-research",
     status: "done",
     verdictForManager: "",
@@ -29,6 +30,8 @@ function h(partial: Partial<HandoffRecord>): HandoffRecord {
     wireChecklistPath: "",
     licenseBasis: "",
     generationUsed: "",
+    happyPathSpec: "",
+    happyPathStatus: "",
     body: "",
     ...partial,
   };
@@ -60,5 +63,43 @@ describe("assessHandoffModelQuality", () => {
       "11",
     );
     expect(r.ok).toBe(false);
+  });
+
+  it("fails when handoff tier does not match registry", () => {
+    expect(
+      assessHandoffModelQuality(
+        h({ llmTier: "fast-ops", generationProfile: "none", fallbackApplied: "false" }),
+        { llmTier: "creative-language", generationProfile: "none" },
+        "6",
+      ).ok,
+    ).toBe(false);
+  });
+
+  it("fails when creative-language seat set fallback_applied true", () => {
+    expect(
+      assessHandoffModelQuality(
+        h({
+          llmTier: "creative-language",
+          generationProfile: "none",
+          fallbackApplied: "true",
+        }),
+        { llmTier: "creative-language", generationProfile: "none" },
+        "6",
+      ).ok,
+    ).toBe(false);
+  });
+
+  it("fails when frontier-reasoning seat set fallback_applied true", () => {
+    expect(
+      assessHandoffModelQuality(
+        h({
+          llmTier: "frontier-reasoning",
+          generationProfile: "none",
+          fallbackApplied: "true",
+        }),
+        { llmTier: "frontier-reasoning", generationProfile: "none" },
+        "6",
+      ).ok,
+    ).toBe(false);
   });
 });

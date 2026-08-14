@@ -378,12 +378,16 @@ export async function fetchGraphifyStatus(): Promise<GraphifyStatusResponse> {
 }
 
 export async function fetchOrgWorkGraph(
-  scope: "portfolio" | "initiative" = "portfolio",
+  focus: import("../jarvis/graph-scope").GraphFocus = { scope: "agency" },
 ): Promise<import("../jarvis/org-work-graph").OrgWorkGraph> {
-  const res = await fetch(`/api/org-work-graph?scope=${scope}`);
+  const q = new URLSearchParams({ scope: focus.scope });
+  if (focus.customer) q.set("customer", focus.customer);
+  if (focus.initiative) q.set("initiative", focus.initiative);
+  if (focus.seat) q.set("seat", focus.seat);
+  const res = await fetch(`/api/org-work-graph?${q}`);
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "org work graph failed");
-  return data.graph as import("../jarvis/org-work-graph").OrgWorkGraph;
+  return data.graph;
 }
 
 export type JarvisActResult = {

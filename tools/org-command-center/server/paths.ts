@@ -99,6 +99,16 @@ export function activeInitiativeSlug(repoRoot: string): string {
   return activeRef(repoRoot).initiative;
 }
 
+/**
+ * Slug for apps/design-system/<venture> and skill `<active>` artifact trees.
+ * Non-main initiatives use the initiative slug so packets do not target the
+ * customer's main (e.g. kennel website) tree.
+ */
+export function activeArtifactSlug(repoRoot: string): string {
+  const ref = activeRef(repoRoot);
+  return ref.initiative && ref.initiative !== "main" ? ref.initiative : ref.customer;
+}
+
 export function listProjects(repoRoot: string): { slug: string; name: string }[] {
   return listCustomers(loadRegistry(repoRoot));
 }

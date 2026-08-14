@@ -31,17 +31,15 @@ function resolveVentureContext(
   let businessIdea: string | undefined;
 
   if (raw.version === 2 && typeof raw.active === "object" && raw.orgs) {
+    const org = raw.active.org;
+    const customer = raw.active.customer;
+    const initiative = raw.active.initiative || "main";
+    // Non-main initiatives must not collapse to the customer website tree.
     ventureSlug =
-      opts?.ventureSlug ??
-      (typeof raw.active === "object" ? raw.active.customer : String(raw.active));
-    const org = typeof raw.active === "object" ? raw.active.org : Object.keys(raw.orgs)[0]!;
-    const initiative =
-      typeof raw.active === "object" && opts?.ventureSlug === undefined
-        ? raw.active.initiative
-        : "main";
+      opts?.ventureSlug ?? (initiative !== "main" ? initiative : customer);
     businessIdea =
-      raw.orgs[org]?.customers[ventureSlug]?.initiatives[initiative]?.businessIdea ??
-      raw.orgs[org]?.customers[ventureSlug]?.initiatives.main?.businessIdea;
+      raw.orgs[org]?.customers[customer]?.initiatives[initiative]?.businessIdea ??
+      raw.orgs[org]?.customers[customer]?.initiatives.main?.businessIdea;
   } else {
     ventureSlug =
       opts?.ventureSlug ??
@@ -107,6 +105,10 @@ export function parseSeatOutputsSection(skillMd: string): string[] {
     .filter((p) => p.length > 0 && !/^none$/i.test(p) && p !== "…" && p !== "...");
 }
 
+/** Legacy skill templates hardcode docs/projects/<active>/business-idea — map onto the active initiative path. */
+const LEGACY_PROJECTS_BUSINESS_IDEA =
+  /^docs\/projects\/(?:<active>|<venture>|[^/]+)\/business-idea(?:\/(.*))?$/;
+
 export function expandOutputPath(
   raw: string,
   opts: { ventureSlug: string; businessIdeaRel: string },
@@ -115,6 +117,14 @@ export function expandOutputPath(
     .replace(/`/g, "")
     .replace(/\s*\(.*$/, "")
     .trim();
+  const biz = stripTrailingSlash(opts.businessIdeaRel);
+
+  const legacy = p.match(LEGACY_PROJECTS_BUSINESS_IDEA);
+  if (legacy) {
+    const rest = (legacy[1] ?? "").replace(/^\/+/, "");
+    return stripTrailingSlash(rest ? `${biz}/${rest}` : biz);
+  }
+
   p = p
     .replaceAll("<active>", opts.ventureSlug)
     .replaceAll("<venture>", opts.ventureSlug);
@@ -126,7 +136,7 @@ export function expandOutputPath(
   ) {
     return stripTrailingSlash(p);
   }
-  return stripTrailingSlash(resolveArtifactPath(p, opts.businessIdeaRel));
+  return stripTrailingSlash(resolveArtifactPath(p, biz));
 }
 
 export function mergeUniquePaths(

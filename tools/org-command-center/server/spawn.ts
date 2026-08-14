@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import YAML from "yaml";
@@ -12,6 +12,8 @@ import {
   type WakeReason,
 } from "../src/lib/runs";
 import { SHIPPABLE_PRODUCTION_PHASES } from "../src/lib/seat-outputs";
+import { parseHandoff } from "../src/lib/parse-handoff";
+import { formatRedlineInstruction } from "../src/lib/redlines";
 import type { ManagerPacket } from "../src/lib/types";
 import { appendActivity } from "./activity";
 import { OPERATOR_DELIVERABLE_FORMAT } from "./jarvis/operator-summary";
@@ -59,6 +61,7 @@ export function buildSpawnPrompt(
     "phase",
     "goal",
     "created",
+    "artifact_path",
     ...(runId ? [`runId: ${runId}`] : []),
   ].join(", ");
 
@@ -106,6 +109,11 @@ export function buildSpawnPrompt(
     }
   }
 
+  acceptanceLines.push(
+    "- discipline: operator brief must be a delta; do not re-ask locked register ids; packs used must match your SKILL.md.",
+    "- After a shippable MVP exists, do not implement product bugs or design in this orchestrator/manager session — queue the phase owner (cto / creative-director).",
+  );
+
   return [
     `You are the digital worker for position \`${packet.position}\`.`,
     `Read skills/org/positions/${packet.position}/SKILL.md and skills/org/MODEL-REGISTRY.md first.`,
@@ -125,6 +133,34 @@ export function buildSpawnPrompt(
   ].join("\n");
 }
 
+function loadLatestPhaseReview(repoRoot: string, phase: string) {
+  const handoffsDir = join(repoRoot, businessIdeaFile(repoRoot, "HANDOFFS/"));
+  const csuiteName = `${phase}-csuite-review.md`;
+  const csuitePath = join(handoffsDir, csuiteName);
+  if (existsSync(csuitePath)) {
+    return parseHandoff(csuiteName, readFileSync(csuitePath, "utf8"));
+  }
+  if (!existsSync(handoffsDir)) return undefined;
+  const latest = readdirSync(handoffsDir)
+    .filter((n) => n.startsWith(`${phase}-manager-`) && n.endsWith(".md"))
+    .sort()
+    .at(-1);
+  if (!latest) return undefined;
+  return parseHandoff(latest, readFileSync(join(handoffsDir, latest), "utf8"));
+}
+
+function reviseInstructionFromHandoffs(
+  repoRoot: string,
+  phase: string,
+): string | undefined {
+  const review = loadLatestPhaseReview(repoRoot, phase);
+  if (!review || review.verdict.trim().toLowerCase() !== "revise") return undefined;
+  if (review.redlines.length === 0) {
+    return "C-suite verdict is revise but Redlines table is empty — ask orchestrator for section comments.";
+  }
+  return formatRedlineInstruction(review.redlines);
+}
+
 export function buildRewakePrompt(
   packet: ManagerPacket,
   repoRoot: string,
@@ -142,6 +178,9 @@ export function buildRewakePrompt(
       "Continue the existing packet. Do not discard prior work.",
       "",
     );
+  } else {
+    const reviseBlock = reviseInstructionFromHandoffs(repoRoot, packet.phase);
+    if (reviseBlock) lines.push("", reviseBlock);
   }
   lines.push("", buildSpawnPrompt(packet, repoRoot, runId));
   return lines.join("\n");

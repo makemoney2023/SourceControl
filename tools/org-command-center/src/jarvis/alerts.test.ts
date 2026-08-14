@@ -7,6 +7,7 @@ const base: HandoffRecord = {
   kind: "ic",
   phase: "2",
   position: "market-research-analyst",
+  icsSpawned: [],
   reportsTo: "head-of-research",
   status: "done",
   verdictForManager: "",
@@ -28,6 +29,8 @@ const base: HandoffRecord = {
   wireChecklistPath: "",
   licenseBasis: "",
   generationUsed: "",
+  happyPathSpec: "",
+  happyPathStatus: "",
   body: "",
 };
 
