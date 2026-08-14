@@ -61,6 +61,14 @@ describe("SeatNode source contract", () => {
     expect(source).toMatch(/previewWakeSlug/);
     expect(source).toMatch(/opacity=\{0\.5\}/);
   });
+
+  it("uses pointer enter/leave on the terminal group so child crossings do not reset hover dwell", () => {
+    const source = seatSource();
+    expect(source).toMatch(/onPointerEnter/);
+    expect(source).toMatch(/onPointerLeave/);
+    expect(source).not.toMatch(/onPointerOver/);
+    expect(source).not.toMatch(/onPointerOut/);
+  });
 });
 
 describe("PhaseBead source contract", () => {

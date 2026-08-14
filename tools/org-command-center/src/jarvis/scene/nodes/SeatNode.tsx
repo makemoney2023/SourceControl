@@ -101,14 +101,14 @@ export function SeatNode({
           e.stopPropagation();
           onSelect(seat.slug);
         }}
-        onPointerOver={(e) => {
+        onPointerEnter={(e) => {
           e.stopPropagation();
           setHovered(true);
           document.body.style.cursor = "pointer";
           if (hoverTimer.current !== null) clearTimeout(hoverTimer.current);
           hoverTimer.current = setTimeout(() => setShowCard(true), HOVER_CARD_MS);
         }}
-        onPointerOut={() => {
+        onPointerLeave={() => {
           setHovered(false);
           document.body.style.cursor = "auto";
           clearHoverCard();
