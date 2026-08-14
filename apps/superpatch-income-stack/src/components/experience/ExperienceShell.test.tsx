@@ -191,7 +191,7 @@ describe("ExperienceShell", () => {
       '[data-slide="02-world"] [data-scene-poster]',
     );
     expect(worldPoster?.getAttribute("src") ?? "").toMatch(
-      /sp-stack-02-the-question/,
+      /sp-stack-02-world/,
     );
     const stacksVideo = container.querySelector<HTMLVideoElement>(
       '[data-slide="03-four-stacks"] video',

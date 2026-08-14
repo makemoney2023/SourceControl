@@ -31,7 +31,7 @@ describe("DeckShell", () => {
     );
     expect(world?.tagName).toBe("IMG");
     expect(world?.getAttribute("src")).toMatch(
-      /\/concepts\/clean\/sp-stack-02-the-question\.png$/,
+      /\/concepts\/clean\/sp-stack-02-world\.png$/,
     );
     const videos = container.querySelectorAll("[data-slide] video[data-slide-plate]");
     expect(videos).toHaveLength(

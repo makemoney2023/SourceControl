@@ -346,7 +346,7 @@ export const SLIDES: Slide[] = [
   },
   {
     id: "02-world",
-    conceptSrc: "/concepts/clean/sp-stack-02-the-question.png",
+    conceptSrc: "/concepts/clean/sp-stack-02-world.png",
     accent: "cool",
     eyebrow: "The World Has Changed",
     headline: "Multiple income streams are no longer optional.",
@@ -416,7 +416,7 @@ export const SLIDES: Slide[] = [
   },
   {
     id: "05-product",
-    conceptSrc: "/concepts/clean/sp-stack-07-retail.png",
+    conceptSrc: "/concepts/clean/sp-stack-05-product.png",
     accent: "green",
     eyebrow: "Product Stack",
     headline: "Better products. Better results. Raving customers.",
@@ -435,7 +435,7 @@ export const SLIDES: Slide[] = [
   },
   {
     id: "06-brand",
-    conceptSrc: "/concepts/clean/sp-stack-03-four-stacks.png",
+    conceptSrc: "/concepts/clean/sp-stack-06-brand.png",
     accent: "blue",
     eyebrow: "Brand & Marketing Stack",
     headline: "Massive visibility. Powerful credibility. Relentless momentum.",
@@ -453,7 +453,7 @@ export const SLIDES: Slide[] = [
   },
   {
     id: "07-development",
-    conceptSrc: "/concepts/clean/sp-stack-12-generations.png",
+    conceptSrc: "/concepts/clean/sp-stack-07-development.png",
     accent: "violet",
     eyebrow: "Personal Development Stack",
     headline: "We don’t just build businesses. We build better people.",
@@ -666,7 +666,7 @@ export const SLIDES: Slide[] = [
   },
   {
     id: "17-compounding",
-    conceptSrc: "/concepts/clean/sp-stack-05-ecosystem.png",
+    conceptSrc: "/concepts/clean/sp-stack-17-compounding.png",
     accent: "orange",
     eyebrow: "The Power of Compounding Income",
     headline: "Every activity. Every layer. Every time.",
@@ -685,7 +685,7 @@ export const SLIDES: Slide[] = [
   },
   {
     id: "18-different",
-    conceptSrc: "/concepts/clean/sp-stack-07-retail.png",
+    conceptSrc: "/concepts/clean/sp-stack-18-different.png",
     accent: "multi",
     eyebrow: "Why Super Patch Is Different",
     headline: "A true Full Stack company",
@@ -704,7 +704,7 @@ export const SLIDES: Slide[] = [
   },
   {
     id: "19-future",
-    conceptSrc: "/concepts/clean/sp-stack-15-closing.png",
+    conceptSrc: "/concepts/clean/sp-stack-19-future.png",
     accent: "orange",
     eyebrow: "Imagine Your Future",
     headline: "You decide how far you go.",

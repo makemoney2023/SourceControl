@@ -166,6 +166,30 @@ describe("text-free plates", () => {
       expect(s.conceptSrc).toMatch(/^\/concepts\/clean\/sp-stack-/);
     }
   });
+
+  it("points new scenes at dedicated clean plates", () => {
+    expect(SLIDES.find((s) => s.id === "02-world")!.conceptSrc).toBe(
+      "/concepts/clean/sp-stack-02-world.png",
+    );
+    expect(SLIDES.find((s) => s.id === "05-product")!.conceptSrc).toBe(
+      "/concepts/clean/sp-stack-05-product.png",
+    );
+    expect(SLIDES.find((s) => s.id === "06-brand")!.conceptSrc).toBe(
+      "/concepts/clean/sp-stack-06-brand.png",
+    );
+    expect(SLIDES.find((s) => s.id === "07-development")!.conceptSrc).toBe(
+      "/concepts/clean/sp-stack-07-development.png",
+    );
+    expect(SLIDES.find((s) => s.id === "17-compounding")!.conceptSrc).toBe(
+      "/concepts/clean/sp-stack-17-compounding.png",
+    );
+    expect(SLIDES.find((s) => s.id === "18-different")!.conceptSrc).toBe(
+      "/concepts/clean/sp-stack-18-different.png",
+    );
+    expect(SLIDES.find((s) => s.id === "19-future")!.conceptSrc).toBe(
+      "/concepts/clean/sp-stack-19-future.png",
+    );
+  });
 });
 
 describe("plate annotations", () => {
