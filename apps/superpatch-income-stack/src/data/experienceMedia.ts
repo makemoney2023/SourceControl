@@ -16,6 +16,7 @@ export type ExperienceMedia = {
   portrait: ExperienceVariant;
   /** Closing scene uses the deterministic SuperPatch brand lockup treatment. */
   brandLockup?: boolean;
+  stillOnly?: boolean;
 };
 
 /** Omni plate slug keyed by slide id — plate filenames differ from a few slide ids. */
@@ -104,14 +105,25 @@ export function publicExperiencePath(publicPath: string): string {
 }
 
 export function assertExperienceMediaValid(media: ExperienceMedia[]): void {
-  if (media.length !== 15) {
-    throw new Error(`Expected 15 experience media entries, got ${media.length}`);
+  if (media.length !== SLIDES.length) {
+    throw new Error(
+      `Expected ${SLIDES.length} experience media entries, got ${media.length}`,
+    );
   }
   const ids = media.map((m) => m.slideId);
   if (new Set(ids).size !== ids.length) {
     throw new Error("Duplicate experience media slide ids");
   }
   for (const entry of media) {
+    if (entry.stillOnly) {
+      if (entry.landscape.src || entry.portrait.src) {
+        throw new Error(`stillOnly ${entry.slideId} must have empty src`);
+      }
+      if (!entry.landscape.poster || !entry.portrait.poster) {
+        throw new Error(`stillOnly ${entry.slideId} needs posters`);
+      }
+      continue;
+    }
     const slug = SLIDE_TO_OMNI_SLUG[entry.slideId];
     if (!slug) {
       throw new Error(`Missing Omni slug for ${entry.slideId}`);

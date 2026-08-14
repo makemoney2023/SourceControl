@@ -10,6 +10,7 @@ import {
   mediaWindow,
   publicExperiencePath,
   resolveExperienceSrc,
+  type ExperienceMedia,
 } from "./experienceMedia";
 
 const appRoot = resolve(import.meta.dirname, "../..");
@@ -79,6 +80,27 @@ describe("experienceMedia", () => {
         ).toBe(true);
       }
     }
+  });
+
+  it("treats an empty src as still-only poster media", () => {
+    const still: ExperienceMedia = {
+      slideId: "05-product",
+      stillOnly: true,
+      landscape: {
+        src: "",
+        poster: "/concepts/clean/sp-stack-07-retail.png",
+        width: 1920,
+        height: 1080,
+      },
+      portrait: {
+        src: "",
+        poster: "/concepts/clean/sp-stack-07-retail.png",
+        width: 1920,
+        height: 1080,
+      },
+    };
+    expect(still.stillOnly).toBe(true);
+    expect(still.landscape.src).toBe("");
   });
 
   it("keeps four-stacks landscape poster distinct from the-question woman still", () => {
