@@ -25,7 +25,7 @@ import { isSeatDimmed } from "../status";
 import { CommandTable } from "./CommandTable";
 import { PacketBeam } from "./effects/PacketBeam";
 import { ArtifactPlaque } from "./nodes/ArtifactPlaque";
-import { PhaseBead } from "./nodes/PhaseBead";
+import { isPhaseRailStatus, PhaseBead } from "./nodes/PhaseBead";
 import { SeatNode } from "./nodes/SeatNode";
 import { ReportEdges } from "./ReportEdges";
 
@@ -102,9 +102,7 @@ function TheaterScene({
     [snapshot.tracker.phases, snapshot.handoffs, snapshot.businessIdeaRel],
   );
 
-  const phaseBeads = snapshot.tracker.phases.filter((p) =>
-    ["⬜", "🔄", "✅", "⏭️"].includes(p.status),
-  );
+  const phaseBeads = snapshot.tracker.phases.filter((p) => isPhaseRailStatus(p.status));
 
   useEffect(() => {
     const c = controls.current;
@@ -232,8 +230,8 @@ function TheaterScene({
       <CameraControls
         ref={controls}
         makeDefault
-        minDistance={4}
-        maxDistance={22}
+        minDistance={5}
+        maxDistance={20}
         onStart={() => setOrbiting(true)}
       />
     </>

@@ -265,7 +265,6 @@ export function SituationRoom() {
   const seatReportSequence = useRef(new RequestSequence());
   const manualReloads = useRef(new ManualActivityCounter());
   const chatSendingRef = useRef(false);
-  const seatCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const cancellationRequests = useRef(new Set<string>());
 
   const openReport = useCallback(
@@ -284,12 +283,6 @@ export function SituationRoom() {
       setJarvisFocus(focus);
       if (focus?.slug) {
         selectStoreSlug(focus.slug);
-        requestAnimationFrame(() => {
-          seatCardRefs.current[focus.slug!]?.scrollIntoView({
-            block: "nearest",
-            behavior: "smooth",
-          });
-        });
         if (focus.openReport) {
           openReport(focus.slug, { focusQuestions: Boolean(focus.focusQuestions) });
         }

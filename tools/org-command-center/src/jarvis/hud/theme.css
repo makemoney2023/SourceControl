@@ -58,6 +58,14 @@
   margin: 0;
 }
 
+[data-theme="jarvis"] .j-wordmark {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--j-ink);
+  margin: 0;
+}
+
 [data-theme="jarvis"] .j-heading {
   font-size: 22px;
   font-weight: 600;
@@ -501,15 +509,6 @@
   border: 0;
 }
 
-[data-theme="jarvis"] .j-command-launch {
-  position: absolute;
-  z-index: 5;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  pointer-events: auto;
-}
-
 [data-theme="jarvis"] .j-command-trigger {
   display: inline-flex;
   align-items: center;
@@ -698,7 +697,13 @@
   align-items: center;
   gap: 8px;
 }
-[data-theme="jarvis"] .j-mission-controls { display: grid; gap: 8px; margin-top: 0; }
+[data-theme="jarvis"] .j-mission-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0;
+}
 [data-theme="jarvis"] .j-workspace-sheet { display: grid; gap: 18px; }
 [data-theme="jarvis"] .j-workspace-section { display: grid; gap: 10px; }
 [data-theme="jarvis"] .j-workspace-fields {

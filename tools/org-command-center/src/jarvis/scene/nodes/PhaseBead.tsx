@@ -5,7 +5,23 @@ import { useState } from "react";
 
 type PhaseMarkStatus = "Pending" | "In progress" | "Done" | "Skipped";
 
-function phaseMarkStatus(status: string): PhaseMarkStatus {
+const PHASE_RAIL_STATUSES = new Set([
+  "Pending",
+  "In progress",
+  "Done",
+  "Skipped",
+  "\u2B1C",
+  "\u{1F504}",
+  "\u2705",
+  "\u23ED\uFE0F",
+  "\u23ED",
+]);
+
+export function isPhaseRailStatus(status: string): boolean {
+  return PHASE_RAIL_STATUSES.has(status);
+}
+
+export function phaseMarkStatus(status: string): PhaseMarkStatus {
   if (status === "Done" || status === "\u2705") return "Done";
   if (status === "In progress" || status === "\u{1F504}") return "In progress";
   if (status === "Skipped" || status === "\u23ED\uFE0F" || status === "\u23ED") return "Skipped";

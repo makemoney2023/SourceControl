@@ -29,7 +29,7 @@ export function MissionContextBar({
       data-jarvis-focus={focusActive ? "true" : undefined}
     >
       <div className="j-glance-identity">
-        <p className="j-title">Situation Room</p>
+        <p className="j-wordmark">Situation Room</p>
         <p className="j-muted j-glance-meta">
           {customerName} · {initiativeName} · {phaseLabel}
         </p>

@@ -19,6 +19,7 @@ vi.mock("../../state/useJarvisStore", () => ({
   }),
 }));
 
+import { isPhaseRailStatus } from "./PhaseBead";
 import { SeatNode } from "./SeatNode";
 
 afterEach(cleanup);
@@ -72,6 +73,15 @@ describe("SeatNode source contract", () => {
 });
 
 describe("PhaseBead source contract", () => {
+  it("includes word statuses on the phase rail", () => {
+    expect(isPhaseRailStatus("Pending")).toBe(true);
+    expect(isPhaseRailStatus("In progress")).toBe(true);
+    expect(isPhaseRailStatus("Done")).toBe(true);
+    expect(isPhaseRailStatus("Skipped")).toBe(true);
+    expect(isPhaseRailStatus("\u2705")).toBe(true);
+    expect(isPhaseRailStatus("unknown")).toBe(false);
+  });
+
   it("sits on the table and labels phases in words, not emoji", () => {
     const source = beadSource();
     expect(source).toMatch(/y = 0\.06/);

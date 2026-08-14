@@ -1,5 +1,14 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+
+function walkSourceFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) return walkSourceFiles(path);
+    return /\.(tsx|ts)$/.test(entry.name) && !entry.name.includes(".test.") ? [path] : [];
+  });
+}
 
 const themeCss = readFileSync(new URL("./theme.css", import.meta.url), "utf8");
 const situationRoom = readFileSync(new URL("../SituationRoom.tsx", import.meta.url), "utf8");
@@ -86,6 +95,12 @@ describe("Jarvis HUD theme contracts", () => {
       /\[data-theme="jarvis"\]\.j-situation-shell\s*\{[^}]*display:\s*grid/,
     );
     expect(themeCss).toMatch(
+      /\[data-theme="jarvis"\]\.j-situation-shell\s*\{[^}]*grid-template-rows:\s*auto 1fr/,
+    );
+    expect(themeCss).toMatch(
+      /\.j-mission-controls\s*\{[^}]*display:\s*flex[^}]*flex-wrap:\s*wrap/,
+    );
+    expect(themeCss).toMatch(
       /@media \(max-width: 600px\)[\s\S]*?\[data-theme="jarvis"\]\.j-situation-shell\s*\{[^}]*grid-template-rows:\s*auto minmax\(620px,\s*auto\)/,
     );
     expect(themeCss).toMatch(
@@ -120,12 +135,14 @@ describe("Jarvis HUD theme contracts", () => {
     expect(themeCss).toMatch(/@media \(max-height: 700px\)[\s\S]*?\.j-theater-stage\s*\{[^}]*min-height:\s*520px/);
   });
 
-  it("does not use emoji as phase status chrome", () => {
+  it("scene chrome does not render emoji as phase status", () => {
     const room = readFileSync(new URL("../SituationRoom.tsx", import.meta.url), "utf8");
-    const beads = readFileSync(new URL("../scene/nodes/PhaseBead.tsx", import.meta.url), "utf8");
+    const sceneFiles = walkSourceFiles(new URL("../scene", import.meta.url).pathname);
     for (const ch of ["⬜", "🔄", "✅", "⏭️"]) {
       expect(room.includes(ch)).toBe(false);
-      expect(beads.includes(ch)).toBe(false);
+      for (const file of sceneFiles) {
+        expect(readFileSync(file, "utf8").includes(ch), `${file} renders ${ch}`).toBe(false);
+      }
     }
   });
 

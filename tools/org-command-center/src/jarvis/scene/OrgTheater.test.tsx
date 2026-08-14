@@ -19,12 +19,6 @@ vi.mock("@react-three/drei", () => ({
   MeshReflectorMaterial: () => null,
 }));
 
-vi.mock("@react-three/postprocessing", () => ({
-  Bloom: () => null,
-  EffectComposer: () => null,
-  Vignette: () => null,
-}));
-
 vi.mock("../state/useJarvisStore", () => ({
   useJarvisStore: () => ({
     mode: "floor",
@@ -63,6 +57,8 @@ describe("OrgTheater accessibility", () => {
     expect(source).not.toMatch(/EffectComposer/);
     expect(source).toMatch(/CommandTable/);
     expect(source).toMatch(/ambientLight/);
+    expect(source).toMatch(/minDistance=\{5\}/);
+    expect(source).toMatch(/maxDistance=\{20\}/);
   });
 
   it("follows running seats only when idle and not orbiting", () => {
@@ -72,6 +68,17 @@ describe("OrgTheater accessibility", () => {
     expect(source).toMatch(/followCentroid/);
     expect(source).toMatch(/onStart=\{.*setOrbiting\(true\)/);
     expect(source).toMatch(/setOrbiting\(false\)/);
+  });
+
+  it("includes word statuses on the phase rail", () => {
+    const theater = readFileSync("src/jarvis/scene/OrgTheater.tsx", "utf8");
+    const beads = readFileSync("src/jarvis/scene/nodes/PhaseBead.tsx", "utf8");
+    expect(beads).toMatch(/export function isPhaseRailStatus/);
+    expect(theater).toMatch(/isPhaseRailStatus/);
+    expect(beads).toMatch(/"Pending"/);
+    expect(beads).toMatch(/"In progress"/);
+    expect(beads).toMatch(/"Done"/);
+    expect(beads).toMatch(/"Skipped"/);
   });
 
   it("does not let decorative table meshes steal empty-table clicks", () => {
