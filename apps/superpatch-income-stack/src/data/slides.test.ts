@@ -105,7 +105,7 @@ describe("SLIDES", () => {
     expect(bridge.annotations?.map((a) => a.text)).toEqual([
       "1–3 FOUNDATION",
       "4–7 LEADERSHIP",
-      "8–10 EXECUTIVE & GLOBAL",
+      "8–10 EXECUTIVE",
     ]);
   });
 
@@ -238,10 +238,6 @@ describe("plate annotations", () => {
       "BRAND",
       "PEOPLE",
       "INCOME",
-      "Products create customers",
-      "Marketing creates demand",
-      "Income creates opportunity",
-      "Personal development creates leaders",
     ]);
   });
 
@@ -268,6 +264,31 @@ describe("plate annotations", () => {
       text: "2%",
       role: "metric",
     });
+  });
+
+  it("keeps every label chip in a named seat above the lower third", () => {
+    for (const s of SLIDES) {
+      for (const a of s.annotations ?? []) {
+        if (a.role !== "label") continue;
+        expect(a.yPct, `${s.id} "${a.text}" below y52`).toBeLessThanOrEqual(52);
+        expect(a.text, `${s.id} chip must be ALL CAPS`).toBe(a.text.toUpperCase());
+        expect(
+          a.text.trim().split(/\s+/).length,
+          `${s.id} "${a.text}" chips are 1–4 words`,
+        ).toBeLessThanOrEqual(4);
+        const crown = a.yPct <= 22;
+        const rail = a.xPct >= 72;
+        const tile = a.yPct > 22 && a.yPct <= 52;
+        expect(crown || rail || tile, `${s.id} "${a.text}" has no seat`).toBe(true);
+      }
+    }
+  });
+
+  it("hides plates that must not carry chips", () => {
+    for (const id of ["00-super-stack", "18-different", "15-closing"]) {
+      const slide = SLIDES.find((s) => s.id === id)!;
+      expect(slide.annotations ?? []).toHaveLength(0);
+    }
   });
 
   it("positions every annotation inside the plate", () => {
@@ -321,10 +342,6 @@ describe("plate annotations", () => {
       "BRAND",
       "PEOPLE",
       "INCOME",
-      "Products create customers",
-      "Marketing creates demand",
-      "Income creates opportunity",
-      "Personal development creates leaders",
     ]);
     expect(annotationsVisibleInLayout(flywheel, true).map((a) => a.text)).toEqual([
       "PRODUCT",
