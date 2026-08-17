@@ -176,6 +176,7 @@ export function Hero3dCanvas({
           gl.domElement.style.userSelect = "none";
         }}
         style={{ width: "100%", height: "100%", display: "block" }}
+        role="img"
         aria-label={
           variant === "patch"
             ? "Super Patch title product"

@@ -1,12 +1,13 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
+const SUPER_STACK_TITLE = "The SuperPatch Super Stack";
 const TITLE_HEADLINE =
   "More Than an Affiliate Program. A Complete Opportunity.";
-/** 1-based navigator index for `07-retail` in the 20-scene map. */
-const RETAIL_SCENE = 9;
+/** 1-based navigator index for `07-retail` in the 21-scene map. */
+const RETAIL_SCENE = 10;
 /** 1-based navigator index for closing (`15-closing`). */
-const CLOSING_SCENE = 20;
+const CLOSING_SCENE = 21;
 
 async function jumpToScene(page: Page, sceneNumber: number) {
   const desktopNav = page.getByRole("navigation", {
@@ -29,15 +30,17 @@ async function jumpToScene(page: Page, sceneNumber: number) {
 }
 
 test.describe("Income Stack 3D experience", () => {
-  test("renders 20 scenes and keeps narrative complete", async ({ page }) => {
+  test("renders 21 scenes and keeps narrative complete", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("[data-experience-shell]")).toBeVisible();
-    await expect(page.locator("[data-experience-scene]")).toHaveCount(20);
+    await expect(page.locator("[data-experience-scene]")).toHaveCount(21);
     await expect(
-      page.getByRole("heading", {
-        level: 1,
-        name: TITLE_HEADLINE,
-      }),
+      page.getByRole("heading", { level: 1, name: SUPER_STACK_TITLE }),
+    ).toBeVisible();
+    await jumpToScene(page, 2);
+    await page.waitForTimeout(900);
+    await expect(
+      page.getByRole("heading", { level: 2, name: TITLE_HEADLINE }),
     ).toBeVisible();
     await expect(page.locator('a[href="#experience-main"]')).toHaveCount(1);
   });
@@ -130,8 +133,8 @@ test.describe("Income Stack 3D experience", () => {
 
   test("plays only the active video", async ({ page }) => {
     await page.goto("/");
-    // Title is the live 3D hero (no video); assert on the first Omni video scene.
-    await jumpToScene(page, 3);
+    // Title is the live 3D hero (no video); `03-four-stacks` is scene 4 in the 21-scene map.
+    await jumpToScene(page, 4);
     await page.waitForFunction(() => {
       const active = document.querySelector<HTMLVideoElement>(
         '[data-slide="03-four-stacks"] video[data-scene-video]',
@@ -170,6 +173,8 @@ test.describe("Income Stack 3D experience", () => {
     page,
   }) => {
     await page.goto("/");
+    await jumpToScene(page, 2);
+    await page.waitForTimeout(900);
     const brandImage = page.locator(".experience-brand");
     await expect(brandImage).toHaveJSProperty("complete", true);
     await expect
@@ -262,7 +267,7 @@ test.describe("Income Stack 3D experience", () => {
     expect(state.outgoingScale).toBeLessThan(1);
     expect(state.outgoingRotation).toBeCloseTo(0, 5);
     expect(state.incomingRotation).toBeCloseTo(0, 5);
-    expect(state.sampleSlide).toBe("02-world");
+    expect(state.sampleSlide).toBe("01-title");
   });
 
   test("media, scrim, and typography occupy distinct parallax planes", async ({
@@ -277,7 +282,7 @@ test.describe("Income Stack 3D experience", () => {
     await page.waitForTimeout(900);
 
     const travel = await page
-      .locator('[data-slide="02-world"]')
+      .locator('[data-slide="01-title"]')
       .evaluate((scene) => {
         const y = (selector: string) => {
           const element = scene.querySelector<HTMLElement>(selector)!;
@@ -302,13 +307,14 @@ test.describe("Income Stack 3D experience", () => {
   });
 
   test("captures representative visual baselines", async ({ page }, testInfo) => {
+    test.setTimeout(60_000);
     test.skip(testInfo.project.name !== "desktop-chrome", "desktop baselines only");
     await page.setViewportSize({ width: 1440, height: 900 });
     // Reduced motion keeps the title poster stable (no animated WebGL hero).
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
     await page.waitForTimeout(500);
-    await expect(page).toHaveScreenshot("scene-01-title.png", {
+    await expect(page).toHaveScreenshot("scene-00-super-stack.png", {
       fullPage: false,
       maxDiffPixelRatio: 0.03,
       timeout: 15_000,
@@ -340,7 +346,7 @@ test.describe("Income Stack 3D experience", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
     await page.waitForTimeout(500);
-    await expect(page).toHaveScreenshot("scene-01-title-390x844.png", {
+    await expect(page).toHaveScreenshot("scene-00-super-stack-390x844.png", {
       fullPage: false,
       maxDiffPixelRatio: 0.03,
       timeout: 15_000,
@@ -361,12 +367,14 @@ test.describe("Income Stack 3D experience", () => {
 });
 
 test.describe("Premium V2 experience contracts", () => {
-  test("shows chapter counter and full stack label on first scene", async ({
+  test("shows chapter counter and super stack label on first scene", async ({
     page,
   }) => {
     await page.goto("/");
-    await expect(page.getByText("01 / 20")).toBeVisible();
-    await expect(page.getByText("Full Stack", { exact: true })).toBeVisible();
+    await expect(page.getByText("01 / 21")).toBeVisible();
+    await expect(page.locator(".experience-chapter-label")).toHaveText(
+      "Super Stack",
+    );
   });
 
   test("shows first-scroll cue on scene 1", async ({ page }) => {
@@ -432,7 +440,7 @@ test.describe("Premium V2 experience contracts", () => {
     page,
   }) => {
     await page.goto("/");
-    await jumpToScene(page, 3);
+    await jumpToScene(page, 4);
     const stacksScene = page.locator('[data-slide="03-four-stacks"]');
     await expect(stacksScene.locator("[data-scene-poster]")).toHaveAttribute(
       "data-poster-visible",
@@ -481,6 +489,8 @@ test.describe("Premium V2 experience contracts", () => {
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
+    await jumpToScene(page, 2);
+    await page.waitForTimeout(900);
     const layout = await page.locator('[data-slide="01-title"]').evaluate(() => {
       const copy = document.querySelector<HTMLElement>(
         '[data-slide="01-title"] [data-scene-copy]',
@@ -510,7 +520,7 @@ test.describe("Premium V2 experience contracts", () => {
   test("uses compact mobile navigation at 375x812", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto("/");
-    await expect(page.getByText("01 / 20")).toBeVisible();
+    await expect(page.getByText("01 / 21")).toBeVisible();
     await expect(page.locator("[data-nav-mode='compact']")).toBeVisible();
     await expect(
       page.locator(".experience-nav-list button"),
