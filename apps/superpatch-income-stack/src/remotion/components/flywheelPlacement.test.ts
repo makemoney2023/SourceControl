@@ -17,6 +17,11 @@ describe("flywheelPlacement", () => {
     const world = SLIDES.find((s) => s.id === "02-world")!;
     expect(flywheelPlacement(world)).toBeNull();
   });
+
+  it("returns corner for 17-compounding (no hero flywheel on the still)", () => {
+    const compounding = SLIDES.find((s) => s.id === "17-compounding")!;
+    expect(flywheelPlacement(compounding)).toBe("corner");
+  });
 });
 
 describe("copyEyebrowDelay", () => {

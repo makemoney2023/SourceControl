@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  FILM_SLIDES,
   SLIDES,
   STILL_CLIP_SEC,
   HERO_CLIP_SEC,
@@ -46,5 +47,11 @@ describe("remotion timeline", () => {
     expect(publicAssetPath("concepts/clean/x.png")).toBe(
       "concepts/clean/x.png",
     );
+  });
+
+  it("keeps the film on the 20-scene cut without the hero-caption scene", () => {
+    expect(FILM_SLIDES).toHaveLength(20);
+    expect(FILM_SLIDES.map((s) => s.id)).not.toContain("00-super-stack");
+    expect(FILM_SLIDES[0].id).toBe("01-title");
   });
 });

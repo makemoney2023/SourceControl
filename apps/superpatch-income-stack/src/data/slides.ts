@@ -701,7 +701,7 @@ export const SLIDES: Slide[] = [
       { text: "MULTIPLE INCOME STREAMS", xPct: 50, yPct: 48, sizePct: 2.6, role: "label" },
     ],
     flywheelArc: "income",
-    motionPreset: "flywheel-scrub",
+    motionPreset: "ken-burns-glow",
     requiresDisclosure: false,
   },
   {
@@ -769,3 +769,8 @@ export const SLIDES: Slide[] = [
     requiresDisclosure: true,
   },
 ];
+
+/** Remotion film scenes — the 3D hero-caption opener is web-only. */
+export const FILM_SLIDES: Slide[] = SLIDES.filter(
+  (s) => (s.copyLayout ?? "lower-third") !== "hero-caption",
+);
