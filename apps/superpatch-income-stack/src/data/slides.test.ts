@@ -16,9 +16,10 @@ import {
 } from "./slides";
 
 describe("SLIDES", () => {
-  it("has 20 slides with copy fields", () => {
-    expect(SLIDES).toHaveLength(20);
+  it("has 21 slides with copy fields", () => {
+    expect(SLIDES).toHaveLength(21);
     expect(SLIDES.map((s) => s.id)).toEqual([
+      "00-super-stack",
       "01-title",
       "02-world",
       "03-four-stacks",
@@ -41,12 +42,35 @@ describe("SLIDES", () => {
       "15-closing",
     ]);
     for (const s of SLIDES) {
-      expect(s.eyebrow.length).toBeGreaterThan(0);
       expect(s.headline.length).toBeGreaterThan(0);
+      if (s.copyLayout === "hero-caption") continue;
+      expect(s.eyebrow.length).toBeGreaterThan(0);
       const filmCopy = s.onScreenBody?.trim() ? s.onScreenBody : s.body;
       expect(wordCount(filmCopy)).toBeGreaterThanOrEqual(30);
       expect(wordCount(filmCopy)).toBeLessThanOrEqual(50);
     }
+  });
+
+  it("opens on the hero-caption super stack scene", () => {
+    const first = SLIDES[0];
+    expect(first.id).toBe("00-super-stack");
+    expect(first.copyLayout).toBe("hero-caption");
+    expect(first.headline).toBe("The SuperPatch Super Stack");
+    expect(first.eyebrow).toBe("");
+    expect(first.body).toBe("");
+    expect(first.annotations ?? []).toHaveLength(0);
+    expect(first.conceptSrc).toBe("/concepts/clean/sp-stack-18-different.png");
+    expect(first.requiresDisclosure).toBe(false);
+  });
+
+  it("keeps the trademark on scene 02, off scene 01", () => {
+    expect(SLIDES[0].eyebrow).not.toContain("™");
+    expect(SLIDES[1].id).toBe("01-title");
+    expect(SLIDES[1].eyebrow).toBe("The Super Patch Income Stack™");
+  });
+
+  it("exempts hero-caption slides from lower-third copy validation", () => {
+    expect(() => assertSlidesValid(SLIDES)).not.toThrow();
   });
 
   it("requires disclosure on money slides 07-14", () => {
@@ -116,9 +140,9 @@ describe("SLIDES", () => {
   });
 
   it("assertSlidesValid word-counts onScreenBody for film when set", () => {
-    const base = SLIDES[0]!;
+    const base = SLIDES[1]!;
     const withOverlay: typeof SLIDES = SLIDES.map((s, i) =>
-      i === 0
+      i === 1
         ? {
             ...base,
             body: "Speaker script that can run longer than fifty words for the presenter while the film overlay uses a shorter on-screen body string instead. Keep expanding this line with enough words so the speaker version clearly exceeds the fifty-word film limit and proves the relaxed body rule. Add still more spoken detail about pacing, sponsor guidance, and how affiliates choose their starting path without forcing that verbosity onto the film overlay.",
@@ -127,9 +151,9 @@ describe("SLIDES", () => {
           }
         : s,
     );
-    expect(wordCount(withOverlay[0]!.body)).toBeGreaterThan(50);
-    expect(wordCount(withOverlay[0]!.onScreenBody!)).toBeGreaterThanOrEqual(30);
-    expect(wordCount(withOverlay[0]!.onScreenBody!)).toBeLessThanOrEqual(50);
+    expect(wordCount(withOverlay[1]!.body)).toBeGreaterThan(50);
+    expect(wordCount(withOverlay[1]!.onScreenBody!)).toBeGreaterThanOrEqual(30);
+    expect(wordCount(withOverlay[1]!.onScreenBody!)).toBeLessThanOrEqual(50);
     expect(() => assertSlidesValid(withOverlay)).not.toThrow();
   });
 
@@ -354,6 +378,7 @@ describe("plate annotations", () => {
 
   it("uses animated hero loops on Omni scenes and omits hero on still-only beats", () => {
     const stillOnly = new Set([
+      "00-super-stack",
       "02-world",
       "05-product",
       "06-brand",

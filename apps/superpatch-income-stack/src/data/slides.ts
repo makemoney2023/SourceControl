@@ -159,6 +159,8 @@ export type Slide = {
   annotations?: PlateAnnotation[];
   flywheelArc?: FlywheelArc;
   motionPreset: string;
+  /** Scene 01 renders a centered hero caption instead of the cinematic lower third. */
+  copyLayout?: "lower-third" | "hero-caption";
   requiresDisclosure: boolean;
 };
 
@@ -233,20 +235,26 @@ export function assertHeroMedia(slide: Slide): void {
 }
 
 export function assertSlidesValid(slides: Slide[]): void {
-  if (slides.length !== 20) {
-    throw new Error(`Expected 20 slides, got ${slides.length}`);
+  if (slides.length !== 21) {
+    throw new Error(`Expected 21 slides, got ${slides.length}`);
   }
   for (const s of slides) {
-    if (!s.eyebrow?.trim() || !s.headline?.trim() || !s.body?.trim()) {
-      throw new Error(`Slide ${s.id} missing copy fields`);
+    const heroCaption = s.copyLayout === "hero-caption";
+    if (!s.headline?.trim()) {
+      throw new Error(`Slide ${s.id} missing headline`);
     }
-    // Film overlay word budget: prefer onScreenBody; otherwise body is the on-screen script.
-    const filmCopy = s.onScreenBody?.trim() ? s.onScreenBody : s.body;
-    const n = wordCount(filmCopy);
-    if (n < 30 || n > 50) {
-      throw new Error(
-        `Slide ${s.id} ${s.onScreenBody?.trim() ? "onScreenBody" : "body"} word count ${n} not in 30–50`,
-      );
+    if (!heroCaption) {
+      if (!s.eyebrow?.trim() || !s.body?.trim()) {
+        throw new Error(`Slide ${s.id} missing copy fields`);
+      }
+      // Film overlay word budget: prefer onScreenBody; otherwise body is the on-screen script.
+      const filmCopy = s.onScreenBody?.trim() ? s.onScreenBody : s.body;
+      const n = wordCount(filmCopy);
+      if (n < 30 || n > 50) {
+        throw new Error(
+          `Slide ${s.id} ${s.onScreenBody?.trim() ? "onScreenBody" : "body"} word count ${n} not in 30–50`,
+        );
+      }
     }
     if (s.requiresDisclosure) {
       if (!s.disclosure || s.disclosure.length < 10) {
@@ -281,6 +289,7 @@ export function assertSlidesValid(slides: Slide[]): void {
 }
 
 export type ExperienceChapterId =
+  | "super-stack"
   | "full-stack"
   | "ten-income-streams"
   | "momentum"
@@ -293,12 +302,13 @@ export type ExperienceChapter = {
   sceneEnd: number;
 };
 
-/** Premium V2 chapter groupings — scenes 01–07, 08–16, 17–19, 20. */
+/** Super Stack layout chapter groupings — scenes 01, 02–08, 09–17, 18–20, 21. */
 export const EXPERIENCE_CHAPTERS: ExperienceChapter[] = [
-  { id: "full-stack", label: "Full Stack", sceneStart: 0, sceneEnd: 6 },
-  { id: "ten-income-streams", label: "Ten Income Streams", sceneStart: 7, sceneEnd: 15 },
-  { id: "momentum", label: "Momentum", sceneStart: 16, sceneEnd: 18 },
-  { id: "action", label: "Action", sceneStart: 19, sceneEnd: 19 },
+  { id: "super-stack", label: "Super Stack", sceneStart: 0, sceneEnd: 0 },
+  { id: "full-stack", label: "Full Stack", sceneStart: 1, sceneEnd: 7 },
+  { id: "ten-income-streams", label: "Ten Income Streams", sceneStart: 8, sceneEnd: 16 },
+  { id: "momentum", label: "Momentum", sceneStart: 17, sceneEnd: 19 },
+  { id: "action", label: "Action", sceneStart: 20, sceneEnd: 20 },
 ];
 
 export function chapterForSceneIndex(index: number): ExperienceChapter {
@@ -317,6 +327,17 @@ export function formatSceneCounter(index: number): string {
 }
 
 export const SLIDES: Slide[] = [
+  {
+    id: "00-super-stack",
+    conceptSrc: "/concepts/clean/sp-stack-18-different.png",
+    accent: "blue",
+    eyebrow: "",
+    headline: "The SuperPatch Super Stack",
+    body: "",
+    copyLayout: "hero-caption",
+    motionPreset: "hero-patch",
+    requiresDisclosure: false,
+  },
   {
     id: "01-title",
     conceptSrc: "/concepts/clean/sp-stack-01-title.png",

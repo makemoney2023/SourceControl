@@ -28,7 +28,7 @@ describe("ExperienceShell", () => {
   it("renders 20 ordered semantic scenes with heading hierarchy", () => {
     const { container } = render(<ExperienceShell />);
     const scenes = container.querySelectorAll("[data-experience-scene]");
-    expect(scenes).toHaveLength(20);
+    expect(scenes).toHaveLength(21);
     expect([...scenes].map((el) => el.getAttribute("data-slide"))).toEqual(
       SLIDES.map((s) => s.id),
     );
@@ -40,7 +40,7 @@ describe("ExperienceShell", () => {
 
   it("keeps narrative copy accessible and marks video decorative", () => {
     const { container } = render(<ExperienceShell />);
-    expect(screen.getByText(SLIDES[0].body)).toBeTruthy();
+    expect(screen.getByText(SLIDES[1].body)).toBeTruthy();
     const videos = container.querySelectorAll("video");
     for (const video of videos) {
       expect(video.getAttribute("aria-hidden")).toBe("true");
@@ -168,23 +168,28 @@ describe("ExperienceShell", () => {
 
   it("uses Omni landscape sources by default with WebP posters", () => {
     const { container } = render(<ExperienceShell />);
-    // Title scene is the live 3D hero — no Omni video on slide 01.
+    // Opening scene is the live 3D hero — no Omni video on slide 00.
     const titleHero = container.querySelector(
-      '[data-slide="01-title"] [data-scene-hero3d]',
+      '[data-slide="00-super-stack"] [data-scene-hero3d]',
     );
     expect(titleHero).toBeTruthy();
     expect(
-      container.querySelector('[data-slide="01-title"] video'),
+      container.querySelector('[data-slide="00-super-stack"] video'),
     ).toBeNull();
     expect(
-      container.querySelector('[data-slide="01-title"]')?.getAttribute("data-hero3d"),
+      container.querySelector('[data-slide="00-super-stack"]')?.getAttribute("data-hero3d"),
     ).toBe("true");
     const titlePoster = container.querySelector<HTMLImageElement>(
-      '[data-slide="01-title"] [data-scene-poster]',
+      '[data-slide="00-super-stack"] [data-scene-poster]',
     );
     expect(titlePoster?.getAttribute("src")).toMatch(
-      /\/concepts\/omni-chain\/posters\/16x9\/sp-stack-01-title\.webp$/,
+      /\/concepts\/clean\/sp-stack-18-different\.png$/,
     );
+    expect(
+      container
+        .querySelector('[data-slide="01-title"] [data-scene-poster]')
+        ?.getAttribute("src"),
+    ).toMatch(/\/concepts\/omni-chain\/posters\/16x9\/sp-stack-01-title\.webp$/);
     // Later scenes still use Omni video (warm window attaches src).
     // 02-world is still-only; assert via poster. Omni video lives on later mapped scenes.
     const worldPoster = container.querySelector<HTMLImageElement>(
@@ -221,7 +226,7 @@ describe("ExperienceShell", () => {
   it("exposes a vertical scene navigator with 20 steps", () => {
     render(<ExperienceShell />);
     const nav = screen.getByRole("navigation", { name: /scene navigator/i });
-    expect(nav.querySelectorAll("button")).toHaveLength(20);
+    expect(nav.querySelectorAll("button")).toHaveLength(21);
   });
 
   it("composes each scene as one layered viewport card", () => {
@@ -260,8 +265,8 @@ describe("ExperienceShell", () => {
 
   it("exposes chapter-aware orientation in the chrome", () => {
     render(<ExperienceShell />);
-    expect(screen.getByText("01 / 20")).toBeTruthy();
-    expect(screen.getByText("Full Stack")).toBeTruthy();
+    expect(screen.getByText("01 / 21")).toBeTruthy();
+    expect(screen.getByText("Super Stack")).toBeTruthy();
   });
 
   it("does not expose hash placeholder CTA destinations in production scenes", () => {

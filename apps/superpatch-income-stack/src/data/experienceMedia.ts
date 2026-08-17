@@ -37,6 +37,7 @@ const SLIDE_TO_OMNI_SLUG: Record<string, string> = {
 };
 
 const STILL_ONLY_IDS = new Set([
+  "00-super-stack",
   "02-world",
   "05-product",
   "06-brand",

@@ -21,13 +21,13 @@ function fileMd5(publicPath: string): string {
 }
 
 describe("experienceMedia", () => {
-  it("maps exactly 20 unique scenes that match SLIDES order", () => {
+  it("maps exactly 21 unique scenes that match SLIDES order", () => {
     expect(EXPERIENCE_MEDIA).toHaveLength(SLIDES.length);
-    expect(EXPERIENCE_MEDIA).toHaveLength(20);
+    expect(EXPERIENCE_MEDIA).toHaveLength(21);
     expect(EXPERIENCE_MEDIA.map((m) => m.slideId)).toEqual(
       SLIDES.map((s) => s.id),
     );
-    expect(new Set(EXPERIENCE_MEDIA.map((m) => m.slideId)).size).toBe(20);
+    expect(new Set(EXPERIENCE_MEDIA.map((m) => m.slideId)).size).toBe(21);
   });
 
   it("provides Omni mp4s for motion scenes and empty src for still-only rows", () => {
@@ -71,9 +71,9 @@ describe("experienceMedia", () => {
     expect(title).toBeTruthy();
     expect(resolveExperienceSrc(title!, "landscape").src).toContain("/16x9/");
     expect(resolveExperienceSrc(title!, "portrait").src).toContain("/9x16/");
-    expect(mediaWindow(0, 20)).toEqual([0, 1]);
-    expect(mediaWindow(7, 20)).toEqual([6, 7, 8]);
-    expect(mediaWindow(19, 20)).toEqual([18, 19]);
+    expect(mediaWindow(0, 21)).toEqual([0, 1]);
+    expect(mediaWindow(7, 21)).toEqual([6, 7, 8]);
+    expect(mediaWindow(20, 21)).toEqual([19, 20]);
   });
 
   it("points public paths at files that exist on disk", () => {
@@ -90,6 +90,15 @@ describe("experienceMedia", () => {
         ).toBe(true);
       }
     }
+  });
+
+  it("serves the super stack scene as a still-only poster row", () => {
+    const superStack = experienceMediaForSlide("00-super-stack");
+    expect(superStack?.stillOnly).toBe(true);
+    expect(superStack?.landscape.poster).toBe(
+      "/concepts/clean/sp-stack-18-different.png",
+    );
+    expect(superStack?.landscape.src).toBe("");
   });
 
   it("treats an empty src as still-only poster media", () => {
