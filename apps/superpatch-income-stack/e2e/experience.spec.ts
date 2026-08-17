@@ -426,7 +426,7 @@ test.describe("Premium V2 experience contracts", () => {
     expect(mid).not.toBe("none");
   });
 
-  test("rapid jumps leave no intermediate annotations on destination scene", async ({
+  test("rapid jumps leave distant chips hidden", async ({
     page,
   }) => {
     await page.goto("/");
@@ -437,14 +437,16 @@ test.describe("Premium V2 experience contracts", () => {
 
     const closing = page.locator('[data-slide="15-closing"]');
     await expect(closing).toBeInViewport();
+    const distantChips = page.locator(
+      '[data-scene-lifecycle="distant"] [data-chip-item]',
+    );
+    await expect(distantChips).not.toHaveCount(0);
     // Warm-window neighbors may keep chips; distant scenes park them hidden.
     await expect
       .poll(async () => {
-        const opacities = await page
-          .locator('[data-scene-lifecycle="distant"] [data-chip-item]')
-          .evaluateAll((els) =>
-            els.map((el) => Number(getComputedStyle(el).opacity)),
-          );
+        const opacities = await distantChips.evaluateAll((els) =>
+          els.map((el) => Number(getComputedStyle(el).opacity)),
+        );
         return opacities.every((opacity) => opacity < 0.1);
       }, { timeout: 5000 })
       .toBe(true);

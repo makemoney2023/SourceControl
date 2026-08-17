@@ -20,6 +20,11 @@ import {
   shouldRefreshScrollTriggerOnResize,
 } from "./experienceMotionConfig";
 import {
+  chipDwellTriggerId,
+  parkDistantChipDwells,
+  resumeNearbyChipDwells,
+} from "./chipDwellParking";
+import {
   buildDwellSegments,
   sceneScrollHeightVhForChips,
 } from "./chipSequence";
@@ -35,31 +40,6 @@ function ensurePlugins() {
 }
 
 let windowScrollTween: gsap.core.Tween | undefined;
-
-function chipDwellTriggerId(sceneId: string) {
-  return `chip-dwell-${sceneId}`;
-}
-
-function parkDistantChipDwells(scenes: HTMLElement[]) {
-  for (const scene of scenes) {
-    const dwell = ScrollTrigger.getById(chipDwellTriggerId(scene.id));
-    if (scene.dataset.sceneLifecycle !== "distant") {
-      if (dwell?.animation?.paused()) dwell.animation.resume();
-      continue;
-    }
-    dwell?.animation?.pause();
-    const chips = scene.querySelectorAll("[data-chip-item]");
-    if (chips.length) {
-      gsap.killTweensOf(chips);
-      gsap.set(chips, { opacity: 0, x: 72, overwrite: true });
-    }
-    const copyBlock = scene.querySelector<HTMLElement>("[data-scene-copy]");
-    if (copyBlock) {
-      gsap.killTweensOf(copyBlock);
-      gsap.set(copyBlock, { x: 0, overwrite: true });
-    }
-  }
-}
 
 type Options = {
   enabled: boolean;
@@ -150,6 +130,9 @@ export function useExperienceMotion({
                   lifecycle === "distant" ? "auto" : "transform, opacity";
               }
             });
+            if (resumeNearbyChipDwells(scenes)) {
+              ScrollTrigger.update();
+            }
             onActiveIndex?.(index);
           };
 
@@ -534,6 +517,7 @@ export function useExperienceMotion({
               scene.style.removeProperty("height");
               delete scene.dataset.sceneLifecycle;
               delete scene.dataset.chipsAnimated;
+              delete scene.dataset.chipDwellParked;
               scene
                 .querySelector<HTMLElement>("[data-scene-card]")
                 ?.style.removeProperty("will-change");
