@@ -182,6 +182,108 @@ describe("SLIDES", () => {
     );
     expect(() => assertSlidesValid(broken)).toThrow(/incomplete end-card/i);
   });
+
+  it("gives every lower-third scene a sequenced chip set (63 chips total)", () => {
+    const withChips = SLIDES.filter((s) => (s.chips?.length ?? 0) > 0);
+    expect(withChips.map((s) => s.id)).toEqual([
+      "01-title",
+      "02-world",
+      "03-four-stacks",
+      "04-flywheel",
+      "05-product",
+      "06-brand",
+      "07-development",
+      "08-ten-layers",
+      "07-retail",
+      "08-fast-start",
+      "09-team-overrides",
+      "10-md-depth",
+      "11-vp-override",
+      "12-generations",
+      "13-executive",
+      "14-global",
+      "17-compounding",
+      "18-different",
+      "19-future",
+    ]);
+    const total = withChips.reduce((n, s) => n + (s.chips?.length ?? 0), 0);
+    expect(total).toBe(63);
+    expect(SLIDES.find((s) => s.id === "00-super-stack")?.chips).toBeUndefined();
+    expect(SLIDES.find((s) => s.id === "15-closing")?.chips).toBeUndefined();
+  });
+
+  it("keeps chip labels tight and sub-copy one readable line", () => {
+    for (const s of SLIDES) {
+      for (const chip of s.chips ?? []) {
+        expect(chip.label.trim().length, `${s.id} label empty`).toBeGreaterThan(0);
+        expect(wordCount(chip.label), `${s.id} "${chip.label}" too wordy`).toBeLessThanOrEqual(4);
+        expect(chip.label.length, `${s.id} "${chip.label}" too long`).toBeLessThanOrEqual(28);
+        expect(chip.sub.length, `${s.id} "${chip.label}" sub too short`).toBeGreaterThanOrEqual(12);
+        expect(chip.sub.length, `${s.id} "${chip.label}" sub too long`).toBeLessThanOrEqual(90);
+      }
+      expect(s.chips?.length ?? 0).toBeLessThanOrEqual(6);
+    }
+  });
+});
+
+describe("assertSlidesValid chip rules", () => {
+  const validSlide: Slide = {
+    id: "x",
+    conceptSrc: "/concepts/clean/x.png",
+    accent: "blue",
+    eyebrow: "EYEBROW",
+    headline: "Headline",
+    body: "word ".repeat(35).trim(),
+    motionPreset: "hero-patch",
+    requiresDisclosure: false,
+  };
+  const stack = (overrides: Partial<Slide>): Slide[] =>
+    Array.from({ length: 21 }, (_, i) =>
+      i === 1 ? { ...validSlide, ...overrides, id: `s${i}` } : { ...validSlide, id: `s${i}` },
+    );
+
+  it("rejects more than 6 chips", () => {
+    const chips = Array.from({ length: 7 }, (_, i) => ({
+      label: `CHIP ${i}`,
+      sub: "A supporting line of copy.",
+    }));
+    expect(() => assertSlidesValid(stack({ chips }))).toThrow(/at most 6 chips/);
+  });
+
+  it("rejects labels over 4 words or 28 characters", () => {
+    expect(() =>
+      assertSlidesValid(
+        stack({ chips: [{ label: "ONE TWO THREE FOUR FIVE", sub: "A supporting line." }] }),
+      ),
+    ).toThrow(/label/);
+    expect(() =>
+      assertSlidesValid(
+        stack({ chips: [{ label: "A".repeat(29), sub: "A supporting line." }] }),
+      ),
+    ).toThrow(/label/);
+  });
+
+  it("rejects sub-copy outside 12-90 characters", () => {
+    expect(() =>
+      assertSlidesValid(stack({ chips: [{ label: "CHIP", sub: "too short" }] })),
+    ).toThrow(/sub/);
+    expect(() =>
+      assertSlidesValid(stack({ chips: [{ label: "CHIP", sub: "x".repeat(91) }] })),
+    ).toThrow(/sub/);
+  });
+
+  it("rejects chips on hero-caption scenes", () => {
+    expect(() =>
+      assertSlidesValid(
+        stack({
+          copyLayout: "hero-caption",
+          eyebrow: "",
+          body: "",
+          chips: [{ label: "CHIP", sub: "A supporting line of copy." }],
+        }),
+      ),
+    ).toThrow(/hero-caption/);
+  });
 });
 
 describe("text-free plates", () => {

@@ -139,6 +139,12 @@ export type HeroMedia = {
   annotationsBaked: boolean;
 };
 
+/** One step of the scroll-driven chip sequence: big accent label + one-line context. */
+export type SequencedChip = {
+  label: string;
+  sub: string;
+};
+
 export type Slide = {
   id: string;
   conceptSrc: string;
@@ -157,6 +163,8 @@ export type Slide = {
   voiceover?: string;
   presenterNotes?: string;
   annotations?: PlateAnnotation[];
+  /** Scroll-sequenced lower-third chips; replaces the web plate-annotation overlay. */
+  chips?: SequencedChip[];
   flywheelArc?: FlywheelArc;
   motionPreset: string;
   /** Scene 01 renders a centered hero caption instead of the cinematic lower third. */
@@ -285,6 +293,26 @@ export function assertSlidesValid(slides: Slide[]): void {
         );
       }
     }
+    const chips = s.chips ?? [];
+    if (chips.length > 0 && s.copyLayout === "hero-caption") {
+      throw new Error(`Slide ${s.id} is hero-caption and cannot carry chips`);
+    }
+    if (chips.length > 6) {
+      throw new Error(`Slide ${s.id} has ${chips.length} chips; at most 6 chips per scene`);
+    }
+    for (const chip of chips) {
+      const words = wordCount(chip.label);
+      if (!chip.label.trim() || words < 1 || words > 4 || chip.label.length > 28) {
+        throw new Error(
+          `Slide ${s.id} chip label "${chip.label}" must be 1-4 words and <= 28 chars`,
+        );
+      }
+      if (chip.sub.length < 12 || chip.sub.length > 90) {
+        throw new Error(
+          `Slide ${s.id} chip "${chip.label}" sub must be 12-90 chars, got ${chip.sub.length}`,
+        );
+      }
+    }
   }
 }
 
@@ -357,6 +385,11 @@ export const SLIDES: Slide[] = [
       { text: "GREATER FREEDOM", xPct: 50, yPct: 16, sizePct: 3.2, role: "label" },
       { text: "BIGGER IMPACT", xPct: 78, yPct: 16, sizePct: 3.2, role: "label" },
     ],
+    chips: [
+      { label: "BETTER HEALTH", sub: "World-class wellness solutions that deliver real results." },
+      { label: "GREATER FREEDOM", sub: "Ten income streams you can build at your own pace." },
+      { label: "BIGGER IMPACT", sub: "A global movement of leaders building together." },
+    ],
     flywheelArc: "income",
     motionPreset: "parallax-slabs",
     requiresDisclosure: false,
@@ -373,6 +406,12 @@ export const SLIDES: Slide[] = [
       { text: "GIG ECONOMY", xPct: 38, yPct: 18, sizePct: 3.0, role: "label" },
       { text: "CREATOR ECONOMY", xPct: 60, yPct: 18, sizePct: 3.0, role: "label" },
       { text: "SOCIAL COMMERCE", xPct: 82, yPct: 18, sizePct: 3.0, role: "label" },
+    ],
+    chips: [
+      { label: "TRADITIONAL JOBS", sub: "One paycheck, capped upside, and someone else's schedule." },
+      { label: "GIG ECONOMY", sub: "Flexible work proved people want control of their time." },
+      { label: "CREATOR ECONOMY", sub: "Millions now earn by sharing what they love." },
+      { label: "SOCIAL COMMERCE", sub: "Buying moved to feeds, stories, and trusted voices." },
     ],
     motionPreset: "ken-burns-glow",
     requiresDisclosure: false,
@@ -396,6 +435,12 @@ export const SLIDES: Slide[] = [
       { text: "BRAND & MARKETING", xPct: 38.44, yPct: 48, sizePct: 3.2, role: "label" },
       { text: "INCOME STACK", xPct: 60.97, yPct: 48, sizePct: 3.2, role: "label" },
       { text: "PERSONAL DEVELOPMENT", xPct: 82.85, yPct: 48, sizePct: 3.2, role: "label" },
+    ],
+    chips: [
+      { label: "PRODUCT STACK", sub: "VTT patches and wellness solutions that deliver outcomes." },
+      { label: "BRAND & MARKETING", sub: "Global visibility and credibility that create demand." },
+      { label: "INCOME STACK", sub: "Ten streams that reward every stage of building." },
+      { label: "PERSONAL DEVELOPMENT", sub: "Training and community that build leaders." },
     ],
     flywheelArc: "all",
     motionPreset: "pillars-sequence",
@@ -423,6 +468,12 @@ export const SLIDES: Slide[] = [
       { text: "PEOPLE", xPct: 19.73, yPct: 48, sizePct: 5.97, role: "label" },
       { text: "INCOME", xPct: 80.76, yPct: 48, sizePct: 5.83, role: "label" },
     ],
+    chips: [
+      { label: "PRODUCTS CREATE CUSTOMERS", sub: "Real results turn buyers into raving fans." },
+      { label: "MARKETING CREATES DEMAND", sub: "Visibility and credibility bring customers to you." },
+      { label: "INCOME CREATES OPPORTUNITY", sub: "Ten streams turn activity into earnings." },
+      { label: "DEVELOPMENT CREATES LEADERS", sub: "Better people build stronger communities." },
+    ],
     flywheelArc: "all",
     motionPreset: "flywheel-scrub",
     requiresDisclosure: false,
@@ -439,6 +490,12 @@ export const SLIDES: Slide[] = [
       { text: "BACKED BY SCIENCE", xPct: 20, yPct: 36, sizePct: 2.8, role: "label" },
       { text: "15+ SOLUTIONS", xPct: 20, yPct: 44, sizePct: 2.8, role: "label" },
       { text: "TRUSTED BY MILLIONS", xPct: 20, yPct: 52, sizePct: 2.8, role: "label" },
+    ],
+    chips: [
+      { label: "PROPRIETARY TECHNOLOGY", sub: "Vibrotactile trigger technology found nowhere else." },
+      { label: "BACKED BY SCIENCE", sub: "Research-driven design behind every patch." },
+      { label: "15+ SOLUTIONS", sub: "Targeted patches for sleep, energy, focus, and more." },
+      { label: "TRUSTED BY MILLIONS", sub: "Customers worldwide feel the difference daily." },
     ],
     flywheelArc: "product",
     motionPreset: "node-mesh",
@@ -460,6 +517,13 @@ export const SLIDES: Slide[] = [
       { text: "HEALTHCARE", xPct: 78, yPct: 45.5, sizePct: 2.6, role: "label" },
       { text: "PRO SPORTS", xPct: 78, yPct: 52, sizePct: 2.6, role: "label" },
     ],
+    chips: [
+      { label: "GLOBAL MEDIA & PR", sub: "Featured in Forbes and Medical Daily." },
+      { label: "TOP CREATORS", sub: "Influencers like Mind Pump share Super Patch." },
+      { label: "RETAIL & DIGITAL", sub: "Growing retail and e-commerce channels worldwide." },
+      { label: "HEALTHCARE PROFESSIONALS", sub: "Recommended by practitioners on Healthgrades." },
+      { label: "PRO SPORTS", sub: "Covered by SportsTech Today. Worn by elite athletes." },
+    ],
     flywheelArc: "brand",
     motionPreset: "ken-burns-glow",
     requiresDisclosure: false,
@@ -477,6 +541,14 @@ export const SLIDES: Slide[] = [
       { text: "COMMUNICATION", xPct: 72, yPct: 40, sizePct: 2.5, role: "label" },
       { text: "FINANCE", xPct: 16, yPct: 52, sizePct: 2.5, role: "label" },
       { text: "MINDSET", xPct: 84, yPct: 52, sizePct: 2.5, role: "label" },
+    ],
+    chips: [
+      { label: "LEADERSHIP DEVELOPMENT", sub: "Learn to lead teams that build teams." },
+      { label: "SALES MASTERY", sub: "Share products with confidence and skill." },
+      { label: "COMMUNICATION SKILLS", sub: "Connect, present, and persuade with clarity." },
+      { label: "FINANCIAL EDUCATION", sub: "Understand, manage, and grow what you earn." },
+      { label: "MINDSET & GROWTH", sub: "Build the habits of top performers." },
+      { label: "COMMUNITY & SUPPORT", sub: "You never build alone at Super Patch." },
     ],
     flywheelArc: "development",
     motionPreset: "generation-rings",
@@ -504,6 +576,11 @@ export const SLIDES: Slide[] = [
       { text: "4–7 LEADERSHIP", xPct: 78, yPct: 40, sizePct: 3.0, role: "label" },
       { text: "8–10 EXECUTIVE", xPct: 78, yPct: 52, sizePct: 3.0, role: "label" },
     ],
+    chips: [
+      { label: "1-3 FOUNDATION", sub: "Retail commissions, Fast Start bonuses, and team overrides." },
+      { label: "4-7 LEADERSHIP", sub: "Depth bonuses, leg overrides, and generation pay." },
+      { label: "8-10 EXECUTIVE & GLOBAL", sub: "CEO bonuses, global overrides, and the leadership pool." },
+    ],
     flywheelArc: "income",
     motionPreset: "exploded-layers",
     requiresDisclosure: false,
@@ -524,6 +601,9 @@ export const SLIDES: Slide[] = [
     body: "This is where everyone begins. When someone buys through your personal affiliate link, you earn 25% commission on qualifying purchases — paid weekly. One product or several, if they buy through your link, you earn 25% of what they pay.",
     annotations: [
       { text: "25%", xPct: 22.62, yPct: 45.61, sizePct: 30.65, role: "metric" },
+    ],
+    chips: [
+      { label: "25% RETAIL COMMISSIONS", sub: "Earn 25% on every sale through your link, paid weekly." },
     ],
     disclosure: INCOME_DISCLOSURE,
     flywheelArc: "income",
@@ -546,6 +626,10 @@ export const SLIDES: Slide[] = [
     body: "Personally enroll three or more new affiliates in a month with qualifying kits and unlock Fast Start Bonuses from an additional $200 up to $2,000. As your organization hits sales milestones, Rank Advancement Bonuses can reach up to $100,000.",
     annotations: [
       { text: "$2,000", xPct: 81.9, yPct: 32.47, sizePct: 28.35, role: "metric" },
+    ],
+    chips: [
+      { label: "$200-$2,000 FAST START", sub: "Enroll three qualifying affiliates in a month to unlock." },
+      { label: "UP TO $100,000 RABS", sub: "Rank Advancement Bonuses grow with your sales milestones." },
     ],
     disclosure: INCOME_DISCLOSURE,
     flywheelArc: "income",
@@ -573,6 +657,11 @@ export const SLIDES: Slide[] = [
       { text: "4%", xPct: 9.51, yPct: 68.36, sizePct: 4.88, role: "metric" },
       { text: "4%", xPct: 9.51, yPct: 78.61, sizePct: 4.88, role: "metric" },
     ],
+    chips: [
+      { label: "15% ON LEVEL 1", sub: "Earn up to 15% of Bonus Volume on your first level." },
+      { label: "10% ON LEVEL 2", sub: "Earn up to 10% as your team helps others build." },
+      { label: "4% ON LEVELS 3-5", sub: "Depth pays: up to 4% on three more levels." },
+    ],
     disclosure: INCOME_DISCLOSURE,
     flywheelArc: "income",
     motionPreset: "root-tiers",
@@ -595,6 +684,9 @@ export const SLIDES: Slide[] = [
     annotations: [
       { text: "2%", xPct: 37.11, yPct: 13.23, sizePct: 6.1, role: "metric" },
     ],
+    chips: [
+      { label: "2% UNLIMITED DEPTH", sub: "Past level 5, down to the next qualified Managing Director." },
+    ],
     disclosure: INCOME_DISCLOSURE,
     flywheelArc: "income",
     motionPreset: "depth-rings",
@@ -614,6 +706,9 @@ export const SLIDES: Slide[] = [
     eyebrow: "Stack 5",
     headline: "Vice President Leadership Override",
     body: "As a Vice President, your leadership expands further. Instead of the Managing Director override, you earn 2% of Bonus Volume on every organizational leg down to the next qualified Vice President. The larger your organization becomes, the greater this income grows.",
+    chips: [
+      { label: "2% ON EVERY LEG", sub: "Every leg of your organization, down to the next VP." },
+    ],
     disclosure: INCOME_DISCLOSURE,
     flywheelArc: "income",
     motionPreset: "legs-descend",
@@ -633,6 +728,9 @@ export const SLIDES: Slide[] = [
     eyebrow: "Stack 6",
     headline: "Generation Bonuses",
     body: "This is where leadership begins rewarding leadership. As a Vice President and above, you earn 3% Generation Bonuses through up to three generations of Vice Presidents within your organization. Develop leaders who develop leaders — and your income keeps expanding.",
+    chips: [
+      { label: "3% x 3 GENERATIONS", sub: "Leadership rewarding leadership, three VP generations deep." },
+    ],
     disclosure: INCOME_DISCLOSURE,
     flywheelArc: "development",
     motionPreset: "generation-rings",
@@ -652,6 +750,10 @@ export const SLIDES: Slide[] = [
     eyebrow: "Stacks 7 & 8",
     headline: "Executive Leadership & CEO Leadership Bonus",
     body: "Reach Executive Leadership and earn up to an additional 2% override on Bonus Volume across your qualified affiliate organization — no preset cap. At President or Global President, earn an extra $10,000 to $20,000 every month for top-tier leadership performance.",
+    chips: [
+      { label: "2% EXECUTIVE OVERRIDE", sub: "Across your qualified organization with no preset cap." },
+      { label: "$10K-$20K MONTHLY", sub: "CEO Leadership Bonus at President and Global President." },
+    ],
     disclosure: INCOME_DISCLOSURE,
     flywheelArc: "income",
     motionPreset: "summit-reveal",
@@ -671,6 +773,10 @@ export const SLIDES: Slide[] = [
     eyebrow: "Stacks 9 & 10",
     headline: "Global President Override & Global Leadership Pool",
     body: "Global Presidents receive an additional 1% override on Bonus Volume throughout their qualified global organization. Qualified National Vice Presidents and above also participate in the Global 1% Leadership Pool — sharing in worldwide growth they help create.",
+    chips: [
+      { label: "1% GLOBAL OVERRIDE", sub: "On Bonus Volume across your qualified global organization." },
+      { label: "GLOBAL 1% POOL", sub: "Qualified NVPs and above share in worldwide growth." },
+    ],
     disclosure: INCOME_DISCLOSURE,
     flywheelArc: "income",
     motionPreset: "earth-arcs",
@@ -688,6 +794,14 @@ export const SLIDES: Slide[] = [
       { text: "100+", xPct: 76, yPct: 38, sizePct: 2.8, role: "label" },
       { text: "STREAMS", xPct: 85, yPct: 30, sizePct: 2.8, role: "label" },
     ],
+    chips: [
+      { label: "ONE CUSTOMER", sub: "Every stack starts with a single result." },
+      { label: "TEN CUSTOMERS", sub: "Real results spread by word of mouth." },
+      { label: "100+ CUSTOMERS", sub: "Momentum compounds as your base grows." },
+      { label: "TEAMS", sub: "Customers become affiliates and build with you." },
+      { label: "LEADERS", sub: "Teams develop leaders who develop leaders." },
+      { label: "MULTIPLE INCOME STREAMS", sub: "Every layer adds a new way to earn." },
+    ],
     flywheelArc: "income",
     motionPreset: "ken-burns-glow",
     requiresDisclosure: false,
@@ -699,6 +813,14 @@ export const SLIDES: Slide[] = [
     eyebrow: "Why Super Patch Is Different",
     headline: "A true Full Stack company",
     body: "Proven products people love. A massive brand and marketing engine. Ten ways to earn. Personal development built in. A global vision with unlimited potential. This is a full-stack company — not a single-commission catalog.",
+    chips: [
+      { label: "TRUE FULL STACK", sub: "Product, brand, income, and development in one company." },
+      { label: "PROVEN PRODUCTS", sub: "Wellness people can feel and reorder." },
+      { label: "BRAND ENGINE", sub: "Massive marketing that creates demand for you." },
+      { label: "TEN WAYS TO EARN", sub: "An Income Stack, not a single commission." },
+      { label: "DEVELOPMENT BUILT IN", sub: "Personal growth is part of the plan." },
+      { label: "GLOBAL VISION", sub: "Unlimited potential in a worldwide movement." },
+    ],
     flywheelArc: "all",
     motionPreset: "node-mesh",
     requiresDisclosure: false,
@@ -716,6 +838,13 @@ export const SLIDES: Slide[] = [
       { text: "OWN", xPct: 50, yPct: 36, sizePct: 2.6, role: "label" },
       { text: "FREEDOM", xPct: 66, yPct: 29, sizePct: 2.6, role: "label" },
       { text: "WEALTH", xPct: 82, yPct: 22, sizePct: 2.6, role: "label" },
+    ],
+    chips: [
+      { label: "SIDE INCOME", sub: "A few hundred a month changes the math." },
+      { label: "INCOME REPLACEMENT", sub: "Stack streams until they cover your paycheck." },
+      { label: "BUSINESS OWNERSHIP", sub: "Build an organization you are proud to own." },
+      { label: "FINANCIAL FREEDOM", sub: "Your time becomes yours again." },
+      { label: "GENERATIONAL WEALTH", sub: "Build something that outlasts you." },
     ],
     disclosure: INCOME_DISCLOSURE,
     flywheelArc: "income",
