@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-14  
 **Venture:** Superpatch / affiliates / income-stack-deck  
-**Status:** Approved for planning (Approach 1 — patch scene in the existing title slot)  
+**Status:** Approved for the patch GLB. Title-slot copy is superseded by `2026-08-17-income-stack-super-stack-layout-design.md` (patch moves to `00-super-stack`; no lower third on that scene).  
 **Implementation repo:** [SuperPatchAi/affiliateincomestack](https://github.com/SuperPatchAi/affiliateincomestack) (`deploy/affiliate-income-stack` tracks `affiliateincomestack/main`)  
 **Monorepo mirror:** `apps/superpatch-income-stack`  
 **Source asset:** `/Users/cbsuperpatch/Downloads/texturized-new.glb` (~1.3 MB)
@@ -21,7 +21,7 @@ Replace the title-scene photoreal plate stack with the texturized Super Patch `.
 | Desktop motion | Pointer-follow tilt; rest pose faces camera; no drag orbit; no full spin; no intro whip |
 | Tilt range | About ±18° yaw, ±12° pitch; damped; spring back to rest in 300–400ms on pointer leave |
 | Mobile / coarse | No pointer tracking; subtle idle rock only (a few degrees, slow sine) |
-| Framing | Raised / optically centered in the open sky above the lower-third scrim |
+| Framing | Hero patch at world height `0.93` on wide desktop (~32% of visible width). Compact / portrait keeps that same width-to-viewport ratio so the patch does not go edge-to-edge. Receding gold grid floor under the patch. No title flywheel |
 | Scroll | GSAP pin, cover handoff, dwell, SplitText, chapter chrome unchanged |
 | Copy | Existing `01-title` eyebrow / headline / body stay; no rewrite |
 | Plate stack | Keep on `?view=hero3d` only; do not delete photoreal look-dev |
@@ -64,9 +64,10 @@ Approach 1: new patch scene in the existing title WebGL slot.
 
 - Black void background, matching the current title canvas clear color.
 - Use the GLB’s authored materials and textures. Do not rebuild the patch as procedural geometry.
-- Add a simple key / fill / rim so the texturized surface reads on black. No new bloom requirement; keep existing quality-tier DPR cap.
-- Center and scale from the GLB bounding box. Camera and/or group offset place the patch in the upper ~60% of the viewport so the lower-third scrim and copy do not cover it.
-- Rest pose faces the camera. No ornamental spin-in.
+- Three spotlights from above the hero (left / center / right), plus fill / IBL so the texturized surface reads. No new bloom requirement; keep existing quality-tier DPR cap.
+- Single hero patch only — no satellite clones. Wide desktop keeps world height `0.93`. Compact / portrait uses the same `max-width: 900px` or portrait rule as the experience shell, and sizes the patch with `min(heightFrac × viewH, widthFrac × viewW)` so it keeps the desktop ~32% width ratio instead of filling the viewport. A gold grid floor sits under the patch and recedes into the distance (static when reduced motion). Do not render the circular flywheel on `01-title`.
+- Rest pose faces the camera. No ornamental spin-in until an approved first-paint intro lands.
+- On the first GSAP handoff (scroll to scene 02), the hero eases off-screen. The title canvas stays mounted while the scene is `previous`.
 
 ## Interaction
 
@@ -88,8 +89,8 @@ Approach 1: new patch scene in the existing title WebGL slot.
 
 ### Lifecycle
 
-- Mount the live canvas only when the title scene is active (current `SceneHero3d` `active` contract) and WebGL is available.
-- Inactive / distant title keeps the poster. Unmounting the canvas must not flash a black plane.
+- Mount the live canvas when the title scene is `active` or `previous` (so the field can fly off) and WebGL is available.
+- Distant title keeps the poster. Unmounting the canvas must not flash a black plane.
 - Quality tier still caps `devicePixelRatio`.
 
 ## Fallbacks and errors
