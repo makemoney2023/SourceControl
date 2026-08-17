@@ -593,6 +593,16 @@
   line-height: 1.4;
 }
 
+/* Compliance: on chip scenes the disclosure must outlive the copy exit,
+   so it pins to the bottom edge outside [data-scene-copy]. */
+.scene-disclosure-pinned {
+  position: absolute;
+  left: calc(clamp(24px, 7vw, 112px) + var(--safe-left));
+  bottom: calc(clamp(14px, 2.2vh, 26px) + var(--safe-bottom));
+  z-index: 4;
+  max-width: min(680px, calc(100vw - clamp(76px, 17vw, 250px)));
+}
+
 /* Scroll-sequenced chips occupy the lower-third seat the copy vacates.
    Items are grid-stacked; the motion hook drives opacity/x per scroll segment. */
 .chip-stage {

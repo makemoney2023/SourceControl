@@ -3,6 +3,10 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { SLIDES } from "../../data/slides";
 import { ExperienceShell } from "./ExperienceShell";
 
+function renderShell() {
+  return render(<ExperienceShell />);
+}
+
 describe("ExperienceShell", () => {
   beforeEach(() => {
     vi.stubGlobal(
@@ -272,5 +276,17 @@ describe("ExperienceShell", () => {
   it("no longer renders the plate-annotation overlay on the web", () => {
     const { container } = render(<ExperienceShell />);
     expect(container.querySelectorAll("[data-plate-annotation]")).toHaveLength(0);
+  });
+
+  it("pins the income disclosure outside the copy block on chip scenes", () => {
+    const { container } = renderShell();
+    const scene = container.querySelector('[data-slide="07-retail"]')!;
+    const pinned = scene.querySelector("[data-disclosure-pinned]")!;
+    expect(pinned.textContent).toContain("Income is not guaranteed");
+    expect(pinned.closest("[data-scene-copy]")).toBeNull();
+    expect(pinned.getAttribute("data-anim-layer")).toBe("disclosure");
+    // Non-chip scenes keep the disclosure where it was.
+    const closing = container.querySelector('[data-slide="15-closing"]')!;
+    expect(closing.querySelector("[data-disclosure-pinned]")).toBeNull();
   });
 });

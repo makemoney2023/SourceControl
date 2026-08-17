@@ -58,6 +58,7 @@ export function ExperienceScene({
   const activeStacks = new Set(activeStacksForSlide(slide.id));
   const body = slide.onScreenBody?.trim() ? slide.onScreenBody : slide.body;
   const hero3d = isHero3dExperienceSlide(slide.id);
+  const pinDisclosure = Boolean(slide.chips?.length && slide.disclosure);
 
   return (
     <section
@@ -211,7 +212,7 @@ export function ExperienceScene({
                 ) : null}
               </div>
             ) : null}
-            {slide.disclosure ? (
+            {!pinDisclosure && slide.disclosure ? (
               <p
                 className="scene-disclosure"
                 data-anim="disclosure"
@@ -222,6 +223,15 @@ export function ExperienceScene({
             ) : null}
             </div>
           )}
+          {pinDisclosure ? (
+            <p
+              className="scene-disclosure scene-disclosure-pinned"
+              data-anim-layer="disclosure"
+              data-disclosure-pinned
+            >
+              {slide.disclosure}
+            </p>
+          ) : null}
         </div>
       </div>
     </section>
