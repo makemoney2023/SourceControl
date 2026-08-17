@@ -83,8 +83,10 @@ New layout, not `.scene-copy`.
 - Type: display face, white, two lines, no red tick, no body, no chips
 - The patch stays the optical center. True geometric center is on the patch and is forbidden for type
 - Chrome already owns y 0–12, so a title above the patch is forbidden
-- Compact: same seat, smaller type
-- `isHero3dExperienceSlide` matches `00-super-stack`
+- Type scale: larger than the first Super Stack pass — desktop `clamp(2.35rem, 5.8vw, 5.75rem)`, compact `clamp(2.5rem, 9.4vw, 3.85rem)`
+- Compact logo: 20% larger than the shared compact frame (`compactScaleMul` 1.2 on `00-super-stack` only)
+- First paint: camera flyover + one Y spin, then idle rock. Product Stack does not replay this intro
+- `isHero3dExperienceSlide` matches `00-super-stack` and `05-product`
 
 ```
 THE SUPERPATCH
@@ -129,7 +131,7 @@ Array order is scene order. Income IDs stay.
 
 | # | ID | Was | Media |
 |---|---|---|---|
-| 01 | `00-super-stack` | — | `PatchHeroScene` + grid. Poster: `sp-stack-18-different.png`. Existing title poster remains the GLB-fail / no-WebGL fallback only |
+| 01 | `00-super-stack` | — | `PatchHeroScene` + grid. No still poster — black void only. Existing title poster remains unused on this scene |
 | 02 | `01-title` | `01-title` | Keep 10-slab plate / Omni |
 | 03 | `02-world` | `02-world` | Recolored still |
 | 04 | `03-four-stacks` | `03-four-stacks` | Keep Omni (baked labels) |
