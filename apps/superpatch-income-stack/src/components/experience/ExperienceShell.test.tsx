@@ -211,6 +211,19 @@ describe("ExperienceShell", () => {
     expect(stacksSrc).toMatch(/sp-stack-03-four-stacks/);
   });
 
+  it("renders the super stack scene as a centered hero caption", () => {
+    const { container } = render(<ExperienceShell />);
+    const scene = container.querySelector('[data-slide="00-super-stack"]')!;
+    expect(scene.querySelector("[data-scene-copy]")).toBeNull();
+    const caption = scene.querySelector("[data-scene-copy-hero]")!;
+    expect(caption).toBeTruthy();
+    const title = caption.querySelector("h1.scene-hero-title")!;
+    const lines = [...title.querySelectorAll("span")].map((s) => s.textContent);
+    expect(lines).toEqual(["The SuperPatch", "Super Stack"]);
+    expect(scene.querySelector(".scene-eyebrow")).toBeNull();
+    expect(scene.querySelector("[data-annotation-layer]")).toBeNull();
+  });
+
   it("keeps the experience title overlay copy on the 3D hero scene", () => {
     const { container } = render(<ExperienceShell />);
     const copy = container.querySelector(
@@ -266,7 +279,9 @@ describe("ExperienceShell", () => {
   it("exposes chapter-aware orientation in the chrome", () => {
     render(<ExperienceShell />);
     expect(screen.getByText("01 / 21")).toBeTruthy();
-    expect(screen.getByText("Super Stack")).toBeTruthy();
+    expect(
+      screen.getByText("Super Stack", { selector: ".experience-chapter-label" }),
+    ).toBeTruthy();
   });
 
   it("does not expose hash placeholder CTA destinations in production scenes", () => {
