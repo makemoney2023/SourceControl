@@ -20,6 +20,7 @@ import {
   sceneScrollHeightVh,
   shouldRefreshScrollTriggerOnResize,
 } from "./experienceMotionConfig";
+import { applyTitlePatchExit } from "./titlePatchExit";
 
 let registered = false;
 
@@ -206,9 +207,14 @@ export function useExperienceMotion({
                   invalidateOnRefresh: true,
                   onEnter: () => gsap.set(card, { visibility: "visible" }),
                   onEnterBack: () => gsap.set(card, { visibility: "visible" }),
-                  onLeaveBack: () => gsap.set(card, { visibility: "hidden" }),
-                  onUpdate: (self) =>
-                    reportActiveIndex(self.progress >= 0.5 ? index : index - 1),
+                  onLeaveBack: () => {
+                    gsap.set(card, { visibility: "hidden" });
+                    applyTitlePatchExit(scenes[0], index, 0);
+                  },
+                  onUpdate: (self) => {
+                    reportActiveIndex(self.progress >= 0.5 ? index : index - 1);
+                    applyTitlePatchExit(scenes[0], index, self.progress);
+                  },
                 },
               });
 

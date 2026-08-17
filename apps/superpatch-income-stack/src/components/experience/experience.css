@@ -422,7 +422,7 @@
 
 .scene-hero3d {
   z-index: 1;
-  touch-action: none;
+  touch-action: pan-y;
 }
 
 .scene-hero3d-canvas {
