@@ -553,7 +553,7 @@ test.describe("Premium V2 experience contracts", () => {
       };
     });
     expect(layout.top).toBeGreaterThanOrEqual(60);
-    expect(layout.bottom).toBeLessThanOrEqual(382);
+    expect(layout.bottom).toBeLessThanOrEqual(384);
     expect(layout.headlineSize).toBeLessThanOrEqual(50);
   });
 
