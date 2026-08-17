@@ -80,7 +80,10 @@ function variantFor(
 
 export const EXPERIENCE_MEDIA: ExperienceMedia[] = SLIDES.map((slide) => {
   if (STILL_ONLY_IDS.has(slide.id)) {
-    const poster = slide.conceptSrc;
+    const poster =
+      slide.id === "00-super-stack"
+        ? "/concepts/clean/sp-stack-18-different.webp"
+        : slide.conceptSrc;
     return {
       slideId: slide.id,
       stillOnly: true,

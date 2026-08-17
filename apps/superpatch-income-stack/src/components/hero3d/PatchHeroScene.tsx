@@ -103,6 +103,7 @@ export function PatchHeroScene({
   fovDeg,
   onReady,
 }: Props) {
+  useGLTF.preload(PATCH_MODEL_URL);
   const { scene: gltfScene } = useGLTF(PATCH_MODEL_URL);
   const { gl, camera } = useThree();
   const fieldRefs = useRef<Record<string, THREE.Group | null>>({});
@@ -275,5 +276,3 @@ export function PatchHeroScene({
     </>
   );
 }
-
-useGLTF.preload(PATCH_MODEL_URL);

@@ -183,7 +183,7 @@ describe("ExperienceShell", () => {
       '[data-slide="00-super-stack"] [data-scene-poster]',
     );
     expect(titlePoster?.getAttribute("src")).toMatch(
-      /\/concepts\/clean\/sp-stack-18-different\.png$/,
+      /\/concepts\/clean\/sp-stack-18-different\.webp$/,
     );
     expect(
       container

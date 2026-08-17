@@ -11,24 +11,28 @@ const { patchCanvasShouldFail, patchCanvasInnerFail, patchCanvasReady } =
   }));
 
 vi.mock("../hero3d/Hero3dCanvas", () => ({
-  Hero3dCanvas: (props: {
+  Hero3dCanvas: ({
+    variant,
+    onError,
+    onReady,
+  }: {
     variant?: string;
     onError?: () => void;
     onReady?: () => void;
   }) => {
     useEffect(() => {
       if (patchCanvasInnerFail.current) {
-        props.onError?.();
+        onError?.();
       }
       if (patchCanvasReady.current) {
-        props.onReady?.();
+        onReady?.();
       }
-    }, [props.onError, props.onReady]);
+    }, [onError, onReady]);
     if (patchCanvasShouldFail.current) {
       throw new Error("GLB load failed");
     }
     return (
-      <div data-hero3d-canvas data-hero3d-variant={props.variant ?? "stack"} />
+      <div data-hero3d-canvas data-hero3d-variant={variant ?? "stack"} />
     );
   },
 }));

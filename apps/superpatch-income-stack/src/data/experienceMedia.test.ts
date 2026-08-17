@@ -96,7 +96,7 @@ describe("experienceMedia", () => {
     const superStack = experienceMediaForSlide("00-super-stack");
     expect(superStack?.stillOnly).toBe(true);
     expect(superStack?.landscape.poster).toBe(
-      "/concepts/clean/sp-stack-18-different.png",
+      "/concepts/clean/sp-stack-18-different.webp",
     );
     expect(superStack?.landscape.src).toBe("");
   });

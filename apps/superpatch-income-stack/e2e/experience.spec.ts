@@ -553,6 +553,7 @@ test.describe("Premium V2 experience contracts", () => {
       };
     });
     expect(layout.top).toBeGreaterThanOrEqual(60);
+    // 384 (not 382): mobile-chrome 844×390 measured 383.44 under DPR/subpixel.
     expect(layout.bottom).toBeLessThanOrEqual(384);
     expect(layout.headlineSize).toBeLessThanOrEqual(50);
   });
