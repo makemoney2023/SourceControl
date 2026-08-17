@@ -503,6 +503,61 @@ test.describe("Premium V2 experience contracts", () => {
       .toBeGreaterThan(0.9);
   });
 
+  test("jump away from title mid-dwell then reverse restores copy", async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "desktop-chrome",
+      "scroll-scrub chip sequence is desktop-stable",
+    );
+    await page.goto("/");
+    await expect(page.locator("[data-experience-shell]")).toBeVisible();
+
+    await scrollToDwellFraction(page, "01-title", 0.4);
+    await expect
+      .poll(() => chipOpacity(page, "01-title", 0), { timeout: 5000 })
+      .toBeGreaterThan(0.9);
+
+    await jumpToScene(page, CLOSING_SCENE);
+    await page.waitForTimeout(1200);
+    await jumpToScene(page, 2);
+    await page.waitForTimeout(1200);
+
+    // Jump-back lands on read-hold: copy on-screen, chips hidden.
+    const copy = page.locator('[data-slide="01-title"] [data-scene-copy]');
+    await expect
+      .poll(
+        () =>
+          copy.evaluate((el) => {
+            const box = el.getBoundingClientRect();
+            return box.right > 0 && box.left < window.innerWidth;
+          }),
+        { timeout: 5000 },
+      )
+      .toBe(true);
+    await expect.poll(() => chipOpacity(page, "01-title", 0)).toBeLessThan(0.1);
+
+    await scrollToDwellFraction(page, "01-title", 0.4);
+    await expect
+      .poll(() => chipOpacity(page, "01-title", 0), { timeout: 5000 })
+      .toBeGreaterThan(0.9);
+    const copyX = await copy.evaluate((el) => el.getBoundingClientRect().right);
+    expect(copyX).toBeLessThan(0);
+
+    await scrollToDwellFraction(page, "01-title", 0.05);
+    await expect.poll(() => chipOpacity(page, "01-title", 0)).toBeLessThan(0.1);
+    await expect
+      .poll(
+        () =>
+          copy.evaluate((el) => {
+            const box = el.getBoundingClientRect();
+            return box.right > 0 && box.left < window.innerWidth;
+          }),
+        { timeout: 5000 },
+      )
+      .toBe(true);
+  });
+
   test("income disclosure stays pinned through the chip phase", async ({
     page,
   }, testInfo) => {

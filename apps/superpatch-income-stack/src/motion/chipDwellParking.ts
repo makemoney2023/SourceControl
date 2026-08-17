@@ -11,6 +11,8 @@ type ChipDwell = {
     resume: () => void;
     pause: () => void;
   };
+  disable?: (revert?: boolean) => void;
+  enable?: () => void;
 };
 
 export type ChipDwellLookup = (sceneId: string) => ChipDwell | undefined;
@@ -30,10 +32,11 @@ export function resumeNearbyChipDwells(
     if (scene.dataset.chipDwellParked !== "true") continue;
     const dwell = getDwell(scene.id);
     if (dwell?.animation?.paused()) {
+      dwell.enable?.();
       dwell.animation.resume();
       resumed = true;
+      delete scene.dataset.chipDwellParked;
     }
-    delete scene.dataset.chipDwellParked;
   }
   return resumed;
 }
@@ -45,18 +48,18 @@ export function parkDistantChipDwells(
 ) {
   for (const scene of scenes) {
     if (scene.dataset.sceneLifecycle !== "distant") continue;
-    getDwell(scene.id)?.animation?.pause();
+    const dwell = getDwell(scene.id);
+    dwell?.disable?.(false);
+    dwell?.animation?.pause();
     scene.dataset.chipDwellParked = "true";
     const chips = scene.querySelectorAll("[data-chip-item]");
     if (chips.length) {
-      gsap.killTweensOf(chips);
-      gsap.set(chips, { opacity: 0, x: 72, overwrite: true });
+      gsap.set(chips, { opacity: 0, x: 72 });
     }
     const copyBlock = scene.querySelector<HTMLElement>("[data-scene-copy]");
     if (copyBlock) {
-      gsap.killTweensOf(copyBlock);
-      gsap.set(copyBlock, { x: 0, overwrite: true });
+      gsap.set(copyBlock, { x: 0 });
     }
   }
-  resumeNearbyChipDwells(scenes, getDwell);
+  return resumeNearbyChipDwells(scenes, getDwell);
 }

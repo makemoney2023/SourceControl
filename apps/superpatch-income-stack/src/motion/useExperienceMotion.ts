@@ -588,7 +588,9 @@ export function scrollToScene(
     const el = document.querySelector(target);
     el?.scrollIntoView({ behavior: "auto" });
     ScrollTrigger.update();
-    parkDistantChipDwells(scenes);
+    if (parkDistantChipDwells(scenes)) {
+      ScrollTrigger.update();
+    }
     return;
   }
 
@@ -602,7 +604,9 @@ export function scrollToScene(
     onComplete: () => {
       resetLayers();
       ScrollTrigger.update();
-      parkDistantChipDwells(scenes);
+      if (parkDistantChipDwells(scenes)) {
+        ScrollTrigger.update();
+      }
       windowScrollTween = undefined;
     },
     onInterrupt: () => {
