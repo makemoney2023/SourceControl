@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { SLIDES } from "../../data/slides";
-import { shouldShowLiveAnnotations } from "../../remotion/labels";
 import { ExperienceShell } from "./ExperienceShell";
 
 describe("ExperienceShell", () => {
@@ -60,32 +59,6 @@ describe("ExperienceShell", () => {
     expect(
       screen.getByRole("link", { name: "Read the Income Disclosure" }),
     ).toBeTruthy();
-  });
-
-  it("keeps distant annotations unmounted and suppresses baked labels", () => {
-    const { container } = render(<ExperienceShell />);
-    expect(
-      container.querySelectorAll(
-        '[data-slide="03-four-stacks"] [data-plate-annotation]',
-      ),
-    ).toHaveLength(0);
-    expect(
-      container.querySelectorAll(
-        '[data-slide="03-four-stacks"] [data-annotation-layer]',
-      ),
-    ).toHaveLength(0);
-    // Active title + next world scenes mount live labels; distant scenes stay empty.
-    expect(
-      container.querySelectorAll(
-        '[data-scene-lifecycle="distant"] [data-plate-annotation]',
-      ),
-    ).toHaveLength(0);
-    expect(
-      container.querySelectorAll("[data-plate-annotation]").length,
-    ).toBeGreaterThan(0);
-    expect(container.querySelectorAll("[data-annotation-layer]")).toHaveLength(
-      SLIDES.filter(shouldShowLiveAnnotations).length,
-    );
   });
 
   it("marks only the active neighborhood for media and compositing", () => {
@@ -152,18 +125,11 @@ describe("ExperienceShell", () => {
         playedSources.push(this.getAttribute("src") ?? "");
         return Promise.resolve();
       });
-    const { container } = render(<ExperienceShell />);
+    render(<ExperienceShell />);
     expect(play).toHaveBeenCalled();
     for (const source of playedSources) {
       expect(source).toMatch(/\/9x16\//);
     }
-    // Plate labels sit above the scrim / outside the drifting media plane so
-    // cover-crop + scale cannot clip them on mobile.
-    const flywheelLayer = container.querySelector(
-      '[data-slide="04-flywheel"] [data-annotation-layer]',
-    );
-    expect(flywheelLayer).toBeTruthy();
-    expect(flywheelLayer?.closest("[data-scene-plane]")).toBeNull();
   });
 
   it("uses Omni landscape sources by default with WebP posters", () => {
@@ -221,7 +187,6 @@ describe("ExperienceShell", () => {
     const lines = [...title.querySelectorAll("span")].map((s) => s.textContent);
     expect(lines).toEqual(["The SuperPatch", "Super Stack"]);
     expect(scene.querySelector(".scene-eyebrow")).toBeNull();
-    expect(scene.querySelector("[data-annotation-layer]")).toBeNull();
   });
 
   it("keeps the experience title overlay copy on the 3D hero scene", () => {
@@ -291,5 +256,21 @@ describe("ExperienceShell", () => {
     const secondary = closing?.querySelector('[data-cta="secondary"]');
     expect(primary?.getAttribute("href")).toMatch(/^https:\/\//);
     expect(secondary?.getAttribute("href")).toMatch(/^https:\/\//);
+  });
+
+  it("renders the chip stage and static fallback list for chip scenes", () => {
+    const { container } = render(<ExperienceShell />);
+    const scene = container.querySelector('[data-slide="01-title"]')!;
+    expect(scene.querySelectorAll("[data-chip-item]")).toHaveLength(3);
+    const fallback = scene.querySelector("[data-chip-fallback]")!;
+    expect(fallback.textContent).toContain("BETTER HEALTH");
+    expect(
+      container.querySelector('[data-slide="00-super-stack"] [data-chip-stage]'),
+    ).toBeNull();
+  });
+
+  it("no longer renders the plate-annotation overlay on the web", () => {
+    const { container } = render(<ExperienceShell />);
+    expect(container.querySelectorAll("[data-plate-annotation]")).toHaveLength(0);
   });
 });

@@ -3,20 +3,16 @@ import {
   experienceMediaForSlide,
   resolveExperienceSrc,
 } from "../../data/experienceMedia";
-import {
-  annotationFontSizeCss,
-  annotationsVisibleInLayout,
-  type Slide as SlideData,
-} from "../../data/slides";
+import { type Slide as SlideData } from "../../data/slides";
 import {
   INCOME_STREAMS,
   activeStacksForSlide,
   isIncomeStreamSlide,
   isStreamIndexSlide,
 } from "../../data/streamIndex";
-import { shouldShowLiveAnnotations } from "../../remotion/labels";
 import type { SceneLifecycle } from "../../motion/experienceMotionConfig";
 import { Flywheel } from "../Flywheel";
+import { ChipStage } from "./ChipStage";
 import type { ProductionCtaLinks } from "./ctaLinks";
 import { SceneHero3d } from "./SceneHero3d";
 import { isHero3dExperienceSlide } from "./hero3dExperienceSlide";
@@ -48,7 +44,6 @@ export function ExperienceScene({
   soundEnabled,
   lifecycle,
   motionLayerActive = true,
-  compact = false,
   ctaLinks = null,
   reduceMotion = false,
 }: Props) {
@@ -58,11 +53,6 @@ export function ExperienceScene({
   }
   const variant = resolveExperienceSrc(media, aspect);
   const HeadingTag = index === 0 ? "h1" : "h2";
-  const showAnnotations = shouldShowLiveAnnotations(slide);
-  const visibleAnnotations = annotationsVisibleInLayout(
-    slide.annotations,
-    compact,
-  );
   const showStreamIndex = isStreamIndexSlide(slide.id);
   const showSpine = isIncomeStreamSlide(slide.id);
   const activeStacks = new Set(activeStacksForSlide(slide.id));
@@ -107,27 +97,7 @@ export function ExperienceScene({
 
           <div className="scene-scrim" data-scene-scrim aria-hidden="true" />
 
-          {showAnnotations && visibleAnnotations.length > 0 ? (
-            <div className="scene-annotations" data-annotation-layer aria-hidden>
-              {motionLayerActive
-                ? visibleAnnotations.map((annotation, i) => (
-                    <span
-                      key={`${annotation.text}-${i}`}
-                      className={`plate-annotation role-${annotation.role}`}
-                      style={{
-                        left: `${annotation.xPct}%`,
-                        top: `${annotation.yPct}%`,
-                        fontSize: annotationFontSizeCss(annotation, compact),
-                      }}
-                      data-plate-annotation
-                      data-anim="annotation"
-                    >
-                      {annotation.text}
-                    </span>
-                  ))
-                : null}
-            </div>
-          ) : null}
+          {slide.chips?.length ? <ChipStage chips={slide.chips} /> : null}
 
           {slide.copyLayout === "hero-caption" ? (
             <div className="scene-copy-hero" data-scene-copy-hero>
@@ -170,6 +140,15 @@ export function ExperienceScene({
               <p className="scene-body" data-anim="body" data-anim-layer="body">
                 {body}
               </p>
+        {slide.chips?.length ? (
+          <ul className="scene-chip-list" data-chip-fallback>
+            {slide.chips.map((chip) => (
+              <li key={chip.label}>
+                <strong>{chip.label}</strong> {chip.sub}
+              </li>
+            ))}
+          </ul>
+        ) : null}
             {showStreamIndex ? (
               <ol className="stream-index" data-stream-index data-anim="body">
                 {INCOME_STREAMS.map((stream) => (
