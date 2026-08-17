@@ -29,6 +29,29 @@ async function jumpToScene(page: Page, sceneNumber: number) {
     .selectOption(String(sceneNumber - 1));
 }
 
+async function scrollToDwellFraction(
+  page: Page,
+  sceneId: string,
+  fraction: number,
+) {
+  const y = await page.evaluate(
+    ({ sceneId, fraction }) => {
+      const scene = document.getElementById(`scene-${sceneId}`);
+      if (!scene) throw new Error(`missing scene ${sceneId}`);
+      const dwell = scene.offsetHeight - window.innerHeight;
+      return scene.offsetTop + Math.round(dwell * fraction);
+    },
+    { sceneId, fraction },
+  );
+  await page.evaluate((y) => window.scrollTo(0, y), y);
+}
+
+async function chipOpacity(page: Page, sceneId: string, index: number) {
+  return page
+    .locator(`[data-slide="${sceneId}"] [data-chip-index="${index}"]`)
+    .evaluate((el) => Number(getComputedStyle(el).opacity));
+}
+
 test.describe("Income Stack 3D experience", () => {
   test("renders 21 scenes and keeps narrative complete", async ({ page }) => {
     await page.goto("/");
@@ -414,13 +437,85 @@ test.describe("Premium V2 experience contracts", () => {
 
     const closing = page.locator('[data-slide="15-closing"]');
     await expect(closing).toBeInViewport();
-    // Warm-window neighbors may keep labels; distant scenes must not.
-    await expect(
-      page.locator('[data-scene-lifecycle="distant"] [data-plate-annotation]'),
-    ).toHaveCount(0);
+    // Warm-window neighbors may keep chips; distant scenes park them hidden.
+    await expect
+      .poll(async () => {
+        const opacities = await page
+          .locator('[data-scene-lifecycle="distant"] [data-chip-item]')
+          .evaluateAll((els) =>
+            els.map((el) => Number(getComputedStyle(el).opacity)),
+          );
+        return opacities.every((opacity) => opacity < 0.1);
+      }, { timeout: 5000 })
+      .toBe(true);
     await expect(
       closing.locator("[data-stream-index], [data-progress-spine]"),
     ).toHaveCount(0);
+  });
+
+  test("title scene chips sequence one at a time on scroll", async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "desktop-chrome",
+      "scroll-scrub chip sequence is desktop-stable",
+    );
+    await page.goto("/");
+    await expect(page.locator("[data-experience-shell]")).toBeVisible();
+    await expect(
+      page.locator('[data-slide="01-title"] [data-chip-item]'),
+    ).toHaveCount(3);
+
+    // Read hold: copy visible, no chips yet.
+    await scrollToDwellFraction(page, "01-title", 0.05);
+    await expect.poll(() => chipOpacity(page, "01-title", 0)).toBeLessThan(0.1);
+
+    // Chip 0 holds alone mid-slot; copy has exited left.
+    await scrollToDwellFraction(page, "01-title", 0.4);
+    await expect
+      .poll(() => chipOpacity(page, "01-title", 0), { timeout: 5000 })
+      .toBeGreaterThan(0.9);
+    await expect.poll(() => chipOpacity(page, "01-title", 1)).toBeLessThan(0.1);
+    const copyX = await page
+      .locator('[data-slide="01-title"] [data-scene-copy]')
+      .evaluate((el) => el.getBoundingClientRect().right);
+    expect(copyX).toBeLessThan(0);
+
+    // Chip 1 replaces chip 0.
+    await scrollToDwellFraction(page, "01-title", 0.65);
+    await expect
+      .poll(() => chipOpacity(page, "01-title", 1), { timeout: 5000 })
+      .toBeGreaterThan(0.9);
+    await expect.poll(() => chipOpacity(page, "01-title", 0)).toBeLessThan(0.1);
+
+    // Last chip holds at the end of the dwell.
+    await scrollToDwellFraction(page, "01-title", 0.95);
+    await expect
+      .poll(() => chipOpacity(page, "01-title", 2), { timeout: 5000 })
+      .toBeGreaterThan(0.9);
+
+    // Pure scroll: reversing restores chip 0.
+    await scrollToDwellFraction(page, "01-title", 0.4);
+    await expect
+      .poll(() => chipOpacity(page, "01-title", 0), { timeout: 5000 })
+      .toBeGreaterThan(0.9);
+  });
+
+  test("income disclosure stays pinned through the chip phase", async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "desktop-chrome",
+      "scroll-scrub chip sequence is desktop-stable",
+    );
+    await page.goto("/");
+    await expect(page.locator("[data-experience-shell]")).toBeVisible();
+    await scrollToDwellFraction(page, "07-retail", 0.9);
+    const pinned = page.locator('[data-slide="07-retail"] [data-disclosure-pinned]');
+    await expect(pinned).toBeVisible();
+    await expect
+      .poll(() => pinned.evaluate((el) => Number(getComputedStyle(el).opacity)))
+      .toBeGreaterThan(0.9);
   });
 
   test("accepts validated e2e CTA destinations without hash placeholders", async ({

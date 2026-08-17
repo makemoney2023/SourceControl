@@ -36,6 +36,31 @@ function ensurePlugins() {
 
 let windowScrollTween: gsap.core.Tween | undefined;
 
+function chipDwellTriggerId(sceneId: string) {
+  return `chip-dwell-${sceneId}`;
+}
+
+function parkDistantChipDwells(scenes: HTMLElement[]) {
+  for (const scene of scenes) {
+    const dwell = ScrollTrigger.getById(chipDwellTriggerId(scene.id));
+    if (scene.dataset.sceneLifecycle !== "distant") {
+      if (dwell?.animation?.paused()) dwell.animation.resume();
+      continue;
+    }
+    dwell?.animation?.pause();
+    const chips = scene.querySelectorAll("[data-chip-item]");
+    if (chips.length) {
+      gsap.killTweensOf(chips);
+      gsap.set(chips, { opacity: 0, x: 72, overwrite: true });
+    }
+    const copyBlock = scene.querySelector<HTMLElement>("[data-scene-copy]");
+    if (copyBlock) {
+      gsap.killTweensOf(copyBlock);
+      gsap.set(copyBlock, { x: 0, overwrite: true });
+    }
+  }
+}
+
 type Options = {
   enabled: boolean;
   scope: RefObject<HTMLElement | null>;
@@ -71,7 +96,7 @@ export function useExperienceMotion({
       if (!enabled) {
         gsap.set(
           root.querySelectorAll(
-            "[data-scene-card], [data-scene-plane], [data-scene-scrim], [data-scene-copy] [data-anim-layer], [data-annotation-layer], [data-stream-index], [data-progress-spine]",
+            "[data-scene-card], [data-scene-plane], [data-scene-scrim], [data-scene-copy] [data-anim-layer], [data-disclosure-pinned], [data-annotation-layer], [data-stream-index], [data-progress-spine]",
           ),
           { clearProps: "all" },
         );
@@ -307,9 +332,14 @@ export function useExperienceMotion({
             }
 
             if (sceneDwellEnabled(index)) {
+              const chipEls = Array.from(
+                scene.querySelectorAll<HTMLElement>("[data-chip-item]"),
+              );
+              const copyBlock = scene.querySelector<HTMLElement>("[data-scene-copy]");
               const dwell = gsap
                 .timeline({
                   scrollTrigger: {
+                    id: chipDwellTriggerId(scene.id),
                     trigger: scene,
                     start: "top top",
                     end: "bottom bottom",
@@ -345,10 +375,6 @@ export function useExperienceMotion({
                   0,
                 );
 
-              const chipEls = Array.from(
-                scene.querySelectorAll<HTMLElement>("[data-chip-item]"),
-              );
-              const copyBlock = scene.querySelector<HTMLElement>("[data-scene-copy]");
               const segments = buildDwellSegments(chipEls.length);
               if (segments && copyBlock) {
                 scene.dataset.chipsAnimated = "true";
@@ -578,6 +604,7 @@ export function scrollToScene(
     const el = document.querySelector(target);
     el?.scrollIntoView({ behavior: "auto" });
     ScrollTrigger.update();
+    parkDistantChipDwells(scenes);
     return;
   }
 
@@ -591,6 +618,7 @@ export function scrollToScene(
     onComplete: () => {
       resetLayers();
       ScrollTrigger.update();
+      parkDistantChipDwells(scenes);
       windowScrollTween = undefined;
     },
     onInterrupt: () => {
