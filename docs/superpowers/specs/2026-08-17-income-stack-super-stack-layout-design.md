@@ -134,7 +134,7 @@ Array order is scene order. Income IDs stay.
 | 03 | `02-world` | `02-world` | Recolored still |
 | 04 | `03-four-stacks` | `03-four-stacks` | Keep Omni (baked labels) |
 | 05 | `04-flywheel` | `04-flywheel` | Keep Omni |
-| 06 | `05-product` | `05-product` | Keep still |
+| 06 | `05-product` | `05-product` | Live 3D patch (`superpatch-title.glb`) + receding floor. Logo GLB stays on `00-super-stack` only |
 | 07 | `06-brand` | `06-brand` | Keep still |
 | 08 | `07-development` | `07-development` | Keep still |
 | 09 | `08-ten-layers` | `08-ten-layers` | Keep Omni |
