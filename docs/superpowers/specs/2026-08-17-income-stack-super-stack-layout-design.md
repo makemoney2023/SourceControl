@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-17  
 **Venture:** Superpatch / affiliates / income-stack-deck  
-**Status:** Draft for review  
+**Status:** Approved — implemented on feat/income-stack-gap-fill  
 **App:** `apps/superpatch-income-stack`  
 **SSOT:** `src/data/slides.ts`  
 **Copy mirror:** `docs/orgs/superpatch/customers/affiliates/initiatives/income-stack-deck/business-idea/assets/copy/SLIDES.md`  
@@ -34,7 +34,9 @@ Open the deck on the 3D patch with a centered product title, **THE SUPERPATCH SU
 | Why Different plate | No checklist on the patch. Use as scene 01 poster and/or a still. Regen out of scope |
 | Omni / Veo for new IDs | Still out of scope |
 | Closing CTAs | Unchanged: “Get your affiliate link” / “Read the Income Disclosure” |
-| Worktree | Merge `feat/income-stack-title-patch-glb` into gap-fill (or a new `feat/income-stack-layout-21`) before implementation |
+| Worktree | **Port, not merge.** `feat/income-stack-title-patch-glb` shares no git history with gap-fill and uses the standalone-repo layout (`src/` at root vs `apps/superpatch-income-stack/src/`). Copy the patch files in (list under Architecture) |
+| Remotion film | Excludes hero-caption slides (`SLIDES.filter`). Rendered film stays the current 20-scene cut |
+| Compact chips | Existing width rule (`annotationsVisibleInLayout`) drops labels longer than ~11 chars on phones. Accepted: long crown/rail chips are desktop-only; compact carries the story in the lower third. Short chips (`ONE`, `100+`, `SIDE`, `OWN`) survive |
 
 ## Approaches considered
 
@@ -149,12 +151,15 @@ Locked strings. Implementation may tighten body word count into the 30–50 band
 ### 01 `00-super-stack`
 
 - **Component:** Hero caption
-- **Lines:** `THE SUPERPATCH` / `SUPER STACK`
-- **Eyebrow / body / annotations:** none
+- **Lines:** `THE SUPERPATCH` / `SUPER STACK` (uppercase via CSS)
+- **`headline` field:** `The SuperPatch Super Stack` — required by the type; feeds navigator aria-labels and the compact jump menu
+- **Eyebrow / body / annotations:** none. `assertSlidesValid` exempts `copyLayout === "hero-caption"` slides from the eyebrow/body requirement and the 30–50 film word budget
+- **`conceptSrc`:** `/concepts/clean/sp-stack-18-different.png` (required field; doubles as the poster)
+- **`motionPreset`:** `hero-patch` (new string; no `flywheelArc`)
 - **Accent:** blue
 - **Disclosure:** no
 - **Hero3d:** yes
-- **Poster:** `public/concepts/clean/sp-stack-18-different.png`
+- **Media entry:** add `00-super-stack` to `STILL_ONLY_IDS` in `experienceMedia.ts` so the media map does not throw; poster comes from `conceptSrc`
 
 ### 02 `01-title` — 10-slab lockup
 
@@ -225,6 +230,7 @@ Locked strings. Implementation may tighten body word count into the 30–50 band
 - **Eyebrow / headline / body:** unchanged (body is the full ladder)
 - **Chips (three only):** `ONE` · `100+` · `STREAMS` on the high (right) platforms, measured from the PNG, y ≤ 52
 - **Delete:** the flat six-label row at y=32 / 48
+- **`motionPreset`:** change `flywheel-scrub` → `ken-burns-glow`. `flywheelPlacement` treats `flywheel-scrub` as the hero flywheel overlay in Remotion, which is wrong on this still. `04-flywheel` stays the only `flywheel-scrub` slide
 
 ### 19 `18-different`
 
@@ -250,15 +256,19 @@ Locked strings. Implementation may tighten body word count into the 30–50 band
 
 | Piece | Change |
 |---|---|
+| Patch port (phase 1) | Copy from `.worktrees/title-patch-glb` into `apps/superpatch-income-stack`: `src/components/hero3d/PatchHeroScene.tsx`, `patchFrame.ts`, `patchHero.ts`, `patchField.ts`, `pointerTilt.ts`, `patchErrorBoundary.tsx` (+ their tests), the `titlePatchExit` motion module, `Hero3dCanvas` `variant="patch"` wiring, and `public/models/superpatch-title.glb`. Diff against the gap-fill copies of shared files (`Hero3dCanvas`, `qualityTier`, `viewportMetrics`) before overwriting |
 | `slides.ts` | Insert `00-super-stack`; drop forbidden chips; retarget remaining chips to seats |
+| `assertSlidesValid` | Length 21. Exempt `copyLayout === "hero-caption"` slides from eyebrow/body and the 30–50 film word budget; headline stays required |
 | `ExperienceChapterId` / `EXPERIENCE_CHAPTERS` | Five chapters; indices above |
-| `hero3dExperienceSlide.ts` | `HERO3D_EXPERIENCE_SLIDE_ID = "00-super-stack"` |
+| `hero3dExperienceSlide.ts` | `HERO3D_EXPERIENCE_SLIDE_ID = "00-super-stack"` (`01-title` reverts to its Omni video scene) |
 | `ExperienceScene` | If `copyLayout === "hero-caption"`, render the centered two-line title instead of `.scene-copy` |
 | `experience.css` | `.scene-copy-hero` — flex column, center, under-patch band. Do not reuse left lower-third offsets |
 | `SceneHero3d` / `PatchHeroScene` | Unchanged behavior; new host slide id |
-| `experienceMedia.ts` | Still-only fallback unchanged for new IDs; `00-super-stack` uses poster + WebGL |
+| `experienceMedia.ts` | Add `00-super-stack` to `STILL_ONLY_IDS`; poster from `conceptSrc`. Omni slug map unchanged |
+| `ExperienceShell` | `shouldShowAffiliateCta` range shifts from `7–18` to `8–19` (after Full Stack ends at index 7; hidden on Action, index 20) |
+| Remotion | `IncomeStackFilm` / timeline consume `FILM_SLIDES = SLIDES.filter(s => s.copyLayout !== "hero-caption")` — rendered film stays the 20-scene cut. `17-compounding` preset change removes the wrong hero flywheel |
 | `streamIndex.ts` | `isStreamIndexSlide` stays `08-ten-layers` |
-| Tests / e2e | Count 21; counter `01 / 21`; hero3d id; axe on the new title node |
+| Tests / e2e | Count 21; counter `01 / 21`; hero3d id; axe on the new title node. `RETAIL_SCENE` 9→10, `CLOSING_SCENE` 20→21; the `TITLE_HEADLINE` h1 check moves to scene 2 (scene 1 h1 is the Super Stack title); on-load chapter assertion `Full Stack` → `Super Stack`; regenerate all `scene-01-title*` snapshot baselines |
 | `SLIDES.md` | Mirror the 21-scene SSOT |
 
 `Slide` gains `copyLayout?: "lower-third" | "hero-caption"`. Default `"lower-third"`. Only `00-super-stack` sets `"hero-caption"`.
@@ -297,16 +307,19 @@ Locked strings. Implementation may tighten body word count into the 30–50 band
 | Compact | Required chips have `yPct <= 52` |
 | Income math | Unchanged |
 | Counter | `NN / 21` |
-| Chapters | Five labels; Super Stack is scene 01 only |
-| CTA | Affiliate header after index 7; hidden on Action |
+| Chapters | Five labels; Super Stack is scene 01 only; on-load chapter reads `Super Stack` |
+| CTA | Affiliate header shows on indices 8–19; hidden on Super Stack, Full Stack, and Action |
+| Film | Remotion render is byte-identical in scene count to today (20 scenes); no hero flywheel on `17-compounding` |
+| Validator | `assertSlidesValid(SLIDES)` passes with the hero-caption exemption; all other slides still meet the 30–50 word budget |
 | SSOT | `SLIDES.md` matches `slides.ts` |
 | World art | Slabs are not the four-stack color roles |
 
 ## Implementation phases (for the plan, not this spec’s code)
 
-1. Merge title-patch onto the gap-fill branch (or `feat/income-stack-layout-21`)
-2. 21-scene contract + chapters + hero3d id + tests
+1. Port the patch files from `.worktrees/title-patch-glb` into the gap-fill app (file copy — the branches share no history; see the Architecture port row). Verify `?view=hero3d` renders the patch before touching slides
+2. 21-scene contract: insert `00-super-stack`, validator exemption, chapters, hero3d id, media entry, CTA range, Remotion `FILM_SLIDES` filter, `17-compounding` preset — plus unit tests
 3. `copyLayout: "hero-caption"` + CSS seat for scene 01
 4. Retarget / delete chips to the seats in this spec
 5. Recolor World still
-6. Docs: `SLIDES.md`, README, this spec marked approved
+6. e2e: shifted indices, moved h1 check, chapter label, regenerated `scene-01-title*` baselines
+7. Docs: `SLIDES.md`, README, this spec marked approved
