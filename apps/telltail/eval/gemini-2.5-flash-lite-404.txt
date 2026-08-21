@@ -1,0 +1,2 @@
+2026-08-21: POST generateContent models/gemini-2.5-flash-lite returned HTTP 404:
+This model models/gemini-2.5-flash-lite is no longer available to new users. Please update your code to use models/gemini-3.5-flash-lite
