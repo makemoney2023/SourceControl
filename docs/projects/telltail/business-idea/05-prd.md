@@ -35,6 +35,7 @@ HoP merge of PM (vision, goals, personas/UC, functional areas, stories, FR-1–F
 6. **Inquiry form.** N/A. Published IAP, not inquiry-first.
 7. **Do not invent.** No TAM, interviews, WTP close, named voice, or Flash-refuse eval design.
 8. **Chat (US-21, Must).** First-class conversation lane for owner context / the scare story. A refuse-first **vision card** still requires a clip or stills. Text-only is not a substitute vision read and not anonymous PetGPT. Do not flatten A+C into a chat-only coach. A5 stays OPEN — do not name a trainer.
+9. **Child vs dog (US-04).** Kids-in-frame is a **model detect** on the one cloud vision call, not only an owner chip. Child in frame → refuse. Adult holding the phone / in the background is **not** refuse unless the child detector fires. Lite cheap-model must not downgrade this detect.
 
 ---
 
@@ -93,7 +94,7 @@ Strategy already named ICP. No new avatars. P0/P1 remain provisional until inter
 
 **UC-1 — First Lite scare (P0).** Actor just had a jump / mouth / freeze. Opens Telltail, chats what happened and/or captures or uploads, gets a card *or* a refuse (card only if media attached), and the loop finishes. **[A]** A1. Maps: US-01, US-03, US-05, US-07, US-21.
 
-**UC-2 — Kids in the room (P0/P1).** Clip includes a child, or owner marks kids present. Gate refuses before any state/action card. Escalate, don’t diagnose. Never “relaxed / safe / won’t bite.” **[F]** Maps: US-04, US-06, US-10.
+**UC-2 — Kids in the room (P0/P1).** The vision model detects a **child** (not a dog) in the clip. Gate refuses before any state/action card. Owner “kids present” chip is extra, not the only path. An adult holding the phone / in the background is not refuse unless the child detector fires. Escalate, don’t diagnose. Never “relaxed / safe / won’t bite.” **[F]** Maps: US-04, US-06, US-10.
 
 **UC-3 — Plus month of moments (P0/P1).** Paid user at $12 / $99. Each scare costs one of 60 Flash-class cloud reads. At 0 remaining, bite-risk refuse still fires. **[F]** Maps: US-02, US-08, US-09, US-04.
 
@@ -204,7 +205,7 @@ If we restart from a named fail, these are the only moves (if restart):
 
 - Video **leaves the phone**. Never claim on-device analysis. **[F]**
 - One cloud vision call per read: Plus = Flash-class; Lite = cheap-model. Never a custom detector. **[F]**
-- Kids-in-frame: refuse. No child identity / face template. Purpose = child-present yes/no only. Clip is not retained as a scorable training asset. **[F]**
+- Kids-in-frame: **model detect** (child vs dog) on the one cloud vision call — not only an owner chip. Child in frame → refuse. No vision card. No child identity / face template. Clip not kept as training data. Adult-in-background / phone-holder is **not** “any human = refuse.” Lite must not downgrade this detect. **[F]**
 - Escalate, don’t diagnose. Ban “relaxed / safe / won’t bite.” **[F]**
 
 ---
@@ -279,19 +280,23 @@ Must + Should only. Actor / precondition / main / alt / post from PM, compressed
 **As an** owner (especially with kids or a scary clip), **I want** a hard refuse I cannot buy my way around, **so that** a paid meter never becomes a safety bypass.
 
 - **Actor:** Any user
-- **Precondition:** Clip or context shows bite-risk cues, a child in frame / kids-present chip, medical/pain-like events, or confidence below the floor.
+- **Precondition:** Clip or context shows bite-risk cues, a **model-detected child** in frame (owner “kids present” chip is extra, not required), medical/pain-like events, or confidence below the floor. An adult holding the phone / in the background is not this precondition unless the child detector fires.
 - **Main:** Refuse → escalate copy (US-10) → no state/action card. Meter does not waive the refuse at 0 remaining.
 - **Alt:** Owner tries to “use a credit to get a card anyway” → blocked. Credits are not a refuse bypass.
 - **Post:** No “relaxed / safe / won’t bite.” No diagnosis. Human next step named.
 - **Out:** Scoring calmness-as-safety. Vs-vet %.
 
-**AC-04.1** Given a clip is submitted, When the gate runs, Then **auto-refuse** (no action card) fires only for **kids-in-frame**, **snap / bite-risk**, **medical**, or **confidence-floor fail**. Freeze / whale-eye / stare are **gate inputs** (signals the gate reads), not automatic refuse. If those cues alone auto-refused, Stage 0 would never card the job.
+**AC-04.1** Given a clip is submitted, When the gate runs, Then **auto-refuse** (no action card) fires only for **kids-in-frame** (model-detected child, chip extra), **snap / bite-risk**, **medical**, or **confidence-floor fail**. Freeze / whale-eye / stare are **gate inputs** (signals the gate reads), not automatic refuse. If those cues alone auto-refused, Stage 0 would never card the job.
 
 **AC-04.2** Given Plus remaining reads = 0 or the owner is on the last included read, When a bite-risk / kids / low-confidence case arrives, Then the refuse **still runs**. The quota **cannot** skip the gate to save a credit.
 
 **AC-04.3** Given a refuse fires and a model ran, When quota is updated, Then the safety path consumed the read unit. No “free refuse that hides a skipped gate.”
 
-**AC-04.4** Given kids-in-frame, When refuse fires, Then the clip is not retained as a scorable training asset; no child identity / face template is stored (purpose = child-present yes/no only).
+**AC-04.4** Given kids-in-frame, When refuse fires, Then there is **no vision card**, the clip is **not** kept as training data, and no child identity / face template is stored (purpose = child-present yes/no only).
+
+**AC-04.5** Given a clip is submitted, When the one cloud vision call runs (Plus = Flash-class; Lite = cheap-model), Then the model **must distinguish a child from a dog**. Kids-in-frame is this detect, not only an owner chip. Lite **must not** downgrade this detect. Safety does not downgrade. Still **one** cloud vision call per read — no second child-detector stack.
+
+**AC-04.6** Given a dog-only clip with a human **adult** holding the phone or visible in the background, When the child detector does **not** fire, Then the product does **not** auto-refuse for “human present.” Do not invent an “any human = refuse” rule. Owner “kids present” chip may still refuse as an extra path.
 
 **Eval note (CTO later):** accuracy of the bite-risk / kids / floor detector is US-12 / K1. These AC specify product behavior **when the gate fires**, not that Flash is proven safe.
 
@@ -566,7 +571,7 @@ Blocking only. Do not invent answers. Do not re-ask locked ids (name, stack, tra
 | SBP | Apple 15% vs 30% | **OPEN** | Unit $, not AC | Founder / ops |
 | Credits $ | Exact $8–12/20 | **OPEN seed** | US-13 shape only | CFO |
 
-Already locked — do not re-ask: Telltail name; 60 Flash; $12/$99 working SKU; never $9.99; quota cannot skip refuse; A+C is a *test*; Lite = cheap-model; first-class chat is context + attach-in-thread (not a text-only vision card); 4B closed; explore only.
+Already locked — do not re-ask: Telltail name; 60 Flash; $12/$99 working SKU; never $9.99; quota cannot skip refuse; A+C is a *test*; Lite = cheap-model; first-class chat is context + attach-in-thread (not a text-only vision card); kids-in-frame is child-vs-dog model detect (chip extra; adult ≠ child); 4B closed; explore only.
 
 ---
 
@@ -578,7 +583,8 @@ Already locked — do not re-ask: Telltail name; 60 Flash; $12/$99 working SKU; 
 | NFR-S2 | Safety | Banned tokens never ship (US-06) | Yes — string scan |
 | NFR-S3 | Safety | K1: no Plus if Flash-refuse eval fails | Yes — release gate (eval not run this phase) |
 | NFR-P1 | Privacy | Clip **leaves the phone**; purpose string says so (US-11) | Yes — copy + network |
-| NFR-P2 | Privacy | Kids-in-frame: no identity template; no default retain of child frames (US-04/16) | Yes — storage rules |
+| NFR-P2 | Privacy | Kids-in-frame: no identity template; clip not kept as training data (US-04/16) | Yes — storage rules |
+| NFR-S4 | Safety | One cloud vision call must distinguish **child vs dog**. Chip is extra. Lite must not downgrade. Adult-in-frame ≠ refuse unless child detector fires | Yes — detect + negative adult case |
 | NFR-P3 | Privacy | No training foundation models on user video without express opt-in | Yes — config / ToS |
 | NFR-L1 | Latency | Time-to-card/refuse is **unknown** until CTO measures a real clip. Do **not** invent a 2s SLA. “Next 60 seconds” is the advice horizon, not a latency target. | Gap — measure later |
 | NFR-C1 | Claims | Holding line + paywall hero as specified; no vs-vet %; no translator ASO | Yes — copy review |
@@ -607,6 +613,7 @@ Already locked — do not re-ask: Telltail name; 60 Flash; $12/$99 working SKU; 
 | BR-12 | Reward-based only. No aversive protocols. |
 | BR-13 | Explore only. Nobody is building. Nothing in the App Store this phase. |
 | BR-14 | Chat is first-class **context**. A refuse-first vision card requires a clip or stills. No clip → no “I saw your dog” card. Text-only is not a substitute vision read and not PetGPT. Do not flatten A+C into a chat-only coach. |
+| BR-15 | Kids-in-frame is a **model detect** (child vs dog) on the one vision call. Child → refuse; no card; no face template; clip not training data. Chip is extra. Adult holding phone / background adult ≠ refuse unless the child detector fires. Lite must not downgrade. |
 
 ---
 
@@ -620,7 +627,7 @@ Product-level. Not API contracts, not schema, not architecture. Phase 9 owns bui
 
 **FR-3 Refuse-first.** The gate runs before any state chip or action list. A failed floor produces a refuse screen, not a hedged card. **US-03**
 
-**FR-4 Unskippable safety.** Bite-risk, kids-in-frame (or kids-present context), and low-confidence always refuse. Remaining quota = 0 does not skip. Credits do not skip. Lite does not skip. **US-04**
+**FR-4 Unskippable safety.** Snap/bite-risk, **model-detected child in frame**, medical, and low-confidence always refuse. Owner “kids present” chip is extra, not the only kids path. Adult phone-holder / background adult is not refuse unless the child detector fires. Remaining quota = 0 does not skip. Credits do not skip. Lite cheap-model must not downgrade the child-vs-dog detect. **US-04**
 
 **FR-5 Card shape.** On a pass: observable signals + confidence + 1–3 next-60s actions + stop-rule. Reward-based / space / management only. **US-05**
 
@@ -696,7 +703,7 @@ Boundaries only. Not architecture. Flash-refuse eval is **stubbed, not designed*
 1. **One cloud multimodal call per read.** Plus = Flash-class. Lite = cheap-model. Frontier = cascade only, never the happy path.
 2. **Video leaves the phone.** Never claim on-device analysis.
 3. **No custom pose detector. No 9B hardware.** Phone is the sensor.
-4. **Refuse is a product gate, not a prompt trick.** Quota, credits, and Lite cannot skip bite-risk / kids-in-frame / low-confidence. Gate always runs, including at 0 remaining.
+4. **Refuse is a product gate, not a prompt trick.** Quota, credits, and Lite cannot skip bite-risk / kids-in-frame / low-confidence. Gate always runs, including at 0 remaining. Kids-in-frame = child-vs-dog detect on that same one cloud call — Lite must not downgrade. Not “any human = refuse.”
 5. **Retry = Flash first.** Opus/Sol retry×2 is a unit kill, not a UX flourish.
 6. **Clip recipe is assumed** (~10s native video / think budget in Phase 4). Product will specify a real clip later; CTO measures. Do not “add a buffer and ship.”
 7. **iOS-first, EN US/CA.** Android is Could.
@@ -741,8 +748,8 @@ Brief inherit only. No spawn from this file.
 | Phase / seat | Inherits |
 |--------------|----------|
 | **Phase 6 GTM** | Holding line; Lifestyle + Education; paywall hero (60 + hard stop); banned claims; problem-query paid, not translator; A+C is a test (do not flatten into a lock); A5 unnamed → no public authority claims |
-| **Phase 8 ops-legal** | Video leaves the phone; kids-in-frame no identity template; COPPA/retention; TM collision (Telltail Dog Training / USPTO) risk-accepted for planning only; do not buy telltail.com |
-| **Phase 9 CTO** | FR-1–FR-13 + AC on US-01–14, US-16, US-21; US-15 gap; one cloud call (Plus Flash / Lite cheap); refuse-first; chat = context not a text-only card; K1; Flash-refuse eval **stubbed, not designed**; NFR-L1 unknown; iOS-first |
+| **Phase 8 ops-legal** | Video leaves the phone; kids-in-frame no identity template / clip not training data; COPPA/retention; TM collision (Telltail Dog Training / USPTO) risk-accepted for planning only; do not buy telltail.com |
+| **Phase 9 CTO** | FR-1–FR-13 + AC on US-01–14, US-16, US-21; US-15 gap; one cloud call (Plus Flash / Lite cheap); refuse-first; child-vs-dog detect on that call (Lite must not downgrade; adult ≠ child); chat = context not a text-only card; K1; Flash-refuse eval **stubbed, not designed**; NFR-L1 unknown; iOS-first |
 
 ---
 
@@ -779,6 +786,7 @@ Scorecard: **PRD + MoSCoW + AC**.
 - Shipping anonymous PetGPT / fake named expert (US-15)
 - Flattening A+C into a chat-only coach, or an “I saw your dog” card from text alone
 - Naming Cesar Millan or any other trainer (A5 OPEN)
+- Treating kids-in-frame as chip-only, or refusing a dog-only clip because an adult is holding the phone
 - A “free refuse that hides a skipped gate”
 - Marking Phase 5 complete
 - Mixing Blacksage or Sieger
