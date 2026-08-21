@@ -10,6 +10,7 @@
 
 ## Execution mode
 
+- **PAUSE 2026-08-21** — founder stop. Do not open Phase 15+. CEO may finish Phase 14 review already in flight. Store/paid still no-go.
 - **Continuous** — run phases in order until Phase 21 complete or explicit STOP
 - **Resume** — read this file at every session start; continue from first ⬜/🔄 phase
 
@@ -90,6 +91,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | 11 | Approve Layer A outlines + honest stills skip. Tokens locked. Assets empty on purpose. Do not mark phase complete. Not a shipped brand kit. | approve outlines + skip |
 | 2026-08-21 | 12 | Approve Layer A web IA + honest skip. Product chrome = one chat thread. Marketing Home / How it works / Pricing. No live site. Do not mark complete. | approve outline + skip |
 | 2026-08-21 | 13 | Approve copy foundation as outlines + sample lines. Not live pages. Not marked complete. | approve outlines |
+| 2026-08-21 | pause | Founder: pause here. Do not open Phase 15+ until they say go. Phase 14 CEO review may finish. | founder stop |
 | 2026-08-21 | platforms | **One web chat:** PWA + **Ionic Capacitor** wrap for iOS and Android. Same thread. US-19 Android-out superseded. No store listing this pass. | founder lock |
 | 2026-08-21 | UI | Product is a **chat-based UI** (one thread). Owner describes the scare + attaches media. Vision card only after a clip/stills. Not a curriculum dashboard or lesson grid. | founder lock |
 | 2026-08-21 | 9 | Founder opened **full Phase 9 MVP**. Lite explore slice (Must US-01–07 + US-10–12 + US-19 + US-21). One chat PWA + Capacitor wraps. No store listing. Phase 8 stays escalate. 9B closed. K1 Flash-refuse still later. Creative phases 11–14 stay open, not blocking. | founder go |
