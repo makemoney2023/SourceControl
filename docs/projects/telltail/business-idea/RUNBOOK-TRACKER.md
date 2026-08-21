@@ -59,7 +59,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 - **A4 WTP:** $12 is a presentation pick, not proven demand.
 - **Tokens/clip:** $0.37 is assumed; CTO measures.
 - **R2 kids-in-frame:** RED until refuse + no-template + short retain ship.
-- **R5 TM:** planning-accept only. Counsel before public brand. Do not buy telltail.com.
+- **Name:** founder accepted Telltail. Other Telltail is a person's training shop, not an LLM app. Do not buy telltail.com until they ask.
 - **L1–L14:** licensed counsel before public brand / listing / paid.
 - **SLA hours:** `[Operator to set]` — do not invent.
 
@@ -77,6 +77,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | 6 | Explore GTM approved. Demand path is a test. No store / no paid this pass. A5 unnamed. Never $9.99. 4B closed. | approve |
 | 2026-08-21 | 7 | Close + retain playbook approved. Chat = context not vision read. Outbound skipped. SLA hours operator-set. | approve |
 | 2026-08-21 | 8 | Ops+risk checklist accepted as explore homework. Verdict **escalate** — not approve, not launch clearance. 8B not opened. Leftovers uncleared. | escalate |
+| 2026-08-21 | name | Proceed with Telltail. Collision with a person's dog-training shop is accepted — they are not an LLM app. Do not buy telltail.com. | founder lock |
 
 ## Positions & handoffs
 
