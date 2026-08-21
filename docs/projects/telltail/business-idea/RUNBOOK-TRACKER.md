@@ -58,7 +58,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 - **K1 / Flash-refuse:** Can Flash refuse bite-risk safely? Fail kills Plus. CTO later — do not prompt out.
 - **A4 WTP:** $12 is a presentation pick, not proven demand.
 - **Tokens/clip:** $0.37 is assumed; CTO measures.
-- **R2 kids-in-frame:** RED until refuse + no-template + short retain ship.
+- **Kids in frame:** model must tell a child from a dog and refuse. Owner chip is extra. Not cleared until a real clip proves it.
 - **Name:** founder accepted Telltail. Other Telltail is a person's training shop, not an LLM app. Do not buy telltail.com until they ask.
 - **L1–L14:** licensed counsel before public brand / listing / paid.
 - **SLA hours:** `[Operator to set]` — do not invent.
@@ -78,6 +78,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | 7 | Close + retain playbook approved. Chat = context not vision read. Outbound skipped. SLA hours operator-set. | approve |
 | 2026-08-21 | 8 | Ops+risk checklist accepted as explore homework. Verdict **escalate** — not approve, not launch clearance. 8B not opened. Leftovers uncleared. | escalate |
 | 2026-08-21 | name | Proceed with Telltail. Collision with a person's dog-training shop is accepted — they are not an LLM app. Do not buy telltail.com. | founder lock |
+| 2026-08-21 | kids | Vision model must distinguish child from dog and refuse. Chip is extra. Uncleared until proven on a real clip. | founder lock |
 
 ## Positions & handoffs
 
