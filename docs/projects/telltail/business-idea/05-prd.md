@@ -36,6 +36,7 @@ HoP merge of PM (vision, goals, personas/UC, functional areas, stories, FR-1–F
 7. **Do not invent.** No TAM, interviews, WTP close, named voice, or Flash-refuse eval design.
 8. **Chat (US-21, Must).** First-class conversation lane for owner context / the scare story. A refuse-first **vision card** still requires a clip or stills. Text-only is not a substitute vision read and not anonymous PetGPT. Do not flatten A+C into a chat-only coach. A5 stays OPEN — do not name a trainer.
 9. **Child vs dog (US-04).** Kids-in-frame is a **model detect** on the one cloud vision call, not only an owner chip. Child in frame → refuse. Adult holding the phone / in the background is **not** refuse unless the child detector fires. Lite cheap-model must not downgrade this detect.
+10. **Platforms (US-19).** Telltail ships as **iOS and Android**. Same chat-thread chrome. iOS is not exclusive. US-19 “Android out” is superseded. Must-of-explore — not a store listing this pass. No Phase 9 build opened from this flip.
 
 ---
 
@@ -85,7 +86,7 @@ Strategy already named ICP. No new avatars. P0/P1 remain provisional until inter
 
 | Who | Role in v1 | Label | Use in this PRD |
 |-----|------------|-------|-----------------|
-| P0 first-week / first-time panic (US/CA, iOS) | Primary buyer | **[A]** | 11pm kitchen scare they will try to film *or* upload immediately (A1 OPEN) |
+| P0 first-week / first-time panic (US/CA, iOS **and Android**) | Primary buyer | **[A]** | 11pm kitchen scare they will try to film *or* upload immediately (A1 OPEN) |
 | P1 reactive / adolescent | Secondary wedge | **[A]** | Live episode is faster; phone often pocketed → US-14 after-action is the hedge, not the hero |
 | P2 trainers | Channel, not buyer | **[A]** | US-16 history is the only v1 artifact they might be shown. No trainer seat (US-18) |
 | Anti: translator shopper, unlimited-AI bargain hunter, bite-rehab self-serve, show/kennel | Do not attract | **[F]** | No stories serve them |
@@ -115,7 +116,7 @@ Strategy already named ICP. No new avatars. P0/P1 remain provisional until inter
 | **G. Plus / paywall / credits** | $12/mo / $99/yr; 60 Flash + credits; disclose 60 + refuse-cannot-skip + no unlimited | US-08, US-09, US-13 |
 | **H. History** | Prior reads / moment log (Should) | US-16 |
 | **I. Chat** | First-class conversation: scare story + context (kids / food / doorbell / visitor). Attach clip or stills **in thread** to unlock a vision card. Text-only ≠ “I saw your dog.” | US-21 |
-| **Later / out** | Curriculum neighbor; trainer seat; Android; HITL kill-path | US-17, US-18, US-19, US-20 |
+| **Later / out** | Curriculum neighbor; trainer seat; HITL kill-path | US-17, US-18, US-20 |
 
 ---
 
@@ -178,8 +179,10 @@ Stage 2  Shoulds if the test holds
          US-16 history
          US-14 as a supported path, not the pitch
                 ▼
-Later    US-17 neighbor · US-18 trainer seat · US-19 Android
-         Never this pass: App Store, unlimited, detector, aversives, translator loop
+         US-19 iOS + Android same chrome (Must-of-explore; no store listing)
+                ▼
+Later    US-17 neighbor · US-18 trainer seat
+         Never this pass: App Store / Play listing, unlimited, detector, aversives, translator loop
 ```
 
 **Capacity / dates:** unknown. Do not invent a quarter.
@@ -226,14 +229,14 @@ Must + Should only. Actor / precondition / main / alt / post from PM, compressed
 
 **As a** P0/P1 owner, **I want** to film or immediately upload a short clip of *this* scare, **so that** the read is about this dog, this second.
 
-- **Actor:** P0/P1 owner, iOS, EN US/CA
+- **Actor:** P0/P1 owner, iOS or Android or Android, EN US/CA
 - **Precondition:** App is open. A scare just happened or is happening. Explore — not in the App Store.
 - **Main:** Start live capture *or* pick a just-shot clip → optional context chips *or* US-21 chat story (kids / food / doorbell / visitor) → confirm send.
 - **Alt:** Live capture fails → offer US-14 (Should) and/or US-21 chat. **No clip or stills → no vision read / no “I saw your dog” card.** Text in chat is context, not a substitute read.
 - **Post:** One media object queued for a single cloud read (US-02 / US-07). Owner has been told video will leave the phone (US-11).
 - **Out:** Live home-camera, collar, multi-dog, cats.
 
-**AC-01.1** Given the owner is signed in on iOS and has granted camera permission, When they start a capture for a live scare, Then the app records a clip (or stills) and shows a visible recording indicator (Apple 2.5.14).
+**AC-01.1** Given the owner is signed in on **iOS or Android** and has granted camera permission, When they start a capture for a live scare, Then the app records a clip (or stills) and shows a visible recording indicator (iOS: Apple 2.5.14; Android: equivalent in-progress indicator).
 
 **AC-01.2** Given camera permission is denied, When they try to capture, Then the app does not capture, explains why, and offers Photos upload (US-14) — it does not invent a clip.
 
@@ -462,6 +465,21 @@ Must + Should only. Actor / precondition / main / alt / post from PM, compressed
 
 **AC-21.5** Given text-only input, When a “read” would be invented from the paragraph, Then it is blocked. Chat is not a substitute vision read and is not a chat-only coach.
 
+#### US-19 — iOS and Android, same chat-thread chrome — Must *of explore*
+
+**As a** P0/P1 owner, **I want** the same Telltail loop on iOS **and** Android, **so that** the product is not iOS-exclusive.
+
+- **Actor:** P0/P1, EN US/CA, iOS or Android
+- **Precondition:** Explore only. No App Store / Play listing this pass. No Phase 9 build opened from this lock.
+- **Main:** Same chat-thread chrome on both platforms (US-21). Same refuse-first vision path when media is attached. iOS is not exclusive.
+- **Alt:** Sequencing may land one binary first in a later build — the **lock** is dual-platform, not “Android later if ever.”
+- **Post:** US-19 “Android out / Could” is superseded.
+- **Out:** Store listing, TestFlight/Play closed test as a ship, Phase 9 opened from this flip.
+
+**AC-19.1** Given the explore spec, When chrome is compared across iOS and Android, Then the chat thread (describe scare + attach-in-thread) is the **same lane** — not a translator skin on one OS and a trainer on the other.
+
+**AC-19.2** Given this pass, When store / build status is inspected, Then there is **no** App Store or Play listing and no Phase 9 build opened. Dual-platform is the lock; listing is still Won’t this pass.
+
 ### Should
 
 #### US-13 — Credit overflow $8–12 / 20 (seed, not lock)
@@ -549,6 +567,7 @@ Must + Should only. Actor / precondition / main / alt / post from PM, compressed
 | US-11 | Must | Cloud vision; never on-device claim | All | Stack / privacy notice |
 | US-12 | Must | **K1** Flash-refuse fail kills Plus; retry Flash first | Company | Named kill; no frontier happy path |
 | US-21 | Must | First-class chat = context + attach-in-thread; no clip → no vision card | P0/P1 | Context lane; vision unit still requires media |
+| US-19 | Must *of explore* | iOS **and** Android; same chat-thread chrome. iOS not exclusive | P0/P1 | Dual-platform explore — no store listing this pass |
 | US-13 | Should | Credits $8–12/20 seed | Plus overage | **One credit pack** |
 | US-14 | Should | If A1 fails, after-action upload | P0 | Same **one read** unit |
 | US-15 | Should | A5 named voice before public claims | Brand | **GAP** — not a SKU |
@@ -571,7 +590,7 @@ Blocking only. Do not invent answers. Do not re-ask locked ids (name, stack, tra
 | SBP | Apple 15% vs 30% | **OPEN** | Unit $, not AC | Founder / ops |
 | Credits $ | Exact $8–12/20 | **OPEN seed** | US-13 shape only | CFO |
 
-Already locked — do not re-ask: Telltail name; 60 Flash; $12/$99 working SKU; never $9.99; quota cannot skip refuse; A+C is a *test*; Lite = cheap-model; first-class chat is context + attach-in-thread (not a text-only vision card); kids-in-frame is child-vs-dog model detect (chip extra; adult ≠ child); 4B closed; explore only.
+Already locked — do not re-ask: Telltail name; 60 Flash; $12/$99 working SKU; never $9.99; quota cannot skip refuse; A+C is a *test*; Lite = cheap-model; first-class chat is context + attach-in-thread (not a text-only vision card); kids-in-frame is child-vs-dog model detect (chip extra; adult ≠ child); **iOS and Android** (same chrome; US-19 out superseded); 4B closed; explore only. No store.
 
 ---
 
@@ -647,6 +666,8 @@ Product-level. Not API contracts, not schema, not architecture. Phase 9 owns bui
 
 **FR-13 Chat.** First-class conversation lane for the scare story. Attach clip or stills in thread to unlock the refuse-first vision card. Text-only must not invent a seen-dog diagnosis. Not a chat-only coach. A5 unnamed. **US-21**
 
+**FR-14 Platforms.** Explore spec is **iOS and Android** with the same chat-thread chrome. iOS is not exclusive. No store listing and no Phase 9 build from this lock. **US-19**
+
 ---
 
 ## FR vs NFR split
@@ -684,15 +705,15 @@ Assumptions before the table: A+C is a *test*, not a lock; A1 (film-live), A3/E1
 | US-16 | History / moment log | **Should** | Intake “light history.” Channel artifact for P2, not a streak toy. |
 | US-17 | Curriculum neighbor (form B) | **Could** | Neighbor, not the product. Not v1. Same SKU forbidden if A+C dies. |
 | US-18 | Trainer seat $29–49 | **Could** | Out of v1. Channel later. |
-| US-19 | Android | **Could** | iOS-first lock. Tailo already owns Android-ish shelf. |
+| US-19 | iOS and Android, same chat chrome | **Must** *of explore* | Founder lock 2026-08-21. iOS is not exclusive. No store listing this pass. |
 | US-20 | HITL if Flash-refuse fails | **Could** | Explore kill-path only. Not a modeled rescue. |
 | — | Translator / toy / mind-reading core loop | **Won’t** | Founder + Phase 3 identity. |
 | — | Unlimited Plus | **Won’t** | COGS + safety. Peers already sell this; we do not race them. |
 | — | Custom pose detector / 9B hardware | **Won’t** | Stack lock. 9B skipped. |
 | — | Aversives / bite-rehab self-serve | **Won’t** | Non-negotiable. |
-| — | App Store this pass | **Won’t** | Explore only. Nobody is building. |
+| — | App Store / Play listing this pass | **Won’t** | Explore only. Dual-platform lock ≠ a store ship. Nobody is building. |
 
-**Release implication:** Must US-01–US-07 + US-10–US-12 + **US-21** are the Lite explore slice. Must US-08–US-09 join only while the A+C test is on. Shoulds do not gate explore. Could/Won’t are one-line out-of-scope — no full stories this pass.
+**Release implication:** Must US-01–US-07 + US-10–US-12 + **US-21** + **US-19** (Must-of-explore, both platforms, no store) are the Lite explore slice. Must US-08–US-09 join only while the A+C test is on. Shoulds do not gate explore. Could/Won’t are one-line out-of-scope — no full stories this pass.
 
 ---
 
@@ -706,7 +727,7 @@ Boundaries only. Not architecture. Flash-refuse eval is **stubbed, not designed*
 4. **Refuse is a product gate, not a prompt trick.** Quota, credits, and Lite cannot skip bite-risk / kids-in-frame / low-confidence. Gate always runs, including at 0 remaining. Kids-in-frame = child-vs-dog detect on that same one cloud call — Lite must not downgrade. Not “any human = refuse.”
 5. **Retry = Flash first.** Opus/Sol retry×2 is a unit kill, not a UX flourish.
 6. **Clip recipe is assumed** (~10s native video / think budget in Phase 4). Product will specify a real clip later; CTO measures. Do not “add a buffer and ship.”
-7. **iOS-first, EN US/CA.** Android is Could.
+7. **iOS and Android, EN US/CA.** Same chat-thread chrome. iOS is not exclusive. No store listing / Phase 9 build this pass.
 8. **Flash-refuse eval — stub only.** Later CTO work must show Flash can hold a confidence floor good enough to refuse, including false-“relaxed” on bite-risk cues (Sci Rep 2025 is the constraint). **This PRD does not design the eval, fixtures, labels, sample, or pass bar.** If the eval fails → K1, Plus dies, 4B stays closed.
 
 ---
@@ -749,7 +770,7 @@ Brief inherit only. No spawn from this file.
 |--------------|----------|
 | **Phase 6 GTM** | Holding line; Lifestyle + Education; paywall hero (60 + hard stop); banned claims; problem-query paid, not translator; A+C is a test (do not flatten into a lock); A5 unnamed → no public authority claims |
 | **Phase 8 ops-legal** | Video leaves the phone; kids-in-frame no identity template / clip not training data; COPPA/retention; TM collision (Telltail Dog Training / USPTO) risk-accepted for planning only; do not buy telltail.com |
-| **Phase 9 CTO** | FR-1–FR-13 + AC on US-01–14, US-16, US-21; US-15 gap; one cloud call (Plus Flash / Lite cheap); refuse-first; child-vs-dog detect on that call (Lite must not downgrade; adult ≠ child); chat = context not a text-only card; K1; Flash-refuse eval **stubbed, not designed**; NFR-L1 unknown; iOS-first |
+| **Phase 9 CTO** | FR-1–FR-13 + AC on US-01–14, US-16, US-19, US-21; US-15 gap; one cloud call (Plus Flash / Lite cheap); refuse-first; child-vs-dog detect on that call (Lite must not downgrade; adult ≠ child); chat = context not a text-only card; **iOS and Android same chrome** (do not open a build from this PRD flip); K1; Flash-refuse eval **stubbed, not designed**; NFR-L1 unknown |
 
 ---
 
@@ -759,7 +780,7 @@ Scorecard: **PRD + MoSCoW + AC**.
 
 - [x] PRD present (`05-prd.md`) — HoP merge, not a concatenation
 - [x] MoSCoW present — US-08/US-09 Must *of the test*
-- [x] AC present for US-01–US-14, US-16, and US-21 (testable Given/When/Then)
+- [x] AC present for US-01–US-14, US-16, US-19, and US-21 (testable Given/When/Then)
 - [x] US-15 labeled gap (A5 OPEN) + AC-15.1 placeholder (no anonymous PetGPT / fake named expert)
 - [x] Every Must / Should has testable AC **or** a labeled gap
 - [x] Could/Won’t are one-line out-of-scope only (US-17–US-20 + named Won’t)
