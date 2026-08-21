@@ -6,7 +6,7 @@
 **Depth:** standard
 **Started:** 2026-08-21
 **Last updated:** 2026-08-21
-**Current phase:** 11
+**Current phase:** 12
 
 ## Execution mode
 
@@ -31,8 +31,8 @@
 | 9 | Build MVP | 🔄 | 09-build-log.md | Eval skip approved (3/3 live). Full MVP not opened. Kids leftover open. |
 | 9B | Hardware & CAD | ⏭️ | 09b-hardware-build.md | no physical product v1 |
 | 10 | Strategy QA | ✅ | 10-strategy-review.md | Hard gate approve — QA only, not launch |
-| 11 | Brand & design system | 🔄 | 11-brand-system.md | CD + brand-designer; outlines only |
-| 12 | Web design & IA | ⬜ | 12-web-design.md | |
+| 11 | Brand & design system | 🔄 | 11-brand-system.md | Outlines + stills skip approved. Not a shipped kit. Not marked complete. |
+| 12 | Web design & IA | 🔄 | 12-web-design.md | CD + web-designer; outlines only |
 | 13 | Copy foundation | ⬜ | 13-copy-foundation.md | |
 | 14 | Page content | ⬜ | 14-pages/ | |
 | 15 | Video & media | ⬜ | 15-media/ | |
@@ -85,6 +85,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | kids | Founder: do not hold the company on kid photos. Keep going. | founder lock |
 | 2026-08-21 | 8B | Skipped — no hires. | skip |
 | 2026-08-21 | 10 | Strategy QA approved. 16/16 claims addressed. A+C test. Store/paid no-go. Proceed-to-creative = outlines only. | approve |
+| 2026-08-21 | 11 | Approve Layer A outlines + honest stills skip. Tokens locked. Assets empty on purpose. Do not mark phase complete. Not a shipped brand kit. | approve outlines + skip |
 
 ## Positions & handoffs
 
@@ -101,7 +102,8 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 8 | coo | ops-manager, legal-counsel | `HANDOFFS/` | escalate | ceo-strategist | frontier-reasoning |
 | 9 | cto | tech-lead, verifier | `HANDOFFS/` | approve eval skip | ceo-strategist | coding-agent |
 | 10 | ceo-strategist | head-of-research, business-analyst | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
-| 11 | creative-director | brand-designer | `HANDOFFS/` | — | ceo-strategist | creative-language |
+| 11 | creative-director | brand-designer | `HANDOFFS/` | approve outlines + skip | ceo-strategist | creative-language |
+| 12 | creative-director | web-designer, brand-designer | `HANDOFFS/` | — | ceo-strategist | creative-language |
 
 Preferred tiers: see `skills/org/MODEL-REGISTRY.md`.
 
