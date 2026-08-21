@@ -6,7 +6,7 @@
 **Depth:** standard
 **Started:** 2026-08-21
 **Last updated:** 2026-08-21
-**Current phase:** 9 (full MVP — Lite explore chat)
+**Current phase:** 14
 
 ## Execution mode
 
@@ -28,13 +28,13 @@
 | 7 | Sales & CS | ✅ | 07-sales-playbook.md | Close + retain; outbound skipped; chat = context |
 | 8 | Ops & legal | 🔄 | 08-operations.md | escalate — artifacts accepted, not cleared |
 | 8B | People & hiring plan | ⏭️ | 08b-people-plan.md | skip — solo founder, no hires |
-| 9 | Build MVP | 🔄 | 09-build-log.md | Founder opened full MVP. Lite explore chat PWA. Prior kid-vs-dog eval kept. No store. |
+| 9 | Build MVP | ✅ | 09-build-log.md + apps/telltail/ | Lite explore chat MVP approved. No store. K1 open. |
 | 9B | Hardware & CAD | ⏭️ | 09b-hardware-build.md | no physical product v1 |
 | 10 | Strategy QA | ✅ | 10-strategy-review.md | Hard gate approve — QA only, not launch |
 | 11 | Brand & design system | 🔄 | 11-brand-system.md | Outlines + stills skip approved. Not a shipped kit. Not marked complete. |
 | 12 | Web design & IA | 🔄 | 12-web-design.md | Outline + skip approved. Not a live site. Not marked complete. |
 | 13 | Copy foundation | 🔄 | 13-copy-foundation.md | Outlines + sample lines approved. Not live pages. Not marked complete. |
-| 14 | Page content | 🔄 | 14-pages/ | Verifier pass. CEO hard gate paused while MVP builds. Not complete. |
+| 14 | Page content | 🔄 | 14-pages/ | Verifier pass. Resume CEO hard gate. Not complete. |
 | 15 | Video & media | ⬜ | 15-media/ | |
 | 16 | SEO implementation | ⬜ | 16-seo.md | |
 | 17 | Email & social | ⬜ | 17-channels/ | |
@@ -93,6 +93,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | platforms | **One web chat:** PWA + **Ionic Capacitor** wrap for iOS and Android. Same thread. US-19 Android-out superseded. No store listing this pass. | founder lock |
 | 2026-08-21 | UI | Product is a **chat-based UI** (one thread). Owner describes the scare + attaches media. Vision card only after a clip/stills. Not a curriculum dashboard or lesson grid. | founder lock |
 | 2026-08-21 | 9 | Founder opened **full Phase 9 MVP**. Lite explore slice (Must US-01–07 + US-10–12 + US-19 + US-21). One chat PWA + Capacitor wraps. No store listing. Phase 8 stays escalate. 9B closed. K1 Flash-refuse still later. Creative phases 11–14 stay open, not blocking. | founder go |
+| 2026-08-21 | 9 | Full Lite explore MVP **approved**. Runnable `apps/telltail/` + tokens. Explore only. No store/paid clearance. K1 + Phase 8 leftovers open. Operator wires `GEMINI_API_KEY`. | approve |
 
 ## Positions & handoffs
 
@@ -107,7 +108,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 6 | cmo | product-marketing-manager, content-strategist, pr-manager | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
 | 7 | head-of-sales-cs | sales-enablement-lead, outbound-lead, customer-success-manager | `HANDOFFS/` | approve | ceo-strategist | strong-general |
 | 8 | coo | ops-manager, legal-counsel | `HANDOFFS/` | escalate | ceo-strategist | frontier-reasoning |
-| 9 | cto | tech-lead, verifier | `HANDOFFS/` | approve eval skip → full MVP opened | ceo-strategist | coding-agent |
+| 9 | cto | tech-lead, verifier | `HANDOFFS/` | approve full MVP (explore) | ceo-strategist | coding-agent |
 | 10 | ceo-strategist | head-of-research, business-analyst | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
 | 11 | creative-director | brand-designer | `HANDOFFS/` | approve outlines + skip | ceo-strategist | creative-language |
 | 12 | creative-director | web-designer | `HANDOFFS/` | approve outline + skip | ceo-strategist | creative-language |

@@ -3,72 +3,69 @@ phase: "9"
 reviewer: "ceo-strategist"
 secondary_reviewers: []
 verdict: approve
+pass_label: full-mvp-explore
 date: 2026-08-21
 llm_tier: frontier-reasoning
 llm_model: grok-4.5
 fallback_applied: false
 ---
 
-# C-suite review — Phase 9 — Telltail (scoped kid-vs-dog eval)
+# C-suite review — Phase 9 — Telltail (full Lite explore MVP)
 
 ## Operator brief (plain English)
 
-I **approve the eval skip**, not Phase 9 as a ship. Three live stills on Gemini 3.5 Flash Lite: child-in-frame refused; dog-only and adult+dog did not. One cloud call, no second detector. n=3 does **not** close leftover kids risk. This is **not** the bite-risk kill-switch. I am not marking Phase 9 complete. Do not open 9B. Phase 8 stays escalate. 4B stays closed.
+I **approve** this explore MVP as a real app on disk — not another paper skip. You get one chat thread: describe the scare, attach a photo or clip, and the app either stops you or gives next-minute steps after one cheap-model vision call. It is **not** App Store clearance, **not** Plus clearance, and **not** a lawyer clear. Wire your Gemini key when you want live reads. Phase 9 may be marked complete for this explore pass.
 
 ## What we found
 
-- Scorecard for this packet passes: honest write-up + verifier **pass** + no store. Full MVP is not claimed.
-- Live table is real (`gemini-3.5-flash-lite`, 3× HTTP 200, 3/3). Verifier matched `results.json` row-for-row. No invented scores.
-- `gemini-2.5-flash-lite` 404s for this key. Lite cheap-model pin is now `gemini-3.5-flash-lite`. Vendor drift, not a coding-agent fallback.
-- Keep **planning** Plus on this child-vs-dog detect. Do not treat 3/3 as R2 / COPPA residual closed. No-template / retain path was not built.
-- K1 / Flash bite-risk refuse was **not** this eval. Plus still dies if Flash cannot refuse bite-risk.
-- `production_status: skipped` everywhere that matters. Harness only. `wire_owner: none`.
+- Verifier **pass**: app builds, 7/7 tests, browser smoke on home + how-it-works. Layer B is real (`apps/telltail/` + `design-system/telltail/`).
+- Product chrome matches founder locks: chat thread, no lesson dashboard; PWA + Capacitor shell for the same chrome; no store listing.
+- Prior kid-vs-dog eval harness kept. Kids leftover and Phase 8 escalate are **unchanged** — gate UI exists; delete-on-refuse storage does not.
+- Plus paywall is stubbed. **K1** (Flash bite-risk refuse) was not run — Plus still dies if that later eval fails.
+- Cloud run had no `GEMINI_API_KEY`; API returns an honest error. That is an operator wire item, not a fake “vision works” claim.
 
 ## New risk or disagreement
 
-None on the honesty of the skip. Two carries that must not flatten:
-
-1. **Do not close leftover kids risk.** Cloud collection still happens. Phase 8 R2 stays RED until refuse + no-template + short retain *ship*. This eval is evidence the cheap-model *can* fire on a Commons child still.
-2. **Do not treat this as K1.** Bite-risk Flash-refuse remains the Plus kill. Later CTO work. Not designed here.
-
-Vendor note: Phase 4 COGS still uses Gemini 2.5 Flash list as a planning base. Lite *id* drifted to 3.5-flash-lite. Do not silently swap Plus Flash-class pricing off this Lite pin.
+**Do not treat “MVP complete” as “safe to list or charge.”** A runnable chat app plus a stubbed Plus lane can look shippable. Store / paid / public brand still need counsel (Phase 8 leftovers). Live vision without your key is not proven in this cloud environment — prove it on your machine before demoing to anyone outside the explore circle.
 
 ## Next steps
 
-1. **Orchestrator** — file this review. Approve the *scoped eval*, not the phase. Do **not** mark Phase 9 complete. Do **not** open 9B.
-2. **Phase 8** — stays escalate / not complete. Leftovers (kids-in-frame, cloud-video disclosure, counsel-before-listing/paid, SLA hours, insurance) not cleared. Name remains founder risk-accept, not leftover-cleared.
-3. **Later CTO (not this seat)** — K1 Flash bite-risk eval remains the Plus kill.
-4. **Do not spawn** Phase 9 ICs from this seat.
+1. **Orchestrator** — mark Phase 9 ✅ for the explore MVP. Do **not** open 9B. Do **not** clear Phase 8.
+2. **Operator** — set `GEMINI_API_KEY`, run `cd apps/telltail && npm run dev`, attach a dog still, confirm card-or-refuse. Deploy when ready.
+3. **Later CTO** — K1 Flash bite-risk eval remains the Plus kill. Not designed here.
+4. **Resume continuous** — Phase 14 CEO hard gate was paused; creative 11–14 stay open/outlines as before.
 
 ## Inputs reviewed
 
-- `HANDOFFS/9-manager-cto.md` (rec: approve the eval skip)
+- `HANDOFFS/9-manager-cto.md` (ready_for_review)
 - `HANDOFFS/9-verifier.md` (verdict: pass)
+- `HANDOFFS/9-tech-lead.md`
 - `09-build-log.md`
-- Phase 8 escalate leftovers; founder name risk-accept
+- `apps/telltail/README.md`
+- Founder open on `RUNBOOK-TRACKER.md` (full MVP go)
 
 ## Scorecard (this packet)
 
 | Criterion | Pass? | Notes |
 |-----------|-------|-------|
-| Honest eval write-up | yes | Stack, fixtures, 3/3 table, PRD map, honest gaps |
-| Verifier pass | yes | Scores match `results.json`; no Gemini re-run (no mismatch) |
-| No store / no MVP claim | yes | CLI harness only; production skipped |
-| Full Phase 9 MVP | **not claimed** | Correct |
-| Correct model tier used? | yes | Tech Lead coding-agent; verifier strong-general |
-| Production Layer B skipped with reason? | yes | scoped kid-vs-dog eval, not a full Phase 9 MVP |
-| Client artifact path? | yes | `09-build-log.md` |
+| Build log + verified MVP | yes | Next app + tokens; not MD-only |
+| Verifier pass? | yes | `9-verifier.md` pass |
+| Production Layer B complete or skipped with reason? | yes | complete |
+| Wire owner named? | yes | operator (key + host) |
+| Correct model tier used? | yes | CTO/tech-lead coding-agent; verifier strong-general |
+| Client artifact path? | yes | `apps/telltail/` + build log |
+| No false Plus / store claim? | yes | stubbed / no-go explicit |
+| Prior eval honesty preserved? | yes | harness kept |
 
 ## Verdict
 
-**approve** — scoped-eval artifacts as an honest skip. Orchestrator may file the review. Do **not** mark Phase 9 complete. Do **not** open 9B. Do **not** treat leftovers as cleared. 4B **closed**. Phase 8 **escalate**.
+**approve** — orchestrator may mark Phase 9 ✅ for this **explore** Lite MVP. Not launch. Not leftover-cleared. 4B **closed**. 9B **closed**. Phase 8 **escalate**.
 
 ## Comments for manager
 
-- Keep planning Plus on child-vs-dog detect. Do not write “kids solved” into a tracker.
-- Pin Lite cheap-model id to `gemini-3.5-flash-lite` until a vendor is signed.
-- Latencies ~1.3–1.4s are observations, not an SLA.
-- A5 unnamed. No Cesar. No store.
+- Pin Lite to `gemini-3.5-flash-lite` until a vendor is signed.
+- Do not silently reprice Plus off this Lite pin.
+- A5 unnamed. No Cesar. No store this pass.
 
 ## Redlines
 
@@ -78,9 +75,8 @@ Vendor note: Phase 4 COGS still uses Gemini 2.5 Flash list as a planning base. L
 
 ## Decisions to log in RUNBOOK-TRACKER
 
-- Scoped Phase 9 eval **approved as skip** (this seat does not mark the phase complete)
-- Live 3/3 on `gemini-3.5-flash-lite`; `gemini-2.5-flash-lite` 404
-- Keep planning Plus on this detect
-- n=3 does **not** close leftover kids risk
-- Not the K1 bite-risk eval
-- 9B closed. 4B closed. Phase 8 stays escalate
+- Full Phase 9 Lite explore MVP **approved** (runnable chat app)
+- Explore only — no store / no paid clearance
+- K1 and Phase 8 leftovers remain open
+- Operator wires `GEMINI_API_KEY` for live vision
+- 9B stays closed
