@@ -1,0 +1,20 @@
+# Telltail — Render web service (monorepo)
+# Dashboard: New Web Service → this repo → root Directory apps/telltail
+# Or use Blueprint: https://dashboard.render.com/blueprints
+
+services:
+  - type: web
+    name: telltail
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: apps/telltail
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    autoDeployTrigger: commit
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: GEMINI_API_KEY
+        sync: false
