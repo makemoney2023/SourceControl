@@ -34,7 +34,7 @@
 | 11 | Brand & design system | 🔄 | 11-brand-system.md | Outlines + stills skip approved. Not a shipped kit. Not marked complete. |
 | 12 | Web design & IA | 🔄 | 12-web-design.md | Outline + skip approved. Not a live site. Not marked complete. |
 | 13 | Copy foundation | 🔄 | 13-copy-foundation.md | Outlines + sample lines approved. Not live pages. Not marked complete. |
-| 14 | Page content | 🔄 | 14-pages/ | CMO merged. Verifier in flight. Not complete. |
+| 14 | Page content | 🔄 | 14-pages/ | Verifier pass. CEO hard gate in flight. Not complete. |
 | 15 | Video & media | ⬜ | 15-media/ | |
 | 16 | SEO implementation | ⬜ | 16-seo.md | |
 | 17 | Email & social | ⬜ | 17-channels/ | |
@@ -111,7 +111,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 11 | creative-director | brand-designer | `HANDOFFS/` | approve outlines + skip | ceo-strategist | creative-language |
 | 12 | creative-director | web-designer | `HANDOFFS/` | approve outline + skip | ceo-strategist | creative-language |
 | 13 | cmo | copy-chief, content-strategist, product-marketing-manager | `HANDOFFS/` | approve outlines | ceo-strategist | frontier-reasoning |
-| 14 | cmo | copy-chief, seo-manager, content-strategist | `HANDOFFS/` | — (verifier in flight) | ceo-strategist | frontier-reasoning |
+| 14 | cmo | copy-chief, seo-manager, content-strategist | `HANDOFFS/` | — (verifier pass; CEO in flight) | ceo-strategist | frontier-reasoning |
 
 Preferred tiers: see `skills/org/MODEL-REGISTRY.md`.
 
