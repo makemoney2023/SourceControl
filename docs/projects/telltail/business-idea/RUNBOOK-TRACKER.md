@@ -6,7 +6,7 @@
 **Depth:** standard
 **Started:** 2026-08-21
 **Last updated:** 2026-08-21
-**Current phase:** 13
+**Current phase:** 14
 
 ## Execution mode
 
@@ -33,8 +33,8 @@
 | 10 | Strategy QA | ✅ | 10-strategy-review.md | Hard gate approve — QA only, not launch |
 | 11 | Brand & design system | 🔄 | 11-brand-system.md | Outlines + stills skip approved. Not a shipped kit. Not marked complete. |
 | 12 | Web design & IA | 🔄 | 12-web-design.md | Outline + skip approved. Not a live site. Not marked complete. |
-| 13 | Copy foundation | 🔄 | 13-copy-foundation.md | CMO merged. CEO review in flight. Not complete. |
-| 14 | Page content | ⬜ | 14-pages/ | |
+| 13 | Copy foundation | 🔄 | 13-copy-foundation.md | Outlines + sample lines approved. Not live pages. Not marked complete. |
+| 14 | Page content | 🔄 | 14-pages/ | CMO; bodies + meta; imagery skip; no live site |
 | 15 | Video & media | ⬜ | 15-media/ | |
 | 16 | SEO implementation | ⬜ | 16-seo.md | |
 | 17 | Email & social | ⬜ | 17-channels/ | |
@@ -89,6 +89,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | 10 | Strategy QA approved. 16/16 claims addressed. A+C test. Store/paid no-go. Proceed-to-creative = outlines only. | approve |
 | 2026-08-21 | 11 | Approve Layer A outlines + honest stills skip. Tokens locked. Assets empty on purpose. Do not mark phase complete. Not a shipped brand kit. | approve outlines + skip |
 | 2026-08-21 | 12 | Approve Layer A web IA + honest skip. Product chrome = one chat thread. Marketing Home / How it works / Pricing. No live site. Do not mark complete. | approve outline + skip |
+| 2026-08-21 | 13 | Approve copy foundation as outlines + sample lines. Not live pages. Not marked complete. | approve outlines |
 | 2026-08-21 | platforms | **One web chat:** PWA + **Ionic Capacitor** wrap for iOS and Android. Same thread. US-19 Android-out superseded. No store listing this pass. | founder lock |
 | 2026-08-21 | UI | Product is a **chat-based UI** (one thread). Owner describes the scare + attaches media. Vision card only after a clip/stills. Not a curriculum dashboard or lesson grid. | founder lock |
 
@@ -109,7 +110,8 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 10 | ceo-strategist | head-of-research, business-analyst | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
 | 11 | creative-director | brand-designer | `HANDOFFS/` | approve outlines + skip | ceo-strategist | creative-language |
 | 12 | creative-director | web-designer | `HANDOFFS/` | approve outline + skip | ceo-strategist | creative-language |
-| 13 | cmo | copy-chief, content-strategist, product-marketing-manager | `HANDOFFS/` | — (CEO in flight) | ceo-strategist | frontier-reasoning |
+| 13 | cmo | copy-chief, content-strategist, product-marketing-manager | `HANDOFFS/` | approve outlines | ceo-strategist | frontier-reasoning |
+| 14 | cmo | copy-chief, seo-manager, content-strategist | `HANDOFFS/` | — | ceo-strategist | frontier-reasoning |
 
 Preferred tiers: see `skills/org/MODEL-REGISTRY.md`.
 
