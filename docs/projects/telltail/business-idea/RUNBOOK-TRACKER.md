@@ -6,7 +6,7 @@
 **Depth:** standard
 **Started:** 2026-08-21
 **Last updated:** 2026-08-21
-**Current phase:** 8
+**Current phase:** 9 (scoped kid-vs-dog eval)
 
 ## Execution mode
 
@@ -28,7 +28,7 @@
 | 7 | Sales & CS | ✅ | 07-sales-playbook.md | Close + retain; outbound skipped; chat = context |
 | 8 | Ops & legal | 🔄 | 08-operations.md | escalate — artifacts accepted, not cleared |
 | 8B | People & hiring plan | ⬜ | 08b-people-plan.md | skip if no hires |
-| 9 | Build MVP | ⬜ | 09-build-log.md | Flash-refuse eval is later CTO work |
+| 9 | Build MVP | 🔄 | 09-build-log.md | Scoped kid-vs-dog eval only. No store. Full MVP not opened. |
 | 9B | Hardware & CAD | ⏭️ | 09b-hardware-build.md | no physical product v1 |
 | 10 | Strategy QA | ⬜ | 10-strategy-review.md | |
 | 11 | Brand & design system | ⬜ | 11-brand-system.md | |
@@ -79,6 +79,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | 8 | Ops+risk checklist accepted as explore homework. Verdict **escalate** — not approve, not launch clearance. 8B not opened. Leftovers uncleared. | escalate |
 | 2026-08-21 | name | Proceed with Telltail. Collision with a person's dog-training shop is accepted — they are not an LLM app. Do not buy telltail.com. | founder lock |
 | 2026-08-21 | kids | Vision model must distinguish child from dog and refuse. Chip is extra. Uncleared until proven on a real clip. | founder lock |
+| 2026-08-21 | 9 | Founder opened scoped kid-vs-dog eval. Explore only. No store. Phase 8 stays escalate. | founder go |
 
 ## Positions & handoffs
 
@@ -93,6 +94,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 6 | cmo | product-marketing-manager, content-strategist, pr-manager | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
 | 7 | head-of-sales-cs | sales-enablement-lead, outbound-lead, customer-success-manager | `HANDOFFS/` | approve | ceo-strategist | strong-general |
 | 8 | coo | ops-manager, legal-counsel | `HANDOFFS/` | escalate | ceo-strategist | frontier-reasoning |
+| 9 | cto | tech-lead, verifier | `HANDOFFS/` | — | ceo-strategist | coding-agent |
 
 Preferred tiers: see `skills/org/MODEL-REGISTRY.md`.
 
