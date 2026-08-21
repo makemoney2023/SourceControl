@@ -6,7 +6,7 @@
 **Depth:** standard
 **Started:** 2026-08-21
 **Last updated:** 2026-08-21
-**Current phase:** 12
+**Current phase:** 13
 
 ## Execution mode
 
@@ -32,8 +32,8 @@
 | 9B | Hardware & CAD | ⏭️ | 09b-hardware-build.md | no physical product v1 |
 | 10 | Strategy QA | ✅ | 10-strategy-review.md | Hard gate approve — QA only, not launch |
 | 11 | Brand & design system | 🔄 | 11-brand-system.md | Outlines + stills skip approved. Not a shipped kit. Not marked complete. |
-| 12 | Web design & IA | 🔄 | 12-web-design.md | Verifier pass. CEO review in flight. Not complete. |
-| 13 | Copy foundation | ⬜ | 13-copy-foundation.md | |
+| 12 | Web design & IA | 🔄 | 12-web-design.md | Outline + skip approved. Not a live site. Not marked complete. |
+| 13 | Copy foundation | 🔄 | 13-copy-foundation.md | CMO + copy-chief / CS / PMM; outlines only |
 | 14 | Page content | ⬜ | 14-pages/ | |
 | 15 | Video & media | ⬜ | 15-media/ | |
 | 16 | SEO implementation | ⬜ | 16-seo.md | |
@@ -87,6 +87,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | 8B | Skipped — no hires. | skip |
 | 2026-08-21 | 10 | Strategy QA approved. 16/16 claims addressed. A+C test. Store/paid no-go. Proceed-to-creative = outlines only. | approve |
 | 2026-08-21 | 11 | Approve Layer A outlines + honest stills skip. Tokens locked. Assets empty on purpose. Do not mark phase complete. Not a shipped brand kit. | approve outlines + skip |
+| 2026-08-21 | 12 | Approve Layer A web IA + honest skip. Product chrome = one chat thread. Marketing Home / How it works / Pricing. No live site. Do not mark complete. | approve outline + skip |
 | 2026-08-21 | UI | Product is a **chat-based UI** (one thread). Owner describes the scare + attaches media. Vision card only after a clip/stills. Not a curriculum dashboard or lesson grid. | founder lock |
 
 ## Positions & handoffs
@@ -105,7 +106,8 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 9 | cto | tech-lead, verifier | `HANDOFFS/` | approve eval skip | ceo-strategist | coding-agent |
 | 10 | ceo-strategist | head-of-research, business-analyst | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
 | 11 | creative-director | brand-designer | `HANDOFFS/` | approve outlines + skip | ceo-strategist | creative-language |
-| 12 | creative-director | web-designer | `HANDOFFS/` | — (verifier pass; CEO in flight) | ceo-strategist | creative-language |
+| 12 | creative-director | web-designer | `HANDOFFS/` | approve outline + skip | ceo-strategist | creative-language |
+| 13 | cmo | copy-chief, content-strategist, product-marketing-manager | `HANDOFFS/` | — | ceo-strategist | frontier-reasoning |
 
 Preferred tiers: see `skills/org/MODEL-REGISTRY.md`.
 
