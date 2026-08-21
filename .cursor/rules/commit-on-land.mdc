@@ -1,0 +1,42 @@
+---
+description: Commit and push every landed artifact to SourceControl
+alwaysApply: true
+---
+
+# Commit on land
+
+When a phase artifact, handoff, founder lock, or other company file **lands on disk**, commit those paths and push to `origin` (`https://github.com/makemoney2023/SourceControl.git`) in the same turn. Do not wait for the operator to ask.
+
+## Scope
+
+- Stage **only** the files that just landed (and this rule, if you edited it). Do not sweep unrelated dirty trees (Blacksage, graphify, income-stack, lemonade-stand, memorybank apikeys).
+- Never commit secrets, `.env`, tokens, or `**/apikeys/**`.
+- Do not `git add -A`.
+- Do not change git config (`user.name` / `user.email` stay as-is).
+
+## Commit
+
+Working tree: `/Users/cbsuperpatch/Desktop/ClaudeSkills` (branch `main`).
+
+Message style matches the log: `feat(telltail): …` / `docs(org): …` — one sentence on why.
+
+```
+git add <landed-paths>
+git commit -m "feat(telltail): <what landed>"
+```
+
+## Push
+
+`git push origin main`.
+
+This Mac’s `gh` often has **SuperPatchAi** active. SourceControl write access is **makemoney2023**. If push returns Permission denied to SuperPatchAi / 403:
+
+1. `gh auth switch --user makemoney2023`
+2. `git push origin main`
+3. `gh auth switch --user SuperPatchAi` (leave their default account as it was)
+
+Do not paste tokens. Do not force-push.
+
+## Orchestrator note
+
+C-suite approve + runbook mark counts as a land. Commit the new/changed files under `docs/projects/<venture>/` (and the tracker) then push before opening the next phase.
