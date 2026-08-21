@@ -1,0 +1,44 @@
+/**
+ * Telltail design tokens — SSOT for Phase 9 app chrome.
+ * Source: 12-web-design.md Design brief + 11-brand-system.md
+ */
+:root {
+  /* Primitive */
+  --tt-paper: #f6f2e9;
+  --tt-field: #efe9dc;
+  --tt-ink: #1a1814;
+  --tt-sign: #b5522a;
+  --tt-refuse: #6b2c28;
+  --tt-hairline: #d4cfc4;
+  --tt-slate: #5c574f;
+
+  /* Semantic */
+  --color-paper: var(--tt-paper);
+  --color-field: var(--tt-field);
+  --color-ink: var(--tt-ink);
+  --color-sign: var(--tt-sign);
+  --color-refuse: var(--tt-refuse);
+  --color-hairline: var(--tt-hairline);
+  --color-muted: var(--tt-slate);
+
+  --color-bg-primary: var(--color-paper);
+  --color-bg-thread: var(--color-field);
+  --color-text-primary: var(--color-ink);
+  --color-text-muted: var(--color-muted);
+  --color-primary: var(--color-sign);
+  --color-primary-foreground: var(--color-paper);
+  --color-destructive: var(--color-refuse);
+
+  /* Component */
+  --button-bg: var(--color-sign);
+  --button-fg: var(--color-paper);
+  --card-radius: 1rem;
+  --motion-duration: 200ms;
+  --motion-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration: 0ms;
+  }
+}

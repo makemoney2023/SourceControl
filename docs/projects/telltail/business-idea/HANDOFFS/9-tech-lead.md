@@ -4,69 +4,68 @@ position: "tech-lead"
 reports_to: "cto"
 status: done
 verdict_for_manager: ready_to_merge
+pass_label: full-mvp
 llm_tier: coding-agent
 llm_model: composer-2.5
 generation_profile: none
 generation_used: none
 fallback_applied: false
-production_status: skipped
+production_status: complete
 production_paths:
-  - apps/telltail/eval/kid_vs_dog.py
-  - apps/telltail/eval/results.json
-  - apps/telltail/fixtures/child-in-frame.jpg
-  - apps/telltail/fixtures/dog-only.jpg
-  - apps/telltail/fixtures/adult-in-background.jpg
-design_brief_path: ""
+  - apps/telltail/
+  - design-system/telltail/
+  - docs/projects/telltail/business-idea/09-build-log.md
+design_brief_path: docs/projects/telltail/business-idea/12-web-design.md
 photoreal_qa: ""
 license_basis: ""
-wire_owner: none
+wire_owner: operator
 wire_checklist_path: ""
-wire_notes: "No wire. Eval harness only. No Vercel, no IAP, no vendor DPA."
-skip_reason: "scoped kid-vs-dog eval, not a full Phase 9 MVP"
+wire_notes: "Operator sets GEMINI_API_KEY, deploys Next app, sets CAPACITOR_SERVER_URL for native wraps. No Vercel project wired this pass."
+skip_reason: ""
 tool_status:
   github: unused
   vercel: unused
   supabase: unused
-  gemini_generateContent: live
+  context7-docs: unavailable
+  playwright-browser: live
+  gemini_generateContent: blocked_no_key_in_cloud
 ---
 
-# Handoff — Tech Lead → CTO
+# Handoff — Tech Lead → CTO (Phase 9 full MVP)
 
 ## Operator brief (plain English)
 
-I ran a live three-still kid-vs-dog gate on the Lite cheap-model we can actually call: Gemini 3.5 Flash Lite. Child-in-frame refused; dog-only and adult-with-dog did not. The Phase 4 name `gemini-2.5-flash-lite` 404s for this key. n=3 stills is not leftover kids-risk solved and does not touch bite-risk / K1. Plus planning can continue on this detect; do not mark Phase 9 complete.
+I built the Lite explore chat MVP under `apps/telltail/` — one thread where you describe the scare, attach a clip, and get either a stop card or a next-step card after a single cheap-model vision call. Telltail colors and fonts come from the Phase 12 brief. The old three-photo kid-vs-dog test script is still there. Plus payments and bite-risk testing are not in this build.
 
 ## What we found
 
-- One cloud vision call per still. No second kid-detector model.
-- Live scores: **3/3 right** (child refuse; dog-only pass; adult+dog pass).
-- Adult in frame was **not** treated as a kid-refuse (AC-04.6).
-- `gemini-2.5-flash-lite` is dead for new users; cheap-model id is now `gemini-3.5-flash-lite`.
-- This does not close K1, leftover R2, or Phase 8.
+- Next.js app builds; 7 unit tests pass; Playwright loaded home and how-it-works.
+- Chat thread implements US-21: text is context only; vision needs an attachment.
+- Refuse-first gate in `/api/read` using `gemini-3.5-flash-lite`.
+- PWA manifest + Capacitor config present; no store binaries.
+- Cloud env had no Gemini key — live reads need operator `GEMINI_API_KEY`.
+- Context7 quota exceeded — used repo conventions + prior eval API shape.
 
 ## Next steps
 
-1. **CTO** — write the manager brief and spawn verifier. Do not mark the phase complete. Do not open 9B.
-2. **Verifier** — check the build log numbers against `apps/telltail/eval/results.json`. Reject invented scores or an MVP-complete claim.
-3. **Later CTO (not this packet)** — K1 Flash bite-risk eval remains the Plus kill. This pass is child-vs-dog only.
+1. **CTO** — merge build log, write manager brief, spawn verifier.
+2. **Verifier** — confirm app on disk, tests, smoke, honest Plus/K1 deferrals.
+3. **Operator** — add `GEMINI_API_KEY`, deploy, test with fixture stills.
 
 ## Goal (from context packet)
 
-Prove one cloud vision call can tell a child from a dog and refuse. Write `09-build-log.md`. Optional tiny harness in `apps/telltail/` only if it serves the eval. Return to CTO. Do not spawn. Do not write the manager brief. Do not mark the phase complete. Do not open 9B.
+Full Phase 9 Lite explore MVP: chat + attach + one vision read + refuse/card. Keep eval harness. Persist design tokens. Do not mark phase complete.
 
 ## Artifacts written (write_lease only)
 
 | Path | Notes |
 |------|-------|
-| `docs/projects/telltail/business-idea/09-build-log.md` | Honest eval write-up; 3/3 live; not phase-complete |
+| `apps/telltail/` | Next 15 chat MVP, API route, PWA, Capacitor config, vitest |
+| `design-system/telltail/` | tokens.css + README |
+| `docs/projects/telltail/business-idea/09-build-log.md` | Full MVP build log |
 | `docs/projects/telltail/business-idea/HANDOFFS/9-tech-lead.md` | This handoff |
-| `apps/telltail/eval/kid_vs_dog.py` | CLI harness — one generateContent per still |
-| `apps/telltail/eval/results.json` | Raw live results |
-| `apps/telltail/eval/gemini-2.5-flash-lite-404.txt` | 404 note for the planning model id |
-| `apps/telltail/fixtures/` | Three Commons stills + SOURCES.md |
-| `apps/telltail/README.md` | Not-an-MVP notice |
 
-Local Mac only. Not OneDrive.
+Eval paths unchanged: `apps/telltail/eval/`, `apps/telltail/fixtures/`.
 
 ## Model routing
 
@@ -76,67 +75,39 @@ Local Mac only. Not OneDrive.
 | llm_model | composer-2.5 |
 | generation_profile | none |
 | generation_used | none |
-| fallback_applied | no — Plane A stayed composer-2.5. Vision *vendor* id shifted 2.5-flash-lite → 3.5-flash-lite because of a 404, not a coding-agent fallback. |
+| fallback_applied | false |
 
-## Production (shippable phases — required)
+## Production check
 
-| Field | Value |
-|-------|-------|
-| production_status | skipped |
-| production_paths | `apps/telltail/eval/*` and `apps/telltail/fixtures/*` (harness only) |
-| wire_owner | none |
-| wire_notes | No deploy, no IAP, no DPA |
-| skip_reason | scoped kid-vs-dog eval, not a full Phase 9 MVP |
-
-Design-before-build does **not** apply to this CLI/script. No branded app UI.
-
-## SDK correlation (optional)
-
-| Field | Value |
-|-------|-------|
-| sdk_runtime | n/a |
-| sdk_agent_id | n/a |
-| sdk_run_id | n/a |
-| sdk_request_id | n/a |
-
-## Decisions
-
-- Eval on **stills** (one frame) because the packet asked for a small kid-vs-dog test, not a clip recipe.
-- Call **Gemini 3.5 Flash Lite** after 2.5-flash-lite 404'd — still one Lite cheap-model, still one call, no custom detector.
-- Adult fixture = man walking a dog (Commons). Not a phone-selfie; still a valid AC-04.6 negative.
-- `production_status: skipped` even though a harness exists — this is not a shippable MVP.
-
-## Asks for manager (`ask_manager`)
-
-- Peer help needed: none — verifier is yours to spawn after the manager brief
-- Clarification needed: none
-
-## Risks / blockers
-
-- **n=3** is not a safety floor. Easy to over-read 3/3 as “kids solved.”
-- Leftover kids risk (cloud collection, retain, COPPA) stays open. Phase 8 residual R2 is unchanged.
-- **K1 / bite-risk** untouched. Plus still dies if Flash cannot refuse bite-risk.
-- Vendor id drift: planning docs that say Gemini 2.5 Flash Lite will fail on new keys.
-- Fixtures are public photos, not scare clips. Generalization is unproven.
+| Check | Result |
+|-------|--------|
+| Layer B app exists | Yes — `apps/telltail/` |
+| Runnable | `npm run build` OK |
+| production_status | complete |
+| design_brief_path | 12-web-design.md Design brief section |
+| Plus shipped | No — stubbed |
+| K1 eval | No — open |
 
 ## Packs used
 
-| Pack | Decision tied to pack |
-|------|------------------------|
-| `skills/org/packs/production-artifacts/` | Set `production_status: skipped` with skip_reason “scoped kid-vs-dog eval, not a full Phase 9 MVP”; listed harness paths; `wire_owner: none`; did not claim complete or a Next.js MVP; design-before-build waived for CLI-only. |
-| `skills/org/HANDOFF-TEMPLATE.md` | Wrote this file to the template shape (operator brief / found / next, lease table, production fields, model audit). |
+| Pack | Decision |
+|------|----------|
+| production-artifacts | Craft → tokens → app Layer B |
+| tailwind-design-system | Sign as `--color-primary`, no green confidence |
+| vercel-react-best-practices | Client quota in localStorage; API route for vision |
+| test-driven-development | Gate + quota tests before UI merge |
 
-## Do not
+## PRD mapping (Must Lite)
 
-- Mark the phase complete
-- Write the manager brief (CTO owns that)
-- Open 9B or spawn a custom detector
-- Spawn other positions
-- Claim a verified Next.js MVP or App Store/TestFlight
-- Treat 3/3 as leftover kids-risk closed
-- Treat this as the K1 bite-risk eval
-- Invent scores
-- Claim on-device
-- Name a trainer (A5 OPEN)
-- Train on user video or these fixtures
-- Buy telltail.com / mix Blacksage or Sieger
+US-01 attach · US-02 one call · US-03 refuse-first · US-04 gate · US-05 card · US-06 banned · US-07 Lite quota · US-10 escalate · US-11 disclosure · US-19 PWA/Capacitor config · US-21 chat chrome.
+
+## Conflicts / ask_manager
+
+None.
+
+## Verifier hints
+
+- Run `cd apps/telltail && npm test && npm run build`
+- Smoke `/`, `/how-it-works`, `/pricing`
+- Confirm `eval/kid_vs_dog.py` still present
+- Reject if handoff claims Plus or K1 shipped

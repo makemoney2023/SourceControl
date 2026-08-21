@@ -71,8 +71,12 @@ CASES = [
 
 
 def load_key() -> str:
-    env_path = Path("/Users/cbsuperpatch/Desktop/ClaudeSkills/.env.local")
-    if env_path.exists():
+    candidates = [
+        Path(__file__).resolve().parents[2].parent / ".env.local",
+        Path("/Users/cbsuperpatch/Desktop/ClaudeSkills/.env.local"),
+    ]
+    env_path = next((p for p in candidates if p.exists()), None)
+    if env_path is not None:
         for line in env_path.read_text().splitlines():
             if line.startswith("GEMINI_API_KEY=") or line.startswith("GOOGLE_API_KEY="):
                 val = line.split("=", 1)[1].strip().strip('"').strip("'")
