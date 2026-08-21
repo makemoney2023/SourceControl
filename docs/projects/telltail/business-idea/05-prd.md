@@ -229,7 +229,7 @@ Must + Should only. Actor / precondition / main / alt / post from PM, compressed
 
 **As a** P0/P1 owner, **I want** to film or immediately upload a short clip of *this* scare, **so that** the read is about this dog, this second.
 
-- **Actor:** P0/P1 owner, iOS or Android or Android, EN US/CA
+- **Actor:** P0/P1 owner, one web chat app (PWA / Ionic Capacitor iOS wrap / Android wrap), EN US/CA
 - **Precondition:** App is open. A scare just happened or is happening. Explore — not in the App Store.
 - **Main:** Start live capture *or* pick a just-shot clip → optional context chips *or* US-21 chat story (kids / food / doorbell / visitor) → confirm send.
 - **Alt:** Live capture fails → offer US-14 (Should) and/or US-21 chat. **No clip or stills → no vision read / no “I saw your dog” card.** Text in chat is context, not a substitute read.
@@ -448,7 +448,7 @@ Must + Should only. Actor / precondition / main / alt / post from PM, compressed
 
 **As a** P0/P1 owner, **I want** to describe what just happened in conversation and attach a clip or stills in the same thread, **so that** I can give context without pretending the model saw a dog I never sent.
 
-- **Actor:** P0/P1 owner, iOS
+- **Actor:** P0/P1 owner, one web chat app (PWA / Capacitor wraps)
 - **Precondition:** App is open. A scare just happened, is happening, or just ended. A5 OPEN — no named trainer.
 - **Main:** Owner chats the scare story (what happened, kids, food, doorbell, visitor, etc.). Optional context chips still work. To unlock a refuse-first **vision card**, they attach a clip or stills **in the thread**. Same gate + card-or-refuse path as US-01/US-03/US-05.
 - **Alt:** Text-only, no media → no vision card; no “I saw your dog”; no seen-dog diagnosis from a paragraph. Chat may ask for a clip, honor refuse-first / banned claims / escalate-don’t-diagnose / reward-based / no-dominance / kids-in-frame / K1. It must not become anonymous PetGPT or a chat-only coach.
