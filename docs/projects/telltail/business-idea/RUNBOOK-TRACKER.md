@@ -1,6 +1,6 @@
 # Business Idea Runbook Tracker
 
-**Idea:** Telltail is a consumer iOS + Android training tool that uses one Flash-class cloud vision read of a dog’s body language and returns the next right action — and when to stop.
+**Idea:** Telltail is a consumer PWA + iOS/Android (Ionic Capacitor) training tool that uses one Flash-class cloud vision read of a dog’s body language and returns the next right action — and when to stop.
 **Classification:** Software / consumer mobile / B2C (not Internal — CLASSIFICATION-SKIPS none)
 **Mode:** explore
 **Depth:** standard
@@ -64,7 +64,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 - **L1–L14:** licensed counsel before public brand / listing / paid.
 - **SLA hours:** `[Operator to set]` — do not invent.
 - **UI:** chat-based thread. Not a lesson dashboard. Founder lock 2026-08-21.
-- **Platforms:** iOS and Android. Same thread. Store listing still no-go.
+- **Platforms:** one web chat — PWA + Ionic Capacitor for iOS and Android. Store listing still no-go.
 
 ## Decisions log
 
@@ -89,7 +89,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | 10 | Strategy QA approved. 16/16 claims addressed. A+C test. Store/paid no-go. Proceed-to-creative = outlines only. | approve |
 | 2026-08-21 | 11 | Approve Layer A outlines + honest stills skip. Tokens locked. Assets empty on purpose. Do not mark phase complete. Not a shipped brand kit. | approve outlines + skip |
 | 2026-08-21 | 12 | Approve Layer A web IA + honest skip. Product chrome = one chat thread. Marketing Home / How it works / Pricing. No live site. Do not mark complete. | approve outline + skip |
-| 2026-08-21 | platforms | **iOS and Android.** Same chat-thread product. US-19 Android-out is superseded. No store listing this pass. | founder lock |
+| 2026-08-21 | platforms | **One web chat:** PWA + **Ionic Capacitor** wrap for iOS and Android. Same thread. US-19 Android-out superseded. No store listing this pass. | founder lock |
 | 2026-08-21 | UI | Product is a **chat-based UI** (one thread). Owner describes the scare + attaches media. Vision card only after a clip/stills. Not a curriculum dashboard or lesson grid. | founder lock |
 
 ## Positions & handoffs
