@@ -33,7 +33,7 @@
 | 10 | Strategy QA | ✅ | 10-strategy-review.md | Hard gate approve — QA only, not launch |
 | 11 | Brand & design system | 🔄 | 11-brand-system.md | Outlines + stills skip approved. Not a shipped kit. Not marked complete. |
 | 12 | Web design & IA | 🔄 | 12-web-design.md | Outline + skip approved. Not a live site. Not marked complete. |
-| 13 | Copy foundation | 🔄 | 13-copy-foundation.md | CMO + copy-chief / CS / PMM; outlines only |
+| 13 | Copy foundation | 🔄 | 13-copy-foundation.md | CMO merged. CEO review in flight. Not complete. |
 | 14 | Page content | ⬜ | 14-pages/ | |
 | 15 | Video & media | ⬜ | 15-media/ | |
 | 16 | SEO implementation | ⬜ | 16-seo.md | |
@@ -109,7 +109,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 10 | ceo-strategist | head-of-research, business-analyst | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
 | 11 | creative-director | brand-designer | `HANDOFFS/` | approve outlines + skip | ceo-strategist | creative-language |
 | 12 | creative-director | web-designer | `HANDOFFS/` | approve outline + skip | ceo-strategist | creative-language |
-| 13 | cmo | copy-chief, content-strategist, product-marketing-manager | `HANDOFFS/` | — | ceo-strategist | frontier-reasoning |
+| 13 | cmo | copy-chief, content-strategist, product-marketing-manager | `HANDOFFS/` | — (CEO in flight) | ceo-strategist | frontier-reasoning |
 
 Preferred tiers: see `skills/org/MODEL-REGISTRY.md`.
 
