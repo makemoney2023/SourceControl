@@ -26,7 +26,7 @@
 | 5 | Product | ✅ | 05-prd.md | PRD + MoSCoW + AC; AC-04.1 redline: freeze is gate input |
 | 6 | GTM strategy | ✅ | 06-gtm-plan.md | Hard gate approve — explore only, no store/ads |
 | 7 | Sales & CS | ✅ | 07-sales-playbook.md | Close + retain; outbound skipped; chat = context |
-| 8 | Ops & legal | 🔄 | 08-operations.md | COO; ops + legal |
+| 8 | Ops & legal | 🔄 | 08-operations.md | escalate — artifacts accepted, not cleared |
 | 8B | People & hiring plan | ⬜ | 08b-people-plan.md | skip if no hires |
 | 9 | Build MVP | ⬜ | 09-build-log.md | Flash-refuse eval is later CTO work |
 | 9B | Hardware & CAD | ⏭️ | 09b-hardware-build.md | no physical product v1 |
@@ -58,6 +58,10 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 - **K1 / Flash-refuse:** Can Flash refuse bite-risk safely? Fail kills Plus. CTO later — do not prompt out.
 - **A4 WTP:** $12 is a presentation pick, not proven demand.
 - **Tokens/clip:** $0.37 is assumed; CTO measures.
+- **R2 kids-in-frame:** RED until refuse + no-template + short retain ship.
+- **R5 TM:** planning-accept only. Counsel before public brand. Do not buy telltail.com.
+- **L1–L14:** licensed counsel before public brand / listing / paid.
+- **SLA hours:** `[Operator to set]` — do not invent.
 
 ## Decisions log
 
@@ -72,6 +76,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | A5 | Do not name Cesar Millan. Do not scrape his catalog. Reward-based / no-dominance lock unchanged. Named voice stays OPEN. | founder lock |
 | 2026-08-21 | 6 | Explore GTM approved. Demand path is a test. No store / no paid this pass. A5 unnamed. Never $9.99. 4B closed. | approve |
 | 2026-08-21 | 7 | Close + retain playbook approved. Chat = context not vision read. Outbound skipped. SLA hours operator-set. | approve |
+| 2026-08-21 | 8 | Ops+risk checklist accepted as explore homework. Verdict **escalate** — not approve, not launch clearance. 8B not opened. Leftovers uncleared. | escalate |
 
 ## Positions & handoffs
 
@@ -85,7 +90,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 5 | head-of-product | product-manager, business-analyst | `HANDOFFS/` | approve | ceo-strategist | strong-general |
 | 6 | cmo | product-marketing-manager, content-strategist, pr-manager | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
 | 7 | head-of-sales-cs | sales-enablement-lead, outbound-lead, customer-success-manager | `HANDOFFS/` | approve | ceo-strategist | strong-general |
-| 8 | coo | ops-manager, legal-counsel | `HANDOFFS/` | — | ceo-strategist | frontier-reasoning |
+| 8 | coo | ops-manager, legal-counsel | `HANDOFFS/` | escalate | ceo-strategist | frontier-reasoning |
 
 Preferred tiers: see `skills/org/MODEL-REGISTRY.md`.
 
