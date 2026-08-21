@@ -6,7 +6,7 @@
 **Depth:** standard
 **Started:** 2026-08-21
 **Last updated:** 2026-08-21
-**Current phase:** 9 (scoped kid-vs-dog eval)
+**Current phase:** 10
 
 ## Execution mode
 
@@ -27,10 +27,10 @@
 | 6 | GTM strategy | ✅ | 06-gtm-plan.md | Hard gate approve — explore only, no store/ads |
 | 7 | Sales & CS | ✅ | 07-sales-playbook.md | Close + retain; outbound skipped; chat = context |
 | 8 | Ops & legal | 🔄 | 08-operations.md | escalate — artifacts accepted, not cleared |
-| 8B | People & hiring plan | ⬜ | 08b-people-plan.md | skip if no hires |
+| 8B | People & hiring plan | ⏭️ | 08b-people-plan.md | skip — solo founder, no hires |
 | 9 | Build MVP | 🔄 | 09-build-log.md | Eval skip approved (3/3 live). Full MVP not opened. Kids leftover open. |
 | 9B | Hardware & CAD | ⏭️ | 09b-hardware-build.md | no physical product v1 |
-| 10 | Strategy QA | ⬜ | 10-strategy-review.md | |
+| 10 | Strategy QA | 🔄 | 10-strategy-review.md | CEO + HoR + BA; hard gate |
 | 11 | Brand & design system | ⬜ | 11-brand-system.md | |
 | 12 | Web design & IA | ⬜ | 12-web-design.md | |
 | 13 | Copy foundation | ⬜ | 13-copy-foundation.md | |
@@ -51,6 +51,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | Phase | Reason |
 |-------|--------|
 | 4B | Founder/C-suite lock: bootstrapped explore. Do not open. |
+| 8B | Solo founder. No hiring plan this pass. |
 | 9B | No physical product in v1. |
 
 ## Open questions (blocking only)
@@ -58,7 +59,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 - **K1 / Flash-refuse:** Can Flash refuse bite-risk safely? Fail kills Plus. CTO later — do not prompt out.
 - **A4 WTP:** $12 is a presentation pick, not proven demand.
 - **Tokens/clip:** $0.37 is assumed; CTO measures.
-- **Kids in frame:** model must tell a child from a dog and refuse. Owner chip is extra. Not cleared until a real clip proves it.
+- **Kids in frame:** founder will not stall the company on this. Child-vs-dog refuse stays as product behavior (3/3 eval). Not a blocker.
 - **Name:** founder accepted Telltail. Other Telltail is a person's training shop, not an LLM app. Do not buy telltail.com until they ask.
 - **L1–L14:** licensed counsel before public brand / listing / paid.
 - **SLA hours:** `[Operator to set]` — do not invent.
@@ -81,6 +82,8 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | kids | Vision model must distinguish child from dog and refuse. Chip is extra. Uncleared until proven on a real clip. | founder lock |
 | 2026-08-21 | 9 | Founder opened scoped kid-vs-dog eval. Explore only. No store. Phase 8 stays escalate. | founder go |
 | 2026-08-21 | 9 | C-suite approved the eval skip, not the phase. 3/3 gemini-3.5-flash-lite. Kids leftover + K1 still open. | approve eval skip |
+| 2026-08-21 | kids | Founder: do not hold the company on kid photos. Keep going. | founder lock |
+| 2026-08-21 | 8B | Skipped — no hires. | skip |
 
 ## Positions & handoffs
 
@@ -96,6 +99,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 7 | head-of-sales-cs | sales-enablement-lead, outbound-lead, customer-success-manager | `HANDOFFS/` | approve | ceo-strategist | strong-general |
 | 8 | coo | ops-manager, legal-counsel | `HANDOFFS/` | escalate | ceo-strategist | frontier-reasoning |
 | 9 | cto | tech-lead, verifier | `HANDOFFS/` | approve eval skip | ceo-strategist | coding-agent |
+| 10 | ceo-strategist | head-of-research, business-analyst | `HANDOFFS/` | — | ceo-strategist | frontier-reasoning |
 
 Preferred tiers: see `skills/org/MODEL-REGISTRY.md`.
 
