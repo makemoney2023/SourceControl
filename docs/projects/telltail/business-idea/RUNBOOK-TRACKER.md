@@ -32,7 +32,7 @@
 | 9B | Hardware & CAD | ⏭️ | 09b-hardware-build.md | no physical product v1 |
 | 10 | Strategy QA | ✅ | 10-strategy-review.md | Hard gate approve — QA only, not launch |
 | 11 | Brand & design system | 🔄 | 11-brand-system.md | Outlines + stills skip approved. Not a shipped kit. Not marked complete. |
-| 12 | Web design & IA | 🔄 | 12-web-design.md | CD + web-designer; outlines only |
+| 12 | Web design & IA | 🔄 | 12-web-design.md | CD + web-designer; outlines only; chat-based UI lock |
 | 13 | Copy foundation | ⬜ | 13-copy-foundation.md | |
 | 14 | Page content | ⬜ | 14-pages/ | |
 | 15 | Video & media | ⬜ | 15-media/ | |
@@ -63,6 +63,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 - **Name:** founder accepted Telltail. Other Telltail is a person's training shop, not an LLM app. Do not buy telltail.com until they ask.
 - **L1–L14:** licensed counsel before public brand / listing / paid.
 - **SLA hours:** `[Operator to set]` — do not invent.
+- **UI:** chat-based thread. Not a lesson dashboard. Founder lock 2026-08-21.
 
 ## Decisions log
 
@@ -86,6 +87,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | 8B | Skipped — no hires. | skip |
 | 2026-08-21 | 10 | Strategy QA approved. 16/16 claims addressed. A+C test. Store/paid no-go. Proceed-to-creative = outlines only. | approve |
 | 2026-08-21 | 11 | Approve Layer A outlines + honest stills skip. Tokens locked. Assets empty on purpose. Do not mark phase complete. Not a shipped brand kit. | approve outlines + skip |
+| 2026-08-21 | UI | Product is a **chat-based UI** (one thread). Owner describes the scare + attaches media. Vision card only after a clip/stills. Not a curriculum dashboard or lesson grid. | founder lock |
 
 ## Positions & handoffs
 
