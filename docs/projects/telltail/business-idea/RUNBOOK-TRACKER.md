@@ -6,7 +6,7 @@
 **Depth:** standard
 **Started:** 2026-08-21
 **Last updated:** 2026-08-21
-**Current phase:** 10
+**Current phase:** 11
 
 ## Execution mode
 
@@ -30,8 +30,8 @@
 | 8B | People & hiring plan | ⏭️ | 08b-people-plan.md | skip — solo founder, no hires |
 | 9 | Build MVP | 🔄 | 09-build-log.md | Eval skip approved (3/3 live). Full MVP not opened. Kids leftover open. |
 | 9B | Hardware & CAD | ⏭️ | 09b-hardware-build.md | no physical product v1 |
-| 10 | Strategy QA | 🔄 | 10-strategy-review.md | CEO + HoR + BA; hard gate |
-| 11 | Brand & design system | ⬜ | 11-brand-system.md | |
+| 10 | Strategy QA | ✅ | 10-strategy-review.md | Hard gate approve — QA only, not launch |
+| 11 | Brand & design system | 🔄 | 11-brand-system.md | CD + brand-designer; outlines only |
 | 12 | Web design & IA | ⬜ | 12-web-design.md | |
 | 13 | Copy foundation | ⬜ | 13-copy-foundation.md | |
 | 14 | Page content | ⬜ | 14-pages/ | |
@@ -84,6 +84,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | 9 | C-suite approved the eval skip, not the phase. 3/3 gemini-3.5-flash-lite. Kids leftover + K1 still open. | approve eval skip |
 | 2026-08-21 | kids | Founder: do not hold the company on kid photos. Keep going. | founder lock |
 | 2026-08-21 | 8B | Skipped — no hires. | skip |
+| 2026-08-21 | 10 | Strategy QA approved. 16/16 claims addressed. A+C test. Store/paid no-go. Proceed-to-creative = outlines only. | approve |
 
 ## Positions & handoffs
 
@@ -99,7 +100,8 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 7 | head-of-sales-cs | sales-enablement-lead, outbound-lead, customer-success-manager | `HANDOFFS/` | approve | ceo-strategist | strong-general |
 | 8 | coo | ops-manager, legal-counsel | `HANDOFFS/` | escalate | ceo-strategist | frontier-reasoning |
 | 9 | cto | tech-lead, verifier | `HANDOFFS/` | approve eval skip | ceo-strategist | coding-agent |
-| 10 | ceo-strategist | head-of-research, business-analyst | `HANDOFFS/` | — | ceo-strategist | frontier-reasoning |
+| 10 | ceo-strategist | head-of-research, business-analyst | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
+| 11 | creative-director | brand-designer | `HANDOFFS/` | — | ceo-strategist | creative-language |
 
 Preferred tiers: see `skills/org/MODEL-REGISTRY.md`.
 
