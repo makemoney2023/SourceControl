@@ -1,0 +1,20 @@
+{
+  "name": "ClaudeSkills web apps",
+  "user": "ubuntu",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "blacksage-kennels (Next.js :3000)",
+      "command": "cd apps/blacksage-kennels && npm run dev"
+    },
+    {
+      "name": "income-stack (Vite :5173)",
+      "command": "cd apps/superpatch-income-stack && npm run dev -- --host 127.0.0.1 --port 5173"
+    },
+    {
+      "name": "org-command-center (Vite :5177)",
+      "command": "cd tools/org-command-center && npm run dev"
+    }
+  ],
+  "ports": [3000, 5173, 5177]
+}
