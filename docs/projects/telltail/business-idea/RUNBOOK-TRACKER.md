@@ -1,0 +1,96 @@
+# Business Idea Runbook Tracker
+
+**Idea:** Telltail is a consumer iOS training tool that uses one Flash-class cloud vision read of a dog’s body language and returns the next right action — and when to stop.
+**Classification:** Software / consumer mobile / B2C (not Internal — CLASSIFICATION-SKIPS none)
+**Mode:** explore
+**Depth:** standard
+**Started:** 2026-08-21
+**Last updated:** 2026-08-21
+**Current phase:** 8
+
+## Execution mode
+
+- **Continuous** — run phases in order until Phase 21 complete or explicit STOP
+- **Resume** — read this file at every session start; continue from first ⬜/🔄 phase
+
+## Phase status
+
+| Phase | Name | Status | Artifact | Notes |
+|-------|------|--------|----------|-------|
+| 0 | Intake | ✅ | 00-intake.md | explore B2C; C-suite approve 2026-08-21 |
+| 1 | Frame | ✅ | 01-problem-framing.md | missed training moments; A+C test framing |
+| 2 | Market | ✅ | 02-evidence-base.md + 02-market-research.md | Gemini wrappers exist; Flash-refuse OPEN |
+| 3 | Strategy | ✅ | 03-strategy.md | A+C test, not launch lock; hard gate |
+| 4 | Business model | ✅ | 04-business-model.md | Working SKU $12/mo / $99/yr; K1 kills Plus |
+| 4B | Funding & investor materials | ⏭️ | 04b-funding.md | closed — bootstrapped explore |
+| 5 | Product | ✅ | 05-prd.md | PRD + MoSCoW + AC; AC-04.1 redline: freeze is gate input |
+| 6 | GTM strategy | ✅ | 06-gtm-plan.md | Hard gate approve — explore only, no store/ads |
+| 7 | Sales & CS | ✅ | 07-sales-playbook.md | Close + retain; outbound skipped; chat = context |
+| 8 | Ops & legal | 🔄 | 08-operations.md | COO; ops + legal |
+| 8B | People & hiring plan | ⬜ | 08b-people-plan.md | skip if no hires |
+| 9 | Build MVP | ⬜ | 09-build-log.md | Flash-refuse eval is later CTO work |
+| 9B | Hardware & CAD | ⏭️ | 09b-hardware-build.md | no physical product v1 |
+| 10 | Strategy QA | ⬜ | 10-strategy-review.md | |
+| 11 | Brand & design system | ⬜ | 11-brand-system.md | |
+| 12 | Web design & IA | ⬜ | 12-web-design.md | |
+| 13 | Copy foundation | ⬜ | 13-copy-foundation.md | |
+| 14 | Page content | ⬜ | 14-pages/ | |
+| 15 | Video & media | ⬜ | 15-media/ | |
+| 16 | SEO implementation | ⬜ | 16-seo.md | |
+| 17 | Email & social | ⬜ | 17-channels/ | |
+| 18 | Conversion UX | ⬜ | 18-conversion.md | |
+| 19 | Paid acquisition | ⬜ | 19-paid.md | skip if no budget |
+| 20 | Analytics | ⬜ | 20-analytics.md | |
+| 21 | Launch & final QA | ⬜ | 21-executive-summary.md | |
+| 22 | Operate (recurring) | ⬜ | 22-operating-cadence.md | |
+
+Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
+
+## Skipped phases (with reason)
+
+| Phase | Reason |
+|-------|--------|
+| 4B | Founder/C-suite lock: bootstrapped explore. Do not open. |
+| 9B | No physical product in v1. |
+
+## Open questions (blocking only)
+
+- **K1 / Flash-refuse:** Can Flash refuse bite-risk safely? Fail kills Plus. CTO later — do not prompt out.
+- **A4 WTP:** $12 is a presentation pick, not proven demand.
+- **Tokens/clip:** $0.37 is assumed; CTO measures.
+
+## Decisions log
+
+| Date | Phase | Decision | Exec verdict |
+|------|-------|----------|--------------|
+| 2026-08-21 | 0 | Velocity explore B2C; name Telltail; training tool not toy/translator; 4B closed | approve |
+| 2026-08-21 | 1 | Problem = missed training moments; A+C refuse-first as test framing | approve |
+| 2026-08-21 | 2 | Evidence accepted; metering is ours not category norm; Flash-refuse OPEN | approve |
+| 2026-08-21 | 3 | A+C refuse-first moment coach is the recommended *test*, not a strategy lock | approve (explore test) |
+| 2026-08-21 | 4 | Working SKU **$12/mo / $99/yr**, 60 Flash + credits, Lite 3–5. Envelope $9–13 / $79–99. Never $9.99. K1 kills Plus. 4B closed. | approve |
+| 2026-08-21 | 5 | PRD approved. A+C stays a test; US-08/09 Must *of the test*. Lite = cheap-model; safety does not downgrade. Gate always runs at 0 remaining. AC-04.1: freeze/whale-eye/stare are gate inputs, not auto-refuse. Flash-refuse eval later CTO. | approve |
+| 2026-08-21 | A5 | Do not name Cesar Millan. Do not scrape his catalog. Reward-based / no-dominance lock unchanged. Named voice stays OPEN. | founder lock |
+| 2026-08-21 | 6 | Explore GTM approved. Demand path is a test. No store / no paid this pass. A5 unnamed. Never $9.99. 4B closed. | approve |
+| 2026-08-21 | 7 | Close + retain playbook approved. Chat = context not vision read. Outbound skipped. SLA hours operator-set. | approve |
+
+## Positions & handoffs
+
+| Phase | Manager | ICs spawned | Handoff dir | C-suite verdict | Reviewer | Manager llm_tier |
+|-------|---------|-------------|-------------|-----------------|----------|------------------|
+| 0 | ceo-strategist | — (Jarvis peers: cfo, cmo, coo, head-of-research) | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
+| 1 | ceo-strategist | (via CEO) | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
+| 2 | head-of-research | market-research-analyst, competitive-intelligence-analyst, seo-manager | `HANDOFFS/` | approve | ceo-strategist | strong-general |
+| 3 | ceo-strategist | product-marketing-manager, business-analyst | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
+| 4 | cfo | fpa-analyst, product-marketing-manager | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
+| 5 | head-of-product | product-manager, business-analyst | `HANDOFFS/` | approve | ceo-strategist | strong-general |
+| 6 | cmo | product-marketing-manager, content-strategist, pr-manager | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
+| 7 | head-of-sales-cs | sales-enablement-lead, outbound-lead, customer-success-manager | `HANDOFFS/` | approve | ceo-strategist | strong-general |
+| 8 | coo | ops-manager, legal-counsel | `HANDOFFS/` | — | ceo-strategist | frontier-reasoning |
+
+Preferred tiers: see `skills/org/MODEL-REGISTRY.md`.
+
+## Skills completed this run
+
+| Phase | Skills applied |
+|-------|----------------|
+| 4 | unit-econ + pricing/packaging (CFO merge) |
