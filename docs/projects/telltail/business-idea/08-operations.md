@@ -60,7 +60,7 @@ Scores are **planning ratings of the product as specified**, not counsel conclus
 | R2 | **Kids-in-frame** clip uploaded to cloud vision with no refuse / no purpose-limit | COPPA / PIPEDA / BIPA / CPRA | 5 | 4 | **20** | RED | Open until refuse + no-template + short retain ship | ORANGE (5×2=10) — cloud collection still happens | Product + counsel |
 | R3 | Every v1 read is a **cloud multimodal** call (video leaves the phone) | Privacy / Apple 5.1.2 / FTC deception | 4 | 5 | **20** | RED | Locked architecture **[F]** | ORANGE (4×3=12) with pre-clip disclose + purpose string + no on-device claim | Product + counsel |
 | R4 | Output **diagnoses** or substitutes for a vet / DACVB | Vet-practice / FTC professional-sub | 4 | 3 | **12** | ORANGE | Open until escalate-only copy is locked in UI + ToS | YELLOW (4×2=8) | Product + counsel |
-| R5 | **TELLTAIL** public brand vs live USPTO pet marks + Little Rock trainer + sunset `telltail.com` | Trademark / unfair competition | 4 | 3 | **12** | ORANGE | **Planning risk-accepted only.** Blocking for public mark use | Unchanged until counsel coexistence / risk-accept in writing | Founder + counsel |
+| R5 | **TELLTAIL** name vs live USPTO pet marks + Little Rock trainer + sunset `telltail.com` | Trademark / unfair competition | 4 | 3 | **12** | ORANGE | **Founder lock 2026-08-21: collision accepted. Proceed with Telltail. Not a block.** Other Telltail = a person’s training shop, not an LLM app. Do not buy `telltail.com`. | Name is not a go/no-go. L8 counsel search still useful; do not reopen a rename | Founder (locked) |
 | R6 | Translator / mind-reading / unlimited / on-device claims | FTC / App Store | 4 | 3 | **12** | ORANGE | Open for any public copy | YELLOW (4×2=8) if claims ladder holds on the same screen | CMO + counsel |
 | R7 | IAP auto-renew / refund / credit-pack terms unpublished | Contract / consumer / store | 3 | 3 | **9** | YELLOW | Open — no terms drafted this pass | YELLOW until `[Attorney to draft]` ships | Counsel + operator |
 | R8 | Support or chat **overrides a refuse** (“you’re fine”) | Product liability / claims | 4 | 3 | **12** | ORANGE | Open (SLA hours still `[Operator to set]`) | YELLOW if support never re-scores a hard stop | Ops + counsel |
@@ -69,7 +69,7 @@ Scores are **planning ratings of the product as specified**, not counsel conclus
 | R11 | Chat (US-21) mints a vision card from **text only** | Claims / deception | 4 | 3 | **12** | ORANGE | Locked “no clip → no card” **[F]** | YELLOW if lock holds | Product |
 | R12 | Gate skipped at **0 remaining** / credits used to bypass safety | Safety / consumer | 5 | 2 | **10** | ORANGE | Locked “gate always runs” **[F]** | YELLOW if meter cannot skip | Product |
 
-**Highest residual after product locks:** R2/R3 (cloud kids video) and R5 (public brand). Those stay counsel-gated. Explore planning may continue. Public claims, App Store listing, and paid launch stay blocked.
+**Highest residual after product locks:** R2/R3 (cloud kids video). **R5 is not a proceed-block** — founder lock 2026-08-21 accepted the name collision (other Telltail = a person’s training shop, not an LLM app). Do not reopen the name. Do not buy `telltail.com`. Public claims / listing / paid stay blocked on kids-in-frame refuse, L-list counsel (ToS/IAP/privacy/insurance), and unset SLA hours — not on the name.
 
 | Ops-readiness | Status this pass |
 |---------------|------------------|
@@ -97,7 +97,7 @@ Scores are **planning ratings of the product as specified**, not counsel conclus
 | Cross-ref to `07-sales-playbook.md` Shared operator SLA | Sales scripts, talk tracks, Close/Retain copy |
 | Weekly RAG flash on operating loops | Marking the phase complete; opening 8B |
 
-**Inherited locks (do not reopen).** Training tool / AI dog trainer. Reward-based / no-dominance. A5 **OPEN** — unnamed; do not scrape a catalog. Video **leaves the phone** every v1 read (cloud multimodal); never claim on-device. Kids-in-frame: no identity template; clip not retained as a training asset. Escalate, don’t diagnose. Ban relaxed / safe / won’t bite. Not a vet. Chat (US-21) = scare-story context + attach media; no clip → no “I saw your dog” card. Working SKU **$12/mo / $99/yr**, 60 Flash-class cloud reads/mo then credits, Lite 3–5. Never $9.99. $12 is presentation. A+C is a **test**. K1 kills Plus. **Gate always runs at 0 remaining.** Brand collision risk-accepted for **planning only**. Do not buy `telltail.com`. Explore only. **4B closed.** SLA hours in the sales playbook stay `[Operator to set]` — do not invent them here. **[F]**
+**Inherited locks (do not reopen).** Training tool / AI dog trainer. Reward-based / no-dominance. A5 **OPEN** — unnamed; do not scrape a catalog. Video **leaves the phone** every v1 read (cloud multimodal); never claim on-device. Kids-in-frame: no identity template; clip not retained as a training asset. Escalate, don’t diagnose. Ban relaxed / safe / won’t bite. Not a vet. Chat (US-21) = scare-story context + attach media; no clip → no “I saw your dog” card. Working SKU **$12/mo / $99/yr**, 60 Flash-class cloud reads/mo then credits, Lite 3–5. Never $9.99. $12 is presentation. A+C is a **test**. K1 kills Plus. **Gate always runs at 0 remaining.** **Founder lock 2026-08-21:** proceed with Telltail; name collision accepted; other Telltail = a person’s training shop, not an LLM app; do not reopen the name as a block. Do not buy `telltail.com`. Explore only. **4B closed.** SLA hours in the sales playbook stay `[Operator to set]` — do not invent them here. **[F]**
 
 ### 3.2 Operating principles
 
@@ -415,20 +415,20 @@ Legal owns the *rules*; ops owns the runbook (§7).
 
 ### 8.8 Trademark collision note
 
-**Planning risk-accepted. Name stays locked. Counsel before any public brand use.** This is not a rename ask and not a clearance.
+**Founder lock 2026-08-21: proceed with Telltail. Name collision accepted. Do not reopen the name as a block.** Other Telltail (Telltail Dog Training, Little Rock) is a person’s training shop, not an LLM app. Do not buy `telltail.com`. Counsel-before-listing leftovers (kids-in-frame, ToS/IAP/privacy, SLA, insurance) are unchanged — they are not a rename ask.
 
 Facts already in `HANDOFFS/0-manager-coo.md` **[F]** (do not reopen):
 
 - USPTO standard-character **TELLTAIL**, owner TELLTAIL AND FRIENDS, LLC (Key Biscayne, FL): **Class 35 RN 7031825** (SN 90637046; dog-breed registries + pet-product consumer info; registered 2023-04-18) and **Class 45 RN 7495734** (SN 90637053; pet-adoption databases + pet social/breeding records; registered 2024-09-03).
 - `telltail.com` is that brand’s **sunset puppy-matching** site. Do **not** buy it. Do **not** invent that we own it or inherited it.
-- **Telltail Dog Training** (`telltaildogtraining.com`) — Elizabeth Silverstein, Little Rock, force-free. Same job, competence-coded. Highest *consumer* confusion risk.
+- **Telltail Dog Training** (`telltaildogtraining.com`) — Elizabeth Silverstein, Little Rock, force-free. A person’s training shop, not an LLM app. Founder accepted the collision. Highest *consumer* confusion risk remains; it is **not** a name-block.
 - Telltale Games (LCG) is a misspell / SEO leak, not our job.
 - `telltail.ai` is an unrelated live AI-eval product. `telltail.app` is Porkbun-parked. `gettelltail.com` appeared unregistered as of 2026-08-21 — not a purchase instruction.
 - Class 9/41/42 TELL TAIL / TELL-TAIL software search and CIPO TELLTAIL word search were **incomplete** in Phase 0. Not “cleared.”
 
-**Do:** keep the internal name; disambiguate in counsel-facing notes; pick a download URL that is not the sunset puppy site. **Do not:** squat their phrase, buy `telltail.com`, use their marks in the app name (Apple 5.2.1), or treat planning risk-accept as a public-brand green light.
+**Do:** proceed as Telltail; disambiguate vs the Little Rock shop in counsel-facing notes; pick a download URL that is not the sunset puppy site. **Do not:** reopen a rename, squat “Telltail Dog Training,” buy `telltail.com`, use their marks in the app name (Apple 5.2.1), or treat this lock as kids/ToS/IAP/insurance clearance.
 
-`[Attorney to draft]` coexistence / risk-acceptance opinion + full clearance search (US + CA) before listing, paid, press, or a public site.
+`[Attorney to draft]` L8 search still useful for listing hygiene. It is **not** a reason to stop or rename. Founder already accepted the collision.
 
 ### 8.9 ToS / not-a-vet / not-a-safety-clearance copy flags
 
@@ -461,7 +461,7 @@ Engage licensed US (+ CA) counsel before **public brand, App Store listing, or p
 | L5 | DPA + no-train-on-customer-video default with cloud vision vendor (and storage) | Processor chain; breach clock | `[Attorney to draft]` |
 | L6 | COPPA actual-knowledge + refuse-and-delete vs VPC memo | Cloud kids video | `[Attorney to draft]` |
 | L7 | BIPA / CPRA biometric purpose-limitation (no face template) | Geometry-from-photo tripwire | `[Attorney to draft]` |
-| L8 | TM coexistence / risk-acceptance (Class 45 RN 7495734, Class 35 RN 7031825, Little Rock trainer, sunset `telltail.com`) + complete Class 9/41/42 + CIPO search | Public brand | `[Attorney to draft]` — planning already risk-accepted |
+| L8 | TM file hygiene (Class 45 RN 7495734, Class 35 RN 7031825, Little Rock shop, sunset `telltail.com`) + Class 9/41/42 + CIPO | Listing hygiene | `[Attorney to draft]` — **founder accepted collision 2026-08-21; not a proceed-block; do not buy telltail.com** |
 | L9 | App Store listing / ASO / paywall hero vs claims ladder | FTC + Apple 2.3.7 / 1.4.1 | Counsel redline; CMO owns draft |
 | L10 | Medical-device **No** declaration + category Lifestyle + Education | Apple 2026-03-26 | `[Attorney to draft]` confirm |
 | L11 | Entity, governing law, consumer venue | None chosen | `[Operator to set]` + `[Attorney to draft]` |
@@ -480,7 +480,7 @@ Preserve from legal / Phase 0. Same-screen qualifications. A ToS footer does not
 | Band | May / must not | Examples |
 |------|----------------|----------|
 | **Forbidden** | Never ship on a chip, card, listing, support line, or screenshot | **relaxed / safe / won’t bite** · green light · “you can approach” · translator / mind-read / “your dog is saying” / bark-to-English · diagnose / treat / replace a vet, DACVB, or trainer · **on-device** / stays on your phone / never uploaded · **unlimited** / ask as often as you want · **$9.99** · named celebrity method / scraped catalog · “your dog has [condition]” · e-collar / prong / choke / leash-correction advice · “I saw your dog” from text · we own / visit `telltail.com` · Telltail Dog Training (Little Rock) as us |
-| **Risky / hold** | Forbidden until evidence or counsel | Outcome / “stops reactivity” / accuracy % / vs-vet ticker (C7 — needs trials). Public TELLTAIL brand use (R5 — planning-accept only). Insurance-unbound paid listing (R10). |
+| **Risky / hold** | Forbidden until evidence or counsel | Outcome / “stops reactivity” / accuracy % / vs-vet ticker (C7 — needs trials). Insurance-unbound paid listing (R10). **R5 name is founder-accepted — do not hold the venture on it.** |
 | **Allowed if qualified on the same screen** | Card shape only | *we see [signal]; likely [state] (confidence); try [1–3 next-60s]; stop if [X]*. “Not a diagnosis. Not a safety clearance. Does not replace a veterinarian or trainer.” “This clip leaves your phone for a cloud read.” “60 included Flash reads / then credits.” Reward-based / no-dominance. Escalate: vet / DACVB / CAAB / credentialed trainer. SKU **$12/mo / $99/yr**. |
 
 Working SKU lock (copy, not legal terms) **[F]:** Plus **$12/mo / $99/yr**, 60 Flash-class cloud reads/mo + credits, Lite 3–5. Never $9.99. A+C is a test. K1 kills Plus.
@@ -553,7 +553,7 @@ A5 lock hygiene: legal lease named a public trainer as the banned example in C8 
 
 ## 14. Open items / do-not
 
-**Open (explore):** SLA hours; counsel engagement on L1–L14; insurance bind; retention durations; A5 unnamed. R2 kids-in-frame remains RED until refuse + no-template + short retain ship (residual still ORANGE — cloud collection happens). R5 TM is planning-accept only. Public brand / listing / paid stay blocked on counsel.
+**Open (explore):** SLA hours; counsel engagement on L1–L14; insurance bind; retention durations; A5 unnamed. R2 kids-in-frame remains RED until refuse + no-template + short retain ship (residual still ORANGE — cloud collection happens). R5 name collision is **founder-accepted** (2026-08-21) — not a block. Public listing / paid stay blocked on kids-in-frame refuse, remaining L-list (not the name), SLA hours, and insurance.
 
 **Do not**
 

@@ -21,8 +21,8 @@ I merged both Phase 8 IC leases into `08-operations.md` — ops runbook plus leg
 
 - Day-to-day is a consumer IAP loop (reads/quota, hard-stop, kids-in-frame, restore, vendor), not an inquiry desk. SLA hours stay `[Operator to set]`.
 - Gate always runs at 0 remaining; support never re-scores a hard stop; kids-in-frame is yes/no only, no identity template, clip not a training asset.
-- R2 kids-in-frame stays **RED (20)** until refuse + no-template + short retain ship; residual still ORANGE because cloud collection happens. R5 TM is planning-accept only.
-- Highest leftover: cloud kids video (R2/R3) and public brand (R5) stay counsel-gated. Public claims / listing / paid blocked on L1–L14.
+- R2 kids-in-frame stays **RED (20)** until refuse + no-template + short retain ship; residual still ORANGE because cloud collection happens. **R5 name collision: founder lock 2026-08-21 accepted. Proceed with Telltail. Other Telltail = a person’s training shop, not an LLM app. Do not reopen as a block. Do not buy telltail.com.**
+- Highest leftover unchanged except name: cloud kids video (R2/R3), L-list counsel before listing (ToS/IAP/privacy/insurance), SLA hours unset. Name is not among the leftovers-as-blocks.
 - Vendors are placeholders. No contracts, insurance quotes, or `telltail.com` purchase.
 
 ## Next steps
@@ -36,7 +36,7 @@ I merged both Phase 8 IC leases into `08-operations.md` — ops runbook plus leg
 
 - COO merge ready for C-suite. Status `ready_for_csuite`. Recommendation **escalate**.
 - Scorecard both present. Banner present. Placeholders unfilled. 8B skipped (`skip_reason`: not opened).
-- Legal leftovers: R2 RED unmitigated until refuse ships; R5 planning-accept only; L1–L14 before public.
+- Legal leftovers: R2 RED until refuse ships; L-list counsel before listing; SLA / insurance unset. **R5 name accepted — not a block.**
 - Production skipped. 4B closed. Explore only. Nobody is building. Nothing in the App Store.
 - Phase 8 is **not** marked complete.
 
@@ -88,7 +88,7 @@ Phase 8 is not a shippable Layer B phase. Production skip is correct.
 
 ## Escalation tags
 
-- **legal** (required) — R2 kids-in-frame RED unmitigated until refuse ships; R5 TM planning-accept only; counsel on L1–L14 before public brand / listing / paid
+- **legal** (required) — R2 kids-in-frame RED until refuse ships; counsel on remaining L-list before listing / paid; **R5 name founder-accepted 2026-08-21, do not reopen**
 - **spend** (soft) — 60 Flash + credits meter; do not invent SLA hours or insurance quotes
 
 ## Asks for C-suite
@@ -101,7 +101,7 @@ Phase 8 is not a shippable Layer B phase. Production skip is correct.
 
 ## Recommendation
 
-**escalate** — artifacts are merge-ready for CEO / C-suite review, but do **not** approve Phase 8 or treat this as launch clearance. Legal leftovers stand: R2 kids-in-frame RED unmitigated until refuse ships; R5 TM planning-accept only; licensed counsel on the attorney-review list before public brand / listing / paid.
+**escalate** — artifacts stay merge-ready; do **not** approve Phase 8 or treat as launch clearance. Founder lock: proceed with Telltail; name collision accepted; do not reopen the name; do not buy `telltail.com`. Leftovers unchanged: R2 kids-in-frame RED until refuse ships; counsel before listing on ToS/IAP/privacy/insurance; SLA hours unset. No new ICs.
 
 <!-- graph:start -->
 [[Telltail · Main]] · [[COO - Legal — Telltail · Main]] · [[Phase 8 — Telltail · Main]] · [[8-ops-manager]] · [[8-legal-counsel]]
