@@ -28,7 +28,7 @@
 | 7 | Sales & CS | ✅ | 07-sales-playbook.md | Close + retain; outbound skipped; chat = context |
 | 8 | Ops & legal | 🔄 | 08-operations.md | escalate — artifacts accepted, not cleared |
 | 8B | People & hiring plan | ⬜ | 08b-people-plan.md | skip if no hires |
-| 9 | Build MVP | 🔄 | 09-build-log.md | Scoped kid-vs-dog eval only. No store. Full MVP not opened. |
+| 9 | Build MVP | 🔄 | 09-build-log.md | Eval skip approved (3/3 live). Full MVP not opened. Kids leftover open. |
 | 9B | Hardware & CAD | ⏭️ | 09b-hardware-build.md | no physical product v1 |
 | 10 | Strategy QA | ⬜ | 10-strategy-review.md | |
 | 11 | Brand & design system | ⬜ | 11-brand-system.md | |
@@ -80,6 +80,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 2026-08-21 | name | Proceed with Telltail. Collision with a person's dog-training shop is accepted — they are not an LLM app. Do not buy telltail.com. | founder lock |
 | 2026-08-21 | kids | Vision model must distinguish child from dog and refuse. Chip is extra. Uncleared until proven on a real clip. | founder lock |
 | 2026-08-21 | 9 | Founder opened scoped kid-vs-dog eval. Explore only. No store. Phase 8 stays escalate. | founder go |
+| 2026-08-21 | 9 | C-suite approved the eval skip, not the phase. 3/3 gemini-3.5-flash-lite. Kids leftover + K1 still open. | approve eval skip |
 
 ## Positions & handoffs
 
@@ -94,7 +95,7 @@ Status: ⬜ pending · 🔄 in progress · ✅ done · ⏭️ skipped
 | 6 | cmo | product-marketing-manager, content-strategist, pr-manager | `HANDOFFS/` | approve | ceo-strategist | frontier-reasoning |
 | 7 | head-of-sales-cs | sales-enablement-lead, outbound-lead, customer-success-manager | `HANDOFFS/` | approve | ceo-strategist | strong-general |
 | 8 | coo | ops-manager, legal-counsel | `HANDOFFS/` | escalate | ceo-strategist | frontier-reasoning |
-| 9 | cto | tech-lead, verifier | `HANDOFFS/` | — | ceo-strategist | coding-agent |
+| 9 | cto | tech-lead, verifier | `HANDOFFS/` | approve eval skip | ceo-strategist | coding-agent |
 
 Preferred tiers: see `skills/org/MODEL-REGISTRY.md`.
 
