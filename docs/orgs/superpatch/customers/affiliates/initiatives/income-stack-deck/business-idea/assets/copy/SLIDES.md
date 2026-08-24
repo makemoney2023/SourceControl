@@ -70,21 +70,32 @@ Twenty-one scenes. Chapters: Super Stack (01), Full Stack (02–08), Ten Income 
   3. INCOME CREATES OPPORTUNITY — Ten streams turn activity into earnings.
   4. DEVELOPMENT CREATES LEADERS — Better people build stronger communities.
 
-## 6. Better products. Better results. Raving customers.
+## 6. More than fifteen targeted solutions.
 
 - **Id:** `05-product`
 - **Eyebrow:** Product Stack
-- **Headline:** Better products. Better results. Raving customers.
+- **Headline:** More than fifteen targeted solutions.
 - **Accent:** green
+- **Hero:** Full-bleed neon packages lineup (all 15 official pouches visible).
 - **Body:** World-class VTT™ patches and innovative wellness solutions that deliver real results. Proprietary technology, backed by science, more than fifteen targeted solutions, trusted by millions. Better products create raving customers — and customers start the Income Stack.
-- **Annotations:** `PROPRIETARY TECHNOLOGY` · `BACKED BY SCIENCE` · `15+ SOLUTIONS` · `TRUSTED BY MILLIONS`
+- **Annotations:** `15+ SOLUTIONS` · `PROPRIETARY TECHNOLOGY` · `BACKED BY SCIENCE` · `TRUSTED BY MILLIONS`
 - **Chips:**
   1. PROPRIETARY TECHNOLOGY — Vibrotactile trigger technology found nowhere else.
   2. BACKED BY SCIENCE — Research-driven design behind every patch.
   3. 15+ SOLUTIONS — Targeted patches for sleep, energy, focus, and more.
   4. TRUSTED BY MILLIONS — Customers worldwide feel the difference daily.
 
-## 7. Massive visibility. Powerful credibility. Relentless momentum.
+## 7. $4.7 trillion.
+
+- **Id:** `05c-market`
+- **Eyebrow:** The Opportunity
+- **Headline:** $4.7 trillion.
+- **Accent:** cool
+- **Hero:** Infinite aisle — neon wellness corridor to vanishing point; no text in the plate.
+- **Body:** The global wellness economy is one of the largest consumer markets on earth. People spend for sleep, energy, focus, recovery, and longevity. Super Patch sits in that demand with products people feel — and share.
+- **Chips:** none
+
+## 8. Massive visibility. Powerful credibility. Relentless momentum.
 
 - **Id:** `06-brand`
 - **Eyebrow:** Brand & Marketing Stack
@@ -99,7 +110,7 @@ Twenty-one scenes. Chapters: Super Stack (01), Full Stack (02–08), Ten Income 
   4. HEALTHCARE PROFESSIONALS — Recommended by practitioners on Healthgrades.
   5. PRO SPORTS — Covered by SportsTech Today. Worn by elite athletes.
 
-## 8. We don’t just build businesses. We build better people.
+## 9. We don’t just build businesses. We build better people.
 
 - **Id:** `07-development`
 - **Eyebrow:** Personal Development Stack
