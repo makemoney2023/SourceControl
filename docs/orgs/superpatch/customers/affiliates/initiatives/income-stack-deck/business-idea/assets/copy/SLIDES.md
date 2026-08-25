@@ -36,7 +36,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
 - **Layout:** headline-only (quiet left, no eyebrow, no body, no chips)
 - **Headline:** Our Mission.
 - **Accent:** cool
-- **Media:** still `sp-stack-00b-mission.png` — constellation of lives (linked neon points over distant city; no terrace hero)
+- **Media:** still `sp-stack-00b-mission.png` — constellation of lives (photographic bokeh field over distant city; no mesh/UI, no terrace hero)
 - **Disclosure:** none
 
 ## 3. Multiple income streams are no longer optional.
