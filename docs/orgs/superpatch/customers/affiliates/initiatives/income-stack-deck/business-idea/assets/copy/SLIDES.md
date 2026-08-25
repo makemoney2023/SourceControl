@@ -2,7 +2,7 @@
 
 SSOT in app: `apps/superpatch-income-stack/src/data/slides.ts` (worktree: `.worktrees/affiliate-income-stack-main`)
 
-Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20), Momentum (21–23), Action (24). Remotion `FILM_SLIDES` excludes headline-only openers (`00-era`, `00b-mission`) and stays a 23-scene cut.
+Twenty-six scenes. Chapters: Full Stack (00–12), Ten Income Streams (13–21), Momentum (22–24), Action (25). Remotion `FILM_SLIDES` excludes headline-only openers (`00-era`, `00b-mission`, `00c-ceo`) and stays a 23-scene cut.
 
 ## Interaction notes
 
@@ -39,7 +39,16 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
 - **Media:** still `sp-stack-00b-mission.png` — constellation of lives (photographic bokeh field over distant city; no mesh/UI, no terrace hero)
 - **Disclosure:** none
 
-## 3. Multiple income streams are no longer optional.
+## 4. Jay Dhaliwal — CEO.
+
+- **Id:** `00c-ceo`
+- **Layout:** headline-only (quiet left, no eyebrow, no body, no chips)
+- **Headline:** Jay Dhaliwal — CEO.
+- **Accent:** cool
+- **Media:** still `sp-stack-00c-ceo.png` — wet neon street arrival; identity-locked Jay; lived-in skin
+- **Disclosure:** none
+
+## 5. Multiple income streams are no longer optional.
 
 - **Id:** `02-world`
 - **Eyebrow:** The World Has Changed
@@ -53,7 +62,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   3. CREATOR ECONOMY — Millions now earn by sharing what they love.
   4. SOCIAL COMMERCE — Buying moved to feeds, stories, and trusted voices.
 
-## 4. One Company. Four Stacks. Ten Income Streams. Infinite Potential.
+## 6. One Company. Four Stacks. Ten Income Streams. Infinite Potential.
 
 - **Id:** `03-four-stacks`
 - **Eyebrow:** The Super Patch Full Stack
@@ -67,7 +76,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   3. INCOME STACK — Ten streams that reward every stage of building.
   4. PERSONAL DEVELOPMENT — Training and community that build leaders.
 
-## 5. Each Stack Reinforces the Others
+## 7. Each Stack Reinforces the Others
 
 - **Id:** `04-flywheel`
 - **Eyebrow:** Why the Full Stack Wins
@@ -81,7 +90,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   3. INCOME CREATES OPPORTUNITY — Ten streams turn activity into earnings.
   4. DEVELOPMENT CREATES LEADERS — Better people build stronger communities.
 
-## 6. More than fifteen targeted solutions.
+## 8. More than fifteen targeted solutions.
 
 - **Id:** `05-product`
 - **Eyebrow:** Product Stack
@@ -96,7 +105,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   3. 15+ SOLUTIONS — Targeted patches for sleep, energy, focus, and more.
   4. TRUSTED BY MILLIONS — Customers worldwide feel the difference daily.
 
-## 7. $4.7 trillion.
+## 9. $4.7 trillion.
 
 - **Id:** `05c-market`
 - **Eyebrow:** The Opportunity
@@ -106,7 +115,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
 - **Body:** The global wellness economy is one of the largest consumer markets on earth. People spend for sleep, energy, focus, recovery, and longevity. Super Patch sits in that demand with products people feel — and share.
 - **Chips:** none
 
-## 8. Massive visibility. Powerful credibility. Relentless momentum.
+## 10. Massive visibility. Powerful credibility. Relentless momentum.
 
 - **Id:** `06-brand`
 - **Eyebrow:** Brand & Marketing Stack
@@ -121,7 +130,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   4. HEALTHCARE PROFESSIONALS — Recommended by practitioners on Healthgrades.
   5. PRO SPORTS — Covered by SportsTech Today. Worn by elite athletes.
 
-## 9. We don’t just build businesses. We build better people.
+## 11. We don’t just build businesses. We build better people.
 
 - **Id:** `07-development`
 - **Eyebrow:** Personal Development Stack
@@ -137,7 +146,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   5. MINDSET & GROWTH — Build the habits of top performers.
   6. COMMUNITY & SUPPORT — You never build alone at Super Patch.
 
-## 9. One Opportunity. Ten Income Streams.
+## 12. One Opportunity. Ten Income Streams.
 
 - **Id:** `08-ten-layers`
 - **Eyebrow:** Income Stack™ — Ten Streams
@@ -151,7 +160,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   2. 4-7 LEADERSHIP — Depth bonuses, leg overrides, and generation pay.
   3. 8-10 EXECUTIVE & GLOBAL — CEO bonuses, global overrides, and the leadership pool.
 
-## 10. 25% Retail Affiliate Commissions
+## 13. 25% Retail Affiliate Commissions
 
 - **Id:** `07-retail`
 - **Eyebrow:** Stack 1
@@ -163,7 +172,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   1. 25% RETAIL COMMISSIONS — Earn 25% on every sale through your link, paid weekly.
 - **Disclosure:** Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.
 
-## 11. Fast Start & Rank Advancement Bonuses
+## 14. Fast Start & Rank Advancement Bonuses
 
 - **Id:** `08-fast-start`
 - **Eyebrow:** Stack 2
@@ -176,7 +185,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   2. UP TO $100,000 RABS — Rank Advancement Bonuses grow with your sales milestones.
 - **Disclosure:** Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.
 
-## 12. Team Override Commissions
+## 15. Team Override Commissions
 
 - **Id:** `09-team-overrides`
 - **Eyebrow:** Stack 3
@@ -190,7 +199,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   3. 4% ON LEVELS 3-5 — Depth pays: up to 4% on three more levels.
 - **Disclosure:** Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.
 
-## 13. Managing Director Leaders Unlimited Depth Bonus
+## 16. Managing Director Leaders Unlimited Depth Bonus
 
 - **Id:** `10-md-depth`
 - **Eyebrow:** Stack 4
@@ -202,7 +211,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   1. 2% UNLIMITED DEPTH — Past level 5, down to the next qualified Managing Director.
 - **Disclosure:** Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.
 
-## 14. Vice President Leadership Override
+## 17. Vice President Leadership Override
 
 - **Id:** `11-vp-override`
 - **Eyebrow:** Stack 5
@@ -213,7 +222,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   1. 2% ON EVERY LEG — Every leg of your organization, down to the next VP.
 - **Disclosure:** Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.
 
-## 15. Generation Bonuses
+## 18. Generation Bonuses
 
 - **Id:** `12-generations`
 - **Eyebrow:** Stack 6
@@ -224,7 +233,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   1. 3% x 3 GENERATIONS — Leadership rewarding leadership, three VP generations deep.
 - **Disclosure:** Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.
 
-## 16. Executive Leadership & CEO Leadership Bonus
+## 19. Executive Leadership & CEO Leadership Bonus
 
 - **Id:** `13-executive`
 - **Eyebrow:** Stacks 7 & 8
@@ -236,7 +245,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   2. $10K-$20K MONTHLY — CEO Leadership Bonus at President and Global President.
 - **Disclosure:** Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.
 
-## 17. Global President Override & Global Leadership Pool
+## 20. Global President Override & Global Leadership Pool
 
 - **Id:** `14-global`
 - **Eyebrow:** Stacks 9 & 10
@@ -248,7 +257,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   2. GLOBAL 1% POOL — Qualified NVPs and above share in worldwide growth.
 - **Disclosure:** Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.
 
-## 18. Every activity. Every layer. Every time.
+## 21. Every activity. Every layer. Every time.
 
 - **Id:** `17-compounding`
 - **Eyebrow:** The Power of Compounding Income
@@ -265,7 +274,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   6. MULTIPLE INCOME STREAMS — Every layer adds a new way to earn.
 - **Motion preset:** `ken-burns-glow` (was `flywheel-scrub`; only `04-flywheel` keeps the hero flywheel overlay)
 
-## 19. A true Full Stack company
+## 22. A true Full Stack company
 
 - **Id:** `18-different`
 - **Eyebrow:** Why Super Patch Is Different
@@ -281,7 +290,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   5. DEVELOPMENT BUILT IN — Personal growth is part of the plan.
   6. GLOBAL VISION — Unlimited potential in a worldwide movement.
 
-## 20. You decide how far you go.
+## 23. You decide how far you go.
 
 - **Id:** `19-future`
 - **Eyebrow:** Imagine Your Future
@@ -297,7 +306,7 @@ Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20)
   5. GENERATIONAL WEALTH — Build something that outlasts you.
 - **Disclosure:** Income is not guaranteed. Results vary. See the Super Patch Income Disclosure.
 
-## 21. Better Health. Greater Freedom. Bigger Impact.
+## 24. Better Health. Greater Freedom. Bigger Impact.
 
 - **Id:** `15-closing`
 - **Eyebrow:** Join the Movement
