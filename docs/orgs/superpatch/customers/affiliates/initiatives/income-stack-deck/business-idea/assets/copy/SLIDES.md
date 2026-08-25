@@ -1,18 +1,20 @@
 # Income Stack Deck — Slide Copy
 
-SSOT in app: `apps/superpatch-income-stack/src/data/slides.ts`
+SSOT in app: `apps/superpatch-income-stack/src/data/slides.ts` (worktree: `.worktrees/affiliate-income-stack-main`)
 
-Twenty-one scenes. Chapters: Super Stack (01), Full Stack (02–08), Ten Income Streams (09–17), Momentum (18–20), Action (21). Remotion `FILM_SLIDES` excludes the hero-caption opener and stays a 20-scene cut.
+Twenty-four scenes. Chapters: Full Stack (00–10), Ten Income Streams (11–19), Momentum (20–22), Action (23). Remotion `FILM_SLIDES` excludes the headline-only era opener and stays a 23-scene cut.
 
 ## Interaction notes
 
 - Web: copy exits left at 12–22% of scene dwell; chips sequence one per slot thereafter (pure scroll scrub). Film: plate annotations unchanged.
 
-## 01 — 00-super-stack (Super Stack)
+## 1. Join the SuperPatch Era.
 
-- **Layout:** hero caption (centered, no lower third, no chips)
-- **Title:** THE SUPERPATCH / SUPER STACK
-- **Media:** interactive Super Patch GLB + receding grid; poster `sp-stack-18-different.png`
+- **Id:** `00-era`
+- **Layout:** headline-only (quiet left, no eyebrow, no body, no chips)
+- **Headline:** Join the SuperPatch Era.
+- **Accent:** cool
+- **Media:** still `sp-stack-00-era.png` — official Freedom peel on deep black void (composited, not redrawn)
 - **Disclosure:** none
 
 ## 2. More Than an Affiliate Program. A Complete Opportunity.
