@@ -14,7 +14,7 @@ Twenty-six scenes. Chapters: Full Stack (00–12), Ten Income Streams (13–21),
 - **Layout:** headline-only (quiet left, no eyebrow, no body, no chips)
 - **Headline:** Join the SuperPatch Era.
 - **Accent:** cool
-- **Media:** still `sp-stack-00-era.png` — Freedom NoPeel seal on neon terrace
+- **Media:** still `sp-stack-00-era.png` — empty neon terrace (no Freedom seal)
 - **Disclosure:** none
 
 ## 2. More Than an Affiliate Program. A Complete Opportunity.
