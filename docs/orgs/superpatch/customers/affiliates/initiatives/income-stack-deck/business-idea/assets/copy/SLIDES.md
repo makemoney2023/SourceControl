@@ -2,7 +2,7 @@
 
 SSOT in app: `apps/superpatch-income-stack/src/data/slides.ts` (worktree: `.worktrees/affiliate-income-stack-main`)
 
-Twenty-four scenes. Chapters: Full Stack (00–10), Ten Income Streams (11–19), Momentum (20–22), Action (23). Remotion `FILM_SLIDES` excludes the headline-only era opener and stays a 23-scene cut.
+Twenty-five scenes. Chapters: Full Stack (00–11), Ten Income Streams (12–20), Momentum (21–23), Action (24). Remotion `FILM_SLIDES` excludes headline-only openers (`00-era`, `00b-mission`) and stays a 23-scene cut.
 
 ## Interaction notes
 
@@ -14,7 +14,7 @@ Twenty-four scenes. Chapters: Full Stack (00–10), Ten Income Streams (11–19)
 - **Layout:** headline-only (quiet left, no eyebrow, no body, no chips)
 - **Headline:** Join the SuperPatch Era.
 - **Accent:** cool
-- **Media:** still `sp-stack-00-era.png` — official Freedom peel on deep black void (composited, not redrawn)
+- **Media:** still `sp-stack-00-era.png` — Freedom NoPeel seal on neon terrace
 - **Disclosure:** none
 
 ## 2. More Than an Affiliate Program. A Complete Opportunity.
@@ -29,6 +29,15 @@ Twenty-four scenes. Chapters: Full Stack (00–10), Ten Income Streams (11–19)
   1. BETTER HEALTH — World-class wellness solutions that deliver real results.
   2. GREATER FREEDOM — Ten income streams you can build at your own pace.
   3. BIGGER IMPACT — A global movement of leaders building together.
+
+## 3. Our Mission.
+
+- **Id:** `00b-mission`
+- **Layout:** headline-only (quiet left, no eyebrow, no body, no chips)
+- **Headline:** Our Mission.
+- **Accent:** cool
+- **Media:** still `sp-stack-00b-mission.png` — empty neon horizon overlook (no people, no product)
+- **Disclosure:** none
 
 ## 3. Multiple income streams are no longer optional.
 
