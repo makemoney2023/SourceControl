@@ -1,0 +1,169 @@
+{
+  "defaults": {
+    "model": "gemini-3-pro-image-preview",
+    "aspect_ratio": "4:5",
+    "image_size": "2K"
+  },
+  "realism_suffix": "Unretouched editorial photography: natural skin texture with visible pores, fine lines, sun spots and vellus hair, honest imperfections, subtle facial asymmetry, absolutely no beauty retouching or digital smoothing. Shot on a full-frame camera, 85mm lens at f/2, subtle film grain. The image contains no text, no lettering, no logos other than those on the referenced product, and no graphic overlays.",
+  "items": [
+    {
+      "id": "ref-anchor-a",
+      "out": "_refs/anchor-a-woman-late60s.png",
+      "aspect_ratio": "3:4",
+      "people": true,
+      "prompt": "Environmental portrait of a woman in her late sixties standing on a coastal hiking trail, shoulder-length silver hair moving slightly in the wind, deep laugh lines around her eyes and mouth, sun-weathered freckled skin, warm genuine expression looking slightly off camera. She wears a slate-blue softshell hiking jacket. Overcast coastal daylight, soft and even."
+    },
+    {
+      "id": "ref-anchor-b",
+      "out": "_refs/anchor-b-man-early70s.png",
+      "aspect_ratio": "3:4",
+      "people": true,
+      "prompt": "Environmental portrait of a man in his early seventies, short white hair thinning at the temples, deep forehead creases and crow's feet, age spots on his cheeks, kind steady gaze. He wears an olive-green field jacket over a grey henley. Outdoors in soft late-afternoon light, shallow depth of field with muted natural background."
+    },
+    {
+      "id": "shared-title-texture",
+      "out": "_shared/texture-embossed-ridges.png",
+      "prompt": "Minimal background texture photograph: warm off-white heavyweight cotton paper, lit by low raking light from the left revealing a very faint blind-embossed pattern of concentric fingerprint-like ridges in one corner, extremely subtle, tone-on-tone, elegant and clinical. No text, no lettering, no graphic overlays."
+    },
+    {
+      "id": "w1d1-s02",
+      "out": "w1d1-clinical-pearl/w1d1-s02-practitioner-applying-patch.png",
+      "people": true,
+      "refs": ["_refs/patch-liberty-flat.png"],
+      "prompt": "Close over-the-shoulder photograph of a male physiotherapist's hands in his fifties, weathered knuckles, clean short nails, smoothing the referenced small white square adhesive patch onto the bare upper back of a patient. The patient's skin shows natural moles, faint tan lines and fine texture. Soft daylight from a clinic window, shallow depth of field, warm charcoal-neutral palette."
+    },
+    {
+      "id": "w1d1-s03",
+      "out": "w1d1-clinical-pearl/w1d1-s03-macro-peel-clean-skin.png",
+      "people": true,
+      "refs": ["_refs/patch-liberty-peel.png"],
+      "prompt": "Extreme macro photograph of fingertips peeling the referenced white square patch halfway off a forearm, one corner lifted. The skin beneath is completely clean and unmarked, with pores, fine vellus hair and natural creases in razor-sharp focus. Neutral daylight, clinical honesty, shallow depth of field falling off around the frame edges."
+    },
+    {
+      "id": "w1d1-s04",
+      "out": "w1d1-clinical-pearl/w1d1-s04-patch-studio-raking-light.png",
+      "refs": ["_refs/patch-liberty-flat.png"],
+      "prompt": "Stark still-life studio photograph of the referenced single white square patch lying on a dark slate surface, dramatic raking light from the left revealing its embossed fingerprint-like ridge texture in relief. Plainly a simple textured patch: a thin fabric-like adhesive square, nothing electronic about it. Deep shadows, near-black background, one precise pool of light. No text, no lettering, no graphic overlays beyond the product's own printed pattern."
+    },
+    {
+      "id": "w1d1-s05",
+      "out": "w1d1-clinical-pearl/w1d1-s05-woman-athlete-stretching.png",
+      "people": true,
+      "refs": ["_refs/patch-liberty-flat.png"],
+      "prompt": "Photograph of a woman around forty-five mid-stretch at an outdoor running track at golden hour, reaching one arm across her chest, light sweat sheen on her skin, crow's feet and sun freckles visible, hair pulled back with loose strands. The referenced small white square patch is applied to her forearm. Warm directional low sun, athletic and alive."
+    },
+    {
+      "id": "w1d1-s06",
+      "out": "w1d1-clinical-pearl/w1d1-s06-consult-warm-light.png",
+      "people": true,
+      "prompt": "Photograph of a healthcare practitioner in his fifties in a consultation with a female patient around seventy, seated at a small clinic table, both mid-conversation, the patient listening with an engaged expression. Both faces show honest lived-in skin: wrinkles, age spots, natural tone variation. Warm late-afternoon window light raking across the table, calm and trusting atmosphere."
+    },
+    {
+      "id": "w1d2-s08",
+      "out": "w1d2-study-highlight/w1d2-s08-researcher-desk-dusk.png",
+      "people": true,
+      "prompt": "Photograph of a researcher's desk at dusk: printed journal articles covered in handwritten margin notes, a pair of reading glasses resting on the pages, and the hand of a person in their sixties, prominent veins and knuckle creases, holding a yellow highlighter mid-annotation. Warm desk lamp against cool blue window light, shallow depth of field."
+    },
+    {
+      "id": "w1d2-s09",
+      "out": "w1d2-study-highlight/w1d2-s09-flatlay-study-stack.png",
+      "prompt": "Overhead flat-lay photograph of a tall stack of printed scientific studies on a walnut desk, pages dog-eared, colored index tabs protruding from the edges, a pen and a half-finished cup of black coffee beside the stack. Soft even daylight, documentary honesty, paper texture and slight page curl visible. No readable text: all type on the pages rendered soft and out of focus. No graphic overlays."
+    },
+    {
+      "id": "w1d2-s10",
+      "out": "w1d2-study-highlight/w1d2-s10-eeg-lab-participant.png",
+      "people": true,
+      "prompt": "Documentary photograph inside a neuroscience lab: a study participant in her thirties wearing a real EEG electrode cap with trailing colored leads, natural untouched skin, while a lab technician's gloved hands adjust one electrode. Cool practical lab lighting with a warm accent from a monitor glow, honest clinical realism."
+    },
+    {
+      "id": "w1d2-s11",
+      "out": "w1d2-study-highlight/w1d2-s11-woman-gardening.png",
+      "people": true,
+      "prompt": "Photograph of a woman in her late fifties kneeling in a raised garden bed, bare hands working in dark soil, dirt under her fingernails, sleeves pushed up, sun hat tipped back, unforced smile with deep smile lines. Bright soft morning light, greens and earth tones, life resumed and pain forgotten."
+    },
+    {
+      "id": "w1d2-s12",
+      "out": "w1d2-study-highlight/w1d2-s12-man-stream-crossing.png",
+      "people": true,
+      "prompt": "Photograph of a man around sixty-five crossing a shallow mountain stream on stepping stones, one trekking pole planted for balance, mid-stride and confident, weathered face concentrating, quick-dry hiking clothes. Golden hour sidelight, glittering water, pine forest softly blurred behind him."
+    },
+    {
+      "id": "w1d2-s13",
+      "out": "w1d2-study-highlight/w1d2-s13-piezo-ion-channel-viz.png",
+      "prompt": "Photorealistic 3D scientific visualization of mechanosensitive PIEZO ion channels: two large propeller-shaped protein structures embedded in a curving cell membrane, rendered in deep navy blue with glowing teal and warm red accent highlights, volumetric depth, cinematic macro scale, dark background fading to near black. The scene fills the entire frame edge to edge, full bleed, with the dark background extending all the way to every edge of the image. Style of a premium scientific journal cover. No text, no labels, no lettering, no border, no frame, no margin."
+    },
+    {
+      "id": "w1d3-s15",
+      "out": "w1d3-skin-listening/w1d3-s15-macro-goosebumps.png",
+      "people": true,
+      "prompt": "Extreme macro photograph of the skin of a forearm with raised goosebumps, fine vellus hairs standing catching the light, pores and micro-texture in razor-sharp focus, dramatic low side light against a near-black background, sculptural and almost topographic. The skin is the entire landscape of the image."
+    },
+    {
+      "id": "w1d3-s16",
+      "out": "w1d3-skin-listening/w1d3-s16-fingertips-linen.png",
+      "people": true,
+      "prompt": "Macro photograph of two fingertips dragging slowly across coarse woven linen fabric, the weave deforming slightly under the touch, fingerprint ridges visible, tendons tensioned on the back of the hand, skin with natural creases and texture. Warm directional window light, dark moody background, intimate and tactile."
+    },
+    {
+      "id": "w1d3-s17",
+      "out": "w1d3-skin-listening/w1d3-s17-neuron-signal-viz.png",
+      "prompt": "Photorealistic 3D scientific visualization of a sensory neuron firing: a branching nerve cell in deep navy blue with a pulse of glowing teal light traveling along the axon, warm red synaptic accents, volumetric haze, dark background fading to near black, cinematic macro scale. Same visual family as a premium scientific journal cover. No text, no labels, no lettering."
+    },
+    {
+      "id": "w1d3-s18",
+      "out": "w1d3-skin-listening/w1d3-s18-patch-on-skin-macro.png",
+      "people": true,
+      "refs": ["_refs/patch-liberty-flat.png"],
+      "prompt": "Extreme macro photograph of the referenced white square patch seated on the skin of a forearm, its embossed fingerprint-like ridge pattern in sharp focus alongside the surrounding skin's pores and fine hair, so that patch texture and skin texture read as two surfaces in conversation. Soft directional daylight, shallow depth of field, warm neutral tones."
+    },
+    {
+      "id": "w1d3-s19",
+      "out": "w1d3-skin-listening/w1d3-s19-patch-texture-dark-bg.png",
+      "refs": ["_refs/patch-liberty-flat.png"],
+      "prompt": "Very dark, low-contrast background image: an extreme close-up of the referenced patch's embossed ridge texture, faded and underexposed into deep charcoal, only the faintest raking light tracing the concentric ridge pattern, designed to sit quietly behind large typography. Moody, almost black, elegant. No text, no lettering, no graphic overlays."
+    },
+    {
+      "id": "w1d3-s20",
+      "out": "w1d3-skin-listening/w1d3-s20-generations-hands.png",
+      "people": true,
+      "prompt": "Macro photograph of an elderly hand, paper-thin skin, prominent veins, age spots and deep creases, gently clasped by the smooth strong hand of a young adult, maximum contrast between the two skin textures, both rendered with total honesty. Warm low window light, dark soft background, tender and still."
+    },
+    {
+      "id": "w1d5-s22",
+      "out": "w1d5-better-balance/w1d5-s22-anchor-a-coastal-trail.png",
+      "people": true,
+      "refs": ["_refs/anchor-a-woman-late60s.png"],
+      "prompt": "The same woman from the reference image, identical face and silver hair, hiking along a coastal clifftop trail wearing her slate-blue softshell jacket and a small daypack, mid-stride with easy confident posture, wind in her hair, genuine relaxed expression. Dramatic coastline and ocean softly blurred behind her, bright overcast light."
+    },
+    {
+      "id": "w1d5-s23",
+      "out": "w1d5-better-balance/w1d5-s23-bare-feet-balance.png",
+      "people": true,
+      "prompt": "Photograph of the bare feet and lower calves of an older adult standing on one leg on a warm wooden floor, the raised foot just leaving the ground, toes of the standing foot spreading and gripping for balance, skin with visible veins, calluses and honest texture. Soft morning light across the floorboards, calm domestic setting softly blurred."
+    },
+    {
+      "id": "w1d5-s24",
+      "out": "w1d5-better-balance/w1d5-s24-anchor-b-stairs.png",
+      "people": true,
+      "refs": ["_refs/anchor-b-man-early70s.png"],
+      "prompt": "The same man from the reference image, identical face and white hair, pausing midway up a flight of outdoor stone steps, one hand resting on the iron rail, looking up the stairs with a composed, unguarded expression, olive field jacket. Soft late-afternoon light, shallow depth of field, quiet and dignified rather than frail."
+    },
+    {
+      "id": "w1d5-s25",
+      "out": "w1d5-better-balance/w1d5-s25-motion-walk-bg.png",
+      "prompt": "Abstract background photograph: a single walking figure in soft long-exposure motion blur moving through a dark corridor of light, warm amber highlights streaking against deep charcoal shadows, no recognizable face, energy and forward motion, designed to sit behind large statistic typography. Moody, cinematic, near-dark. No text, no lettering, no graphic overlays."
+    },
+    {
+      "id": "w1d5-s26-bg",
+      "out": "_refs/w1d5-s26-stone-scene-empty.png",
+      "prompt": "Empty premium product-photography set: a dark honed-stone tabletop surface seen straight on, completely bare with nothing on it, one soft key light from the upper left creating a gentle pool of light at the center of the surface, subtle natural reflections in the polished stone, deep charcoal background with a very subtle warm gradient. Editorial e-commerce lighting, moody and clean. No objects, no text, no lettering, no graphic overlays."
+    },
+    {
+      "id": "w1d5-s27",
+      "out": "w1d5-better-balance/w1d5-s27-couple-beach-sunset.png",
+      "people": true,
+      "refs": ["_refs/anchor-a-woman-late60s.png", "_refs/anchor-b-man-early70s.png"],
+      "prompt": "The same woman and man from the two reference images, identical faces, walking together along a wet sand beach at sunset, seen from a three-quarter rear angle, each carrying a wooden walking stick, her silver hair and his white hair catching the low golden light, relaxed conversation mid-stride, long soft shadows, gentle surf. Warm cinematic golden hour."
+    }
+  ]
+}
