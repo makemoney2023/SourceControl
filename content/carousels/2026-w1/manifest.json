@@ -95,10 +95,11 @@
       "prompt": "Edit the provided photograph. Keep the composition, the forearm skin with its pores and fine hair, lighting and every other detail exactly identical, including the patch's exact size and position. Change only the patch's material: make its white backing a translucent clear film, so the skin tone and texture show through beneath it, while the teal printed logo pattern and the embossed fingerprint-like ridge texture remain visible on the film's surface with a subtle sheen."
     },
     {
-      "id": "w1d1-s03-edit-ridges",
+      "id": "w1d1-s03-fresh",
       "out": "w1d1-clinical-pearl/w1d1-s03-macro-peel-clean-skin.png",
-      "refs": ["w1d1-clinical-pearl/w1d1-s03-macro-peel-clean-skin.png"],
-      "prompt": "Edit the provided photograph. Keep the composition, the fingers, the forearm, lighting and every other detail exactly identical. The fingertips hold a single translucent square patch peeled up off the arm, most of it lifted into the air and only its far edge still touching the skin. The lifted patch film carries the teal printed logo pattern and the embossed concentric fingerprint-like ridge texture on its surface, with a glossy sheen. The forearm skin beneath and around it is completely natural bare skin with ordinary pores, fine hair and creases: no adhered film, no square edge, no ridge pattern and no printed marks anywhere on the skin."
+      "people": true,
+      "refs": ["_refs/patch-liberty-flat.png"],
+      "prompt": "Extreme macro photograph of fingertips holding a small translucent square patch lifted up off a bare forearm, the patch fully peeled and hovering just above the skin. The patch is a clear glossy film printed with the small teal logo pattern from the reference image, and embossed at its center in raised relief with the human fingerprint design from the reference image: an oval whorl of fine, closely spaced, irregularly flowing ridge lines that loop and converge exactly like a real fingerprint. The forearm skin beneath is completely bare, clean and unmarked, with pores, fine vellus hair and natural creases in sharp focus, and carries no ridge pattern, no imprint and no marks of any kind. Neutral daylight, clinical honesty, shallow depth of field, dark soft background."
     },
     {
       "id": "w1d2-s08",
