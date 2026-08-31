@@ -108,6 +108,12 @@
       "prompt": "Edit the provided photograph. Keep the composition, the fingers, the forearm, the lighting, the patch's translucent film material, its teal logo pattern, its embossed fingerprint whorl and every other detail exactly identical. Change only the patch's size: make it about forty percent larger, so the square film spans roughly half the visible width of the forearm, still held between the same fingertips in the same position, hovering just above the same completely bare unmarked skin."
     },
     {
+      "id": "w1d1-s03-fingerprint-scale",
+      "out": "w1d1-clinical-pearl/w1d1-s03-macro-peel-clean-skin.png",
+      "refs": ["w1d1-clinical-pearl/w1d1-s03-macro-peel-clean-skin.png", "_refs/patch-liberty-flat.png"],
+      "prompt": "Edit the first provided photograph. Keep the composition, the fingers, the forearm, the patch's size, its translucent film material, its teal logo pattern, the lighting and every other detail exactly identical. Change only the embossed fingerprint whorl on the patch: enlarge it so it fills most of the patch surface, covering about two thirds of the film's width and centered on the patch, matching the proportion of the fingerprint on the second reference image. The enlarged fingerprint keeps its fine, closely spaced, irregularly flowing ridge lines embossed in glossy relief on the film. The skin beneath remains completely bare and unmarked."
+    },
+    {
       "id": "w1d2-s08",
       "out": "w1d2-study-highlight/w1d2-s08-researcher-desk-dusk.png",
       "people": true,
