@@ -30,6 +30,8 @@ npm-debug.log*
 # Build / cache
 dist/
 build/
+# Keep img2threejs craft docs that live under grimoire/build/
+!skills/community/img2threejs/grimoire/build/
 .tmp/
 tmp/
 *.log

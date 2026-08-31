@@ -17,7 +17,9 @@ Obsidian MCP (when configured)
 Resolve via `skills/integrations/obsidian-secrets/` then `.env.local`.
 
 ## MCP
-Obsidian MCP server if available — otherwise skip to `.env.local`
+Obsidian MCP Connector (`obsidian-memorybank` / `http://127.0.0.1:27200/mcp`) when Obsidian is open.
+OCC also mirrors venture role markdown into `memorybank/org/<venture>/` via `obsidian.sync` / file watcher (`OBSIDIAN_MCP_TOKEN` in `.env.local`).
+For secrets lookup use vault search tools; otherwise skip to `.env.local`.
 
 ## Primary ops
 1. Search vault for the named key (e.g. FIRECRAWL_API_KEY, GA4_PROPERTY_ID)
