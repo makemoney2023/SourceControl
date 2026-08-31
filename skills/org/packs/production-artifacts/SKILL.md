@@ -72,9 +72,9 @@ Short phases may embed `## Design brief (required before production)` in the cra
 |-------|---------------------------------------------|-------------------|
 | **9** | `design-system/<venture>/` tokens + seat Next/shadcn packs; `landing-page-design` when shipping marketing pages | App routes/components |
 | **11** | `ui-ux-pro-max-skill/brand/`, `visual-style`, `visual-skills/image`, **`photoreal-stills`** | Brand stills via fal/inference |
-| **12** | `ui-ux-pro-max-skill/design-system/`, `ui-styling`, `shadcn`, figma-design-to-code | `design-system/<venture>/` + UI stills |
+| **12** | `ui-ux-pro-max-skill/design-system/`, `ui-styling`, `shadcn`, figma-design-to-code; **`scroll-craft`** when the landing is a scroll experience | `design-system/<venture>/` + UI stills; scrollcraft plan in `12-web-design.md` |
 | **14** | Page craft + `visual-skills/image` + **`photoreal-stills`** for imagery; `landing-page-design` when HTML/app | `14-pages/assets/`; app via P9 |
-| **15** | OpenMontage visual-style + storyboard craft; **`photoreal-stills`** for keyframes | `15-media/openmontage/` |
+| **15** | OpenMontage visual-style + storyboard craft; **`photoreal-stills`** for keyframes; **`openvid`** when source is a recording or existing clip | `15-media/openmontage/` or `15-media/openvid/` |
 | **17** | **`inference-sh/email-design/`** (layout/CTA/header rules) + craft `emails/` + brand tokens; **`photoreal-stills`** for headers | `email/html/` + `email/assets/` |
 | **19** | `ad-creative` / scroll-stopping packs + **`photoreal-stills`** for stills | `19-paid/creatives/` |
 
@@ -92,11 +92,13 @@ Short phases may embed `## Design brief (required before production)` in the cra
 | Brand stills | `11-brand/assets/` | `<slug>-<w>x<h>.{png,webp,jpg}` |
 | Page imagery | `14-pages/assets/` | `<page>-<slug>.{png,webp}` |
 | Video finals | `15-media/openmontage/` | `<slug>-final.{mp4,webm}` |
+| Demo / mockup video | `15-media/openvid/` | `<slug>-final.{mp4,webm,gif}` |
 | Email HTML | `17-channels/email/html/` | `<journey>-<n>-<slug>.html` |
 | Email headers | `17-channels/email/assets/` | `<journey>-header.{png,jpg}` |
 | Social stills | `17-channels/social/assets/` | `<platform>-<slug>.{png,webp}` |
 | Paid creatives | `19-paid/creatives/` | `<platform>-<size>-<slug>.{png,jpg}` |
 | Paid video | `19-paid/openmontage/` | `<slug>-ad-final.{mp4,webm}` |
+| Paid demo cutdowns | `19-paid/openvid/` | `<slug>-ad-final.{mp4,webm}` |
 | Hardware / CAD | `09b-hardware/` | export formats per CAD pack |
 | Exec Word report | `exec/<phase>-<slug>.docx` | e.g. `exec/21-executive-summary.docx` |
 | Exec / strategy deck | `exec/<phase>-<slug>.pptx` | e.g. `exec/03-strategy-brief.pptx` |
@@ -153,12 +155,12 @@ False completes: MD-only “deck”, empty `exec/`, claiming complete without pa
 | **9** | `09-build-log.md`, `05-prd.md`, `14-pages/` | `tech-lead` | `apps/<venture>/` | Next/shadcn/vercel packs | Vercel/DNS — operator or cto |
 | **9B** | `09b-hardware-build.md` | `hardware-engineer` | `09b-hardware/` | text-to-cad + production-artifacts | Fabrication — operator |
 | **11** | `11-brand-system.md` | `brand-designer` | `11-brand/assets/` | visual-skills + fal/inference + **photoreal-stills** | Brand kit — operator |
-| **12** | `12-web-design.md` | `web-designer` (+ brand) | `design-system/<venture>/`; `design-system/<venture>/3d/` when product ref (img2threejs); UI stills when leased | shadcn, figma-design-to-code, brand-stills, **img2threejs** | Consumed by Phase 9 — eng |
+| **12** | `12-web-design.md` | `web-designer` (+ brand) | `design-system/<venture>/`; `design-system/<venture>/3d/` when product ref (img2threejs); UI stills when leased | shadcn, figma-design-to-code, brand-stills, **img2threejs**, **scroll-craft** when the landing is a scroll experience | Consumed by Phase 9 — eng |
 | **14** | `14-pages/*.md` | Craft: copy/seo/content; **Imagery:** `brand-designer`; **HTML/app:** `tech-lead` (P9) | `14-pages/assets/`; app via `apps/<venture>/` | copy + visual-skills; eng packs | Deploy — operator/cto |
-| **15** | `15-media/` scripts | `video-producer` | `15-media/openmontage/` (or skip) | OpenMontage + `hero-video`; doctor green or skip | Upload — operator |
+| **15** | `15-media/` scripts | `video-producer` | `15-media/openmontage/` and/or `15-media/openvid/` (or skip) | OpenMontage + `hero-video` for generated film; **openvid** for recorded/uploaded demos; doctor green or skip | Upload — operator |
 | **17** | `17-channels/email/*.md`, `social/*.md` | Email HTML: `lifecycle-marketer`; Headers/social: `brand-designer` via ask | `17-channels/email/html/*.html`; `email/assets/`; `social/assets/` | Craft emails → **Design: email-design brief** → HTML + brand-stills | ESP — **operator** |
 | **18** | `18-conversion.md` | Spec; forms → `tech-lead` | `apps/<venture>/` when leased | cro + eng | Analytics — head-of-data / operator |
-| **19** | `19-paid.md` | Stills: `paid-media-manager` (+ brand); Video: `video-producer` | `19-paid/creatives/`; `19-paid/openmontage/` | ads + fal/OpenMontage; budget > $0 or skip | Ad accounts — operator |
+| **19** | `19-paid.md` | Stills: `paid-media-manager` (+ brand); Video: `video-producer` | `19-paid/creatives/`; `19-paid/openmontage/`; `19-paid/openvid/` when demo ads | ads + fal/OpenMontage; **openvid** for recorded demo cutdowns; budget > $0 or skip | Ad accounts — operator |
 | **21** | `21-executive-summary.md` | `ceo-strategist` | `exec/21-executive-summary.docx` (or skip) | **docx** + production-artifacts | Share with operator |
 
 ### Office-optional (verifier only if Office claimed complete)

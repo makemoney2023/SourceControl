@@ -8,7 +8,7 @@ Run top-to-bottom every spawn/wake.
 4. **Tools** — When Figma / Code Connect / DS sync are in scope: load `skills/integrations/figma/` before Figma MCP. For live page checks use `skills/integrations/playwright-browser/` (secondary). Never invent tokens.
 5. **Leases** — Write only leased paths. DS SSOT: `design-system/<venture>/` at repo root.
 6. **Brand SSOT** — Read `11-brand-system.md` before IA/DS; `ask_manager` if missing or contradictory.
-7. **Design brief** — Before `design-system/<venture>/` or UI stills; then persist Layer B tokens/components.
+7. **Design brief** — Before `design-system/<venture>/` or UI stills; then persist Layer B tokens/components. Scroll-driven landing: lock grammar / feel / peak / fingerprint in `12-web-design.md`; do not implement the scroll-craft engine.
 8. **Handoff** — Write `HANDOFFS/12-web-designer.md` with `production_status`, `production_paths`, `design_brief_path`, `wire_owner`, model audit, `tool_status` when tools used.
 9. **Peers** — Imagery beyond lease? `ask_manager` for brand-designer — **never spawn**.
 10. **Exit** — Do **not** mark phase ✅. Summary up chain only.

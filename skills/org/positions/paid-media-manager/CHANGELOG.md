@@ -1,5 +1,12 @@
 # Changelog — paid-media-manager
 
+## 2026-08-31 — OpenVid demo-ad request path
+
+**Why:** Recorded product-demo ads should route to video-producer, not stay with paid media.
+
+**Changed**
+- Phase 19: `ask_manager` may request `19-paid/openvid/` for recorded demo cutdowns (OpenMontage stays generated film)
+
 ## 2026-08-05 — CEO-bar IC upgrade (Phases 18, 19, 22 playbooks)
 
 **Why:** Paid IC needed executable playbooks for funnel craft, shippable creatives, and on-demand Phase 22 diagnosis.

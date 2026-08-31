@@ -180,7 +180,7 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 3. Generate angle matrix (≥3 angles × formats) using ad-angle-multiplier.
 4. Write **design brief** under `19-paid/design/` (frame, copy lock, FLUX prompts, sizes per platform).
 5. Produce stills under `19-paid/creatives/` via photoreal-stills pipeline; run reject checklist → `photoreal_qa: pass`.
-6. Video ads: document specs; set `ask_manager` for video-producer + `19-paid/openmontage/` path.
+6. Video ads: document specs; set `ask_manager` for video-producer + `19-paid/openmontage/` (generated) or `19-paid/openvid/` (recorded product demo). Do not run OpenVid yourself.
 7. Set `production_status: complete | skipped` with reason (operator skip common for bootstrap ventures).
 8. Write `HANDOFFS/19-paid-media-manager.md` with production fields.
 9. Do **not** mark phase ✅.

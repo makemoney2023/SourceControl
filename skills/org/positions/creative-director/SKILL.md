@@ -68,6 +68,9 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/visual-skills/image/` | Image prompt QA |
 | `skills/community/openmontage/.agents/skills/threejs-fundamentals/` | Hero 3D scope review |
 | `skills/community/img2threejs/` | Review-only: hero 3D candidate under `design-system/<venture>/3d/` or honest skip (Web Designer generates) |
+| `skills/community/img2threejs/CINEMATIC-HERO-STACK.md` | Review-only: cinematic presentation (bloom/ground/accordion/mobile) vs brand reference — no generation |
+| `skills/community/scroll-craft/` | Review-only: scroll page grammar, one peak, fingerprint vs prior builds. Read `ORG-WIRING.md` |
+| `skills/community/openvid/` | Review-only: product-demo / mockup exports vs brief. Video Producer runs the editor |
 | `skills/community/awesome-claude-corporate-skills/04-marketing/canvas-design/` | Design canvas review |
 | `skills/org/packs/standing-context/humor-craft/` | Humor craft review standing context |
 | `skills/org/COLLABORATION.md` | Phases 14 / 15 / 17 / 19 RACI with CMO |
@@ -87,7 +90,8 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 - `docs/projects/<active>/business-idea/12-web-design.md`
 - `design-system/<venture>/` (repo root SSOT — tokens, components, docs)
 - `docs/projects/<active>/business-idea/15-media/` (scripts, storyboard craft)
-- `docs/projects/<active>/business-idea/15-media/openmontage/` (video finals or skip)
+- `docs/projects/<active>/business-idea/15-media/openmontage/` (generated film finals or skip)
+- `docs/projects/<active>/business-idea/15-media/openvid/` (recorded/uploaded demo finals or skip)
 - `docs/projects/<active>/business-idea/15-media/design/` (video design brief when production)
 
 ## Collaborates with (peer managers)
@@ -217,6 +221,7 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 - `skills/integrations/figma/` when Figma / Code Connect / DS sync are in scope
 - ui-ux-pro-max-skill/design-system, web-design-guidelines, design-system pack at repo root
 - photoreal-stills when UI stills leased
+- scroll-craft (`ORG-WIRING.md`) when the landing is a scroll experience — review grammar, one peak, fingerprint
 
 **Spawn**
 - `web-designer` — lease `12-web-design.md`, `design-system/<venture>/`
@@ -227,7 +232,7 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 2. When Figma files are in scope: load figma adapter; review frames / DS sync via MCP; never invent tokens.
 3. Spawn `web-designer` for IA + `design-system/<venture>/` (MASTER/tokens/components/README per venture pattern).
 4. When imagery promised: spawn `brand-designer` with separate asset lease **or** sequence after IA locked — never colliding writes on same path.
-5. Ensure `12-web-design.md` includes: route map; page templates; proof/hero band model; CTA hierarchy; shadcn/Tailwind token mapping; a11y notes; anti-patterns; link to DS paths; eng handoff for Phase 9.
+5. Ensure `12-web-design.md` includes: route map; page templates; proof/hero band model; CTA hierarchy; shadcn/Tailwind token mapping; a11y notes; anti-patterns; link to DS paths; eng handoff for Phase 9. If scrollcraft is in scope: reject a missing peak, two adjacent acts with the same feeling, or a fingerprint that collides with a prior build.
 6. Await IC handoffs; reject missing `production_status` on claimed Layer B (DS folder non-empty, stills exist, or skip).
 7. Merge DS + web spec; verify `design-system/<venture>/` is repo-root SSOT (not only under `apps/`).
 8. Review photoreal/stills QA when brand-designer contributed imagery.
@@ -275,14 +280,14 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 - video-producer packs via IC spawn
 
 **Spawn**
-- `video-producer` — lease `15-media/`, `15-media/openmontage/`, `15-media/design/`; `generation_profile: hero-video`
+- `video-producer` — lease `15-media/`, `15-media/openmontage/`, `15-media/openvid/` when the source is a recording, `15-media/design/`; `generation_profile: hero-video`
 
 **Procedure**
 1. Confirm phase `15`; confirm `budget_usd > 0` **or** plan honest skip for OpenMontage/Veo renders.
 2. Read brand + web SSOT; define video role (hero loop, explainers, social cutdowns) in scope doc under `15-media/`.
 3. Spawn `video-producer` with lease covering scripts/storyboard + `15-media/openmontage/` finals + design brief path.
 4. Require design brief before render: visual-style, shot list, keyframe prompts (photoreal-stills), audio plan.
-5. Await IC handoff; **reject** if `production_status` missing, or complete without finals (size > 0) in `15-media/openmontage/`, unless skipped with reason.
+5. Await IC handoff; **reject** if `production_status` missing, or complete without finals (size > 0) in `15-media/openmontage/` or `15-media/openvid/`, unless skipped with reason.
 6. Escalate `spend` if projected Veo/fal/ElevenLabs cost exceeds `budget_usd`.
 7. Merge craft under `15-media/`; note channel/consult CMO on distribution (collaborate — do not spawn CMO).
 8. Manager brief with production paths → verifier → C-suite. Do not mark phase ✅.

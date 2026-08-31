@@ -1,5 +1,26 @@
 # Changelog — tech-lead
 
+## 2026-08-31 — scroll-craft implement path
+
+**Why:** Phase 12 can now emit a scrollcraft plan that must land in `apps/<venture>/` without forking the engine.
+
+**Changed**
+- Skill packs: `skills/community/scroll-craft/` (implement; theme tokens/fonts only)
+- Skill packs: `openvid/.agents/skills/3d-web-experience/` for 3D web notes beyond img2threejs
+- Phase 9: when `12-web-design.md` has a scrollcraft plan, mount the engine; never edit `engine/`
+
+**Upstream:** https://github.com/nateherkai/scroll-craft
+
+## 2026-08-10 — cinematic hero stack (R3F / Rapier)
+
+**Why:** Interactive cinematic heroes (accordion physics, selective bloom, mobile tiers) must be a reusable Tech Lead path.
+
+**Changed**
+- Skill packs: `img2threejs/CINEMATIC-HERO-STACK.md` + Context7 integration pointer
+- Phase 9 procedure: cinematic island mount when Phase 12 SSOT + packet requests it
+
+**Spec:** `docs/superpowers/specs/2026-08-10-income-stack-cinematic-hero3d-design.md`
+
 ## 2026-08-10 — img2threejs consume path
 
 **Why:** Phase 12 now emits procedural Three.js factories under design-system SSOT.

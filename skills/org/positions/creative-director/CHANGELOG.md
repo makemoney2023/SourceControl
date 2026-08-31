@@ -1,5 +1,23 @@
 # Changelog — creative-director
 
+## 2026-08-31 — scroll-craft + OpenVid review packs
+
+**Why:** Scroll landings and product-demo exports need CD review without taking implementation.
+
+**Changed**
+- Skill packs: `skills/community/scroll-craft/` (review grammar, one peak, fingerprint)
+- Skill packs: `skills/community/openvid/` (review-only; Video Producer runs the editor)
+- Phase 12 / 15 playbooks: reject missing peak / colliding fingerprint; accept `15-media/openvid/` as a finals path
+
+## 2026-08-10 — cinematic hero stack review
+
+**Why:** Cinematic presentation (bloom/ground/accordion/mobile) needs explicit review-only seat guidance.
+
+**Changed**
+- Skill packs: `img2threejs/CINEMATIC-HERO-STACK.md` (review-only)
+
+**Spec:** `docs/superpowers/specs/2026-08-10-income-stack-cinematic-hero3d-design.md`
+
 ## 2026-08-10 — img2threejs review pack
 
 **Why:** Phase 12 hero 3D candidates need CD review without generation ownership.

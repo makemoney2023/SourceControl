@@ -164,7 +164,7 @@ Also save these three hubs (rewrite if they exist):
 
 ### `claudeskills-community`
 
-**description:** Use when a virtual company seat needs a community skill from ClaudeSkills (marketing, SEO, BA, ads, CAD, Remotion, inference.sh, corporate, visual, OpenMontage).
+**description:** Use when a virtual company seat needs a community skill from ClaudeSkills (marketing, SEO, BA, ads, CAD, Remotion, inference.sh, corporate, visual, OpenMontage, OpenVid, scroll-craft).
 
 Index the installed families and point at `/home/box/agent-data/claude-skills/skills/`.
 
@@ -200,6 +200,8 @@ Bound families to cover (from position Skill-pack tables):
 - visual-skills (image, video)
 - academic-research-skills (deep-research + paper/reviewer/pipeline)
 - img2threejs (1)
+- openvid (hub + product-demo editor; bind `3d-web-experience` only — skip nested nextjs-developer / gsap / r3f duplicates)
+- scroll-craft (scrollcraft skill + ORG-WIRING)
 - openmontage as the hub above, not every nested `.agents` skill
 
 Plugin skills already on Grok Bot (Figma, Vercel, Superpowers, Parallel, etc.) stay as they are. Do not duplicate them.

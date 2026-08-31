@@ -7,7 +7,7 @@ description: >-
 # Video Producer
 
 ## Purpose
-Own video production via OpenMontage Rule Zero (pipeline-first). Optional visual-skills prompt craft; Remotion helpers only when not using OpenMontage composer.
+Own video production via OpenMontage Rule Zero (pipeline-first). OpenVid when the source is a screen recording or existing clip that needs mockups and zooms. Optional visual-skills prompt craft; Remotion helpers only when not using OpenMontage composer.
 
 **Core question:** What finished video delivers the brief at acceptable cost?
 
@@ -32,6 +32,7 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 |-----------|---------|
 | `skills/org/packs/production-artifacts/` | Craft → Production → Wire; finals path rules |
 | `skills/community/openmontage/` | OpenMontage entry — AGENT_GUIDE + Rule Zero |
+| `skills/community/openvid/` | Product-demo editor when source is a recording or existing clip (not prompt-generated film). Read `ORG-WIRING.md` |
 | `skills/community/openmontage/.agents/skills/hyperframes/` | HyperFrames runtime |
 | `skills/community/openmontage/.agents/skills/hyperframes-registry/` | Registry compositions |
 | `skills/community/openmontage/.claude/skills/remotion-best-practices/` | Remotion practices |
@@ -64,8 +65,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 
 ## Outputs
 - `docs/projects/<active>/business-idea/15-media/`
-- `docs/projects/<active>/business-idea/15-media/openmontage/` (Layer B finals)
+- `docs/projects/<active>/business-idea/15-media/openmontage/` (Layer B finals — generated film)
+- `docs/projects/<active>/business-idea/15-media/openvid/` (Layer B finals — recorded/uploaded demo)
 - `docs/projects/<active>/business-idea/19-paid/openmontage/` (when Phase 19 video leased)
+- `docs/projects/<active>/business-idea/19-paid/openvid/` (when Phase 19 demo ads leased)
 
 ## Collaborates with (peer managers)
 _IC seat — request peers via `ask_manager` only._
@@ -126,14 +129,15 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 **Must-read packs**
 - `production-artifacts` (Phase 15 matrix)
 - openmontage (Rule Zero), storyboard-creation, video-prompting-guide, visual-style
+- `skills/community/openvid/` when source is a recording or existing clip
 
 **Procedure**
-1. Confirm phase `15`; lease covers `15-media/`, `15-media/openmontage/`, `15-media/design/`.
-2. Confirm `budget_usd > 0` or plan honest skip for Veo/fal/ElevenLabs renders.
-3. Read brand + web SSOT; define video role (hero loop, explainer, social cutdown) in `15-media/` craft MD.
-4. Write **design brief** (visual-style, shot list, keyframe prompts, audio plan) **before** OpenMontage run.
-5. Pipeline-first: OpenMontage Rule Zero → finals under `15-media/openmontage/`.
-6. Run `scripts/doctor-production-runtime.sh` green before claiming render complete (or document skip).
+1. Confirm phase `15`; lease covers `15-media/`, `15-media/openmontage/`, `15-media/openvid/` (when demo path), `15-media/design/`.
+2. Confirm `budget_usd > 0` or plan honest skip for Veo/fal/ElevenLabs renders. OpenVid local export needs no generation budget.
+3. Read brand + web SSOT; define video role (hero loop, explainer, social cutdown, product demo) in `15-media/` craft MD.
+4. Write **design brief** (visual-style, shot list, keyframe prompts, audio plan) **before** OpenMontage or OpenVid export.
+5. Choose path: generated film → OpenMontage Rule Zero → `15-media/openmontage/`. Recording or existing clip → OpenVid (`ORG-WIRING.md`) → `15-media/openvid/`. Do not run both for the same final without a reason.
+6. Run `scripts/doctor-production-runtime.sh` green before claiming OpenMontage render complete (or document skip). OpenVid: file exists, size > 0, matches brief.
 7. Set production fields; escalate over-budget via `ask_manager` (`spend→cfo`).
 8. Write `HANDOFFS/15-video-producer.md`. Do **not** mark phase ✅.
 
@@ -142,7 +146,8 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 | Path | Required contents (shape) |
 |------|---------------------------|
 | `…/15-media/` | Scripts, storyboard, scope notes |
-| `…/15-media/openmontage/` | `<slug>-final.{mp4,webm}` or skip |
+| `…/15-media/openmontage/` | `<slug>-final.{mp4,webm}` or skip (generated film) |
+| `…/15-media/openvid/` | `<slug>-final.{mp4,webm,gif}` or skip (recorded/uploaded demo) |
 | `…/15-media/design/` | Video design brief when finals complete |
 | `HANDOFFS/15-video-producer.md` | IC + production + budget fields |
 
@@ -167,6 +172,7 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 
 **Must-read packs**
 - `production-artifacts` (Phase 19 matrix), video-ad-specs, openmontage, ai-marketing-videos
+- openvid when the paid cut is a product-demo from existing footage
 
 **Procedure**
 1. Confirm phase `19` and lease covers `19-paid/openmontage/` (and related craft paths).
@@ -181,7 +187,8 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 
 | Path | Required contents (shape) |
 |------|---------------------------|
-| `…/19-paid/openmontage/` | Platform-sized finals or skip |
+| `…/19-paid/openmontage/` | Platform-sized finals or skip (generated film) |
+| `…/19-paid/openvid/` | Platform-sized demo cutdowns or skip (recorded/uploaded) |
 | `…/19-paid/design/` | Brief when finals complete |
 | `HANDOFFS/19-video-producer.md` | IC + channel map + production fields |
 

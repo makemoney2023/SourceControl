@@ -48,6 +48,7 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/inference-sh/og-image-design/` | OG / social share stills |
 | `skills/community/inference-sh/product-photography/` | Product stills craft |
 | `skills/community/inference-sh/ai-product-photography/` | AI product photography |
+| `skills/community/openvid/` | Still mockups only (device frames, 3D transform, mask). Read `ORG-WIRING.md`. Video Producer owns the timeline |
 | `skills/community/inference-sh/pitch-deck-visuals/` | Pitch / fundraising visuals |
 | `skills/community/inference-sh/youtube-thumbnail-design/` | Thumbnail stills |
 | `skills/community/inference-sh/app-store-screenshots/` | ASO screenshot stills |

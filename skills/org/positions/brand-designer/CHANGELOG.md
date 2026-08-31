@@ -1,5 +1,14 @@
 # Changelog — brand-designer
 
+## 2026-08-31 — OpenVid still mockups
+
+**Why:** Device-frame and 3D still mockups should reuse OpenVid without taking video timeline ownership.
+
+**Changed**
+- Skill packs: `skills/community/openvid/` — still mockups only; Video Producer owns the timeline
+
+**Upstream:** https://github.com/CristianOlivera1/openvid
+
 ## 2026-08-05 — Figma MCP operational wiring
 
 **Why:** HEARTBEAT/agent did not force-load figma adapter before MCP calls.

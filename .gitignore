@@ -57,7 +57,19 @@ docs/orgs/**/15-media/openmontage/loops/
 
 skills/community/openmontage/.venv/
 skills/community/openmontage/remotion-composer/node_modules/
+
+# Vendored community apps (keep source; ignore install output)
+skills/community/openvid/node_modules/
+skills/community/openvid/.next/
+skills/community/openvid/.env
+skills/community/scroll-craft/**/node_modules/
 docs/projects/*/business-idea/11-brand/refs/.generated-flux2.yaml
 
 # Dated graphify snapshots — graph.json exceeds GitHub 100MB
 graphify-out/*/graph.json
+
+# Local git worktrees
+.worktrees/
+
+# Superpowers brainstorm companion (session mockups)
+.superpowers/

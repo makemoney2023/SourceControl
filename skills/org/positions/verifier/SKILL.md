@@ -143,7 +143,7 @@ Replace `<active>` with the venture slug. Verification only — **never author p
 **Scorecard contribution:** Finals path or skip; `hero-video` / Veo path documented.
 
 **Procedure**
-1. List finals under `15-media/openmontage/` or `19-paid/openmontage/` — size > 0 or skip reason.
+1. List finals under `15-media/openmontage/`, `15-media/openvid/`, `19-paid/openmontage/`, or `19-paid/openvid/` — size > 0 or skip reason.
 2. Confirm design brief when `production_status: complete`.
 3. Run doctor when video render claimed complete.
 

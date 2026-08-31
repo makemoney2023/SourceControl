@@ -53,6 +53,10 @@ Read each pack's `SKILL.md` before use. Do not load packs outside this list unle
 | `skills/community/openmontage/.agents/skills/threejs-geometry/` | Procedural stand-ins |
 | `skills/community/openmontage/.agents/skills/threejs-postprocessing/` | Optional hero polish |
 | `skills/community/img2threejs/` | Consume Phase 12 `design-system/<venture>/3d/` factory into WebGL island (see pack `ORG-WIRING.md`) |
+| `skills/community/img2threejs/CINEMATIC-HERO-STACK.md` | Interactive cinematic mount: R3F + Drei reflector/shadows + Rapier springs + SelectiveBloom; mobile-first tiers; Context7 before API use |
+| `skills/community/scroll-craft/` | Implement a Phase 12 scrollcraft plan. Theme engine tokens/fonts only; never edit `engine/`. Read `ORG-WIRING.md` |
+| `skills/community/openvid/.agents/skills/3d-web-experience/` | 3D web implementation notes when the page needs depth beyond img2threejs |
+| `skills/integrations/context7-docs/` | Resolve/query docs for fiber/drei/rapier/postprocessing before wiring |
 | `skills/plugins/vercel/ai-sdk/` | AI SDK patterns |
 | `skills/plugins/vercel/auth/` | Auth integration |
 | `skills/plugins/vercel/env-vars/` | Env var hygiene |
@@ -142,7 +146,7 @@ Replace `<active>` with the venture slug from `projects/registry.json`.
 2. Read PRD Must/Should; flag scope drift via `ask_manager` (`scope→HoP`) — do not expand unleased.
 3. Before coding stack APIs (Next, Supabase, Vercel, shadcn): load Context7; `resolve-library-id` → `query-docs`; record `libraryId` on build log when material. If MCP down → `tool_status: unavailable` + official docs fallback.
 4. TDD: failing test → minimal implementation → refactor; consume design-system tokens/components.
-5. Implement routes, forms, and integrations per PRD; log decisions in build log.
+5. Implement routes, forms, and integrations per PRD; log decisions in build log. When a Phase 12 hero 3D SSOT exists and the packet asks for an interactive cinematic island: follow `skills/community/img2threejs/CINEMATIC-HERO-STACK.md` + Context7 for R3F/Drei/Rapier/postprocessing; mobile-first (tap toggle, quality tiers); no scroll-jack. When `12-web-design.md` includes a scrollcraft plan: implement with the scroll-craft engine (theme six colour tokens + two fonts; drive bespoke motion off `--sc-p`; never edit `engine/`).
 6. After MVP routes exist: smoke critical paths via Playwright MCP (`user-playwright`); record URLs checked + date; login walls → note blocker (do not bypass). If MCP down → `tool_status: unavailable` and fall back per adapter.
 7. Verify: run tests, note deploy/Vercel status when applicable.
 8. Set `production_status: complete | skipped`, `production_paths`, `wire_owner` on handoff.

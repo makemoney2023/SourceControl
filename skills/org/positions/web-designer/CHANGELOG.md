@@ -1,5 +1,27 @@
 # Changelog — web-designer
 
+## 2026-08-31 — scroll-craft + OpenVid 3D web notes
+
+**Why:** Premium scroll landings need a grammar/feel/fingerprint plan in Phase 12; Tech Lead implements the engine.
+
+**Changed**
+- Skill packs: `skills/community/scroll-craft/` (plan only; read `ORG-WIRING.md`)
+- Skill packs: `openvid/.agents/skills/3d-web-experience/` for 3D web notes beyond img2threejs
+- Phase 12: lock scrollcraft interview, grammar, peak, signature move, fingerprint in `12-web-design.md`
+- HEARTBEAT: do not implement the scroll-craft engine
+
+**Upstream:** https://github.com/nateherkai/scroll-craft
+
+## 2026-08-10 — cinematic hero stack (seat pack)
+
+**Why:** Context7-validated R3F/cinematic libraries need a reusable seat pointer beyond one venture.
+
+**Changed**
+- Skill packs: `img2threejs/CINEMATIC-HERO-STACK.md` — Web Designer specs look targets; Tech Lead mounts
+- `ORG-WIRING.md` updated for presentation vs SSOT split
+
+**Spec:** `docs/superpowers/specs/2026-08-10-income-stack-cinematic-hero3d-design.md`
+
 ## 2026-08-10 — img2threejs hero 3D wiring
 
 **Why:** Org-wide product hero 3D needs a Phase 12 SSOT path and seat ownership.

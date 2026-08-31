@@ -1,5 +1,12 @@
 # Changelog — verifier
 
+## 2026-08-31 — OpenVid finals path
+
+**Why:** Phase 15 / 19 can now land recorded demo exports next to OpenMontage film.
+
+**Changed**
+- Video QA: also accept `15-media/openvid/` and `19-paid/openvid/` (size > 0 or skip)
+
 ## 2026-08-05 — Playwright MCP operational wiring
 
 **Why:** Verifier had no Integrations; Phase 9 live smoke was doctor/shell only.
