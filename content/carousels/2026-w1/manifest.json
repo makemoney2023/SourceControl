@@ -59,6 +59,18 @@
       "prompt": "Photograph of a healthcare practitioner in his fifties in a consultation with a female patient around seventy, seated at a small clinic table, both mid-conversation, the patient listening with an engaged expression. Both faces show honest lived-in skin: wrinkles, age spots, natural tone variation. Warm late-afternoon window light raking across the table, calm and trusting atmosphere."
     },
     {
+      "id": "w1d1-s02-edit-translucent",
+      "out": "w1d1-clinical-pearl/w1d1-s02-practitioner-applying-patch.png",
+      "refs": ["w1d1-clinical-pearl/w1d1-s02-practitioner-applying-patch.png"],
+      "prompt": "Edit the provided photograph. Keep the composition, people, hands, pose, lighting and every other detail exactly identical. Change only the square patch on the patient's back: make its white backing a translucent clear film, so the patient's skin tone and texture show through beneath it, while the teal printed logo pattern and the embossed fingerprint-like ridge texture remain visible on the film's surface with a subtle sheen. The patch edges stay softly visible where the film catches the light."
+    },
+    {
+      "id": "w1d1-s05-edit-translucent",
+      "out": "w1d1-clinical-pearl/w1d1-s05-woman-athlete-stretching.png",
+      "refs": ["w1d1-clinical-pearl/w1d1-s05-woman-athlete-stretching.png"],
+      "prompt": "Edit the provided photograph. Keep the composition, the woman, her pose, expression, lighting and every other detail exactly identical. Change only the square patch on her arm: make its white backing a translucent clear film, so her skin tone and texture show through beneath it, while the teal printed logo pattern and the embossed fingerprint-like ridge texture remain visible on the film's surface with a subtle sheen. The patch edges stay softly visible where the film catches the light."
+    },
+    {
       "id": "w1d2-s08",
       "out": "w1d2-study-highlight/w1d2-s08-researcher-desk-dusk.png",
       "people": true,
