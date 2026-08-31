@@ -102,6 +102,12 @@
       "prompt": "Extreme macro photograph of fingertips holding a small translucent square patch lifted up off a bare forearm, the patch fully peeled and hovering just above the skin. The patch is a clear glossy film printed with the small teal logo pattern from the reference image, and embossed at its center in raised relief with the human fingerprint design from the reference image: an oval whorl of fine, closely spaced, irregularly flowing ridge lines that loop and converge exactly like a real fingerprint. The forearm skin beneath is completely bare, clean and unmarked, with pores, fine vellus hair and natural creases in sharp focus, and carries no ridge pattern, no imprint and no marks of any kind. Neutral daylight, clinical honesty, shallow depth of field, dark soft background."
     },
     {
+      "id": "w1d1-s03-enlarge",
+      "out": "w1d1-clinical-pearl/w1d1-s03-macro-peel-clean-skin.png",
+      "refs": ["w1d1-clinical-pearl/w1d1-s03-macro-peel-clean-skin.png"],
+      "prompt": "Edit the provided photograph. Keep the composition, the fingers, the forearm, the lighting, the patch's translucent film material, its teal logo pattern, its embossed fingerprint whorl and every other detail exactly identical. Change only the patch's size: make it about forty percent larger, so the square film spans roughly half the visible width of the forearm, still held between the same fingertips in the same position, hovering just above the same completely bare unmarked skin."
+    },
+    {
       "id": "w1d2-s08",
       "out": "w1d2-study-highlight/w1d2-s08-researcher-desk-dusk.png",
       "people": true,
