@@ -98,7 +98,7 @@
       "id": "w1d1-s03-edit-ridges",
       "out": "w1d1-clinical-pearl/w1d1-s03-macro-peel-clean-skin.png",
       "refs": ["w1d1-clinical-pearl/w1d1-s03-macro-peel-clean-skin.png"],
-      "prompt": "Edit the provided photograph. Keep the composition, the fingers, the lifted corner, lighting and every other detail exactly identical. Correct the patch so it reads as one continuous translucent square film partly peeled at the corner: the portion still adhered to the arm is covered with the same teal printed logo pattern as the lifted corner, has a clearly visible square film edge and glossy sheen, and carries the embossed concentric fingerprint-like ridge texture within the film surface only. The forearm skin outside the square film edge is completely natural bare skin with ordinary pores and fine hair, with no ridge pattern and no printed marks anywhere on it."
+      "prompt": "Edit the provided photograph. Keep the composition, the fingers, the forearm, lighting and every other detail exactly identical. The fingertips hold a single translucent square patch peeled up off the arm, most of it lifted into the air and only its far edge still touching the skin. The lifted patch film carries the teal printed logo pattern and the embossed concentric fingerprint-like ridge texture on its surface, with a glossy sheen. The forearm skin beneath and around it is completely natural bare skin with ordinary pores, fine hair and creases: no adhered film, no square edge, no ridge pattern and no printed marks anywhere on the skin."
     },
     {
       "id": "w1d2-s08",
