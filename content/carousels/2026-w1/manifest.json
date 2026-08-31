@@ -77,6 +77,24 @@
       "prompt": "Edit the provided photograph. Keep the composition, the woman, her pose, expression, lighting and every other detail exactly identical. Change only the translucent square patch on her upper arm: make it half its current size, a small square roughly the width of two fingers, positioned in the same spot on the arm, keeping the same translucent film look with the teal printed pattern and embossed fingerprint ridge texture showing through at the smaller scale. The skin previously covered by the larger patch is restored to natural bare skin matching the surrounding arm."
     },
     {
+      "id": "w1d1-s02-edit-resize",
+      "out": "w1d1-clinical-pearl/w1d1-s02-practitioner-applying-patch.png",
+      "refs": ["w1d1-clinical-pearl/w1d1-s02-practitioner-applying-patch.png"],
+      "prompt": "Edit the provided photograph. Keep the composition, both people, the hands, pose, lighting and every other detail exactly identical. Change only the translucent square patch on the patient's back: make it half its current size, a small square roughly the width of two fingers, in the same spot between the practitioner's hands, keeping the same translucent film look with the teal printed pattern showing at the smaller scale. The skin previously covered by the larger patch is restored to natural bare skin matching the surrounding back."
+    },
+    {
+      "id": "w1d1-s03-edit-translucent",
+      "out": "w1d1-clinical-pearl/w1d1-s03-macro-peel-clean-skin.png",
+      "refs": ["w1d1-clinical-pearl/w1d1-s03-macro-peel-clean-skin.png"],
+      "prompt": "Edit the provided photograph. Keep the composition, the fingers, the forearm skin, the lifted corner, lighting and every other detail exactly identical, including the patch's exact size and position. Change only the patch's material: make its white backing a translucent clear film, so the skin tone and texture show through beneath it, while the teal printed logo pattern and the embossed fingerprint-like ridge texture remain visible on the film's surface with a subtle sheen."
+    },
+    {
+      "id": "w1d3-s18-edit-translucent",
+      "out": "w1d3-skin-listening/w1d3-s18-patch-on-skin-macro.png",
+      "refs": ["w1d3-skin-listening/w1d3-s18-patch-on-skin-macro.png"],
+      "prompt": "Edit the provided photograph. Keep the composition, the forearm skin with its pores and fine hair, lighting and every other detail exactly identical, including the patch's exact size and position. Change only the patch's material: make its white backing a translucent clear film, so the skin tone and texture show through beneath it, while the teal printed logo pattern and the embossed fingerprint-like ridge texture remain visible on the film's surface with a subtle sheen."
+    },
+    {
       "id": "w1d2-s08",
       "out": "w1d2-study-highlight/w1d2-s08-researcher-desk-dusk.png",
       "people": true,
