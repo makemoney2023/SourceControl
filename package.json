@@ -19,6 +19,8 @@
     "remotion:render": "remotion render src/remotion/index.ts IncomeStackFilm ../../docs/orgs/superpatch/customers/affiliates/initiatives/income-stack-deck/business-idea/15-media/openmontage/income-stack-deck-remotion.mp4",
     "omni:animate": "node scripts/omni-animate-plates.mjs",
     "verify:omni-assets": "node scripts/verify-omni-assets.mjs",
+    "city:placeholders": "tsx scripts/city-placeholder-legs.ts",
+    "verify:city-assets": "tsx scripts/verify-city-assets.ts",
     "export:pptx": "tsx scripts/export-experience-pptx.ts",
     "export:pptx:tron": "tsx scripts/export-experience-pptx.ts --tron"
   },
