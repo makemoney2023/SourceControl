@@ -1,4 +1,6 @@
 // src/data/cityFlight.test.ts
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   CITY_LEGS,
@@ -31,6 +33,47 @@ const COPY_SEQUENCE = SLIDES.map((s) => s.id);
 function windowParts(win: string): [number, number, number, number] {
   const [from, to, rin, rout] = win.split(" ").map(Number);
   return [from!, to!, rin!, rout!];
+}
+
+function windowMidpoint(win: string): number {
+  const [from, to] = windowParts(win);
+  return (from + to) / 2;
+}
+
+/** Track-fraction span for a leg index. */
+function legTrackSpan(legIndex: number): [number, number] {
+  const total = trackTotalVh();
+  const from = legStartVh(legIndex) / total;
+  const to = (legStartVh(legIndex) + CITY_LEGS[legIndex]!.weight) / total;
+  return [from, to];
+}
+
+const legIndexById = new Map(CITY_LEGS.map((l, i) => [l.id, i]));
+const momentBySlide = new Map(CITY_PLATE_MOMENTS.map((m) => [m.slideId, m]));
+
+/** Sub-slice on a leg for slide index i of n slides (story order within leg). */
+function legSubSlice(
+  legIndex: number,
+  slideIndexOnLeg: number,
+  slideCountOnLeg: number,
+): [number, number] {
+  const [legFrom, legTo] = legTrackSpan(legIndex);
+  const width = legTo - legFrom;
+  const from = legFrom + (slideIndexOnLeg / slideCountOnLeg) * width;
+  const to = legFrom + ((slideIndexOnLeg + 1) / slideCountOnLeg) * width;
+  return [from, to];
+}
+
+/** Slides grouped by leg in deck story order. */
+function slidesPerLegInStoryOrder(): Map<string, string[]> {
+  const perLeg = new Map<string, string[]>();
+  for (const slide of SLIDES) {
+    const legId = momentBySlide.get(slide.id)!.legId;
+    const list = perLeg.get(legId) ?? [];
+    list.push(slide.id);
+    perLeg.set(legId, list);
+  }
+  return perLeg;
 }
 
 describe("cityFlight legs", () => {
@@ -90,6 +133,13 @@ describe("cityFlight plate moments and packages", () => {
       expect(pkg.src).toMatch(/^\/concepts\//);
     }
   });
+
+  it("package accent src paths exist under public/", () => {
+    const publicRoot = join(process.cwd(), "public");
+    for (const pkg of CITY_PACKAGE_ACCENTS) {
+      expect(existsSync(join(publicRoot, pkg.src.slice(1))), pkg.src).toBe(true);
+    }
+  });
 });
 
 describe("cityFlight copy windows", () => {
@@ -121,6 +171,23 @@ describe("cityFlight copy windows", () => {
   it("does not export CITY_GLASS", async () => {
     const mod = await import("./cityFlight");
     expect("CITY_GLASS" in mod).toBe(false);
+  });
+
+  it("places each copy window midpoint on its plate moment leg (or sub-slice)", () => {
+    const perLeg = slidesPerLegInStoryOrder();
+    for (const slide of SLIDES) {
+      const moment = momentBySlide.get(slide.id)!;
+      const legIndex = legIndexById.get(moment.legId)!;
+      const slidesOnLeg = perLeg.get(moment.legId)!;
+      const idxOnLeg = slidesOnLeg.indexOf(slide.id);
+      const [subFrom, subTo] = legSubSlice(legIndex, idxOnLeg, slidesOnLeg.length);
+      const [legFrom, legTo] = legTrackSpan(legIndex);
+      const [from, to] = windowParts(COPY_WINDOWS[slide.id]!);
+      const mid = windowMidpoint(COPY_WINDOWS[slide.id]!);
+      const midOnLeg = mid >= subFrom - 1e-9 && mid <= subTo + 1e-9;
+      const spanOnLeg = from >= legFrom - 1e-9 && to <= legTo + 1e-9;
+      expect(midOnLeg || spanOnLeg, slide.id).toBe(true);
+    }
   });
 });
 

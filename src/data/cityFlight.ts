@@ -212,16 +212,67 @@ export function windowAcross(
 
 /** Sequenced copy windows — one readable plateau per slide, brief crossfade only. */
 function buildCopyWindows(): Record<string, string> {
-  const n = SLIDES.length;
-  const overlap = 0.025;
   const ramp = 0.08;
+  /** Target track overlap between adjacent slides in deck order. */
+  const overlap = 0.025;
+
+  const legIndexById = new Map(CITY_LEGS.map((l, i) => [l.id, i]));
+  const momentBySlide = new Map(CITY_PLATE_MOMENTS.map((m) => [m.slideId, m]));
+
+  /** Slides per leg in deck story order. */
+  const perLeg = new Map<string, string[]>();
+  for (const slide of SLIDES) {
+    const legId = momentBySlide.get(slide.id)!.legId;
+    const list = perLeg.get(legId) ?? [];
+    list.push(slide.id);
+    perLeg.set(legId, list);
+  }
+
+  const total = trackTotalVh();
+  const bounds: Record<string, { from: number; to: number }> = {};
+
+  for (const [legId, slideIds] of perLeg) {
+    const legIndex = legIndexById.get(legId)!;
+    const legW = CITY_LEGS[legIndex].weight;
+    const n = slideIds.length;
+    /** Leg-fraction overlap budget so track overlap stays under ~0.03. */
+    const halfLegPad = (overlap * total) / (2 * legW);
+
+    for (let i = 0; i < n; i++) {
+      const centerFrac = (i + 0.5) / n;
+      const halfLegFrac = 0.5 / n + halfLegPad;
+      const fromFrac = Math.max(0, centerFrac - halfLegFrac);
+      const toFrac = Math.min(1, centerFrac + halfLegFrac);
+      const [from, to] = windowForLegSlice(legIndex, fromFrac, toFrac, ramp, ramp)
+        .split(" ")
+        .map(Number);
+      bounds[slideIds[i]!] = { from: from!, to: to! };
+    }
+  }
+
+  /** Nudge adjacent deck-order pairs to crossfade without gaps or long dual-hold. */
+  const storyIds = SLIDES.map((s) => s.id);
+  for (let i = 0; i < storyIds.length - 1; i++) {
+    const prev = bounds[storyIds[i]!]!;
+    const next = bounds[storyIds[i + 1]!]!;
+    if (next.from >= prev.to) {
+      const gap = next.from - prev.to;
+      const meet = gap / 2 + overlap / 2;
+      prev.to += meet;
+      next.from -= meet;
+    }
+    const dual = prev.to - next.from;
+    if (dual > 0.03) {
+      const trim = (dual - 0.028) / 2;
+      prev.to -= trim;
+      next.from += trim;
+    }
+  }
+
   const out: Record<string, string> = {};
-  for (let i = 0; i < n; i++) {
-    const center = (i + 0.5) / n;
-    const half = 0.5 / n + overlap / 2;
-    const from = Math.max(0, center - half);
-    const to = Math.min(1, center + half);
-    out[SLIDES[i].id] = `${from.toFixed(4)} ${to.toFixed(4)} ${ramp} ${ramp}`;
+  for (const slide of SLIDES) {
+    const { from, to } = bounds[slide.id]!;
+    out[slide.id] = `${from.toFixed(4)} ${to.toFixed(4)} ${ramp} ${ramp}`;
   }
   return out;
 }
