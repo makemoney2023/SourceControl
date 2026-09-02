@@ -8,6 +8,7 @@ import {
   CITY_LEGS,
   COPY_WINDOWS,
   RANGE_STREAMS_WINDOW,
+  RANGE_TEN_LAYERS_WINDOW,
   slideById,
   streamsIndexLightStartSeg,
   streamsIndexLightStepSeg,
@@ -183,7 +184,8 @@ export function CityFlightShell() {
 
         {SLIDES.flatMap((slide, index) => {
           const anchor = copyAnchorForIndex(index);
-          const win = COPY_WINDOWS[slide.id]!;
+          const win =
+            slide.id === "08-ten-layers" ? RANGE_TEN_LAYERS_WINDOW : COPY_WINDOWS[slide.id]!;
 
           if (slide.id === "15-closing") {
             return [

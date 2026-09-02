@@ -1,10 +1,29 @@
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CityFlightShell } from "./CityFlightShell";
-import { CITY_LEGS, CITY_DISCLOSURE, slideById, streamsIndexLightStartSeg, streamsIndexLightStepSeg } from "../data/cityFlight";
+import {
+  CITY_DISCLOSURE,
+  CITY_LEGS,
+  RANGE_STREAMS_WINDOW,
+  RANGE_TEN_LAYERS_WINDOW,
+  slideById,
+  streamsIndexLightStartSeg,
+  streamsIndexLightStepSeg,
+} from "../data/cityFlight";
 import { SLIDES } from "../data/slides";
 
 afterEach(() => vi.unstubAllEnvs());
+
+function windowBounds(win: string): [number, number] {
+  const [from, to] = win.split(" ").map(Number);
+  return [from!, to!];
+}
+
+function trackOverlap(a: string, b: string): number {
+  const [aFrom, aTo] = windowBounds(a);
+  const [bFrom, bTo] = windowBounds(b);
+  return Math.max(0, Math.min(aTo, bTo) - Math.max(aFrom, bFrom));
+}
 
 describe("CityFlightShell", () => {
   it("renders the worldflight root, all legs, and the spacer", () => {
@@ -58,6 +77,18 @@ describe("CityFlightShell", () => {
     const block = container.querySelector(`[data-city-copy="08-ten-layers"]`);
     const body = slideById("08-ten-layers").onScreenBody!;
     expect(block?.textContent).toContain(body);
+  });
+
+  it("binds Range ten-layers and streams to sequenced windows (not generic COPY_WINDOWS)", () => {
+    const { container } = render(<CityFlightShell />);
+    const ten = container.querySelector('[data-city-copy="08-ten-layers"]');
+    const streams = container.querySelector("[data-city-streams]");
+    expect(ten?.getAttribute("data-sc-window")).toBe(RANGE_TEN_LAYERS_WINDOW);
+    expect(streams?.getAttribute("data-sc-window")).toBe(RANGE_STREAMS_WINDOW);
+  });
+
+  it("keeps Range ten-layers and streams from a long dual-hold", () => {
+    expect(trackOverlap(RANGE_TEN_LAYERS_WINDOW, RANGE_STREAMS_WINDOW)).toBeLessThan(0.03);
   });
 
   it("has no scene counter and no scroll cue", () => {
