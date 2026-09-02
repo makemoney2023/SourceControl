@@ -21,3 +21,9 @@ Complete. Added city worldflight browser coverage across all configured Playwrig
 
 - The production bundle remains large and Vite emits its existing chunk-size warning.
 - The task-manager MCP server was unavailable during this task.
+
+## Follow-up (keyboard map-stop test)
+
+- Replaced `.click()` on the Skyline rail button with `focus()` + `Enter` so the test title matches behavior.
+- Wrapped scroll-track `--sc-seg` assertion in `expect.poll` (same pattern as rail jump).
+- `npx playwright test e2e/city.spec.ts --project=desktop-chrome` — 5 passed after `build:e2e`.

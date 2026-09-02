@@ -50,7 +50,7 @@ test.describe("Neon city worldflight", () => {
     expect(track).toBeGreaterThan(9);
     const before = await flightSeg(page);
     await scrollToVh(page, 6);
-    expect(await flightSeg(page)).toBeGreaterThan(before);
+    await expect.poll(() => flightSeg(page)).toBeGreaterThan(before);
   });
 
   test("map stops are keyboard-reachable and jump the flight", async ({
@@ -58,7 +58,10 @@ test.describe("Neon city worldflight", () => {
   }) => {
     const rail = page.locator("[data-city-rail]");
     await expect(rail.getByRole("button")).toHaveCount(5);
-    await rail.getByRole("button", { name: "Skyline" }).click();
+    const skyline = rail.getByRole("button", { name: "Skyline" });
+    await skyline.focus();
+    await expect(skyline).toBeFocused();
+    await page.keyboard.press("Enter");
     await expect.poll(() => flightSeg(page)).toBeGreaterThanOrEqual(5);
   });
 
