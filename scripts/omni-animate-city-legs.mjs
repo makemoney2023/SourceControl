@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * Generate the ten continuous city-flight legs with Gemini Omni.
+ * Generate the continuous city-flight legs with Gemini Omni.
  *
  * Usage:
- *   node scripts/omni-animate-city-legs.mjs
- *   node scripts/omni-animate-city-legs.mjs leg-07-skyline-lock --force
- *     (--force on leg N also regenerates legs N+1..10 so Architecture A seams stay valid)
+ *   npx tsx scripts/omni-animate-city-legs.mjs
+ *   npx tsx scripts/omni-animate-city-legs.mjs leg-08-skyline-lock --force
+ *     (--force on leg N also regenerates legs N+1..end so Architecture A seams stay valid)
  */
 import { spawn, spawnSync } from "node:child_process";
 import {
@@ -16,6 +16,12 @@ import {
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  CITY_LEGS,
+  CITY_PACKAGE_ACCENTS,
+  CITY_PLATE_MOMENTS,
+  slideById,
+} from "../src/data/cityFlight.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const APP = resolve(__dirname, "..");
@@ -30,69 +36,143 @@ const STYLE_PATH = join(
   "docs/orgs/superpatch/customers/affiliates/initiatives/income-stack-deck/business-idea/assets/city/STYLE-PREAMBLE.md",
 );
 const ERA_PLATE = join(APP, "public/concepts/clean/sp-stack-00-era.png");
+export const SUPERPATCH_LOGO = join(
+  APP,
+  "public/concepts/omni-chain/superpatch-logo-transparent.png",
+);
 const OPENMONTAGE = join(REPO, "skills/community/openmontage");
 const PY =
   process.env.OMNI_PYTHON ||
   "/Users/cbsuperpatch/Desktop/Superpatch_Context/content-studio/superpatch-backend/venv/bin/python";
 
 export const STYLE_PREAMBLE =
-  "Neon night city, terrace and street level, cyan/magenta/amber signage glow, wet asphalt reflections, empty product-free dark glass storefronts and windows, no people, no readable signage, no logos, photographic, anamorphic, night.";
+  "Neon night city, terrace and street level, cyan/magenta/amber signage glow, wet asphalt reflections, photographic, anamorphic, night. Allowed: SuperPatch wordmark/logo reveal, approved Income Stack plates as in-world facade and skyboard art, sparse SuperPatch package and patch product accents. Forbidden: other brands, crowds, people, readable unrelated signage, clinical claim text, guaranteed-income numbers.";
 
-export const CITY_OMNI_LEGS = [
-  {
-    id: "leg-01-terrace",
-    clipSeconds: 5,
-    move: "Begin on an elevated terrace and push steadily forward toward the luminous city, preserving a grounded eye-level camera and continuous forward momentum.",
-  },
-  {
-    id: "leg-02-title-glass",
-    clipSeconds: 5,
-    move: "Continue the same forward camera move beside a monumental dark glass facade, with reflections sliding naturally across the glass as the camera passes.",
-  },
-  {
-    id: "leg-03-overlook",
-    clipSeconds: 5,
-    move: "Glide beyond the glass into a broad city overlook, gently revealing greater depth while maintaining the same direction, speed, lens, and photographic world.",
-  },
-  {
-    id: "leg-04-street",
-    clipSeconds: 5,
-    move: "Descend smoothly from the overlook toward street level, following the avenue forward through reflected neon light with stable cinematic motion.",
-  },
-  {
-    id: "leg-05-windows",
-    clipSeconds: 5,
-    move: "Skim forward along tall dark storefront windows at street level, letting cyan, magenta, and amber reflections travel across the glass without revealing interiors.",
-  },
-  {
-    id: "leg-06-ascent",
-    clipSeconds: 5,
-    move: "Rise smoothly above the street between dark glass towers, continuing forward as the skyline opens and the camera gains altitude.",
-  },
-  {
-    id: "leg-07-skyline-lock",
-    clipSeconds: 10,
-    move: "Ascend rapidly in the first second above every nearby rooftop into an open aerial skyline, then settle into a majestic ultra-wide lock-off with very slow forward drift and immense city depth.",
-  },
-  {
-    id: "leg-08-districts-a",
-    clipSeconds: 5,
-    move: "Resume a gentle forward bank across distinct illuminated city districts below, preserving the skyline scale and seamless night-flight direction.",
-  },
-  {
-    id: "leg-09-districts-b",
-    clipSeconds: 5,
-    move: "Continue across architecture-only districts with a subtle upward lift, every luminous panel showing blank abstract color, revealing more avenues and terraces while maintaining continuous camera geography.",
-  },
-  {
-    id: "leg-10-hold",
-    clipSeconds: 5,
-    move: "Rise rapidly in the first second and turn toward the distant skyline, then hold a calm high aerial overlook where all visible facades are dark unbroken reflective glass and warm window grids, with plain unmarked surfaces and restrained atmospheric drift.",
-  },
-];
+/** Base camera geography per leg — plate and package notes are appended from SSOT. */
+const BASE_LEG_MOVES = {
+  "leg-01-terrace":
+    "Begin on an elevated terrace and push steadily forward toward the luminous city, preserving a grounded eye-level camera and continuous forward momentum.",
+  "leg-02-title-glass":
+    "Continue the same forward camera move beside a monumental glass facade, with reflections sliding naturally across the surface as the camera passes.",
+  "leg-03-overlook":
+    "Glide beyond the facade into a broad city overlook, gently revealing greater depth while maintaining the same direction, speed, lens, and photographic world.",
+  "leg-04-street":
+    "Descend smoothly from the overlook toward street level, following the avenue forward through reflected neon light with stable cinematic motion.",
+  "leg-05-windows":
+    "Skim forward along tall storefront windows at street level, letting cyan, magenta, and amber reflections travel across the glass.",
+  "leg-06-ascent":
+    "Rise smoothly above the street between glass towers, continuing forward as the skyline opens and the camera gains altitude.",
+  "leg-07-name-stacks":
+    "Bank gently across mid-rise facades, maintaining forward flight while revealing stacked illuminated signage panels.",
+  "leg-08-skyline-lock":
+    "Ascend rapidly in the first second above every nearby rooftop into an open aerial skyline, then settle into a majestic ultra-wide lock-off with very slow forward drift and immense city depth.",
+  "leg-09-product":
+    "Descend toward a wellness kiosk district at street level, continuing the same forward camera geography with stable cinematic motion.",
+  "leg-10-science":
+    "Continue immediately along the adjacent lab and science facade row without resetting camera direction — consecutive VTT product-to-science beat.",
+  "leg-11-market-brand":
+    "Glide forward through a market district with paired marquees and media towers, keeping the same night-flight direction and lens.",
+  "leg-12-development":
+    "Pass a training-center facade block at a steady forward drift, preserving continuous camera geography.",
+  "leg-13-ten-layers":
+    "Rise slightly above an income district grid, revealing layered avenues and terraces while maintaining forward motion.",
+  "leg-14-districts-a":
+    "Resume a gentle forward bank across distinct illuminated retail districts below, preserving skyline scale and seamless night-flight direction.",
+  "leg-15-districts-b":
+    "Continue across mid-district architecture with a subtle upward lift, revealing more avenues and terraces while maintaining continuous camera geography.",
+  "leg-16-districts-c":
+    "Drift across executive-tier signage and upper district skyboards with calm forward motion.",
+  "leg-17-bridge":
+    "Approach and cross a luminous bridge span, holding continuous forward flight across the mid-span and exit facade.",
+  "leg-18-hold":
+    "Rise rapidly in the first second and turn toward the distant skyline, then hold a calm high aerial overlook with restrained atmospheric drift as the city resolves.",
+};
 
-export function buildPrompt(leg, preamble = STYLE_PREAMBLE) {
-  return `${preamble} ${leg.move}`;
+function plateMomentsForLeg(legId) {
+  return CITY_PLATE_MOMENTS.filter((moment) => moment.legId === legId);
+}
+
+function packageAccentsForLeg(legId) {
+  return CITY_PACKAGE_ACCENTS.filter((accent) => accent.legId === legId);
+}
+
+function buildLegMove(legId) {
+  const base = BASE_LEG_MOVES[legId];
+  if (!base) throw new Error(`Missing base move for ${legId}`);
+
+  const plateNotes = plateMomentsForLeg(legId).map((moment) => moment.note);
+  const packageNotes = packageAccentsForLeg(legId).map((accent) => accent.note);
+
+  const inWorld = [
+    ...plateNotes.map(
+      (note) =>
+        `Bake the approved reference plate exactly as in-world art — do not redraw — ${note}.`,
+    ),
+    ...packageNotes.map(
+      (note) =>
+        `Place the approved SuperPatch product accent sparingly — ${note}.`,
+    ),
+  ];
+
+  if (legId === "leg-01-terrace") {
+    inWorld.unshift(
+      "In the first seconds reveal the SuperPatch wordmark/logo from the logo reference on the terrace facade.",
+    );
+  }
+
+  return [base, ...inWorld].join(" ");
+}
+
+export function buildCityOmniLegs() {
+  return CITY_LEGS.map((leg) => ({
+    id: leg.id,
+    clipSeconds: leg.clipSeconds,
+    move: buildLegMove(leg.id),
+    plateMoments: plateMomentsForLeg(leg.id),
+    packageAccents: packageAccentsForLeg(leg.id),
+  }));
+}
+
+export const CITY_OMNI_LEGS = buildCityOmniLegs();
+
+export function resolvePublicPath(relativePath) {
+  const normalized = relativePath.startsWith("/") ? relativePath.slice(1) : relativePath;
+  return join(APP, "public", normalized);
+}
+
+export function referencePathsForLeg(index, leg) {
+  const paths = [startFramePath(index)];
+
+  if (leg.id === "leg-01-terrace") {
+    paths.push(SUPERPATCH_LOGO);
+  }
+
+  for (const moment of leg.plateMoments ?? plateMomentsForLeg(leg.id)) {
+    paths.push(resolvePublicPath(slideById(moment.slideId).conceptSrc));
+  }
+
+  for (const accent of leg.packageAccents ?? packageAccentsForLeg(leg.id)) {
+    paths.push(resolvePublicPath(accent.src));
+  }
+
+  return paths;
+}
+
+function referenceTagInstructions(referencePaths) {
+  const tags = ["<FIRST_FRAME> opens the clip from the chain seam or Era plate."];
+  for (let i = 1; i < referencePaths.length; i += 1) {
+    tags.push(
+      `<IMAGE_REF_${i}> is an approved SuperPatch grounding reference — use it exactly, do not redraw.`,
+    );
+  }
+  return tags.join(" ");
+}
+
+export function buildPrompt(leg, preamble = STYLE_PREAMBLE, referencePaths = []) {
+  const refLead = referencePaths.length
+    ? `${referenceTagInstructions(referencePaths)} `
+    : "";
+  return `${preamble} ${refLead}${leg.move}`;
 }
 
 export function startFramePath(index) {
@@ -105,8 +185,6 @@ export function buildDesktopArgs(leg, rawPath, desktopPath) {
     "scale=1920:1080:force_original_aspect_ratio=increase",
     "crop=1920:1080",
   ];
-  // Omni supplies eight seconds. The skyline peak deliberately slows that
-  // motion to ten seconds so the longest leg remains a moving cinematic hold.
   if (leg.clipSeconds === 10) filters.push("setpts=1.25*PTS");
   filters.push("format=yuv420p");
   return [
@@ -186,7 +264,7 @@ function encodeLeg(leg, rawPath) {
   return { desktopPath, mobilePath, posterPath };
 }
 
-function runOmni({ apiKey, firstFrame, prompt, outputPath }) {
+function runOmni({ apiKey, referencePaths, prompt, outputPath }) {
   const code = `
 import json, os, sys
 sys.path.insert(0, ${JSON.stringify(OPENMONTAGE)})
@@ -199,7 +277,7 @@ result = GeminiOmniVideo().execute({
     "operation": "image_to_video",
     "aspect_ratio": "16:9",
     "duration": "8",
-    "reference_image_paths": [${JSON.stringify(firstFrame)}],
+    "reference_image_paths": ${JSON.stringify(referencePaths)},
     "output_path": ${JSON.stringify(outputPath)},
     "store": True,
 })
@@ -291,6 +369,7 @@ function writeManifest(results) {
 export async function main(argv = process.argv.slice(2)) {
   if (!existsSync(PY)) throw new Error(`Python missing: ${PY}`);
   if (!existsSync(ERA_PLATE)) throw new Error(`Era plate missing: ${ERA_PLATE}`);
+  if (!existsSync(SUPERPATCH_LOGO)) throw new Error(`Logo missing: ${SUPERPATCH_LOGO}`);
   if (!existsSync(STYLE_PATH)) throw new Error(`Style preamble missing: ${STYLE_PATH}`);
   const preamble = readFileSync(STYLE_PATH, "utf8").trim();
   if (preamble !== STYLE_PREAMBLE) {
@@ -324,7 +403,11 @@ export async function main(argv = process.argv.slice(2)) {
       continue;
     }
 
-    const firstFrame = startFramePath(index);
+    const referencePaths = referencePathsForLeg(index, leg);
+    const missingRef = referencePaths.find((path) => !existsSync(path));
+    if (missingRef) throw new Error(`Missing reference for ${leg.id}: ${missingRef}`);
+
+    const firstFrame = referencePaths[0];
     if (index > 0) {
       const previousDesktop = join(LEGS_DIR, `${CITY_OMNI_LEGS[index - 1].id}.mp4`);
       if (!existsSync(previousDesktop)) {
@@ -334,12 +417,14 @@ export async function main(argv = process.argv.slice(2)) {
     }
 
     const rawPath = join(RAW_DIR, `${leg.id}.mp4`);
-    console.log(`\n=== Gemini Omni ${leg.id} (${leg.clipSeconds}s final) ===`);
+    console.log(
+      `\n=== Gemini Omni ${leg.id} (${leg.clipSeconds}s final, ${referencePaths.length} refs) ===`,
+    );
     try {
       const omni = await runOmni({
         apiKey,
-        firstFrame,
-        prompt: buildPrompt(leg, preamble),
+        referencePaths,
+        prompt: buildPrompt(leg, preamble, referencePaths),
         outputPath: rawPath,
       });
       const outputs = encodeLeg(leg, rawPath);
@@ -348,7 +433,7 @@ export async function main(argv = process.argv.slice(2)) {
         id: leg.id,
         ok: true,
         ...outputs,
-        firstFrame,
+        referencePaths,
         interaction_id: omni.data?.interaction_id,
         cost_usd: omni.cost_usd,
         duration_seconds: omni.duration_seconds,

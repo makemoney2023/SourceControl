@@ -20,7 +20,7 @@
     "omni:animate": "node scripts/omni-animate-plates.mjs",
     "verify:omni-assets": "node scripts/verify-omni-assets.mjs",
     "city:placeholders": "tsx scripts/city-placeholder-legs.ts",
-    "city:omni": "node scripts/omni-animate-city-legs.mjs",
+    "city:omni": "tsx scripts/omni-animate-city-legs.mjs",
     "verify:city-assets": "tsx scripts/verify-city-assets.ts",
     "export:pptx": "tsx scripts/export-experience-pptx.ts",
     "export:pptx:tron": "tsx scripts/export-experience-pptx.ts --tron"
