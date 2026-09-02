@@ -5,18 +5,16 @@
 import { useEffect, useRef } from "react";
 import {
   CITY_DISCLOSURE,
-  CITY_GLASS,
   CITY_LEGS,
-  STREAMS_WINDOW,
+  COPY_WINDOWS,
+  RANGE_STREAMS_WINDOW,
   slideById,
-  windowForLegs,
-  windowForLegSlice,
 } from "../data/cityFlight";
+import { SLIDES } from "../data/slides";
 import { readProductionCtaLinksFromEnv } from "../components/experience/ctaLinks";
 import { useDataSave } from "../components/experience/useDataSave";
 import { CityStopsRail } from "./CityStopsRail";
 import { StreamsIndex } from "./StreamsIndex";
-import { wireGlassFocus } from "./glassFocus";
 import "./engine/scrollcraft.css";
 import "./city.css";
 
@@ -26,21 +24,32 @@ declare global {
   }
 }
 
+const ANCHORS = ["lead", "trail", "center"] as const;
+type CopyAnchor = (typeof ANCHORS)[number];
+
+/** Varied anchors without stacking the same anchor on adjacent slides. */
+export function copyAnchorForIndex(index: number): CopyAnchor {
+  const pick = ANCHORS[index % ANCHORS.length]!;
+  if (index === 0) return pick;
+  const prev = copyAnchorForIndex(index - 1);
+  if (pick !== prev) return pick;
+  return ANCHORS[(index + 1) % ANCHORS.length]!;
+}
+
 function Copy({
   slideId,
   window: win,
   anchor,
   level = 2,
-  withEyebrow = false,
 }: {
   slideId: string;
   window: string;
-  anchor: "lead" | "trail" | "center";
+  anchor: CopyAnchor;
   level?: 1 | 2;
-  withEyebrow?: boolean;
 }) {
   const slide = slideById(slideId);
   const H = level === 1 ? "h1" : "h2";
+  const onScreen = slide.onScreenBody?.trim();
   return (
     <div
       className={`sc-copy sc-copy--${anchor}`}
@@ -48,10 +57,58 @@ function Copy({
       data-sc-window={win}
       data-city-copy={slideId}
     >
-      {withEyebrow && slide.eyebrow ? (
-        <p className="sc-eyebrow">{slide.eyebrow}</p>
-      ) : null}
+      {slide.eyebrow ? <p className="sc-eyebrow">{slide.eyebrow}</p> : null}
       <H className="sc-display sc-display--lg">{slide.headline}</H>
+      {onScreen ? <p className="city-body">{onScreen}</p> : null}
+    </div>
+  );
+}
+
+function StreamsBlock({ anchor }: { anchor: CopyAnchor }) {
+  return (
+    <div
+      className={`sc-copy sc-copy--${anchor}`}
+      data-sc-copy
+      data-sc-window={RANGE_STREAMS_WINDOW}
+      data-city-streams
+    >
+      <StreamsIndex />
+      <p className="city-disclosure" data-city-disclosure>
+        {CITY_DISCLOSURE}
+      </p>
+      <a className="city-experience-link" data-city-experience-link href="/?view=experience">
+        See every stream in detail
+      </a>
+    </div>
+  );
+}
+
+function ClosingBlock({
+  window: win,
+  anchor,
+  ctaLinks,
+}: {
+  window: string;
+  anchor: CopyAnchor;
+  ctaLinks: ReturnType<typeof readProductionCtaLinksFromEnv>;
+}) {
+  const closing = slideById("15-closing");
+  return (
+    <div
+      className={`sc-copy sc-copy--${anchor} city-close`}
+      data-sc-copy
+      data-sc-window={win}
+      data-city-copy="15-closing"
+    >
+      {closing.eyebrow ? <p className="sc-eyebrow">{closing.eyebrow}</p> : null}
+      <h2 className="sc-display sc-display--lg">{closing.headline}</h2>
+      {ctaLinks ? (
+        <div className="city-cta" data-city-cta>
+          <a href={ctaLinks.primary}>{closing.ctaPrimary}</a>
+          <a href={ctaLinks.secondary}>{closing.ctaSecondary}</a>
+        </div>
+      ) : null}
+      <p className="city-disclosure">{closing.disclosure}</p>
     </div>
   );
 }
@@ -60,7 +117,6 @@ export function CityFlightShell() {
   const rootRef = useRef<HTMLDivElement>(null);
   const dataSave = useDataSave();
   const ctaLinks = readProductionCtaLinksFromEnv();
-  const closing = slideById("15-closing");
 
   useEffect(() => {
     if (import.meta.env.MODE === "test") return;
@@ -75,10 +131,8 @@ export function CityFlightShell() {
       window.addEventListener("load", relayout);
       document.fonts?.ready.then(relayout);
     });
-    const unwire = wireGlassFocus(rootRef.current, STREAMS_WINDOW);
     return () => {
       disposed = true;
-      unwire();
     };
   }, []);
 
@@ -111,80 +165,45 @@ export function CityFlightShell() {
         ))}
       </div>
 
-      <div data-sc-world-copy data-city-glass-layer>
+      <div data-sc-world-copy data-city-copy-layer>
+        {/* Band scrim only where copy sits — never a full-frame wash. */}
         <div
-          className="sc-world__scrim city-contrast-scrim"
-          data-city-contrast-scrim
+          className="sc-world__scrim sc-scrim sc-scrim--band"
+          data-city-band-scrim
+          aria-hidden="true"
         />
 
-        {/* Open: quiet awe. Hero window — on from the first pixel. */}
-        <Copy slideId="00-era" window="hero" anchor="lead" level={1} />
+        {SLIDES.flatMap((slide, index) => {
+          const anchor = copyAnchorForIndex(index);
+          const win = COPY_WINDOWS[slide.id]!;
 
-        {/* Claim / Quiet / Human / Pressure / Approach. Varied anchors. */}
-        <Copy slideId="01-title" window={windowForLegs(1, 1)} anchor="trail" withEyebrow />
-        <Copy slideId="00b-mission" window={windowForLegs(2, 2)} anchor="center" />
-        <Copy slideId="00c-ceo" window={windowForLegs(3, 3)} anchor="lead" />
-        <Copy slideId="02-world" window={windowForLegs(4, 4)} anchor="trail" withEyebrow />
-        <Copy slideId="03-four-stacks" window={windowForLegs(5, 5)} anchor="lead" withEyebrow />
+          if (slide.id === "15-closing") {
+            return [
+              <ClosingBlock
+                key={slide.id}
+                window={win}
+                anchor={anchor}
+                ctaLinks={ctaLinks}
+              />,
+            ];
+          }
 
-        {/* Peak: the lock is visual. Copy arrives only in the last 30%, as the turn. */}
-        <Copy
-          slideId="08-ten-layers"
-          window={windowForLegSlice(6, 0.7, 1)}
-          anchor="center"
-          withEyebrow
-        />
+          const nodes = [
+            <Copy
+              key={slide.id}
+              slideId={slide.id}
+              window={win}
+              anchor={anchor}
+              level={slide.id === "00-era" ? 1 : 2}
+            />,
+          ];
 
-        {/* Range: ten-stream index + pinned disclosure + detail link. */}
-        <div
-          className="sc-copy sc-copy--lead"
-          data-sc-copy
-          data-sc-window={windowForLegs(STREAMS_WINDOW.startLeg, STREAMS_WINDOW.endLeg)}
-          data-city-streams
-        >
-          <StreamsIndex />
-          <p className="city-disclosure" data-city-disclosure>
-            {CITY_DISCLOSURE}
-          </p>
-          <a data-city-experience-link href="/?view=experience">
-            See every stream in detail
-          </a>
-        </div>
+          if (slide.id === "08-ten-layers") {
+            nodes.push(<StreamsBlock key="city-streams" anchor={copyAnchorForIndex(index + 1)} />);
+          }
 
-        {/* Bridge: one short lift on the way to Join. */}
-        <Copy slideId="18-different" window={windowForLegSlice(8, 0.55, 1)} anchor="trail" />
-
-        {/* Resolve: the city holds; one ask. */}
-        <div
-          className="sc-copy sc-copy--center city-close"
-          data-sc-copy
-          data-sc-window="finale"
-          data-city-copy="15-closing"
-        >
-          {closing.eyebrow ? <p className="sc-eyebrow">{closing.eyebrow}</p> : null}
-          <h2 className="sc-display sc-display--lg">{closing.headline}</h2>
-          {ctaLinks ? (
-            <div className="city-cta" data-city-cta>
-              <a href={ctaLinks.primary}>{closing.ctaPrimary}</a>
-              <a href={ctaLinks.secondary}>{closing.ctaSecondary}</a>
-            </div>
-          ) : null}
-          <p className="city-disclosure">{closing.disclosure}</p>
-        </div>
-
-        {/* Approved plates in the city's glass. */}
-        {CITY_GLASS.map((g) => (
-          <figure
-            key={`${g.slideId}-${g.legIndex}`}
-            className="city-glass"
-            data-glass={g.slideId}
-            data-leg={g.legIndex}
-            data-sc-copy
-            data-sc-window={windowForLegs(g.legIndex, g.legIndex)}
-          >
-            <img src={slideById(g.slideId).conceptSrc} alt="" decoding="async" />
-          </figure>
-        ))}
+          return nodes;
+        })}
       </div>
 
       <CityStopsRail />

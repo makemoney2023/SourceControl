@@ -8,65 +8,53 @@
   --sc-ink-soft: var(--sp-muted, #c8c8c8);
   --sc-accent: var(--sp-red, #dd0604);
   --sc-accent-ink: #ffffff;
-  --sc-font-display: var(--font-display, "Montserrat", sans-serif);
-  --sc-font-text: var(--font-body, "Montserrat", sans-serif);
+  --sc-font-display: var(--font-display, "Montserrat", Helvetica, Arial, sans-serif);
+  --sc-font-text: var(--font-body, "Montserrat", Helvetica, Arial, sans-serif);
+  font-family: var(--sc-font-text);
+  color: var(--sc-ink);
 }
 
-/* Localized protection for bottom-anchored and centered copy. This remains a
-   sibling of the copy so the shoot harness measures it in the composite. */
-.city-contrast-scrim {
-  background:
-    radial-gradient(
-      ellipse 58% 48% at 50% 50%,
-      color-mix(in oklab, var(--sc-canvas) 98%, transparent) 0%,
-      color-mix(in oklab, var(--sc-canvas) 90%, transparent) 48%,
-      transparent 78%
-    ),
-    linear-gradient(
-      to top,
-      color-mix(in oklab, var(--sc-canvas) 99%, transparent) 0%,
-      color-mix(in oklab, var(--sc-canvas) 94%, transparent) 36%,
-      color-mix(in oklab, var(--sc-canvas) 72%, transparent) 56%,
-      transparent 74%
-    );
+/*
+ * Deck/experience type voice. Engine .sc-display defaults are Instrument-weight
+ * 500 + tight tracking — wrong for SuperPatch. Match slide-headline / scene-hero.
+ */
+.city-flight .sc-display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.6rem, 5.5vw, 2.75rem);
+  line-height: 1;
+  letter-spacing: -0.016em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  text-shadow: 0 8px 28px rgba(0, 0, 0, 0.68);
 }
-
-/* Approved plates living in the city's glass. Blurred until focused/active. */
-.city-glass {
-  position: absolute;
-  margin: 0;
-  width: min(34vw, 560px);
-  border: 1px solid var(--sc-hairline);
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
+.city-flight h1.sc-display,
+.city-flight .sc-display--lg {
+  font-size: clamp(2.35rem, 5.8vw, 5.75rem);
+  letter-spacing: 0.045em;
+  line-height: 0.98;
 }
-.city-glass img {
-  display: block;
-  width: 100%;
-  height: auto;
-  filter: blur(2px) saturate(0.8) brightness(0.85);
-  transition: filter 320ms ease, transform 320ms ease;
+.city-flight .sc-eyebrow {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(0.68rem, 0.65vw, 0.82rem);
+  line-height: 1.5;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sp-text, #ffffff);
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
 }
-.city-glass:hover img,
-.city-glass:focus-within img,
-[data-city-focus] .city-glass[data-focused="true"] img {
-  filter: none;
-  transform: scale(1.015);
+.city-flight .city-body {
+  margin: 0.75rem 0 0;
+  max-width: 46ch;
+  font-family: var(--font-body);
+  font-size: clamp(0.98rem, 2.4vw, 1.12rem);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--sp-muted, #c8c8c8);
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
 }
-@media (prefers-reduced-motion: reduce) {
-  .city-glass img { transition: none; }
-}
-
-/* Per-leg glass positions: authored, varied anchors (never all centered). */
-.city-glass[data-glass="01-title"]   { right: 8vw;  top: 18vh; }
-.city-glass[data-glass="00c-ceo"]    { left: 7vw;   bottom: 16vh; }
-.city-glass[data-glass="02-world"]   { right: 10vw; bottom: 20vh; }
-.city-glass[data-glass="03-four-stacks"] { left: 9vw; top: 14vh; }
-.city-glass[data-glass="07-retail"]  { left: 6vw;   top: 12vh; width: min(26vw, 420px); }
-.city-glass[data-glass="09-team-overrides"] { right: 7vw; bottom: 18vh; width: min(26vw, 420px); }
-.city-glass[data-glass="12-generations"] { left: 8vw; bottom: 14vh; width: min(26vw, 420px); }
-.city-glass[data-glass="14-global"]  { right: 9vw;  top: 16vh; width: min(26vw, 420px); }
 
 /* Ten-stream index: pure CSS lighting off the engine's track vars. */
 .city-streams-index {
@@ -75,9 +63,13 @@
   padding: 0;
   display: grid;
   gap: 0.35rem;
-  font-family: var(--sc-font-text);
+  font-family: var(--font-body);
   font-size: var(--sc-t-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--sc-ink);
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
 }
 .city-streams-index li {
   --city-flight-t: calc(var(--sc-seg, 0) + var(--sc-segp, 0));
@@ -87,6 +79,7 @@
 
 /* Pinned disclosure: never below 16px. */
 .city-disclosure {
+  font-family: var(--font-body);
   font-size: max(1rem, var(--sc-t-sm));
   color: var(--sc-ink-soft);
   max-width: 60ch;
@@ -103,13 +96,16 @@
   gap: 0.5rem;
 }
 .city-rail button {
-  min-width: 44px;
+  min-width: 7.5rem;
   min-height: 44px;
   border: 1px solid var(--sc-hairline-strong);
   background: color-mix(in oklab, var(--sc-canvas) 82%, transparent);
   color: var(--sc-ink-soft);
-  font-family: var(--sc-font-text);
+  font-family: var(--font-display);
   font-size: var(--sc-t-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   border-radius: 4px;
   cursor: pointer;
 }
@@ -121,7 +117,10 @@
 /* Join CTAs (verbatim labels from 15-closing). */
 .city-cta { display: flex; gap: 0.8rem; flex-wrap: wrap; }
 .city-cta a {
-  font-family: var(--sc-font-text);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   padding: 0.85rem 1.4rem;
   border-radius: 4px;
   text-decoration: none;
@@ -135,6 +134,65 @@
   padding: clamp(1.25rem, 4vw, 2.5rem);
   border: 1px solid var(--sc-hairline-strong);
   border-radius: 6px;
-  background: color-mix(in oklab, var(--sc-canvas) 96%, transparent);
+  background: color-mix(in oklab, var(--sc-canvas) 72%, transparent);
   backdrop-filter: blur(12px);
+}
+
+.city-experience-link {
+  display: inline-block;
+  margin-top: 0.85rem;
+  font-family: var(--font-display);
+  font-size: clamp(0.78rem, 1.6vw, 0.92rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sc-ink);
+  text-underline-offset: 0.22em;
+}
+
+@media (max-width: 900px), (orientation: portrait) {
+  .city-rail {
+    top: auto;
+    bottom: max(0.8rem, env(safe-area-inset-bottom));
+    right: 50%;
+    transform: translateX(50%);
+    grid-auto-flow: column;
+  }
+  .city-rail button {
+    min-width: 44px;
+  }
+
+  /*
+   * Engine re-anchors lead+trail to the same bottom band below 860px. Keep city
+   * copy above the map rail, and compact the streams stack so the detail link
+   * does not sit under the ten-layers body during any brief crossfade.
+   */
+  .city-flight .sc-copy--lead,
+  .city-flight .sc-copy--trail {
+    bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+  }
+  .city-flight .sc-display--lg {
+    font-size: clamp(1.45rem, 7.2vw, 2.1rem);
+  }
+  .city-flight h1.sc-display {
+    font-size: clamp(1.85rem, 8vw, 2.6rem);
+  }
+  .city-flight .city-body {
+    margin-top: 0.55rem;
+    font-size: clamp(0.9rem, 3.5vw, 1.02rem);
+    max-width: 36ch;
+  }
+  .city-streams-index {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.22rem 0.7rem;
+    font-size: clamp(0.68rem, 2.8vw, 0.78rem);
+  }
+  .city-flight [data-city-streams] {
+    display: grid;
+    gap: 0.55rem;
+  }
+  .city-flight [data-city-streams] .city-disclosure {
+    font-size: max(0.92rem, 0.85rem);
+    line-height: 1.35;
+  }
 }

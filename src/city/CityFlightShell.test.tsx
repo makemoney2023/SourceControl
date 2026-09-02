@@ -1,7 +1,8 @@
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CityFlightShell } from "./CityFlightShell";
-import { CITY_GLASS, CITY_LEGS, CITY_DISCLOSURE, slideById } from "../data/cityFlight";
+import { CITY_LEGS, CITY_DISCLOSURE, slideById } from "../data/cityFlight";
+import { SLIDES } from "../data/slides";
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -21,33 +22,42 @@ describe("CityFlightShell", () => {
     ).toBeTruthy();
   });
 
-  it("keeps a city-specific localized scrim outside copy blocks", () => {
+  it("keeps a band scrim outside copy blocks (not a full-frame wash)", () => {
     const { container } = render(<CityFlightShell />);
-    const scrim = container.querySelector("[data-city-contrast-scrim]");
+    const scrim = container.querySelector("[data-city-band-scrim]");
     expect(scrim).toBeTruthy();
+    expect(scrim?.classList.contains("sc-scrim--band")).toBe(true);
     expect(scrim?.closest("[data-sc-copy]")).toBeNull();
+    expect(container.querySelector("[data-city-contrast-scrim]")).toBeNull();
   });
 
-  it("renders every mapped copy block verbatim", () => {
+  it("renders a copy block for every slide id", () => {
     const { container } = render(<CityFlightShell />);
-    for (const id of [
-      "01-title", "00b-mission", "00c-ceo", "02-world",
-      "03-four-stacks", "08-ten-layers", "18-different", "15-closing",
-    ]) {
-      const block = container.querySelector(`[data-city-copy="${id}"]`);
-      expect(block?.textContent).toContain(slideById(id).headline);
-    }
-  });
-
-  it("puts every approved plate in glass with alt='' and the exact conceptSrc", () => {
-    const { container } = render(<CityFlightShell />);
-    for (const g of CITY_GLASS) {
-      const img = container.querySelector<HTMLImageElement>(
-        `figure[data-glass="${g.slideId}"] img`,
+    for (const s of SLIDES) {
+      expect(container.querySelector(`[data-city-copy="${s.id}"]`)?.textContent).toContain(
+        slideById(s.id).headline,
       );
-      expect(img?.getAttribute("src")).toBe(slideById(g.slideId).conceptSrc);
-      expect(img?.getAttribute("alt")).toBe("");
     }
+  });
+
+  it("does not render glass figures", () => {
+    const { container } = render(<CityFlightShell />);
+    expect(container.querySelectorAll("[data-glass]")).toHaveLength(0);
+    expect(container.querySelectorAll(".city-glass")).toHaveLength(0);
+  });
+
+  it("includes VTT science headline on the flight", () => {
+    const { container } = render(<CityFlightShell />);
+    expect(container.querySelector('[data-city-copy="05b-science"]')?.textContent).toContain(
+      slideById("05b-science").headline,
+    );
+  });
+
+  it("shows onScreenBody for ten-layers (not speaker-only body)", () => {
+    const { container } = render(<CityFlightShell />);
+    const block = container.querySelector(`[data-city-copy="08-ten-layers"]`);
+    const body = slideById("08-ten-layers").onScreenBody!;
+    expect(block?.textContent).toContain(body);
   });
 
   it("has no scene counter and no scroll cue", () => {
@@ -75,8 +85,9 @@ describe("CityFlightShell", () => {
     vi.stubEnv("VITE_INCOME_DISCLOSURE_URL", "https://superpatch.example/disclosure");
     const { container } = render(<CityFlightShell />);
     const closing = slideById("15-closing");
-    expect(container.querySelector("[data-city-copy='15-closing']")?.classList)
-      .toContain("city-close");
+    expect(container.querySelector("[data-city-copy='15-closing']")?.classList).toContain(
+      "city-close",
+    );
     const ctas = container.querySelectorAll("[data-city-cta] a");
     expect(ctas).toHaveLength(2);
     expect(ctas[0].textContent).toBe(closing.ctaPrimary);
