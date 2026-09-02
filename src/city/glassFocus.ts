@@ -35,6 +35,10 @@ export function wireGlassFocus(
   const figures = () =>
     layer.querySelectorAll<HTMLElement>("figure[data-glass]");
 
+  const schedulePaint = () => {
+    if (!raf) raf = requestAnimationFrame(paintState);
+  };
+
   const setFocus = (id: string | null) => {
     focusedId = id;
     if (id) layer.setAttribute("data-city-focus", id);
@@ -42,6 +46,7 @@ export function wireGlassFocus(
     figures().forEach((f) =>
       f.setAttribute("data-focused", String(f.dataset.glass === id)),
     );
+    schedulePaint();
   };
 
   const glassIdFrom = (target: EventTarget | null): string | null =>
@@ -54,7 +59,10 @@ export function wireGlassFocus(
     const id = glassIdFrom(e.target);
     if (id) setFocus(id);
   };
-  const onFocusOut = () => setFocus(null);
+  const onFocusOut = (e: FocusEvent) => {
+    if (e.relatedTarget instanceof Node && layer.contains(e.relatedTarget)) return;
+    setFocus(null);
+  };
   const onPointerOver = (e: Event) => {
     const id = glassIdFrom(e.target);
     if (id !== focusedId) setFocus(id);
@@ -71,9 +79,7 @@ export function wireGlassFocus(
       streamsProgress(seg, segp, streams.startLeg, streams.endLeg).toFixed(3),
     );
   };
-  const onScroll = () => {
-    if (!raf) raf = requestAnimationFrame(paintState);
-  };
+  const onScroll = () => schedulePaint();
 
   layer.addEventListener("focusin", onFocusIn);
   layer.addEventListener("focusout", onFocusOut);

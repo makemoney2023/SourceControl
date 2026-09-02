@@ -21,7 +21,7 @@ describe("streamsProgress", () => {
 });
 
 describe("wireGlassFocus", () => {
-  it("marks a glass figure focused on focusin and clears on focusout", () => {
+  it("marks a glass figure focused on focusin and clears on focusout", async () => {
     const root = document.createElement("div");
     root.innerHTML = `
       <div data-city-glass-layer>
@@ -36,6 +36,9 @@ describe("wireGlassFocus", () => {
     fig.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
     expect(layer.getAttribute("data-city-focus")).toBe("00c-ceo");
     expect(fig.getAttribute("data-focused")).toBe("true");
+    // paintState runs via rAF — flush before asserting verify-state
+    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+    expect(layer.getAttribute("data-sc-verify-state")).toContain("focus:00c-ceo");
 
     fig.dispatchEvent(new FocusEvent("focusout", { bubbles: true }));
     expect(layer.getAttribute("data-city-focus")).toBeNull();
