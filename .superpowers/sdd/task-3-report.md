@@ -1,47 +1,32 @@
-# Task 3 Report: Vendor engine, theme, and CityFlightShell
+# Task 3 Report — Omni script: style, legs, refs
 
-## Status
+**Status:** DONE  
+**Branch:** `feat/neon-city-worldflight`  
+**Date:** 2026-09-02
 
-DONE_WITH_CONCERNS
+## Summary
 
-Task 3 is implemented without wiring `App.tsx`. The Scroll Craft engine and stylesheet are byte-identical to their source. `CityStopsRail`, `StreamsIndex`, and `wireGlassFocus` remain deliberately minimal stubs for Tasks 4–6.
+Replaced the product-free style ban with a preamble that allows SuperPatch logo, in-world plates, and sparse package accents. Expanded `CITY_OMNI_LEGS` to 18 legs built from `CITY_LEGS` SSOT, with plate `conceptSrc` and package refs wired into multi-image Omni calls. Leg 1 reveals the logo; legs 9–10 carry consecutive VTT product/science beats.
 
-## Delivered
+## Commits
 
-- Vendored `scrollcraft.js` and `scrollcraft.css` under `src/city/engine/`.
-- Added the SuperPatch token mapping and city-only presentation rules in `src/city/city.css`.
-- Added `CityFlightShell` with ten worldflight legs, mapped copy, approved glass plates, disclosure, guarded production CTAs, and the full-experience link.
-- Added the three requested follow-on task stubs.
-- Added nine shell behavior tests.
-- Refreshed the local Graphify index after code changes; generated graph artifacts are ignored and were not staged.
+- `bbc33dd` feat(city): point Omni chain at logo, plates, and package accents
 
-## TDD evidence
+## Tests
 
-1. RED: `npx vitest run src/city/CityFlightShell.test.tsx` failed because `./CityFlightShell` did not exist.
-2. GREEN attempt: 8 of 9 tests passed. The no-URL test inherited the HTTPS defaults declared by `vite.config.ts`.
-3. Adaptation: the no-URL test now uses `vi.stubEnv` to explicitly blank both URL variables. `vi.stubEnv` itself works in this project; no alternate Vite stubbing mechanism was needed.
-4. GREEN: targeted suite passed, 1 file and 9 tests.
+`npm test -- --run scripts/omni-animate-city-legs.test.ts` — **9/9 passed**
 
-## Verification
-
-- Engine identity: PASS for both vendored files using byte comparisons.
-- Targeted test: PASS — 9/9.
-- IDE lint diagnostics for `src/city/`: PASS — no errors.
-- `npm run lint`: PASS with warnings. One warning predates this task; nine warnings are inside the required byte-identical vendored engine and were not edited.
-- `npm test`: FAIL — 15 unrelated failures in `DeckShell.test.tsx`, `chipImagery.test.ts`, and `experienceMedia.test.ts`. They concern stale 25-slide assumptions, imagery text, and asset checksum mismatches.
-- `npm run build`: FAIL before bundling because existing `src/data/pptxExport.ts` imports Node built-ins while the TypeScript configuration lacks Node types.
-- `git diff --check`: PASS.
-- Scope check: PASS — `App.tsx` does not reference `CityFlightShell`.
-
-## Self-review
-
-- Confirmed all visible copy and image paths come from the existing city/slides source of truth.
-- Confirmed CTA rendering requires a complete validated HTTPS pair through the existing helper.
-- Confirmed data-save mode omits video while retaining posters.
-- Confirmed no real rail, streams, or glass-focus behavior leaked into this task.
-- Confirmed unrelated untracked assets are not included.
+Coverage: style preamble allows logo/packages; 18-leg id/clipSeconds alignment; `<FIRST_FRAME>` prompts; plate conceptSrc paths exist; logo on leg 1; VTT consecutive legs; seam frames; force expansion; encode args; package accent refs.
 
 ## Concerns
 
-- The Taskmaster MCP server failed live tool discovery, so its requested documentation-source workflow could not run. The checked-in task brief was used as the authority.
-- The repository-wide test and build failures are outside Task 3 and were intentionally not changed.
+1. **`city:omni` now runs via `tsx`** — the script imports `cityFlight.ts`; plain `node` cannot load it.
+2. **Encoded legs still 10-wide on disk** — Task 4 placeholders / Task 5 Omni re-chain must land new mp4s.
+3. **Omni multi-ref count** — some legs carry 4+ refs (e.g. districts-a); watch API limits during Task 5 spend.
+
+## Files changed
+
+- `scripts/omni-animate-city-legs.mjs`
+- `scripts/omni-animate-city-legs.test.ts`
+- `docs/.../city/STYLE-PREAMBLE.md` (verbatim match required by `main()`)
+- `package.json` (`city:omni` → tsx)
