@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CityFlightShell } from "./CityFlightShell";
-import { CITY_LEGS, CITY_DISCLOSURE, slideById } from "../data/cityFlight";
+import { CITY_LEGS, CITY_DISCLOSURE, slideById, streamsIndexLightStartVh, streamsIndexLightStepVh } from "../data/cityFlight";
 import { SLIDES } from "../data/slides";
 
 afterEach(() => vi.unstubAllEnvs());
@@ -71,6 +71,17 @@ describe("CityFlightShell", () => {
     const { container } = render(<CityFlightShell />);
     const pinned = container.querySelector("[data-city-disclosure]");
     expect(pinned?.textContent).toBe(CITY_DISCLOSURE);
+  });
+
+  it("injects streams index lighting thresholds on the flight root", () => {
+    const { container } = render(<CityFlightShell />);
+    const root = container.querySelector<HTMLElement>("[data-city-flight]");
+    expect(root?.style.getPropertyValue("--city-streams-light-start")).toBe(
+      String(streamsIndexLightStartVh()),
+    );
+    expect(root?.style.getPropertyValue("--city-streams-light-step")).toBe(
+      String(streamsIndexLightStepVh()),
+    );
   });
 
   it("hides Join CTAs without production URLs", () => {

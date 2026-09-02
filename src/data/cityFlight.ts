@@ -291,6 +291,37 @@ export function copyWindowFor(slideId: string): string {
   return win;
 }
 
+/** Track midpoint (vh) for a slide's copy window — use in e2e scroll targets. */
+export function copyWindowMidpointVh(slideId: string): number {
+  const [from, to] = copyWindowFor(slideId).split(" ").map(Number);
+  return ((from! + to!) / 2) * trackTotalVh();
+}
+
+/** vh where streams index item `index` (0–9) begins lighting across STREAMS_WINDOW. */
+export function streamsIndexLightThresholdVh(index: number): number {
+  const labels = streamsIndexLabels();
+  if (index < 0 || index >= labels.length) {
+    throw new RangeError(`streams index out of range: ${index}`);
+  }
+  const start = legStartVh(STREAMS_WINDOW.startLeg);
+  const end =
+    legStartVh(STREAMS_WINDOW.endLeg) + CITY_LEGS[STREAMS_WINDOW.endLeg].weight;
+  const step = (end - start) / (labels.length - 1);
+  return start + index * step;
+}
+
+export function streamsIndexLightStartVh(): number {
+  return streamsIndexLightThresholdVh(0);
+}
+
+export function streamsIndexLightStepVh(): number {
+  const labels = streamsIndexLabels();
+  const start = streamsIndexLightStartVh();
+  const end =
+    legStartVh(STREAMS_WINDOW.endLeg) + CITY_LEGS[STREAMS_WINDOW.endLeg].weight;
+  return (end - start) / (labels.length - 1);
+}
+
 export type CityStop = { id: string; label: CityStopLabel; legIndex: number };
 
 export const CITY_STOPS: CityStop[] = CITY_LEGS.flatMap((l, i) =>

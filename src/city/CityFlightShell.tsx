@@ -2,13 +2,15 @@
 // engine; all strings and plate paths come from the cityFlight/slides SSOT.
 // View switches are full navigations (query param), so the engine mounts once
 // per page load and needs no unmount path.
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import {
   CITY_DISCLOSURE,
   CITY_LEGS,
   COPY_WINDOWS,
   RANGE_STREAMS_WINDOW,
   slideById,
+  streamsIndexLightStartVh,
+  streamsIndexLightStepVh,
 } from "../data/cityFlight";
 import { SLIDES } from "../data/slides";
 import { readProductionCtaLinksFromEnv } from "../components/experience/ctaLinks";
@@ -143,6 +145,12 @@ export function CityFlightShell() {
       data-city-flight
       data-sc-mode="worldflight"
       data-sc-seam="0.12"
+      style={
+        {
+          "--city-streams-light-start": String(streamsIndexLightStartVh()),
+          "--city-streams-light-step": String(streamsIndexLightStepVh()),
+        } as CSSProperties
+      }
     >
       <div data-sc-world>
         {CITY_LEGS.map((leg) => (

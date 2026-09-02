@@ -73,8 +73,23 @@
 }
 .city-streams-index li {
   --city-flight-t: calc(var(--sc-seg, 0) + var(--sc-segp, 0));
-  /* Item i lights as the flight crosses its slice of the streams legs. */
-  opacity: calc(0.3 + 0.7 * clamp(0, (var(--city-flight-t) - (7 + var(--i) / 5)) * 6, 1));
+  /*
+   * Item i lights sequentially across STREAMS_WINDOW legs (12–15).
+   * Thresholds are injected on .city-flight as --city-streams-light-start/step.
+   */
+  opacity: calc(
+    0.3 + 0.7 * clamp(
+      0,
+      (
+        var(--city-flight-t)
+        - (
+          var(--city-streams-light-start)
+          + var(--i) * var(--city-streams-light-step)
+        )
+      ) * 6,
+      1
+    )
+  );
 }
 
 /* Pinned disclosure: never below 16px. */
