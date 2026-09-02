@@ -4,7 +4,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { CITY_LEGS, slideById } from "../src/data/cityFlight";
+import { CITY_LEGS, primaryPlateSlideIdForLeg, slideById } from "../src/data/cityFlight";
 
 const root = resolve(import.meta.dirname, "..");
 const legsDir = resolve(root, "public/city/legs");
@@ -19,7 +19,8 @@ function ffmpeg(args: string[]): void {
 }
 
 for (const leg of CITY_LEGS) {
-  const plate = resolve(root, "public", slideById(leg.placeholderPlateOf).conceptSrc.slice(1));
+  const plateSlideId = primaryPlateSlideIdForLeg(leg.id);
+  const plate = resolve(root, "public", slideById(plateSlideId).conceptSrc.slice(1));
   if (!existsSync(plate)) throw new Error(`missing plate ${plate}`);
   const frames = FPS * leg.clipSeconds;
   const zoom = `zoompan=z='1.04+0.14*on/${frames}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${frames}:s=1920x1080:fps=${FPS}`;

@@ -11,6 +11,7 @@ import {
   COPY_WINDOWS,
   STREAMS_WINDOW,
   legStartVh,
+  primaryPlateSlideIdForLeg,
   slideById,
   stopScrollY,
   streamsIndexLabels,
@@ -83,6 +84,18 @@ describe("cityFlight legs", () => {
       expect(leg.src).toBe(`/city/legs/${leg.id}.mp4`);
       expect(leg.srcMobile).toBe(`/city/legs/${leg.id}-m.mp4`);
       expect(leg.poster).toBe(`/city/posters/${leg.id}.webp`);
+    }
+  });
+
+  it("resolves each leg's primary plate moment in story order (Era fallback)", () => {
+    expect(primaryPlateSlideIdForLeg("leg-01-terrace")).toBe("00-era");
+    expect(primaryPlateSlideIdForLeg("leg-11-market-brand")).toBe("05c-market");
+    expect(primaryPlateSlideIdForLeg("leg-14-districts-a")).toBe("07-retail");
+    expect(primaryPlateSlideIdForLeg("leg-17-bridge")).toBe("17-compounding");
+    expect(primaryPlateSlideIdForLeg("leg-18-hold")).toBe("15-closing");
+    expect(primaryPlateSlideIdForLeg("nope-leg")).toBe("00-era");
+    for (const leg of CITY_LEGS) {
+      expect(slideIds.has(primaryPlateSlideIdForLeg(leg.id)), leg.id).toBe(true);
     }
   });
 

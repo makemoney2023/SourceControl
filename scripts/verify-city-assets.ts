@@ -2,11 +2,13 @@
 // Exit non-zero unless every leg has desktop + mobile mp4 and a poster, with
 // duration within 0.5s of the manifest.
 import { execFileSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { CITY_LEGS } from "../src/data/cityFlight";
 
 const root = resolve(import.meta.dirname, "..");
+const legsDir = resolve(root, "public/city/legs");
+const postersDir = resolve(root, "public/city/posters");
 let failures = 0;
 
 function durationSec(file: string): number {
@@ -32,6 +34,23 @@ for (const leg of CITY_LEGS) {
         failures++;
       }
     }
+  }
+}
+
+const expectedLegIds = new Set(CITY_LEGS.map((l) => l.id));
+for (const name of readdirSync(legsDir)) {
+  if (!name.endsWith(".mp4")) continue;
+  const base = name.replace(/(-m)?\.mp4$/, "");
+  if (!expectedLegIds.has(base)) {
+    console.error(`STALE leg asset ${name} (not in CITY_LEGS)`);
+    failures++;
+  }
+}
+for (const name of readdirSync(postersDir)) {
+  const base = name.replace(/\.webp$/, "");
+  if (name.endsWith(".webp") && !expectedLegIds.has(base)) {
+    console.error(`STALE poster ${name} (not in CITY_LEGS)`);
+    failures++;
   }
 }
 

@@ -149,6 +149,12 @@ export function slideById(id: string): Slide {
   return slide;
 }
 
+/** First plate moment on a leg in deck story order — seeds ffmpeg placeholders. */
+export function primaryPlateSlideIdForLeg(legId: string): string {
+  const moment = CITY_PLATE_MOMENTS.find((m) => m.legId === legId);
+  return moment?.slideId ?? "00-era";
+}
+
 export function trackTotalVh(): number {
   return CITY_LEGS.reduce((sum, l) => sum + l.weight, 0);
 }
