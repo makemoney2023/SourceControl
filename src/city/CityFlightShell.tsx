@@ -83,7 +83,7 @@ export function CityFlightShell() {
   }, []);
 
   return (
-    <div
+    <main
       ref={rootRef}
       className="city-flight"
       data-city-flight
@@ -186,6 +186,6 @@ export function CityFlightShell() {
 
       <CityStopsRail />
       <div data-sc-spacer aria-hidden="true" />
-    </div>
+    </main>
   );
 }
