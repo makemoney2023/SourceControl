@@ -4,7 +4,7 @@
 
 **Goal:** Build the neon-city worldflight page behind `?view=city` — one continuous scroll-scrubbed camera flight with approved plates in glass and live copy from `slides.ts` — then (gated) flip it to the default front door.
 
-**Architecture:** A `CityFlightShell` React component renders authored worldflight markup (`data-sc-mode="worldflight"`) and mounts the vendored Scroll Craft engine in an effect. All strings and plate paths come from `src/data/cityFlight.ts`, a thin SSOT map over `SLIDES` / `INCOME_STREAMS`. City film legs are mp4s at fixed public paths; a local ffmpeg script builds placeholder legs from approved plates so the whole page works before kie.ai generation (blocked on API key) swaps in real camera moves at the same paths.
+**Architecture:** A `CityFlightShell` React component renders authored worldflight markup (`data-sc-mode="worldflight"`) and mounts the vendored Scroll Craft engine in an effect. All strings and plate paths come from `src/data/cityFlight.ts`, a thin SSOT map over `SLIDES` / `INCOME_STREAMS`. City film legs are mp4s at fixed public paths; a local ffmpeg script builds placeholder legs from approved plates so the whole page works before Gemini Omni image-to-video (same stack as `omni-animate-plates.mjs`) swaps in real camera moves at the same paths.
 
 **Tech Stack:** Vite + React 19, TypeScript, vitest + Testing Library, Playwright + axe, Scroll Craft engine (vanilla JS, vendored), ffmpeg, tsx for scripts.
 
@@ -1569,38 +1569,45 @@ git commit -m "docs(city): placeholder-flight shoot baseline, feel check, finger
 
 ---
 
-### Task 10: Real city legs via kie.ai — **BLOCKED until unblocked by operator**
+### Task 10: Real city legs via Gemini Omni — **UNBLOCKED (operator: use Omni)**
 
-**Blockers:** (1) `KIE_AI_API_KEY` is not on this machine — check the Obsidian vault for it first; (2) operator approves the spend (~10 stills + ~10 clips; cents per still, more per clip).
+**Operator decision (2026-09-02):** Generate real city flight footage with **Gemini Omni** (same tooling as `scripts/omni-animate-plates.mjs` / `GeminiOmniVideo`), not kie.ai. Requires `GEMINI_API_KEY` or `GOOGLE_API_KEY` in repo-root `.env.local` and the Omni Python venv (`OMNI_PYTHON` or the content-studio path already used by the plate script).
 
 **Files:**
-- Create: `docs/orgs/superpatch/customers/affiliates/initiatives/income-stack-deck/business-idea/assets/city/STYLE-PREAMBLE.md` (the one preamble, reused verbatim)
-- Overwrite: `public/city/legs/*.mp4`, `public/city/posters/*.webp` (same paths — zero code changes)
+- Create: `scripts/omni-animate-city-legs.mjs` (city-leg batch; mirrors plate Omni runner but writes `public/city/legs/` + posters)
+- Create: `docs/orgs/superpatch/customers/affiliates/initiatives/income-stack-deck/business-idea/assets/city/STYLE-PREAMBLE.md` (one preamble, reused verbatim)
+- Overwrite: `public/city/legs/*.mp4`, `public/city/posters/*.webp` (same paths as placeholders — zero React changes)
+- Modify: `package.json` — add `"city:omni": "node scripts/omni-animate-city-legs.mjs"`
 
 - [ ] **Step 1: Preflight**
 
 ```bash
-node "$SKILL/scripts/doctor.mjs"
-node "$SKILL/scripts/kie.mjs" probe
+test -f ../../.env.local && rg -n "GEMINI_API_KEY|GOOGLE_API_KEY" ../../.env.local | head -2
+"$OMNI_PYTHON" -c "import sys; sys.path.insert(0,'../../skills/community/openmontage'); from tools.video.gemini_omni_video import GeminiOmniVideo; print('omni-ok')"
 ```
 
-- [ ] **Step 2: Write the style preamble once** in `STYLE-PREAMBLE.md`, from the locked Era look: *neon night city, terrace and street level, cyan/magenta/amber signage glow, wet asphalt reflections, empty product-free dark glass storefronts and windows, no people, no readable signage, no logos, photographic, anamorphic, night.* Reuse it verbatim in every prompt.
+Expected: key present; `omni-ok`. If the Python path fails, use the same `OMNI_PYTHON` default as `omni-animate-plates.mjs`.
 
-- [ ] **Step 3: Generate leg stills, chained (seam law — Architecture A)**
+- [ ] **Step 2: Write the style preamble once** in `STYLE-PREAMBLE.md`: *neon night city, terrace and street level, cyan/magenta/amber signage glow, wet asphalt reflections, empty product-free dark glass storefronts and windows, no people, no readable signage, no logos, photographic, anamorphic, night.* Every Omni prompt starts with this text.
 
-Leg 1 starts from the Era look; every later leg starts from the previous leg's **encoded** last frame:
+- [ ] **Step 3: Implement `scripts/omni-animate-city-legs.mjs`**
+
+Mirror `omni-animate-plates.mjs` with these differences (worldflight seam law — Architecture A):
+
+1. Iterate `CITY_LEGS` from `src/data/cityFlight.ts` (load via a small JSON dump or hard-code the same ten ids/weights/placeholder plates from the module).
+2. Leg 1 start image = Era plate (`public/concepts/clean/sp-stack-00-era.png`). Legs 2–10 start image = **previous leg's encoded desktop mp4 last frame** (`ffmpeg -sseof -0.15 … out/city-chain/<prev>.png`). Pass that path as Omni `<FIRST_FRAME>` (`reference_image_paths[0]`). Do **not** use the plate-script "palette only / do not continue camera" bridge wording — this flight must continue the camera.
+3. Omni `duration`: request `"8"` (tool default). After download, **trim** with ffmpeg to `leg.clipSeconds` (5 or 10 for peak) then scrub-encode:
+   - Desktop → `public/city/legs/<id>.mp4` (1920×1080, GOP 8, no audio)
+   - Mobile → `public/city/legs/<id>-m.mp4` (720×1280 center crop, GOP 4)
+   - Poster → `public/city/posters/<id>.webp` from encoded desktop frame 0
+4. Prompt body per leg = preamble + a one-line camera move matching the flight plan (terrace push → glass → overlook → street → windows → ascent → skyline lock → districts → hold). Peak leg (`leg-07-skyline-lock`) trims to 10s.
+5. Look at every generated clip before accepting. Reroll clay/cartoon/product-filled output with `--force` on that leg id.
 
 ```bash
-node "$SKILL/scripts/kie.mjs" still "<preamble>\n\nempty terrace overlook, quiet darker left" out/leg-01.png --ar 16:9 --ref public/concepts/clean/sp-stack-00-era.png
-node "$SKILL/scripts/kie.mjs" shot "slow push forward over the terrace rail" out/leg-01.png out/leg-01-raw.mp4 --dur 5
-bash "$SKILL/scripts/encode.sh" out/leg-01-raw.mp4 public/city/legs/leg-01-terrace.mp4
-bash "$SKILL/scripts/encode.sh" out/leg-01-raw.mp4 public/city/legs/leg-01-terrace-m.mp4 mobile
-ffmpeg -sseof -0.15 -i public/city/legs/leg-01-terrace.mp4 -frames:v 1 -q:v 2 out/chain-01.png
-# leg 2 starts from chain-01.png … repeat through leg-10. Peak (leg-07) uses --dur 10.
-ffmpeg -i public/city/legs/leg-01-terrace.mp4 -frames:v 1 public/city/posters/leg-01-terrace.webp
+node scripts/omni-animate-city-legs.mjs            # all legs, skip existing
+node scripts/omni-animate-city-legs.mjs leg-07-skyline-lock --force
+npm run verify:city-assets
 ```
-
-Look at **every** generated frame before using it. Reroll clay/cartoon/product-filled output.
 
 - [ ] **Step 4: Verify and reshoot**
 
@@ -1608,13 +1615,13 @@ Look at **every** generated frame before using it. Reroll clay/cartoon/product-f
 npm run verify:city-assets
 ```
 
-Then repeat all of Task 9 (shoot passes, sheet read, feel check) against the real legs and update the baseline doc.
+Then repeat all of Task 9 (shoot passes, sheet read, feel check) against the Omni legs and update the baseline doc.
 
-- [ ] **Step 5: Commit** (chunked push if the pack is large — this repo's remote drops very large single pushes)
+- [ ] **Step 5: Commit** (chunked push if the pack is large)
 
 ```bash
-git add public/city/ docs/orgs/superpatch/customers/affiliates/initiatives/income-stack-deck/business-idea/assets/city/ docs/baselines/city/
-git commit -m "feat(city): real neon-city flight legs (kie.ai), seam-chained and scrub-encoded"
+git add scripts/omni-animate-city-legs.mjs package.json public/city/ docs/orgs/superpatch/customers/affiliates/initiatives/income-stack-deck/business-idea/assets/city/ docs/baselines/city/
+git commit -m "feat(city): real neon-city flight legs (Gemini Omni), seam-chained and scrub-encoded"
 ```
 
 ---
@@ -1698,5 +1705,5 @@ git commit -m "feat(city): neon-city worldflight becomes the front door; experie
 ## Execution notes
 
 - Tasks 1 → 2 → 3 are sequential. Tasks 4, 5, 6 are independent of each other after 3. Task 7 needs 3; Task 8 needs 7; Task 9 needs 8.
-- Task 10 is **blocked** (KIE key + spend approval). Task 11 is **gated** (operator approval). Neither starts without the operator saying so.
+- Task 10 is **unblocked** (operator: Gemini Omni). Run it after Task 9. Task 11 remains **gated** on operator approval to flip the front door.
 - Push after each committed task: `git push origin feat/neon-city-worldflight` (if the pack is huge, push in chunks — the remote has dropped single pushes near 761MB before; `gh auth switch --user makemoney2023` if the push is denied to SuperPatchAi, then switch back).
