@@ -6,6 +6,7 @@ import {
   buildDesktopArgs,
   buildMobileArgs,
   buildPrompt,
+  expandForcedLegIds,
   startFramePath,
 } from "./omni-animate-city-legs.mjs";
 
@@ -45,6 +46,22 @@ describe("city Omni generation contract", () => {
     expect(startFramePath(0)).toMatch(/public\/concepts\/clean\/sp-stack-00-era\.png$/);
     expect(startFramePath(1)).toMatch(/out\/city-chain\/leg-01-terrace\.png$/);
     expect(startFramePath(9)).toMatch(/out\/city-chain\/leg-09-districts-b\.png$/);
+  });
+
+  it("expands mid-chain --force to include all successor legs", () => {
+    expect([...expandForcedLegIds(new Set(["leg-07-skyline-lock"]))]).toEqual([
+      "leg-07-skyline-lock",
+      "leg-08-districts-a",
+      "leg-09-districts-b",
+      "leg-10-hold",
+    ]);
+
+    const fromFive = expandForcedLegIds(new Set(["leg-05-windows"]));
+    expect(fromFive.has("leg-04-street")).toBe(false);
+    expect(fromFive.has("leg-06-ascent")).toBe(true);
+    expect(fromFive.has("leg-10-hold")).toBe(true);
+
+    expect(expandForcedLegIds(new Set())).toEqual(new Set());
   });
 
   it("builds dense-GOP desktop and mobile scrub encodes", () => {

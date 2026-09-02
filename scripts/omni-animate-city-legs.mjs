@@ -5,6 +5,7 @@
  * Usage:
  *   node scripts/omni-animate-city-legs.mjs
  *   node scripts/omni-animate-city-legs.mjs leg-07-skyline-lock --force
+ *     (--force on leg N also regenerates legs N+1..10 so Architecture A seams stay valid)
  */
 import { spawn, spawnSync } from "node:child_process";
 import {
@@ -244,11 +245,28 @@ if not result.success:
   });
 }
 
+/** When forcing mid-chain, successors must regenerate so seam frames stay valid. */
+export function expandForcedLegIds(forcedIds) {
+  if (!forcedIds.size) return new Set(forcedIds);
+  const expanded = new Set(forcedIds);
+  for (const id of forcedIds) {
+    const index = CITY_OMNI_LEGS.findIndex((leg) => leg.id === id);
+    if (index === -1) continue;
+    for (let i = index; i < CITY_OMNI_LEGS.length; i += 1) {
+      expanded.add(CITY_OMNI_LEGS[i].id);
+    }
+  }
+  return expanded;
+}
+
 function parseArgs(argv) {
   const ids = argv.filter((arg) => !arg.startsWith("--"));
   const unknown = ids.filter((id) => !CITY_OMNI_LEGS.some((leg) => leg.id === id));
   if (unknown.length) throw new Error(`Unknown leg id(s): ${unknown.join(", ")}`);
-  return { force: argv.includes("--force"), ids: new Set(ids) };
+  const force = argv.includes("--force");
+  let idSet = new Set(ids);
+  if (force && idSet.size) idSet = expandForcedLegIds(idSet);
+  return { force, ids: idSet };
 }
 
 function writeManifest(results) {

@@ -26,3 +26,10 @@ Status: DONE_WITH_CONCERNS
 - Not verified on a real iPhone.
 - Taskmaster MCP discovery was unavailable during execution, so its document-source workflow could not run.
 - Total Omni generation and quality rerolls cost approximately $13.60.
+
+## Follow-up (mid-chain force seam fix)
+
+- **Finding:** `--force` on a middle leg (e.g. leg-07) only regenerated that leg; later legs kept stale bridge frames and broke Architecture A seam chaining.
+- **Fix:** `expandForcedLegIds()` — when `--force` targets specific leg id(s), the runner now also forces every successor leg through leg-10 so each start frame is re-extracted from its regenerated predecessor.
+- **Tests:** `scripts/omni-animate-city-legs.test.ts` — new case asserts leg-07 force expands to legs 07–10 and does not pull in predecessors.
+- **Verification:** `npm test -- scripts/omni-animate-city-legs.test.ts` (6 passed); `npm run verify:city-assets` (all 10 legs verified). No Omni re-generation required for this code-only fix.
