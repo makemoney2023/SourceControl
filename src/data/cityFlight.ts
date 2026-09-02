@@ -20,6 +20,20 @@ export type CityLeg = {
   placeholderPlateOf: string;
 };
 
+export type CityPlateMoment = {
+  slideId: string;
+  legId: string;
+  /** Omni prompt hint: where the plate sits in frame. */
+  note: string;
+};
+
+export type CityPackageAccent = {
+  id: string;
+  legId: string;
+  src: string;
+  note: string;
+};
+
 function leg(
   id: string,
   clipSeconds: number,
@@ -38,7 +52,10 @@ function leg(
   };
 }
 
-/** Flight order. leg-07 is the peak: the only 10s clip, so the only ~2.15vh leg. */
+/**
+ * Expanded flight order (~20vh). leg-08-skyline-lock is the peak: the only 10s clip.
+ * Additional 5s legs carry all 26 plate moments without strobing.
+ */
 export const CITY_LEGS: CityLeg[] = [
   leg("leg-01-terrace", 5, "00-era", "Era"),
   leg("leg-02-title-glass", 5, "01-title", "Opportunity"),
@@ -46,10 +63,82 @@ export const CITY_LEGS: CityLeg[] = [
   leg("leg-04-street", 5, "00c-ceo"),
   leg("leg-05-windows", 5, "02-world"),
   leg("leg-06-ascent", 5, "03-four-stacks", "Skyline"),
-  leg("leg-07-skyline-lock", 10, "03b-name-stacks"),
-  leg("leg-08-districts-a", 5, "08-ten-layers", "Streams"),
-  leg("leg-09-districts-b", 5, "17-compounding"),
-  leg("leg-10-hold", 5, "15-closing", "Join"),
+  leg("leg-07-name-stacks", 5, "03b-name-stacks"),
+  leg("leg-08-skyline-lock", 10, "04-flywheel"),
+  leg("leg-09-product", 5, "05-product"),
+  leg("leg-10-science", 5, "05b-science"),
+  leg("leg-11-market-brand", 5, "05c-market"),
+  leg("leg-12-development", 5, "07-development"),
+  leg("leg-13-ten-layers", 5, "08-ten-layers", "Streams"),
+  leg("leg-14-districts-a", 5, "07-retail"),
+  leg("leg-15-districts-b", 5, "10-md-depth"),
+  leg("leg-16-districts-c", 5, "13-executive"),
+  leg("leg-17-bridge", 5, "17-compounding"),
+  leg("leg-18-hold", 5, "15-closing", "Join"),
+];
+
+/** Every approved plate appears once in-world across the expanded flight. */
+export const CITY_PLATE_MOMENTS: CityPlateMoment[] = [
+  { slideId: "00-era", legId: "leg-01-terrace", note: "Era plate on terrace facade; logo reveal first seconds" },
+  { slideId: "01-title", legId: "leg-02-title-glass", note: "Title plate as neon storefront glass" },
+  { slideId: "00b-mission", legId: "leg-03-overlook", note: "Mission plate on horizon skyboard" },
+  { slideId: "00c-ceo", legId: "leg-04-street", note: "CEO plate on wet street-level facade" },
+  { slideId: "02-world", legId: "leg-05-windows", note: "World plate in tower window grid" },
+  { slideId: "03-four-stacks", legId: "leg-06-ascent", note: "Four stacks plate on ascent-facing billboard" },
+  { slideId: "03b-name-stacks", legId: "leg-07-name-stacks", note: "Name stacks plate on mid-rise facade" },
+  { slideId: "04-flywheel", legId: "leg-08-skyline-lock", note: "Flywheel plate locked in skyline peak" },
+  { slideId: "05-product", legId: "leg-09-product", note: "Product plate on wellness kiosk skyboard" },
+  { slideId: "05b-science", legId: "leg-10-science", note: "VTT science plate on lab facade — consecutive VTT beat" },
+  { slideId: "05c-market", legId: "leg-11-market-brand", note: "Market plate on district marquee" },
+  { slideId: "06-brand", legId: "leg-11-market-brand", note: "Brand plate on adjacent media tower" },
+  { slideId: "07-development", legId: "leg-12-development", note: "Development plate on training-center facade" },
+  { slideId: "08-ten-layers", legId: "leg-13-ten-layers", note: "Ten layers plate over income district" },
+  { slideId: "07-retail", legId: "leg-14-districts-a", note: "Retail stream plate on corner storefront" },
+  { slideId: "08-fast-start", legId: "leg-14-districts-a", note: "Fast Start plate on district LED board" },
+  { slideId: "09-team-overrides", legId: "leg-14-districts-a", note: "Team overrides plate on wet reflection" },
+  { slideId: "10-md-depth", legId: "leg-15-districts-b", note: "MD depth plate on mid-district facade" },
+  { slideId: "11-vp-override", legId: "leg-15-districts-b", note: "VP override plate on tower skyboard" },
+  { slideId: "12-generations", legId: "leg-15-districts-b", note: "Generations plate on bridge-facing wall" },
+  { slideId: "13-executive", legId: "leg-16-districts-c", note: "Executive plate on executive-tier signage" },
+  { slideId: "14-global", legId: "leg-16-districts-c", note: "Global pool plate on upper district skyboard" },
+  { slideId: "17-compounding", legId: "leg-17-bridge", note: "Compounding plate on bridge approach" },
+  { slideId: "18-different", legId: "leg-17-bridge", note: "Different plate on bridge mid-span" },
+  { slideId: "19-future", legId: "leg-17-bridge", note: "Future plate on bridge exit facade" },
+  { slideId: "15-closing", legId: "leg-18-hold", note: "Closing plate on resolve hold — city stays" },
+];
+
+/** Sparse product accents — never a catalog wall. */
+export const CITY_PACKAGE_ACCENTS: CityPackageAccent[] = [
+  {
+    id: "freedom-30pk",
+    legId: "leg-09-product",
+    src: "/concepts/refs/packages/_preview_Pack_NA_Freedom_30PK_Front_RGB.png",
+    note: "Freedom 30-pack beside the product-stack kiosk",
+  },
+  {
+    id: "freedom-peel",
+    legId: "leg-10-science",
+    src: "/concepts/refs/packages/Patch_Freedom_PeelTopLeft_RGB.png",
+    note: "Single Freedom patch accent near the VTT science facade",
+  },
+  {
+    id: "rem-patch",
+    legId: "leg-11-market-brand",
+    src: "/concepts/refs/patches/rem.png",
+    note: "REM patch in a wellness storefront window",
+  },
+  {
+    id: "focus-patch",
+    legId: "leg-14-districts-a",
+    src: "/concepts/refs/patches/focus.png",
+    note: "Focus patch on a district retail ledge",
+  },
+  {
+    id: "boost-patch",
+    legId: "leg-17-bridge",
+    src: "/concepts/refs/patches/boost.png",
+    note: "Boost patch on the bridge railing — sparse accent",
+  },
 ];
 
 const slideMap = new Map(SLIDES.map((s) => [s.id, s]));
@@ -68,12 +157,16 @@ export function legStartVh(index: number): number {
   return CITY_LEGS.slice(0, index).reduce((sum, l) => sum + l.weight, 0);
 }
 
-/** Copy window "from to in out" (track fractions) spanning legs [start..end]. */
+/**
+ * Copy window "from to in out" (track fractions) spanning legs [start..end].
+ * Soft ramps (0.08) keep plateau readable — 0.15 ramps on ~1vh legs left most
+ * of each beat fading and felt like missing copy.
+ */
 export function windowForLegs(
   start: number,
   end: number,
-  rampIn = 0.15,
-  rampOut = 0.15,
+  rampIn = 0.08,
+  rampOut = 0.08,
 ): string {
   const total = trackTotalVh();
   const from = legStartVh(start) / total;
@@ -81,13 +174,13 @@ export function windowForLegs(
   return `${from.toFixed(4)} ${to.toFixed(4)} ${rampIn} ${rampOut}`;
 }
 
-/** Copy window confined to a fraction of one leg (e.g. the last 30% of the peak). */
+/** Copy window confined to a fraction of one leg. */
 export function windowForLegSlice(
   legIndex: number,
   fromFrac: number,
   toFrac: number,
-  rampIn = 0.2,
-  rampOut = 0.2,
+  rampIn = 0.1,
+  rampOut = 0.1,
 ): string {
   const total = trackTotalVh();
   const start = legStartVh(legIndex);
@@ -97,19 +190,49 @@ export function windowForLegSlice(
   return `${from.toFixed(4)} ${to.toFixed(4)} ${rampIn} ${rampOut}`;
 }
 
-export type CityGlass = { slideId: string; legIndex: number };
+/**
+ * Copy window spanning fractional positions across legs.
+ * Used to sequence Range beats so mobile (shared bottom band) does not stack
+ * ten-layers on top of the streams index / "See every stream" link.
+ */
+export function windowAcross(
+  startLeg: number,
+  startFrac: number,
+  endLeg: number,
+  endFrac: number,
+  rampIn = 0.08,
+  rampOut = 0.08,
+): string {
+  const total = trackTotalVh();
+  const from =
+    (legStartVh(startLeg) + CITY_LEGS[startLeg].weight * startFrac) / total;
+  const to = (legStartVh(endLeg) + CITY_LEGS[endLeg].weight * endFrac) / total;
+  return `${from.toFixed(4)} ${to.toFixed(4)} ${rampIn} ${rampOut}`;
+}
 
-/** Approved plates that live in the city's glass. Never substituted, never redrawn. */
-export const CITY_GLASS: CityGlass[] = [
-  { slideId: "01-title", legIndex: 1 },
-  { slideId: "00c-ceo", legIndex: 3 },
-  { slideId: "02-world", legIndex: 4 },
-  { slideId: "03-four-stacks", legIndex: 5 },
-  { slideId: "07-retail", legIndex: 7 },
-  { slideId: "09-team-overrides", legIndex: 7 },
-  { slideId: "12-generations", legIndex: 8 },
-  { slideId: "14-global", legIndex: 8 },
-];
+/** Sequenced copy windows — one readable plateau per slide, brief crossfade only. */
+function buildCopyWindows(): Record<string, string> {
+  const n = SLIDES.length;
+  const overlap = 0.025;
+  const ramp = 0.08;
+  const out: Record<string, string> = {};
+  for (let i = 0; i < n; i++) {
+    const center = (i + 0.5) / n;
+    const half = 0.5 / n + overlap / 2;
+    const from = Math.max(0, center - half);
+    const to = Math.min(1, center + half);
+    out[SLIDES[i].id] = `${from.toFixed(4)} ${to.toFixed(4)} ${ramp} ${ramp}`;
+  }
+  return out;
+}
+
+export const COPY_WINDOWS: Record<string, string> = buildCopyWindows();
+
+export function copyWindowFor(slideId: string): string {
+  const win = COPY_WINDOWS[slideId];
+  if (!win) throw new Error(`cityFlight missing copy window for ${slideId}`);
+  return win;
+}
 
 export type CityStop = { id: string; label: CityStopLabel; legIndex: number };
 
@@ -122,7 +245,19 @@ export function stopScrollY(legIndex: number, innerHeight: number): number {
 }
 
 /** District legs where the ten-stream index lights and the disclosure stays pinned. */
-export const STREAMS_WINDOW = { startLeg: 7, endLeg: 8 } as const;
+export const STREAMS_WINDOW = { startLeg: 12, endLeg: 15 } as const;
+
+/**
+ * Range copy windows — sequenced so 08 finishes before streams dominates.
+ * Bridge on leg 17 starts after streams yields (see CityFlightShell).
+ */
+export const RANGE_TEN_LAYERS_WINDOW = windowForLegSlice(12, 0, 0.48);
+export const RANGE_STREAMS_WINDOW = windowAcross(12, 0.45, 15, 0.42);
+export const BRIDGE_WINDOWS = {
+  compounding: windowForLegSlice(16, 0.4, 0.62),
+  different: windowForLegSlice(16, 0.58, 0.8),
+  future: windowForLegSlice(16, 0.76, 1),
+} as const;
 
 export function streamsIndexLabels(): string[] {
   return INCOME_STREAMS.map((s) => s.shortLabel);
