@@ -15,9 +15,9 @@ import {
   slideById,
   stopScrollY,
   streamsIndexLabels,
-  streamsIndexLightStartVh,
-  streamsIndexLightStepVh,
-  streamsIndexLightThresholdVh,
+  streamsIndexLightStartSeg,
+  streamsIndexLightStepSeg,
+  streamsIndexLightThresholdSeg,
   copyWindowMidpointVh,
   trackTotalVh,
   BRIDGE_WINDOWS,
@@ -278,16 +278,17 @@ describe("cityFlight streams", () => {
     expect(streamsIndexLabels()).toEqual(INCOME_STREAMS.map((s) => s.shortLabel));
   });
 
-  it("streams index lighting thresholds span STREAMS_WINDOW legs 12–15", () => {
-    const start = streamsIndexLightStartVh();
-    const step = streamsIndexLightStepVh();
-    const last = streamsIndexLightThresholdVh(9);
-    const windowEnd =
-      legStartVh(STREAMS_WINDOW.endLeg) + CITY_LEGS[STREAMS_WINDOW.endLeg]!.weight;
-    expect(start).toBeCloseTo(legStartVh(STREAMS_WINDOW.startLeg), 3);
-    expect(last).toBeCloseTo(windowEnd, 3);
-    expect(step).toBeGreaterThan(0.4);
-    expect(streamsIndexLightThresholdVh(5)).toBeCloseTo(start + step * 5, 3);
+  it("streams index lighting thresholds span STREAMS_WINDOW in segment index space", () => {
+    const start = streamsIndexLightStartSeg();
+    const step = streamsIndexLightStepSeg();
+    const last = streamsIndexLightThresholdSeg(9);
+    expect(start).toBe(STREAMS_WINDOW.startLeg);
+    expect(last).toBe(STREAMS_WINDOW.endLeg + 1);
+    expect(step).toBeCloseTo(
+      (STREAMS_WINDOW.endLeg + 1 - STREAMS_WINDOW.startLeg) / 9,
+      6,
+    );
+    expect(streamsIndexLightThresholdSeg(5)).toBeCloseTo(start + step * 5, 6);
   });
 
   it("copyWindowMidpointVh matches track fraction midpoint", () => {

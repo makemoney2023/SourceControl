@@ -297,29 +297,24 @@ export function copyWindowMidpointVh(slideId: string): number {
   return ((from! + to!) / 2) * trackTotalVh();
 }
 
-/** vh where streams index item `index` (0–9) begins lighting across STREAMS_WINDOW. */
-export function streamsIndexLightThresholdVh(index: number): number {
+/** Segment index where streams index item `index` (0–9) begins lighting across STREAMS_WINDOW. */
+export function streamsIndexLightThresholdSeg(index: number): number {
   const labels = streamsIndexLabels();
   if (index < 0 || index >= labels.length) {
     throw new RangeError(`streams index out of range: ${index}`);
   }
-  const start = legStartVh(STREAMS_WINDOW.startLeg);
-  const end =
-    legStartVh(STREAMS_WINDOW.endLeg) + CITY_LEGS[STREAMS_WINDOW.endLeg].weight;
-  const step = (end - start) / (labels.length - 1);
-  return start + index * step;
+  return streamsIndexLightStartSeg() + index * streamsIndexLightStepSeg();
 }
 
-export function streamsIndexLightStartVh(): number {
-  return streamsIndexLightThresholdVh(0);
+/** Matches `--city-flight-t` space: leg index at STREAMS_WINDOW start. */
+export function streamsIndexLightStartSeg(): number {
+  return STREAMS_WINDOW.startLeg;
 }
 
-export function streamsIndexLightStepVh(): number {
-  const labels = streamsIndexLabels();
-  const start = streamsIndexLightStartVh();
-  const end =
-    legStartVh(STREAMS_WINDOW.endLeg) + CITY_LEGS[STREAMS_WINDOW.endLeg].weight;
-  return (end - start) / (labels.length - 1);
+/** Segment step between consecutive streams index items (10 items → 9 steps). */
+export function streamsIndexLightStepSeg(): number {
+  const { startLeg, endLeg } = STREAMS_WINDOW;
+  return (endLeg + 1 - startLeg) / (streamsIndexLabels().length - 1);
 }
 
 export type CityStop = { id: string; label: CityStopLabel; legIndex: number };

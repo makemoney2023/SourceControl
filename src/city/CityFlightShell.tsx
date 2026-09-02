@@ -9,8 +9,8 @@ import {
   COPY_WINDOWS,
   RANGE_STREAMS_WINDOW,
   slideById,
-  streamsIndexLightStartVh,
-  streamsIndexLightStepVh,
+  streamsIndexLightStartSeg,
+  streamsIndexLightStepSeg,
 } from "../data/cityFlight";
 import { SLIDES } from "../data/slides";
 import { readProductionCtaLinksFromEnv } from "../components/experience/ctaLinks";
@@ -147,8 +147,8 @@ export function CityFlightShell() {
       data-sc-seam="0.12"
       style={
         {
-          "--city-streams-light-start": String(streamsIndexLightStartVh()),
-          "--city-streams-light-step": String(streamsIndexLightStepVh()),
+          "--city-streams-light-start": String(streamsIndexLightStartSeg()),
+          "--city-streams-light-step": String(streamsIndexLightStepSeg()),
         } as CSSProperties
       }
     >

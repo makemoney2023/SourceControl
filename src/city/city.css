@@ -75,7 +75,8 @@
   --city-flight-t: calc(var(--sc-seg, 0) + var(--sc-segp, 0));
   /*
    * Item i lights sequentially across STREAMS_WINDOW legs (12–15).
-   * Thresholds are injected on .city-flight as --city-streams-light-start/step.
+   * Thresholds are injected on .city-flight as --city-streams-light-start/step
+   * in segment index space (same units as --city-flight-t).
    */
   opacity: calc(
     0.3 + 0.7 * clamp(
