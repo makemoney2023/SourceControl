@@ -30,8 +30,9 @@ changes only grammar and world will fail it.
 |---|---|---|---|---|---|---|---|---|
 
 | city-placeholder-flight | continuous world / worldflight | five clickable map stops | filmed terrace, live Era `h1`, no kinetic scrub template | one flight, 10 legs, ~11.8vh film, peak 2× via clip length | city holds; Join + disclosure stay in stage | plates-in-glass focus sharpen | neon city | 4500 |
+| city-plates-in-flight-omni | continuous world / worldflight | five clickable map stops | filmed terrace, live Era `h1`, SuperPatch logo open first seconds | one flight, 18 legs, ~20.4vh film, peak 2× via skyline leg weight | city holds; Join + disclosure stay in stage | approved plates live inside the neon city film; sparse package accents on ledges | neon city | 4500 |
 
-*(First registered build; future builds must clear it.)*
+*(First registered build; future builds must clear both rows.)*
 
 ---
 
@@ -46,6 +47,11 @@ as a constraint, so writing them down is the whole point.
   stops, the 10-leg ~11.8vh shape, a held city close, and plates-in-glass focus
   sharpen. The registry was an empty seed, so there were no `descent` or
   `orrery` rows to compare for the 4-of-6 gate.
+- `city-plates-in-flight-omni` claims the expanded 18-leg ~20.4vh flight, logo
+  open on Era, in-world plate placement (glass removed), sparse package accents,
+  and the signature move **approved plates live inside the neon city film**.
+  Shares grammar, nav, close, and world with `city-placeholder-flight`; differs
+  on act-sequence length, hero logo beat, and signature move.
 
 ---
 
