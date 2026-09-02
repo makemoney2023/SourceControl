@@ -1,7 +1,7 @@
 # Neon City Worldflight — Design
 
 **Date:** 2026-09-02 (revised same day after end-to-end review)  
-**Status:** Locked in conversation; waiting on operator review of this file  
+**Status:** Locked in conversation; **amended** by `2026-09-02-neon-city-plates-in-flight-design.md` (plates in film, no glass DOM, logo/packages/VTT, full 26)  
 **Branch:** `feat/neon-city-worldflight`  
 **Deck:** SuperPatch Income Stack (same `slides.ts` copy and approved plates)
 
