@@ -12,6 +12,25 @@
   --sc-font-text: var(--font-body, "Montserrat", sans-serif);
 }
 
+/* Localized protection for bottom-anchored and centered copy. This remains a
+   sibling of the copy so the shoot harness measures it in the composite. */
+.city-contrast-scrim {
+  background:
+    radial-gradient(
+      ellipse 58% 48% at 50% 50%,
+      color-mix(in oklab, var(--sc-canvas) 98%, transparent) 0%,
+      color-mix(in oklab, var(--sc-canvas) 90%, transparent) 48%,
+      transparent 78%
+    ),
+    linear-gradient(
+      to top,
+      color-mix(in oklab, var(--sc-canvas) 99%, transparent) 0%,
+      color-mix(in oklab, var(--sc-canvas) 94%, transparent) 36%,
+      color-mix(in oklab, var(--sc-canvas) 72%, transparent) 56%,
+      transparent 74%
+    );
+}
+
 /* Approved plates living in the city's glass. Blurred until focused/active. */
 .city-glass {
   position: absolute;
@@ -109,3 +128,13 @@
 }
 .city-cta a:first-child { background: var(--sc-accent); color: var(--sc-accent-ink); }
 .city-cta a:last-child { border: 1px solid var(--sc-hairline-strong); color: var(--sc-ink); }
+
+.city-close {
+  box-sizing: border-box;
+  width: min(42rem, calc(100vw - 2 * var(--sc-gutter)));
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  border: 1px solid var(--sc-hairline-strong);
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--sc-canvas) 96%, transparent);
+  backdrop-filter: blur(12px);
+}

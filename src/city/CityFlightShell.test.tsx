@@ -21,6 +21,13 @@ describe("CityFlightShell", () => {
     ).toBeTruthy();
   });
 
+  it("keeps a city-specific localized scrim outside copy blocks", () => {
+    const { container } = render(<CityFlightShell />);
+    const scrim = container.querySelector("[data-city-contrast-scrim]");
+    expect(scrim).toBeTruthy();
+    expect(scrim?.closest("[data-sc-copy]")).toBeNull();
+  });
+
   it("renders every mapped copy block verbatim", () => {
     const { container } = render(<CityFlightShell />);
     for (const id of [
@@ -68,6 +75,8 @@ describe("CityFlightShell", () => {
     vi.stubEnv("VITE_INCOME_DISCLOSURE_URL", "https://superpatch.example/disclosure");
     const { container } = render(<CityFlightShell />);
     const closing = slideById("15-closing");
+    expect(container.querySelector("[data-city-copy='15-closing']")?.classList)
+      .toContain("city-close");
     const ctas = container.querySelectorAll("[data-city-cta] a");
     expect(ctas).toHaveLength(2);
     expect(ctas[0].textContent).toBe(closing.ctaPrimary);

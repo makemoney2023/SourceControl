@@ -112,7 +112,10 @@ export function CityFlightShell() {
       </div>
 
       <div data-sc-world-copy data-city-glass-layer>
-        <div className="sc-world__scrim sc-scrim sc-scrim--band" />
+        <div
+          className="sc-world__scrim city-contrast-scrim"
+          data-city-contrast-scrim
+        />
 
         {/* Open: quiet awe. Hero window — on from the first pixel. */}
         <Copy slideId="00-era" window="hero" anchor="lead" level={1} />
@@ -153,7 +156,7 @@ export function CityFlightShell() {
 
         {/* Resolve: the city holds; one ask. */}
         <div
-          className="sc-copy sc-copy--center"
+          className="sc-copy sc-copy--center city-close"
           data-sc-copy
           data-sc-window="finale"
           data-city-copy="15-closing"
