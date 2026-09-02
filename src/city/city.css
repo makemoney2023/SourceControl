@@ -1,0 +1,111 @@
+/* src/city/city.css — SuperPatch theme over the engine tokens + city-only styles. */
+
+.city-flight {
+  /* The six color roles + two fonts. This is the entire engine theme. */
+  --sc-canvas: var(--sp-bg, #05070f);
+  --sc-surface: var(--sp-bg-elevated, #0a0e1a);
+  --sc-ink: var(--sp-text, #ffffff);
+  --sc-ink-soft: var(--sp-muted, #c8c8c8);
+  --sc-accent: var(--sp-red, #dd0604);
+  --sc-accent-ink: #ffffff;
+  --sc-font-display: var(--font-display, "Montserrat", sans-serif);
+  --sc-font-text: var(--font-body, "Montserrat", sans-serif);
+}
+
+/* Approved plates living in the city's glass. Blurred until focused/active. */
+.city-glass {
+  position: absolute;
+  margin: 0;
+  width: min(34vw, 560px);
+  border: 1px solid var(--sc-hairline);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
+}
+.city-glass img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: blur(2px) saturate(0.8) brightness(0.85);
+  transition: filter 320ms ease, transform 320ms ease;
+}
+.city-glass:hover img,
+.city-glass:focus-within img,
+[data-city-focus] .city-glass[data-focused="true"] img {
+  filter: none;
+  transform: scale(1.015);
+}
+@media (prefers-reduced-motion: reduce) {
+  .city-glass img { transition: none; }
+}
+
+/* Per-leg glass positions: authored, varied anchors (never all centered). */
+.city-glass[data-glass="01-title"]   { right: 8vw;  top: 18vh; }
+.city-glass[data-glass="00c-ceo"]    { left: 7vw;   bottom: 16vh; }
+.city-glass[data-glass="02-world"]   { right: 10vw; bottom: 20vh; }
+.city-glass[data-glass="03-four-stacks"] { left: 9vw; top: 14vh; }
+.city-glass[data-glass="07-retail"]  { left: 6vw;   top: 12vh; width: min(26vw, 420px); }
+.city-glass[data-glass="09-team-overrides"] { right: 7vw; bottom: 18vh; width: min(26vw, 420px); }
+.city-glass[data-glass="12-generations"] { left: 8vw; bottom: 14vh; width: min(26vw, 420px); }
+.city-glass[data-glass="14-global"]  { right: 9vw;  top: 16vh; width: min(26vw, 420px); }
+
+/* Ten-stream index: pure CSS lighting off the engine's track vars. */
+.city-streams-index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+  font-family: var(--sc-font-text);
+  font-size: var(--sc-t-sm);
+  color: var(--sc-ink);
+}
+.city-streams-index li {
+  --city-flight-t: calc(var(--sc-seg, 0) + var(--sc-segp, 0));
+  /* Item i lights as the flight crosses its slice of the streams legs. */
+  opacity: calc(0.3 + 0.7 * clamp(0, (var(--city-flight-t) - (7 + var(--i) / 5)) * 6, 1));
+}
+
+/* Pinned disclosure: never below 16px. */
+.city-disclosure {
+  font-size: max(1rem, var(--sc-t-sm));
+  color: var(--sc-ink-soft);
+  max-width: 60ch;
+}
+
+/* Map stops rail. */
+.city-rail {
+  position: fixed;
+  right: max(1.2rem, env(safe-area-inset-right));
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 200;
+  display: grid;
+  gap: 0.5rem;
+}
+.city-rail button {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--sc-hairline-strong);
+  background: color-mix(in oklab, var(--sc-canvas) 82%, transparent);
+  color: var(--sc-ink-soft);
+  font-family: var(--sc-font-text);
+  font-size: var(--sc-t-xs);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.city-rail button[aria-current="true"] {
+  color: var(--sc-ink);
+  border-color: var(--sc-accent);
+}
+
+/* Join CTAs (verbatim labels from 15-closing). */
+.city-cta { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+.city-cta a {
+  font-family: var(--sc-font-text);
+  padding: 0.85rem 1.4rem;
+  border-radius: 4px;
+  text-decoration: none;
+}
+.city-cta a:first-child { background: var(--sc-accent); color: var(--sc-accent-ink); }
+.city-cta a:last-child { border: 1px solid var(--sc-hairline-strong); color: var(--sc-ink); }
