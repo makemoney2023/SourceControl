@@ -19,12 +19,12 @@ Both motion passes print `FROZEN CLIP` for stacked worldflight videos. Manual re
 
 ## Contact-sheet review
 
-- No visually dead scroll. Every active leg advances through the 21.4 viewport-height track.
+- No visually dead scroll. Every active leg advances through the ~20.4 viewport-height track.
 - **Logo open:** leg 01 (Era terrace) grounds the SuperPatch wordmark in the first seconds; reads as a live neon reveal, not a glass card.
 - **VTT pair:** legs 09→10 (product kiosk → science facade) share continuous forward camera geography; consecutive VTT beat with no reset.
-- **Peak:** leg 07 (Skyline, 2× weight) has the most scroll room; luminous stack reads as the visual climax after a quieter approach.
-- **Streams:** leg 12 (Streams waypoint) opens the ten-stream index block; disclosure and experience link stay in the copy layer.
-- **Join:** leg 17 (Join waypoint) holds the city; closing copy, CTA placeholders, and disclosure remain in stage instead of fading away.
+- **Peak:** leg 08 (`leg-08-skyline-lock`, 2× weight via 10s clip) has the most scroll room; luminous stack reads as the visual climax after a quieter approach.
+- **Streams:** leg 13 (`leg-13-ten-layers`, Streams waypoint) opens the ten-stream index block; disclosure and experience link stay in the copy layer.
+- **Join:** leg 18 (`leg-18-hold`, Join waypoint) holds the city; closing copy, CTA placeholders, and disclosure remain in stage instead of fading away.
 - Approved slide plates appear **inside the neon city film** on facades, skyboards, and marquees — not as floating glass cards. Sparse package accents (Freedom, REM, Focus, Boost) sit on ledges and railings per the omni baseline checklist.
 - Harness contrast sampling flags many copy blocks below 4.5:1 on bright Omni frames (band scrim only where copy sits). Follow-up contrast pass may be needed; not blocking this fingerprint land.
 
