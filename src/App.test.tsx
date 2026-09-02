@@ -52,4 +52,15 @@ describe("App surface selection", () => {
       container.querySelector("[data-title-slide-overlay] [data-flywheel]"),
     ).toBeNull();
   });
+
+  it("opens the neon-city worldflight via ?view=city", () => {
+    vi.stubGlobal("location", {
+      ...window.location,
+      search: "?view=city",
+    });
+    const { container } = render(<App />);
+    expect(container.querySelector("[data-city-flight]")).toBeTruthy();
+    expect(container.querySelector("[data-experience-shell]")).toBeNull();
+    expect(container.querySelector(".deck-shell")).toBeNull();
+  });
 });
