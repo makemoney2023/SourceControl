@@ -5,7 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-OUT="All-on-4-Total-Solutions-Care-Plan.pdf"
+OUT="All-on-4-Total-Solutions-Care-Plan-Silver.pdf"
 
 "$CHROME" --headless=new --disable-gpu --no-pdf-header-footer \
   --virtual-time-budget=4000 \

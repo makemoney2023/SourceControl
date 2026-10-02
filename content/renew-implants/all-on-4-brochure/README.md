@@ -2,7 +2,7 @@
 
 Two-page US Letter brochure for Renew Implant Centre (Tom Szarski, Orléans). Walks a patient through the six-step All-on-4 plan and introduces the team (Dr. Maxwell Silver, Tom Szarski).
 
-**Deliverable:** `All-on-4-Total-Solutions-Care-Plan.pdf`
+**Deliverable:** `All-on-4-Total-Solutions-Care-Plan-Silver.pdf`
 
 ## Files
 
