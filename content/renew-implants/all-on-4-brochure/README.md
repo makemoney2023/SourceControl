@@ -13,6 +13,7 @@ Two-page US Letter brochure for Renew Implant Centre (Tom Szarski, Orléans). Wa
 | `assets/img/` | Team photos (Tom cropped from the testimonial thumbnail; Dr. Silver headshot) |
 | `build.sh` | Renders the PDF with headless Google Chrome and writes `preview/page-*.png` |
 | `preview/` | 110 dpi PNG proofs of each page |
+| `archive/` | v1 of the brochure (Dr. Moghadam version): PDF, HTML source, and headshot. Kept for reference; not rebuilt by `build.sh` |
 
 ## Brand
 
