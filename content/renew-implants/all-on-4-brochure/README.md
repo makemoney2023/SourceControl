@@ -1,6 +1,6 @@
 # All-on-4 Total Solutions Care Plan — patient brochure
 
-Two-page US Letter brochure for Renew Implant Centre (Tom Szarski, Orléans). Walks a patient through the six-step All-on-4 plan and introduces the team (Dr. Hassan G. Moghadam, Tom Szarski).
+Two-page US Letter brochure for Renew Implant Centre (Tom Szarski, Orléans). Walks a patient through the six-step All-on-4 plan and introduces the team (Dr. Maxwell Silver, Tom Szarski).
 
 **Deliverable:** `All-on-4-Total-Solutions-Care-Plan.pdf`
 
@@ -10,7 +10,7 @@ Two-page US Letter brochure for Renew Implant Centre (Tom Szarski, Orléans). Wa
 |---|---|
 | `brochure.html` | Single source of truth — layout, copy, styles |
 | `assets/fonts/` | DM Serif Display + Plus Jakarta Sans (Google Fonts, OFL), referenced by `fonts.css` |
-| `assets/img/` | Team photos (Tom cropped from the testimonial thumbnail; Dr. Moghadam headshot) |
+| `assets/img/` | Team photos (Tom cropped from the testimonial thumbnail; Dr. Silver headshot) |
 | `build.sh` | Renders the PDF with headless Google Chrome and writes `preview/page-*.png` |
 | `preview/` | 110 dpi PNG proofs of each page |
 
